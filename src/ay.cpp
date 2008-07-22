@@ -20,9 +20,11 @@
 
 #include "common.h"
 
-double ay::levels [] = {0x0000, 0x0385, 0x053D, 0x0770, 0x0AD7, 0x0FD5, 0x15B0, 0x230C, 0x2B4C,
+double ay::init_levels [] = {0x0000, 0x0385, 0x053D, 0x0770, 0x0AD7, 0x0FD5, 0x15B0, 0x230C, 0x2B4C,
     0x43C1, 0x5A4B, 0x732F, 0x9204, 0xAFF1, 0xD921, 0xFFFF
 };
+
+
 
 #define TONE_ENABLE(ch) ((regs [AY_MIXER] >> (ch)) & 1)
 #define NOISE_ENABLE(ch) ((regs [AY_MIXER] >> (3 + (ch))) & 1)
@@ -65,10 +67,11 @@ ay::ay(long _ay_freq, int _buf_sz)
     }
 
     double div = ay_tacts + 3;
-
+    
+    
     for(unsigned long i = 0; i < sizeof_array(ay::levels); i++)
     {
-        ay::levels [i] /= div;
+        ay::levels [i] = ay::init_levels [i] / div;
     }
 
 

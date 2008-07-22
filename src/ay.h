@@ -59,7 +59,8 @@ public:
 
     virtual void SetCallback(ELAPSED_CALLBACK _callback, void *_arg);
 private:
-    static double levels[16];
+    static double init_levels[16];
+    double levels[16];
     long ay_freq;
     float ay_tone_freq;
     float ay_env_freq;
