@@ -76,8 +76,8 @@ void DXAudio::Stop()
 		hPlayingThread = 0;
 		ClearBuffer();
         ResetEvent(hSyncEvent);
-        ResetEvent(hNotifyEvent);
-        ResetEvent(hNotifyEvent);
+        ResetEvent(hNotifyEvent1);
+        ResetEvent(hNotifyEvent2);
 	}
     if (ay8910)
 	{
