@@ -38,13 +38,18 @@ FILE *f = 0;
 
 ay::ay(long _ay_freq, int _buf_sz)
 {
+    buffer [0] = 0;
+    buffer [1] = 0;
+    buffer [2] = 0;
+    
     ay_freq = _ay_freq;
-    buf_sz = _buf_sz;
-    q_len = buf_sz;
-    half_len = buf_sz << 1;
     tail_len = 512;//buf_sz >> 2;
     if(tail_len < 4)
         tail_len = 4;
+    
+    buffer_tail [0] = new double [tail_len];
+    buffer_tail [1] = new double [tail_len];
+    buffer_tail [2] = new double [tail_len];
 
     float ay_tacts_f = (float)ay_freq / AUDIO_FREQ / 8;
     ay_tacts = ay_tacts_f;
@@ -52,14 +57,8 @@ ay::ay(long _ay_freq, int _buf_sz)
         ay_tacts++;
 
     q_len *= ay_tacts;
-
-    buffer [0] = new double [q_len];
-    buffer [1] = new double [q_len];
-    buffer [2] = new double [q_len];
-
-    buffer_tail [0] = new double [tail_len];
-    buffer_tail [1] = new double [tail_len];
-    buffer_tail [2] = new double [tail_len];
+    
+    SetBufferSize(_buf_sz);    
 
     for(unsigned long i = 0; i < tail_len; i++)
     {
@@ -105,6 +104,35 @@ ay::~ay()
     delete [] buffer_tail [1];
     delete [] buffer_tail [2];
     delete flt;
+}
+
+void SetBufferSize(int _buf_sz)
+{
+    buf_sz = _buf_sz;
+    q_len = buf_sz;    
+    half_len = buf_sz << 1;
+    
+    q_len *= ay_tacts;
+    
+    if(buffer [0])
+    {
+        delete buffer [0];
+        buffer [0] = 0;
+    }    
+    if(buffer [1])
+    {
+        delete buffer [1];
+        buffer [1] = 0;
+    }    
+    if(buffer [2])
+    {
+        delete buffer [2];
+        buffer [2] = 0;
+    }  
+
+    buffer [0] = new double [q_len];
+    buffer [1] = new double [q_len];
+    buffer [2] = new double [q_len];
 }
 
 void ay::ayReset()

@@ -29,6 +29,7 @@ DXAudio::DXAudio(unsigned long _sr) :
 	hNotifyEvent1 = CreateEvent(NULL, FALSE, FALSE, NULL);
 	hNotifyEvent2 = CreateEvent(NULL, FALSE, FALSE, NULL);
 	hSyncEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    ay8910 = new ay(Z80_FREQ / 2, buffer_size >> 3); // 16 bit, 2 ch.
 	
 
 }
@@ -39,6 +40,11 @@ DXAudio::~DXAudio()
 	CloseHandle(hNotifyEvent1);
 	CloseHandle(hNotifyEvent2);
 	CloseHandle(hSyncEvent);
+    if (ay8910)
+	{
+		delete ay8910;
+		ay8910 = 0;
+	}
 	
 }
 
@@ -52,7 +58,7 @@ bool DXAudio::Start()
 					if(SUCCEEDED(SetNotificationPositions()))
 					{
 						dx_created = true;
-						ay8910 = new ay(Z80_FREQ / 2, buffer_size >> 3); // 16 bit, 2 ch.
+                        ay8910->SetBufferSize(buffer_size);						
 					}
 	if(dx_created)
 	{
@@ -79,11 +85,7 @@ void DXAudio::Stop()
         ResetEvent(hNotifyEvent1);
         ResetEvent(hNotifyEvent2);
 	}
-    if (ay8910)
-	{
-		delete ay8910;
-		ay8910 = 0;
-	}
+    
 	if(pDsb8)
 	{
 		while(pDsb8->Release()) {};
