@@ -58,6 +58,7 @@ public:
     ;
 
     virtual void SetCallback(ELAPSED_CALLBACK _callback, void *_arg);
+    void SetBufferSize(int _buf_sz);
 private:
     static double init_levels[16];
     double levels[16];
