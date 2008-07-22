@@ -472,9 +472,8 @@ void AyflyFrame::OnTimer(wxTimerEvent& event)
 {
     //timeElapsed++;
 
-
     if (timeElapsed >= maxElapsed)
-    {
+    {		
         wxCommandEvent evt;
         evt.SetId(wxID_CALLBACK);
         OnNext(evt);
@@ -499,16 +498,15 @@ void AyflyFrame::OnTimer(wxTimerEvent& event)
 void AyflyFrame::ElapsedCallback(void *arg)
 {
     AyflyFrame *frame = (AyflyFrame *) arg;
-    frame->timer.Stop();
+    //frame->timer.Stop();
     wxCommandEvent evt;
     if (frame->toolBar->GetToolState(wxID_REPEAT))
     {
         timeElapsed = frame->currentSong->Loop;
-        frame->timer.Start();
+        //frame->timer.Start(TIMER_INTERVAL);
         return;
     }
-    frame->player->Stop();
-    frame->timer.Start();
+    //frame->timer.Start(TIMER_INTERVAL);
 }
 
 void AyflyFrame::OnScroll(wxScrollEvent &event)
