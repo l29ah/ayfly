@@ -1,0 +1,19 @@
+How-to compile program:
+
+wxWidgets is required to build the program. Tested with version 2.8.7.
+in Linux SDL in also required.
+
+If you have NetBeans IDE, toy can open and build project in it,
+else:
+
+In Linux:
+type make CONF=<...>, 
+where CONF is one of following:
+Debug, Release - for Linux
+Win32Debug, Win32Release - for Windows x86 using mingw*
+WinCEDebug, WinCERelease - for Windows CE using arm-wince-mingw32ce
+
+s60 directory is for symbian 9 build.
+
+* When (cross-)compiling ayfly with mingw you need mingw-g++, mingw-gcc and friends in your PATH.
+* DirectX libraties are required. You should 

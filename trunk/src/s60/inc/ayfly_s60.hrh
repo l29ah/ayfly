@@ -1,0 +1,25 @@
+/*
+ ============================================================================
+ Name		: ayfly_s60.hrh
+ Author	  : Andrew Deryabin
+ Copyright   : Andrew Deryabin (c) 2008
+ Description : This file contains declarations for constants of ayfly_s60.
+ The file can be included in C++ or resource file.
+ ============================================================================
+ */
+#ifndef __AYFLY_S60_HRH__
+#define __AYFLY_S60_HRH__
+
+#define _UID3 0xEA0B66F6
+
+// ayfly_s60 enumerate command codes
+enum Tayfly_s60Ids
+	{
+	ECommand1 = 0x6001, // start value must not be 0
+	ECommand2,
+	ECommand3,
+	EHelp,
+	EAbout
+	};
+
+#endif // __AYFLY_S60_HRH__

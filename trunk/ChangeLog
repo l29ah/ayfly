@@ -1,0 +1,35 @@
+Changelog:
+
+19.07.2008 - 0.0.9
+Implemented position slider.
+
+17.07.2008 - 0.0.8
+Added time functions for stc, stp, ay, pt3 and pt2 formats - thanks to ay_emul sources!
+
+11.06.2008 - 0.0.7
+Initial playlist (without song's length yet)
+Removed menu bar.
+
+07.06.2008 - 0.0.6:
+Fixed some bugs in ay emulator.
+Updated "About" dialog.
+
+0.0.5:
+Added volume sliders for all channels with link button.
+Fixed some bugs.
+
+0.0.4:
+Added time counter.
+Added volume slider.
+
+0.0.3:
+Added default icon set by Alexander Shatin.
+Fixed minor bugs.
+
+0.0.2:
+Added iir low-pass filter + oversampling to ay emulator in order to remove ring modulation and alising on high notes.
+Added ability to mute any of 3 channels while playing.
+All icons are now 32x32 pixels in size.
+Added drag'n'drop. Works both in Linux and Windows.
+
+0.0.1: Initial release.
