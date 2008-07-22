@@ -25,13 +25,13 @@ extern HWND hWndMain;
 DXAudio::DXAudio(unsigned long _sr) :
 	AbstractAudio(_sr)
 {
-	buffer_size = 8192;
+	buffer_size = 16384;
 	hNotifyEvent1 = CreateEvent(NULL, FALSE, FALSE, NULL);
 	hNotifyEvent2 = CreateEvent(NULL, FALSE, FALSE, NULL);
 	hSyncEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
     ay8910 = new ay(Z80_FREQ / 2, buffer_size >> 3); // 16 bit, 2 ch.
-	
-
+	pDsb8 = 0;
+	lpds = 0;
 }
 
 DXAudio::~DXAudio()
@@ -58,7 +58,7 @@ bool DXAudio::Start()
 					if(SUCCEEDED(SetNotificationPositions()))
 					{
 						dx_created = true;
-                        ay8910->SetBufferSize(buffer_size);						
+                        ay8910->SetBufferSize(buffer_size >> 3);						
 					}
 	if(dx_created)
 	{
