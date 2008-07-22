@@ -106,7 +106,7 @@ ay::~ay()
     delete flt;
 }
 
-void SetBufferSize(int _buf_sz)
+void ay::SetBufferSize(int _buf_sz)
 {
     buf_sz = _buf_sz;
     q_len = buf_sz;    
