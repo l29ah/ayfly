@@ -270,6 +270,7 @@ void AyflyFrame::OnOpen(wxCommandEvent &event)
 void AyflyFrame::OnPlay(wxCommandEvent &event)
 {
     playListView->Select(currentIndex);
+    playListView->EnsureVisible(currentIndex);
     if (fileOpened)
     {
         if (player->Started())
@@ -348,6 +349,8 @@ void AyflyFrame::OnPrev(wxCommandEvent &event)
     if (playListView->GetItemCount() == 0)
         return;
     playListView->Select(currentIndex, false);
+    playListView->EnsureVisible(currentIndex);
+    
     currentIndex--;
     if (currentIndex < 0)
     {
@@ -360,6 +363,7 @@ void AyflyFrame::OnPrev(wxCommandEvent &event)
     bool started = player->Started();
     wxListEvent evt;
     playListView->Select(currentIndex);
+    playListView->EnsureVisible(currentIndex);
     currentSong = (SongInfo *) playListView->GetItemData(currentIndex);
     wxString *filePath = currentSong->FilePath;
     timeElapsed = 0;
@@ -381,6 +385,7 @@ void AyflyFrame::OnNext(wxCommandEvent &event)
     if (playListView->GetItemCount() == 0)
         return;
     playListView->Select(currentIndex, false);
+    playListView->EnsureVisible(currentIndex);
     currentIndex++;
     if (currentIndex >= playListView->GetItemCount())
     {
@@ -398,6 +403,7 @@ void AyflyFrame::OnNext(wxCommandEvent &event)
         started = true;
     wxListEvent evt;
     playListView->Select(currentIndex);
+    playListView->EnsureVisible(currentIndex);
     currentSong = (SongInfo *) playListView->GetItemData(currentIndex);
     wxString *filePath = currentSong->FilePath;
     timeElapsed = 0;
