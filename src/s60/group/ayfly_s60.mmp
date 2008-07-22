@@ -1,0 +1,70 @@
+/*
+============================================================================
+ Name		: ayfly_s60.mmp
+ Author	  : Andrew Deryabin
+ Copyright   : Andrew Deryabin (c) 2008
+ Description : This is the project specification file for ayfly_s60.
+============================================================================
+*/
+
+
+TARGET			ayfly_s60_0xEA0B66F6.exe
+TARGETTYPE		exe
+UID		  0x100039CE 0xEA0B66F6
+
+SOURCEPATH		..\src
+SOURCE			ayfly_s60.cpp
+SOURCE			ayfly_s60Application.cpp
+SOURCE			ayfly_s60AppView.cpp
+SOURCE			ayfly_s60AppUi.cpp
+SOURCE			ayfly_s60Document.cpp
+SOURCE          ayfly_s60Audio.cpp
+SOURCEPATH 	    ..\..
+SOURCE          speccy.cpp ay.cpp formats.cpp AbstractAudio.cpp Filter3.cpp z80ex\z80ex.c
+
+SOURCEPATH		..\data
+
+START RESOURCE	ayfly_s60.rss
+HEADER
+TARGET ayfly_s60_0xEA0B66F6
+TARGETPATH resource\apps
+END //RESOURCE
+
+START RESOURCE	ayfly_s60_reg.rss
+TARGET ayfly_s60_0xEA0B66F6_reg
+TARGETPATH 	  \private\10003a3f\apps
+END //RESOURCE
+
+
+
+USERINCLUDE	   ..\inc ..\..\z80ex ..\..\z80ex\include  ..\..
+USERINCLUDE    ..\help
+
+SYSTEMINCLUDE	 \epoc32\include \epoc32\include\libc
+
+LIBRARY		   euser.lib
+LIBRARY        estlib.lib
+LIBRARY		   apparc.lib
+LIBRARY		   cone.lib
+LIBRARY		   eikcore.lib
+LIBRARY		   avkon.lib
+LIBRARY		   commonengine.lib
+LIBRARY		   efsrv.lib 
+LIBRARY		   estor.lib
+LIBRARY        aknnotify.lib
+LIBRARY        hlplch.lib
+LIBRARY        commondialogs.lib
+LIBRARY        platformenv.lib
+LIBRARY        mediaclientaudiostream.lib
+ 
+
+LANG SC
+
+VENDORID	  	  0
+SECUREID		  0xEA0B66F6
+CAPABILITY	  	  ReadUserData
+
+#ifdef ENABLE_ABIV2_MODE
+  DEBUGGABLE
+#endif
+// End of File
