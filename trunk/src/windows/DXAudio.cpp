@@ -195,9 +195,7 @@ void DXAudio::FillBuffer(DWORD dwOffset, DWORD dwSoundBytes)
 
 		// Release the data back to DirectSound.
 
-		hr = pDsb8->Unlock(lpvPtr1, dwBytes1, lpvPtr2,
-			dwBytes2);
-
+		hr = pDsb8->Unlock(lpvPtr1, dwBytes1, lpvPtr2, dwBytes2);
 	}
 
 	// Lock, Unlock, or Restore failed.
