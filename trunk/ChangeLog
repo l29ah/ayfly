@@ -1,5 +1,9 @@
 Changelog:
 
+22.07.2008 - 0.0.10
+Fixed bugs in DXAudio.
+README rewrited
+
 19.07.2008 - 0.0.9
 Implemented position slider.
 
