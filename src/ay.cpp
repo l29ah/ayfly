@@ -56,8 +56,6 @@ ay::ay(long _ay_freq, int _buf_sz)
     if(ay_tacts != ay_tacts_f)
         ay_tacts++;
 
-    q_len *= ay_tacts;
-    
     SetBufferSize(_buf_sz);    
 
     for(unsigned long i = 0; i < tail_len; i++)
@@ -116,17 +114,17 @@ void ay::SetBufferSize(int _buf_sz)
     
     if(buffer [0])
     {
-        delete buffer [0];
+        delete [] buffer [0];
         buffer [0] = 0;
     }    
     if(buffer [1])
     {
-        delete buffer [1];
+        delete [] buffer [1];
         buffer [1] = 0;
     }    
     if(buffer [2])
     {
-        delete buffer [2];
+        delete [] buffer [2];
         buffer [2] = 0;
     }  
 
