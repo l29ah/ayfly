@@ -29,16 +29,7 @@ DXAudio::DXAudio(unsigned long _sr) :
 	hNotifyEvent1 = CreateEvent(NULL, FALSE, FALSE, NULL);
 	hNotifyEvent2 = CreateEvent(NULL, FALSE, FALSE, NULL);
 	hSyncEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-	dx_created = false;
-	if(SUCCEEDED(CoCreateInstance(CLSID_DirectSound8, NULL, CLSCTX_INPROC_SERVER, IID_IDirectSound8, (LPVOID *)&lpds)))
-		if(SUCCEEDED(lpds->Initialize(NULL)))
-			if(SUCCEEDED(lpds->SetCooperativeLevel(hWndMain, DSSCL_PRIORITY)))
-				if(SUCCEEDED(CreateBasicBuffer()))
-					if(SUCCEEDED(SetNotificationPositions()))
-					{
-						dx_created = true;
-						ay8910 = new ay(Z80_FREQ / 2, buffer_size >> 3); // 16 bit, 2 ch.
-					}
+	
 
 }
 
@@ -48,26 +39,21 @@ DXAudio::~DXAudio()
 	CloseHandle(hNotifyEvent1);
 	CloseHandle(hNotifyEvent2);
 	CloseHandle(hSyncEvent);
-	if (ay8910)
-	{
-		delete ay8910;
-		ay8910 = 0;
-	}
-	if(pDsb8)
-	{
-		while(pDsb8->Release()) {};
-		pDsb8 = 0;
-	}
-	if(lpds)
-	{
-		while(lpds->Release()){};
-		lpds = 0;
-	}
+	
 }
 
 bool DXAudio::Start()
 {
-	Stop();
+    dx_created = false;
+	if(SUCCEEDED(CoCreateInstance(CLSID_DirectSound8, NULL, CLSCTX_INPROC_SERVER, IID_IDirectSound8, (LPVOID *)&lpds)))
+		if(SUCCEEDED(lpds->Initialize(NULL)))
+			if(SUCCEEDED(lpds->SetCooperativeLevel(hWndMain, DSSCL_PRIORITY)))
+				if(SUCCEEDED(CreateBasicBuffer()))
+					if(SUCCEEDED(SetNotificationPositions()))
+					{
+						dx_created = true;
+						ay8910 = new ay(Z80_FREQ / 2, buffer_size >> 3); // 16 bit, 2 ch.
+					}
 	if(dx_created)
 	{
 		started = true;
@@ -89,8 +75,25 @@ void DXAudio::Stop()
 		WaitForSingleObject(hPlayingThread, INFINITE);
 		hPlayingThread = 0;
 		ClearBuffer();
+        ResetEvent(hSyncEvent);
+        ResetEvent(hNotifyEvent);
+        ResetEvent(hNotifyEvent);
 	}
-
+    if (ay8910)
+	{
+		delete ay8910;
+		ay8910 = 0;
+	}
+	if(pDsb8)
+	{
+		while(pDsb8->Release()) {};
+		pDsb8 = 0;
+	}
+	if(lpds)
+	{
+		while(lpds->Release()){};
+		lpds = 0;
+	}
 }
 
 HRESULT DXAudio::CreateBasicBuffer()
