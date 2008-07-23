@@ -24,26 +24,7 @@ BEGIN_EVENT_TABLE(AyflyBindingsDlg, wxDialog)
     EVT_BUTTON(wxID_OK, AyflyBindingsDlg::OnOk)
 END_EVENT_TABLE()
 
-struct bindings
-{
-    wxString name;
-    wxString key;
-};
-
-bindings default_bindings [] =
-{
-    {wxT("Open song"), wxT("o")},
-    {wxT("Play/Pause"), wxT("x")},
-    {wxT("Rewind"), wxT("o")},
-    {wxT("Previous song"), wxT("o")},
-    {wxT("Next song"), wxT("o")},
-    {wxT("Stop"), wxT("o")},
-    {wxT("Repeat current"), wxT("r")},
-    {wxT("Toggle A channel"), wxT("1")},
-    {wxT("Toggle B channel"), wxT("2")},
-    {wxT("Toggle C channel"), wxT("3")}
-
-};
+extern struct bindings default_bindings [];
 
 AyflyBindingsDlg::AyflyBindingsDlg(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, style)
 {
@@ -83,11 +64,15 @@ AyflyBindingsDlg::AyflyBindingsDlg(wxWindow* parent, wxWindowID id, const wxStri
     bindingsView->SetColumnWidth(1, sz.GetWidth() - col0_width - 15);
 
     unsigned long index = bindingsView->GetItemCount();
-    for (unsigned long i = 0; i < sizeof_array(default_bindings); i++)
+    int i = 0;
+    while(default_bindings [i].key != 0)
     {
         bindingsView->InsertItem(index, default_bindings [i].name);
-        bindingsView->SetItem(index, 1, default_bindings [i].key);
+        wxString buf;
+        buf.Printf(wxT("%c"), default_bindings [i].key);
+        bindingsView->SetItem(index, 1, buf);
         index++;
+        i++;
     }
 
 }
