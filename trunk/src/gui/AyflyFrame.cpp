@@ -32,6 +32,7 @@
 #include "images/C.xpm"
 #include "images/about.xpm"
 #include "images/repeat.xpm"
+#include "images/icon.xpm"
 
 IMPLEMENT_APP(AyflyApp)
 
@@ -96,6 +97,7 @@ AyflyFrame::AyflyFrame(const wxString &title) :
 {
     SetBackgroundStyle(wxBG_STYLE_COLOUR);
     SetBackgroundColour(wxColour(0xef, 0xeb, 0xe7));
+    SetIcon(wxIcon(Icon_xpm));
     CreateStatusBar(2);
     SetStatusText(wxT("Welcome to Ayfly!"));
     player = 0;
@@ -241,7 +243,7 @@ AyflyFrame::~AyflyFrame()
 
 void AyflyFrame::OnAbout(wxCommandEvent &event)
 {
-    wxMessageBox(wxT("Andrew Deryabin, 2008\n Alexander Shatin, 2008\n Using z80ex library by Stanislav Lomakin."), wxT("About Ayfly.."), wxOK | wxICON_INFORMATION, this);
+    wxMessageBox(wxT("Programming: Andrew Deryabin, 2008\n Icons&Graphics: Alexander Shatin, 2008\n  Using z80ex library by Stanislav Lomakin."), wxT("About Ayfly.."), wxOK | wxICON_INFORMATION, this);
 }
 
 void AyflyFrame::OnQuit(wxCommandEvent &event)
@@ -350,7 +352,7 @@ void AyflyFrame::OnPrev(wxCommandEvent &event)
         return;
     playListView->Select(currentIndex, false);
     playListView->EnsureVisible(currentIndex);
-    
+
     currentIndex--;
     if (currentIndex < 0)
     {
@@ -473,7 +475,7 @@ void AyflyFrame::OnTimer(wxTimerEvent& event)
     //timeElapsed++;
 
     if (timeElapsed >= maxElapsed)
-    {		
+    {
         wxCommandEvent evt;
         evt.SetId(wxID_CALLBACK);
         OnNext(evt);
@@ -730,7 +732,7 @@ void AyflyFrame::RecreateToolbar()
 
         toolBar->SetToolShortHelp(wxID_STOP, wxT("Stop song"));
         toolBar->SetToolLongHelp(wxID_STOP, wxT("Stop song"));
-		
+
 		toolBar->SetToolShortHelp(wxID_REPEAT, wxT("Repeat current song"));
         toolBar->SetToolLongHelp(wxID_REPEAT, wxT("Repeat current song"));
 

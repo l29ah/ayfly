@@ -80,11 +80,11 @@ VERSION = @VERSION@
 
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)/src/z80ex -I$(top_srcdir)/src/z80ex/include $(AYFLY_CXXFLAGS) $(all_includes) $(EXTRAINCLUDES)
 
-@IS_UNIX_TRUE@EXTRAINCLUDES =  $(SDL_CFLAGS) 
+@IS_UNIX_TRUE@EXTRAINCLUDES =  $(SDL_CFLAGS)
 @IS_WINDOWS_TRUE@EXTRAINCLUDES = $(DX_CFLAGS)
 
 noinst_LIBRARIES = libgui.a
-libgui_a_SOURCES = AyflyApp.cpp AyflyFrame.cpp DnDFiles.cpp
+libgui_a_SOURCES = AyflyApp.cpp AyflyFrame.cpp DnDFiles.cpp AyflyBindingsDlg.cpp
 
 datarootdir = @datarootdir@
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -97,7 +97,8 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 libgui_a_LIBADD = 
-libgui_a_OBJECTS =  AyflyApp.o AyflyFrame.o DnDFiles.o
+libgui_a_OBJECTS =  AyflyApp.o AyflyFrame.o DnDFiles.o \
+AyflyBindingsDlg.o
 AR = ar
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -110,7 +111,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/AyflyApp.P .deps/AyflyFrame.P .deps/DnDFiles.P
+DEP_FILES =  .deps/AyflyApp.P .deps/AyflyBindingsDlg.P \
+.deps/AyflyFrame.P .deps/DnDFiles.P
 SOURCES = $(libgui_a_SOURCES)
 OBJECTS = $(libgui_a_OBJECTS)
 
