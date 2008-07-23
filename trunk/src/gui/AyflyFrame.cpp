@@ -64,25 +64,25 @@ IMPLEMENT_APP(AyflyApp)
 #define PLAYLIST_ID 1010
 
 BEGIN_EVENT_TABLE(AyflyFrame, wxFrame)
-EVT_MENU(wxID_ABOUT, AyflyFrame::OnAbout)
-EVT_MENU(wxID_EXIT, AyflyFrame::OnQuit)
-EVT_MENU(wxID_OPEN, AyflyFrame::OnOpen)
-EVT_MENU(wxID_PLAY, AyflyFrame::OnPlay)
-EVT_MENU(wxID_REWIND, AyflyFrame::OnRewind)
-EVT_MENU(wxID_PREV, AyflyFrame::OnPrev)
-EVT_MENU(wxID_NEXT, AyflyFrame::OnNext)
-EVT_MENU(wxID_STOP, AyflyFrame::OnStop)
-EVT_MENU(wxID_AMUTE, AyflyFrame::OnChnlMute)
-EVT_MENU(wxID_BMUTE, AyflyFrame::OnChnlMute)
-EVT_MENU(wxID_CMUTE, AyflyFrame::OnChnlMute)
-EVT_TIMER(TIMER_ID, AyflyFrame::OnTimer)
-EVT_COMMAND_SCROLL(SLIDER_VOLA_ID, AyflyFrame::OnScroll)
-EVT_COMMAND_SCROLL(SLIDER_VOLB_ID, AyflyFrame::OnScroll)
-EVT_COMMAND_SCROLL(SLIDER_VOLC_ID, AyflyFrame::OnScroll)
-EVT_COMMAND_SCROLL_THUMBTRACK(wxID_POSSLIDER, AyflyFrame::OnScroll)
-EVT_COMMAND_SCROLL_THUMBRELEASE(wxID_POSSLIDER, AyflyFrame::OnScroll)
-EVT_LIST_ITEM_ACTIVATED(PLAYLIST_ID, AyflyFrame::OnSelectSong)
-EVT_LIST_KEY_DOWN(PLAYLIST_ID, AyflyFrame::OnListKeyDown)
+    EVT_MENU(wxID_ABOUT, AyflyFrame::OnAbout)
+    EVT_MENU(wxID_EXIT, AyflyFrame::OnQuit)
+    EVT_MENU(wxID_OPEN, AyflyFrame::OnOpen)
+    EVT_MENU(wxID_PLAY, AyflyFrame::OnPlay)
+    EVT_MENU(wxID_REWIND, AyflyFrame::OnRewind)
+    EVT_MENU(wxID_PREV, AyflyFrame::OnPrev)
+    EVT_MENU(wxID_NEXT, AyflyFrame::OnNext)
+    EVT_MENU(wxID_STOP, AyflyFrame::OnStop)
+    EVT_MENU(wxID_AMUTE, AyflyFrame::OnChnlMute)
+    EVT_MENU(wxID_BMUTE, AyflyFrame::OnChnlMute)
+    EVT_MENU(wxID_CMUTE, AyflyFrame::OnChnlMute)
+    EVT_TIMER(TIMER_ID, AyflyFrame::OnTimer)
+    EVT_COMMAND_SCROLL(SLIDER_VOLA_ID, AyflyFrame::OnScroll)
+    EVT_COMMAND_SCROLL(SLIDER_VOLB_ID, AyflyFrame::OnScroll)
+    EVT_COMMAND_SCROLL(SLIDER_VOLC_ID, AyflyFrame::OnScroll)
+    EVT_COMMAND_SCROLL_THUMBTRACK(wxID_POSSLIDER, AyflyFrame::OnScroll)
+    EVT_COMMAND_SCROLL_THUMBRELEASE(wxID_POSSLIDER, AyflyFrame::OnScroll)
+    EVT_LIST_ITEM_ACTIVATED(PLAYLIST_ID, AyflyFrame::OnSelectSong)
+    EVT_LIST_KEY_DOWN(PLAYLIST_ID, AyflyFrame::OnListKeyDown)
 END_EVENT_TABLE()
 
 #ifdef WINDOWS
@@ -92,8 +92,23 @@ HWND hWndMain;
 unsigned long timeElapsed;
 unsigned long maxElapsed;
 
+struct bindings default_bindings [] =
+{
+    {wxT("Open song"), wxT("wxID_OPEN"), wxID_OPEN, (int)'O'},
+    {wxT("Play/Pause"), wxT("wxID_PLAY"), wxID_PLAY, (int)'X'},
+    {wxT("Rewind"), wxT("wxID_REWIND"), wxID_REWIND, (int)'W'},
+    {wxT("Previous song"), wxT("wxID_PREV"), wxID_PREV, (int)'Z'},
+    {wxT("Next song"), wxT("wxID_NEXT"), wxID_NEXT, (int)'B'},
+    {wxT("Stop"), wxT("wxID_STOP"), wxID_STOP, (int)'V'},
+    {wxT("Toggle A channel"), wxT("wxID_AMUTE"), wxID_AMUTE, (int)'1'},
+    {wxT("Toggle B channel"), wxT("wxID_BMUTE"), wxID_BMUTE, (int)'2'},
+    {wxT("Toggle C channel"), wxT("wxID_CMUTE"), wxID_CMUTE, (int)'3'},
+    {wxT(""), wxT(""), 0, 0}
+
+};
+
 AyflyFrame::AyflyFrame(const wxString &title) :
-    wxFrame(NULL, wxID_ANY, title), timer(this, TIMER_ID)
+        wxFrame(NULL, wxID_ANY, title), timer(this, TIMER_ID)
 {
     SetBackgroundStyle(wxBG_STYLE_COLOUR);
     SetBackgroundColour(wxColour(0xef, 0xeb, 0xe7));
@@ -227,6 +242,17 @@ AyflyFrame::AyflyFrame(const wxString &title) :
     itemCol.SetAlign(wxLIST_FORMAT_RIGHT);
     playListView->InsertColumn(1, itemCol);
     playListView->SetColumnWidth(1, sz.GetWidth() - col0_width);
+
+    wxAcceleratorEntry accel_entries[sizeof_array(default_bindings) - 1];
+    int i = 0;
+    while(default_bindings [i].key != 0)
+    {
+        accel_entries[i].Set(wxACCEL_NORMAL, default_bindings [i].key, default_bindings [i].id);
+        i++;
+    }
+
+    wxAcceleratorTable accel(sizeof_array(default_bindings) - 1, accel_entries);
+    SetAcceleratorTable(accel);
 }
 
 AyflyFrame::~AyflyFrame()
@@ -452,20 +478,20 @@ void AyflyFrame::OnChnlMute(wxCommandEvent &event)
 {
     switch (event.GetId())
     {
-        case wxID_AMUTE:
-            if (player)
-                player->ChnlToggle(0);
-            break;
-        case wxID_BMUTE:
-            if (player)
-                player->ChnlToggle(1);
-            break;
-        case wxID_CMUTE:
-            if (player)
-                player->ChnlToggle(2);
-            break;
-        default:
-            return;
+    case wxID_AMUTE:
+        if (player)
+            player->ChnlToggle(0);
+        break;
+    case wxID_BMUTE:
+        if (player)
+            player->ChnlToggle(1);
+        break;
+    case wxID_CMUTE:
+        if (player)
+            player->ChnlToggle(2);
+        break;
+    default:
+        return;
     }
     RecreateToolbar();
 }
@@ -516,94 +542,94 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
     int id = event.GetId();
     switch (id)
     {
-        case SLIDER_VOLA_ID:
-        case SLIDER_VOLB_ID:
-        case SLIDER_VOLC_ID:
+    case SLIDER_VOLA_ID:
+    case SLIDER_VOLB_ID:
+    case SLIDER_VOLC_ID:
+    {
+        double vol_int = event.GetPosition();
+        double vol = CalculateVolume(vol_int);
+
+        if (btnLink->GetValue())
         {
-            double vol_int = event.GetPosition();
-            double vol = CalculateVolume(vol_int);
-
-            if (btnLink->GetValue())
+            if (player)
             {
-                if (player)
-                {
-                    player->SetVolume(0, vol);
-                    player->SetVolume(1, vol);
-                    player->SetVolume(2, vol);
-                }
-                slidera->SetValue(vol_int);
-                sliderb->SetValue(vol_int);
-                sliderc->SetValue(vol_int);
+                player->SetVolume(0, vol);
+                player->SetVolume(1, vol);
+                player->SetVolume(2, vol);
             }
-            else if (player)
-            {
-                switch (id)
-                {
-                    case SLIDER_VOLA_ID:
-                        player->SetVolume(0, vol);
-                        break;
-                    case SLIDER_VOLB_ID:
-                        player->SetVolume(1, vol);
-                        break;
-                    case SLIDER_VOLC_ID:
-                        player->SetVolume(2, vol);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            wxString vol_str;
-            vol_str.Printf(wxT("%d dB"), slidera->GetValue());
-            txta->SetLabel(vol_str);
-            vol_str.Printf(wxT("%d dB"), sliderb->GetValue());
-            txtb->SetLabel(vol_str);
-            vol_str.Printf(wxT("%d dB"), sliderc->GetValue());
-            txtc->SetLabel(vol_str);
-
+            slidera->SetValue(vol_int);
+            sliderb->SetValue(vol_int);
+            sliderc->SetValue(vol_int);
         }
-            break;
-        case wxID_POSSLIDER:
+        else if (player)
         {
-            if (event.GetEventType() == wxEVT_SCROLL_THUMBTRACK)
+            switch (id)
             {
-                bTracking = true;
+            case SLIDER_VOLA_ID:
+                player->SetVolume(0, vol);
+                break;
+            case SLIDER_VOLB_ID:
+                player->SetVolume(1, vol);
+                break;
+            case SLIDER_VOLC_ID:
+                player->SetVolume(2, vol);
+                break;
+            default:
+                break;
+            }
+        }
+
+        wxString vol_str;
+        vol_str.Printf(wxT("%d dB"), slidera->GetValue());
+        txta->SetLabel(vol_str);
+        vol_str.Printf(wxT("%d dB"), sliderb->GetValue());
+        txtb->SetLabel(vol_str);
+        vol_str.Printf(wxT("%d dB"), sliderc->GetValue());
+        txtc->SetLabel(vol_str);
+
+    }
+    break;
+    case wxID_POSSLIDER:
+    {
+        if (event.GetEventType() == wxEVT_SCROLL_THUMBTRACK)
+        {
+            bTracking = true;
+        }
+        else
+        {
+            unsigned long pos = event.GetPosition();
+            unsigned long timeCurrent = timeElapsed;
+            timeElapsed = pos;
+
+            if (timeElapsed < timeCurrent)
+            {
+                timeCurrent = 0;
+                OpenFile(*currentSong->FilePath);
             }
             else
             {
-                unsigned long pos = event.GetPosition();
-                unsigned long timeCurrent = timeElapsed;
-                timeElapsed = pos;
-
-                if (timeElapsed < timeCurrent)
-                {
-                    timeCurrent = 0;
-                    OpenFile(*currentSong->FilePath);
-                }
-                else
-                {
-                    wxCommandEvent evt;
-                    OnPlay(evt);
-                }
-                timeElapsed = timeCurrent;
-                z80Memory[7] = 0xfb;
-                while (timeElapsed != pos)
-                {
-                    z80ex_step(ctx);
-                    if (z80ex_get_reg(ctx, regPC) == 4)
-                        timeElapsed++;
-                }
-
                 wxCommandEvent evt;
                 OnPlay(evt);
-                z80Memory[7] = 0x76;
-                bTracking = false;
+            }
+            timeElapsed = timeCurrent;
+            z80Memory[7] = 0xfb;
+            while (timeElapsed != pos)
+            {
+                z80ex_step(ctx);
+                if (z80ex_get_reg(ctx, regPC) == 4)
+                    timeElapsed++;
             }
 
+            wxCommandEvent evt;
+            OnPlay(evt);
+            z80Memory[7] = 0x76;
+            bTracking = false;
         }
-            break;
-        default:
-            break;
+
+    }
+    break;
+    default:
+        break;
     }
 
 }
@@ -655,9 +681,9 @@ void AyflyFrame::OnListKeyDown(wxListEvent &event)
             }
         }
     }
-    else if(key == 1)
+    else if (key == 1)
     {
-        for(int i = 0; i < playListView->GetItemCount(); i++)
+        for (int i = 0; i < playListView->GetItemCount(); i++)
         {
             playListView->Select(i, true);
         }
@@ -733,7 +759,7 @@ void AyflyFrame::RecreateToolbar()
         toolBar->SetToolShortHelp(wxID_STOP, wxT("Stop song"));
         toolBar->SetToolLongHelp(wxID_STOP, wxT("Stop song"));
 
-		toolBar->SetToolShortHelp(wxID_REPEAT, wxT("Repeat current song"));
+        toolBar->SetToolShortHelp(wxID_REPEAT, wxT("Repeat current song"));
         toolBar->SetToolLongHelp(wxID_REPEAT, wxT("Repeat current song"));
 
         toolBar->SetToolShortHelp(wxID_ABOUT, wxT("About Ayfly.."));

@@ -44,6 +44,19 @@
 		<Unit filename="src/gui/DnDFiles.cpp" />
 		<Unit filename="src/gui/DnDFiles.h" />
 		<Unit filename="src/gui/Makefile.am" />
+		<Unit filename="src/images/A.xpm" />
+		<Unit filename="src/images/B.xpm" />
+		<Unit filename="src/images/C.xpm" />
+		<Unit filename="src/images/about.xpm" />
+		<Unit filename="src/images/icon.xpm" />
+		<Unit filename="src/images/next.xpm" />
+		<Unit filename="src/images/open.xpm" />
+		<Unit filename="src/images/pause.xpm" />
+		<Unit filename="src/images/play.xpm" />
+		<Unit filename="src/images/prev.xpm" />
+		<Unit filename="src/images/repeat.xpm" />
+		<Unit filename="src/images/rewind.xpm" />
+		<Unit filename="src/images/stop.xpm" />
 		<Unit filename="src/players/ASCPlay.h" />
 		<Unit filename="src/players/PSCPlay.h" />
 		<Unit filename="src/players/PT2Play.h" />
@@ -124,7 +137,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>
-			<code_completion />
+			<code_completion>
+				<search_path add="/usr/include" />
+			</code_completion>
 			<debugger />
 		</Extensions>
 	</Project>

@@ -150,6 +150,13 @@ struct SongInfo
     unsigned long Loop;
 };
 
+struct bindings
+{
+    wxString name; /* button name */
+    wxString str_id; /* string id for action */
+    int id; /* int id for action */
+    int key; /* key mapping */
+};
 
 #    ifndef __SYMBIAN32__
 #        include "gui/AyflyApp.h"
