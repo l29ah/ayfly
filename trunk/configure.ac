@@ -1,7 +1,7 @@
-AC_INIT([ayfly], [0.0.10])
+AC_INIT([ayfly], [0.0.11])
 AC_CANONICAL_SYSTEM
 
-AM_INIT_AUTOMAKE(ayfly, 0.0.10)
+AM_INIT_AUTOMAKE(ayfly, 0.0.11)
 
 AC_LANG_CPLUSPLUS
 AC_PROG_CC
@@ -12,13 +12,13 @@ AC_EXEEXT
 AC_DEFINE([UNICODE], [1])
 AC_DEFINE([_UNICODE], [1])
 
-case "$host_os" in 
+case "$host_os" in
 *mingw*) windows=yes
 		AC_DEFINE([WINDOWS], [1])
 		AC_DEFINE([WIN32], [1])
 		AC_DEFINE([_WINDOWS], [1])
 		AC_DEFINE([_WIN32], [1])
-		AC_ARG_WITH([directx], [AS_HELP_STRING([--with-directx], [Specify directx SDK path])], 
+		AC_ARG_WITH([directx], [AS_HELP_STRING([--with-directx], [Specify directx SDK path])],
 					[],
 					[with_directx=/opt/directx])
 		AC_SUBST(DX_CFLAGS, "-I$with_directx/include")
