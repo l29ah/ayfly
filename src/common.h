@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #ifndef COMMON_H_
 #    define COMMON_H_
 
@@ -66,6 +66,7 @@ extern "C"
 #        include "wx/spinbutt.h"
 #        include "wx/tglbtn.h"
 #        include "wx/listctrl.h"
+#        include "wx/dialog.h"
 #        ifndef WINDOWS
 #            include "SDL.h"
 #            include "SDL_rwops.h"
@@ -154,6 +155,7 @@ struct SongInfo
 #        include "gui/AyflyApp.h"
 #        include "gui/AyflyFrame.h"
 #        include "gui/DnDFiles.h"
+#        include "gui/AyflyBindingsDlg.h"
 #    endif
 
 

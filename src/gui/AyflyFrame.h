@@ -17,11 +17,11 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #ifndef _AYFLYFRAME_H
 #define	_AYFLYFRAME_H
 
-#define WINDOW_TEXT "Ayfly player :-) v." AYFLY_VERSION_TEXT
+#define WINDOW_TEXT "Ayfly AY891x player v." AYFLY_VERSION_TEXT
 
 class AyflyFrame : public wxFrame
 {
