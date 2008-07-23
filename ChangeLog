@@ -1,5 +1,9 @@
 Changelog:
 
+24.07.2008 - 0.0.11
+Added initial support for key bindings (default is winamp style)
+Fixed bugs
+
 22.07.2008 - 0.0.10
 Fixed bugs in DXAudio.
 README rewrited

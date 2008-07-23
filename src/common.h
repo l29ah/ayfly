@@ -156,6 +156,7 @@ struct bindings
     wxString str_id; /* string id for action */
     int id; /* int id for action */
     int key; /* key mapping */
+    int modifier; /* modifier */
 };
 
 #    ifndef __SYMBIAN32__
@@ -180,7 +181,7 @@ extern AbstractAudio *player;
 
 #    define AYFLY_VERSION_MAJOR 0
 #    define AYFLY_VERSION_MINOR 0
-#    define AYFLY_VERSION_PATCH 10
+#    define AYFLY_VERSION_PATCH 11
 
 #    define AYFLY_MAKE_VERSION ((AYFLY_VERSION_MAJOR << 16) | (AYFLY_VERSION_MINOR << 8) | AYFLY_VERSION_PATCH)
 #    define AYFLY_VERSION AYFLY_VERSION_MAJOR.AYFLY_VERSION_MINOR.AYFLY_VERSION_PATCH
