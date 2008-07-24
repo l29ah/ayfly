@@ -730,7 +730,7 @@ unsigned long PT3GetTime(const char *fileData, unsigned long &loop)
                         {
                             j2++;
                         }
-                        else if (val >= 0xb2 & val <= 0xbf)
+                        else if ((val >= 0xb2) & (val <= 0xbf))
                         {
                             j2 += 2;
                         }
@@ -823,7 +823,7 @@ unsigned long PT3GetTime(const char *fileData, unsigned long &loop)
                         {
                             j3++;
                         }
-                        else if (val >= 0xb2 & val <= 0xbf)
+                        else if ((val >= 0xb2) & (val <= 0xbf))
                         {
                             j3 += 2;
                         }

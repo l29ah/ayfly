@@ -261,6 +261,7 @@ DWORD DXAudio::PlayingThread(void *arg)
 DWORD DXAudio::DXProcess()
 {
 	DWORD half_buffer_size = buffer_size >> 1;
+	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 	ResetEvent(hNotifyEvent1);
 	ResetEvent(hNotifyEvent2);
 	HANDLE ehandles [3];

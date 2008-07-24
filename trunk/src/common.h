@@ -29,7 +29,16 @@
 #        define _UNICODE
 #    endif
 
+#    ifdef _WINDOWS
+#		ifndef WINDOWS
+#			define WINDOWS
+#		endif
+#    endif
+
 #    ifdef WINDOWS
+#		ifndef _WINDOWS
+#			define _WINDOWS
+#		endif
 #        define WIN32_LEAN_AND_MEAN
 #        include "windows.h"
 #        include "commdlg.h"
