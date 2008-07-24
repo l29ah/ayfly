@@ -44,6 +44,7 @@ IMPLEMENT_APP(AyflyApp)
 #define wxID_STOP 1005
 #define wxID_REPEAT 1006
 
+
 #define wxID_AMUTE 1010
 #define wxID_BMUTE 1011
 #define wxID_CMUTE 1012
@@ -57,6 +58,7 @@ IMPLEMENT_APP(AyflyApp)
 #define wxID_POSSLIDER 1030
 
 #define wxID_SELECTALL 1100
+#define wxID_SETREPEAT 1101
 
 #define TIMER_ID 1040
 #define TIMER_INTERVAL 200
@@ -78,6 +80,7 @@ BEGIN_EVENT_TABLE(AyflyFrame, wxFrame)
     EVT_MENU(wxID_BMUTE, AyflyFrame::OnChnlMute)
     EVT_MENU(wxID_CMUTE, AyflyFrame::OnChnlMute)
     EVT_MENU(wxID_SELECTALL, AyflyFrame::OnSelectAll)
+    EVT_MENU(wxID_SETREPEAT, AyflyFrame::OnSetRepeat)
     EVT_TIMER(TIMER_ID, AyflyFrame::OnTimer)
     EVT_COMMAND_SCROLL(SLIDER_VOLA_ID, AyflyFrame::OnScroll)
     EVT_COMMAND_SCROLL(SLIDER_VOLB_ID, AyflyFrame::OnScroll)
@@ -104,12 +107,12 @@ struct bindings default_bindings [] =
     {wxT("Previous song"), wxT("wxID_PREV"), wxID_PREV, (int)'Z', wxACCEL_NORMAL},
     {wxT("Next song"), wxT("wxID_NEXT"), wxID_NEXT, (int)'B', wxACCEL_NORMAL},
     {wxT("Stop"), wxT("wxID_STOP"), wxID_STOP, (int)'V', wxACCEL_NORMAL},
+    {wxT("Toggle Repeat mode"), wxT("wxID_SETREPEAT"), wxID_SETREPEAT, (int)'R', wxACCEL_NORMAL},
     {wxT("Toggle A channel"), wxT("wxID_AMUTE"), wxID_AMUTE, (int)'1', wxACCEL_NORMAL},
     {wxT("Toggle B channel"), wxT("wxID_BMUTE"), wxID_BMUTE, (int)'2', wxACCEL_NORMAL},
     {wxT("Toggle C channel"), wxT("wxID_CMUTE"), wxID_CMUTE, (int)'3', wxACCEL_NORMAL},
     {wxT("Select all playlist items"), wxT("wxID_SELECTALL"), wxID_SELECTALL, (int)'A', wxACCEL_CTRL},
     {wxT(""), wxT(""), 0, 0}
-
 };
 
 AyflyFrame::AyflyFrame(const wxString &title) :
@@ -280,7 +283,7 @@ AyflyFrame::~AyflyFrame()
 
 void AyflyFrame::OnAbout(wxCommandEvent &event)
 {
-    wxMessageBox(wxT("Programming: Andrew Deryabin, 2008\n Icons&Graphics: Alexander Shatin, 2008\n  Using z80ex library by Stanislav Lomakin."), wxT("About Ayfly.."), wxOK | wxICON_INFORMATION, this);
+    wxMessageBox(wxT("Programming: Andrew Deryabin, 2008\n Icons,Graphics,Testing&Bug reports:\n Alexander Shatin, 2008\n  Using z80ex library by Stanislav Lomakin."), wxT("About Ayfly.."), wxOK | wxICON_INFORMATION, this);
 }
 
 void AyflyFrame::OnQuit(wxCommandEvent &event)
@@ -787,6 +790,12 @@ void AyflyFrame::OnSelectAll(wxCommandEvent &event)
     {
         playListView->Select(i, true);
     }
+}
+
+void AyflyFrame::OnSetRepeat(wxCommandEvent &event)
+{
+    if(toolBar)
+        toolBar->ToggleTool(wxID_REPEAT, 1 - toolBar->GetToolState(wxID_REPEAT));
 }
 
 void AyflyFrame::RecreateToolbar()
