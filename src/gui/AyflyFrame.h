@@ -83,6 +83,7 @@ private:
     void OnSelectSong(wxListEvent &event);
     void OnListKeyDown(wxListEvent &event);
     void OnSelectAll(wxCommandEvent &event);
+    void OnSetRepeat(wxCommandEvent &event);
 
     DECLARE_EVENT_TABLE()
 };
