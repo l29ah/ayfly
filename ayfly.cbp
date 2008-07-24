@@ -49,6 +49,7 @@
 		<Unit filename="src/images/C.xpm" />
 		<Unit filename="src/images/about.xpm" />
 		<Unit filename="src/images/icon.xpm" />
+		<Unit filename="src/images/keys.xpm" />
 		<Unit filename="src/images/next.xpm" />
 		<Unit filename="src/images/open.xpm" />
 		<Unit filename="src/images/pause.xpm" />
