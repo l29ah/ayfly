@@ -65,7 +65,7 @@ private:
     wxString currentPath;
 
 
-    void RecreateToolbar();
+    int RecreateToolbar();
     double CalculateVolume(double volume_int);
     bool OpenFile(const wxString &filePath);
 
@@ -84,6 +84,7 @@ private:
     void OnListKeyDown(wxListEvent &event);
     void OnSelectAll(wxCommandEvent &event);
     void OnSetRepeat(wxCommandEvent &event);
+	void OnKeyBindings(wxCommandEvent &event);
 
     DECLARE_EVENT_TABLE()
 };

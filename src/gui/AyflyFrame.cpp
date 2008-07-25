@@ -33,6 +33,7 @@
 #include "images/about.xpm"
 #include "images/repeat.xpm"
 #include "images/icon.xpm"
+#include "images/keys.xpm"
 
 IMPLEMENT_APP(AyflyApp)
 
@@ -43,6 +44,7 @@ IMPLEMENT_APP(AyflyApp)
 #define wxID_NEXT 1004
 #define wxID_STOP 1005
 #define wxID_REPEAT 1006
+#define wxID_KEYS 1007
 
 
 #define wxID_AMUTE 1010
@@ -81,6 +83,7 @@ BEGIN_EVENT_TABLE(AyflyFrame, wxFrame)
     EVT_MENU(wxID_CMUTE, AyflyFrame::OnChnlMute)
     EVT_MENU(wxID_SELECTALL, AyflyFrame::OnSelectAll)
     EVT_MENU(wxID_SETREPEAT, AyflyFrame::OnSetRepeat)
+	EVT_MENU(wxID_KEYS, AyflyFrame::OnKeyBindings)
     EVT_TIMER(TIMER_ID, AyflyFrame::OnTimer)
     EVT_COMMAND_SCROLL(SLIDER_VOLA_ID, AyflyFrame::OnScroll)
     EVT_COMMAND_SCROLL(SLIDER_VOLB_ID, AyflyFrame::OnScroll)
@@ -148,7 +151,7 @@ AyflyFrame::AyflyFrame(const wxString &title) :
 
     SetDropTarget(new DnDFiles(this));
 
-    this->SetSizeHints(600, 400);
+    //this->SetSizeHints(600, 400);
     //this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 
     wxBoxSizer* allSizer;
@@ -251,7 +254,7 @@ AyflyFrame::AyflyFrame(const wxString &title) :
     playListView->InsertColumn(1, itemCol);
     playListView->SetColumnWidth(1, sz.GetWidth() - col0_width);
 
-    RecreateToolbar();
+    this->SetSizeHints(RecreateToolbar(), 400);
 
     wxAcceleratorEntry accel_entries[sizeof_array(default_bindings) - 1];
     int i = 0;
@@ -798,7 +801,15 @@ void AyflyFrame::OnSetRepeat(wxCommandEvent &event)
         toolBar->ToggleTool(wxID_REPEAT, 1 - toolBar->GetToolState(wxID_REPEAT));
 }
 
-void AyflyFrame::RecreateToolbar()
+void AyflyFrame::OnKeyBindings(wxCommandEvent &event)
+{
+	AyflyBindingsDlg kdlg(this);
+	kdlg.SetIcon(wxIcon(Icon_xpm));
+	kdlg.ShowModal();
+}
+
+
+int AyflyFrame::RecreateToolbar()
 {
     //SetToolBar(NULL);
     bool bCreate = toolBar != 0 ? false : true;
@@ -852,6 +863,11 @@ void AyflyFrame::RecreateToolbar()
 
         toolBar->AddSeparator();
 
+		wxBitmap bmpKeys(Keys_xpm);
+        toolBar->AddTool(wxID_KEYS, bmpKeys, wxT("Key bindings"));
+
+		toolBar->AddSeparator();
+
         wxBitmap bmpAbout(About_xpm);
         toolBar->AddTool(wxID_ABOUT, bmpAbout, wxT("About"));
 
@@ -875,6 +891,9 @@ void AyflyFrame::RecreateToolbar()
 
         toolBar->SetToolShortHelp(wxID_ABOUT, wxT("About Ayfly.."));
         toolBar->SetToolLongHelp(wxID_ABOUT, wxT("About Ayfly.."));
+
+		toolBar->SetToolShortHelp(wxID_KEYS, wxT("Configure key bindings"));
+        toolBar->SetToolLongHelp(wxID_KEYS, wxT("Configure key bindings"));
 
     }
     else
@@ -928,6 +947,8 @@ void AyflyFrame::RecreateToolbar()
         toolBar->Realize();
         SetToolBar(toolBar);
     }
+
+	return toolBar->GetToolsCount() * (40 + toolBar->GetMargins().GetWidth());
 }
 
 double AyflyFrame::CalculateVolume(double volume_int)
