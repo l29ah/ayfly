@@ -16,7 +16,7 @@
 %{"Vendor-EN"}
 
 ;Unique Vendor name
-:"Vendor"
+:"Andrew Deryabin"
 
 ;Supports Series 60 v 3.0
 [0x101F7961], 0, 0, 0, {"Series60ProductID"}
@@ -24,10 +24,10 @@
 ;Files to install
 ;You should change the source paths to match that of your environment
 ;<source> <destination>
-"..\..\..\..\symbian-sdks\s60_32\epoc32\release\gcce\urel\ayfly_s60_0xEA0B66F6.exe"		-"!:\sys\bin\ayfly_s60_0xEA0B66F6.exe"
-"..\..\..\..\symbian-sdks\s60_32\epoc32\data\z\resource\apps\ayfly_s60_0xEA0B66F6.rsc"		-"!:\resource\apps\ayfly_s60_0xEA0B66F6.rsc"
-"..\..\..\..\symbian-sdks\s60_32\epoc32\data\z\private\10003a3f\apps\ayfly_s60_0xEA0B66F6_reg.rsc"	-"!:\private\10003a3f\import\apps\ayfly_s60_0xEA0B66F6_reg.rsc"
-;"..\..\..\..\symbian-sdks\s60_32\epoc32\data\z\resource\apps\ayfly_s60_0xEA0B66F6.mif" -"!:\resource\apps\ayfly_s60_0xEA0B66F6.mif"
+"..\..\..\..\..\symbian-sdks\s60_32\epoc32\release\gcce\urel\ayfly_s60_0xEA0B66F6.exe"		-"!:\sys\bin\ayfly_s60_0xEA0B66F6.exe"
+"..\..\..\..\..\symbian-sdks\s60_32\epoc32\data\z\resource\apps\ayfly_s60_0xEA0B66F6.rsc"		-"!:\resource\apps\ayfly_s60_0xEA0B66F6.rsc"
+"..\..\..\..\..\symbian-sdks\s60_32\epoc32\data\z\private\10003a3f\apps\ayfly_s60_0xEA0B66F6_reg.rsc"	-"!:\private\10003a3f\import\apps\ayfly_s60_0xEA0B66F6_reg.rsc"
+;"..\..\..\..\..\symbian-sdks\s60_32\epoc32\data\z\resource\apps\ayfly_s60_0xEA0B66F6.mif" -"!:\resource\apps\ayfly_s60_0xEA0B66F6.mif"
 ;"..\help\ayfly_s60_0xEA0B66F6.hlp"							 -"!:\resource\help\ayfly_s60_0xEA0B66F6.hlp"
 
 ; Add any installation notes if applicable

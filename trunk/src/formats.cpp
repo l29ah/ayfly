@@ -171,12 +171,12 @@ char *osRead(const TDesC &filePath, unsigned long *data_len)
         fsSession.Entry(filePath, entry);
         *data_len = (TUint)entry.iSize;
         readStream.ReadL((TUint8 *)fileData, *data_len);
-        gConsole->Printf(_L("File Read. Length=%d...\n"), *data_len);
+        //gConsole->Printf(_L("File Read. Length=%d...\n"), *data_len);
         readStream.Close();
     }
     else
     {
-        gConsole->Printf(_L("File not opened!\n"));
+        //gConsole->Printf(_L("File not opened!\n"));
         *data_len = 0;
     }
     //fsSession.Close();
@@ -315,7 +315,7 @@ bool readFile(const TDesC &filePath)
     char *fileData = 0;
     TParse parse;
     parse.Set(filePath, NULL, NULL);
-    gConsole->Printf(_L("Reading file %S...\n"), &filePath);
+    //gConsole->Printf(_L("Reading file %S...\n"), &filePath);
     if (parse.Ext() == _L(".ay"))
     {
         char *fileData = osRead(filePath, &data_len);
@@ -330,7 +330,7 @@ bool readFile(const TDesC &filePath)
         {
             TPtrC ext = parse.Ext();
             TPtrC ext_cur = Players [i].ext;
-            gConsole->Printf(_L("Current ext = %S, file ext = %S\n"), &ext_cur, &ext);
+            //gConsole->Printf(_L("Current ext = %S, file ext = %S\n"), &ext_cur, &ext);
             if (ext.Compare(ext_cur) == 0)
             {
                 char *fileData = osRead(filePath, &data_len);
@@ -345,8 +345,8 @@ bool readFile(const TDesC &filePath)
     if (fileData)
     delete fileData;
 
-    if(!bRet)
-    gConsole->Printf(_L("Error reading file %S...\n"), &filePath);
+    //if(!bRet)
+    //gConsole->Printf(_L("Error reading file %S...\n"), &filePath);
 
     return bRet;
 
@@ -440,9 +440,15 @@ bool getSongInfo(SongInfo *info)
 #define GET_WORD(x) {(x) = (*ptr++) << 8; (x) |= *ptr++;}
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
     unsigned long data_len = 65536;
-    if (info->FilePath->rfind(TXT(".ay")) != wxString::npos)
+#ifndef __SYMBIAN32__
+    if (info->FilePath.rfind(TXT(".ay")) != wxString::npos)
+#else
+    TParse parse;
+    parse.Set(info->FilePath, NULL, NULL);
+    if (parse.Ext() == _L(".ay"))
+#endif
     {
-        char *fileData = osRead(*info->FilePath, &data_len);
+        char *fileData = osRead(info->FilePath, &data_len);
         if (fileData)
         {
             unsigned char *ptr = (unsigned char *) fileData;
@@ -493,9 +499,15 @@ bool getSongInfo(SongInfo *info)
     {
         for (unsigned int i = 0; i < sizeof_array(Players); i++)
         {
-            if (info->FilePath->rfind(Players[i].ext) != wxString::npos)
+#ifndef __SYMBIAN32__
+            if (info->FilePath.rfind(Players[i].ext) != wxString::npos)
+#else
+            TPtrC ext = parse.Ext();
+            TPtrC ext_cur = Players [i].ext;
+            if (ext.Compare(ext_cur) == 0)
+#endif
             {
-                char *fileData = osRead(*info->FilePath, &data_len);
+                char *fileData = osRead(info->FilePath, &data_len);
                 if (fileData)
                 {
                     if (Players[i].getTime)

@@ -29,7 +29,6 @@
 		<Unit filename="src/Filter3.cpp" />
 		<Unit filename="src/Filter3.h" />
 		<Unit filename="src/Makefile.am" />
-		<Unit filename="src/ay.cpp" />
 		<Unit filename="src/ay.h" />
 		<Unit filename="src/common.h" />
 		<Unit filename="src/fft.cpp" />
@@ -66,6 +65,9 @@
 		<Unit filename="src/players/SQTPlay.h" />
 		<Unit filename="src/players/STCPlay.h" />
 		<Unit filename="src/players/STPPlay.h" />
+		<Unit filename="src/s60/inc/ay_s60.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="src/s60/inc/ayfly_s60AppUi.h" />
 		<Unit filename="src/s60/inc/ayfly_s60AppView.h" />
 		<Unit filename="src/s60/inc/ayfly_s60Application.h" />
@@ -79,6 +81,7 @@
 		<Unit filename="src/s60/inc/players/SQTPlay.h" />
 		<Unit filename="src/s60/inc/players/STCPlay.h" />
 		<Unit filename="src/s60/inc/players/STPPlay.h" />
+		<Unit filename="src/s60/src/ay_s60.cpp" />
 		<Unit filename="src/s60/src/ayfly_s60.cpp" />
 		<Unit filename="src/s60/src/ayfly_s60AppUi.cpp" />
 		<Unit filename="src/s60/src/ayfly_s60AppView.cpp" />

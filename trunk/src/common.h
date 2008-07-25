@@ -53,7 +53,11 @@ typedef unsigned long (*GETTIME_CALLBACK)(const char *fileData, unsigned long &l
 #    include "math.h"
 #    include "string.h"
 #    include "Filter3.h"
+#ifndef __SYMBIAN32__
 #    include "ay.h"
+#else
+#    include "ay_s60.h"
+#endif
 #    include "AbstractAudio.h"
 
 extern "C"
@@ -136,7 +140,7 @@ extern "C"
 #        define TXT_TYPE wxString
 #    else
 #        define TXT(x) _L(x)
-#        define TXT_TYPE const TPtrC
+#        define TXT_TYPE TPtrC
 #    endif
 
 //loader functions
@@ -150,15 +154,18 @@ extern CConsoleBase *gConsole;
 extern unsigned long timeElapsed;
 extern unsigned long maxElapsed;
 
+
 struct SongInfo
 {
-    TXT_TYPE *Author; /* Song author */
-    TXT_TYPE *Name; /* Song name */
-    TXT_TYPE *FilePath;
+    TXT_TYPE Author; /* Song author */
+    TXT_TYPE Name; /* Song name */
+    TXT_TYPE FilePath;
     unsigned long Length; /* Song length in seconds */
     unsigned long Loop;
 };
 
+
+#    ifndef __SYMBIAN32__
 struct bindings
 {
     wxString name; /* button name */
@@ -167,6 +174,8 @@ struct bindings
     int key; /* key mapping */
     int modifier; /* modifier */
 };
+#    endif
+
 
 #    ifndef __SYMBIAN32__
 #        include "gui/AyflyApp.h"
