@@ -327,7 +327,7 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
     posslider->SetRange(0, maxElapsed);
 
 
-    if (fileOpened)
+	if (currentSong)
     {
         if (player->Started())
         {
@@ -352,6 +352,7 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
     }
     else
     {
+		toolBar->ToggleTool(wxID_PLAY, false);
         if (currentIndex >= playListView->GetItemCount())
             return;
 
@@ -786,6 +787,7 @@ void AyflyFrame::OnListKeyDown(wxListEvent &event)
                     index = playListView->GetNextSelected(index);
             }
         }
+		toolBar->EnableTool(wxID_PLAY, playListView->GetItemCount());
     }
 }
 
