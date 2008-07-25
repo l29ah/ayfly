@@ -65,7 +65,7 @@ private:
     wxString currentPath;
 
 
-    int RecreateToolbar();
+    void RecreateToolbar();
     double CalculateVolume(double volume_int);
     bool OpenFile(const wxString &filePath);
 

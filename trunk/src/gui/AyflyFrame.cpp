@@ -151,7 +151,7 @@ AyflyFrame::AyflyFrame(const wxString &title) :
 
     SetDropTarget(new DnDFiles(this));
 
-    //this->SetSizeHints(600, 400);
+    this->SetSizeHints(650, 400);
     //this->SetSizeHints(wxDefaultSize, wxDefaultSize);
 
     wxBoxSizer* allSizer;
@@ -254,7 +254,7 @@ AyflyFrame::AyflyFrame(const wxString &title) :
     playListView->InsertColumn(1, itemCol);
     playListView->SetColumnWidth(1, sz.GetWidth() - col0_width);
 
-    this->SetSizeHints(RecreateToolbar(), 400);
+	RecreateToolbar();
 
     wxAcceleratorEntry accel_entries[sizeof_array(default_bindings) - 1];
     int i = 0;
@@ -809,7 +809,7 @@ void AyflyFrame::OnKeyBindings(wxCommandEvent &event)
 }
 
 
-int AyflyFrame::RecreateToolbar()
+void AyflyFrame::RecreateToolbar()
 {
     //SetToolBar(NULL);
     bool bCreate = toolBar != 0 ? false : true;
@@ -947,8 +947,6 @@ int AyflyFrame::RecreateToolbar()
         toolBar->Realize();
         SetToolBar(toolBar);
     }
-
-	return (toolBar->GetToolSize().GetWidth() + toolBar->GetMargins().GetWidth()) * (toolBar->GetToolsCount());
 }
 
 double AyflyFrame::CalculateVolume(double volume_int)
