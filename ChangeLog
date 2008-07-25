@@ -1,5 +1,11 @@
 Changelog:
 
+25.07.2008 - 0.0.12
+Added key bindings dialog (no editing yet)
+Probably fixed DXAudio driver
+All bingings work now
+Fixed small bugs as usual
+
 24.07.2008 - 0.0.11
 Added initial support for key bindings (default is winamp style)
 Fixed bugs
