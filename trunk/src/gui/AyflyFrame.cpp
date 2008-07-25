@@ -822,6 +822,8 @@ void AyflyFrame::RecreateToolbar()
     {
         toolBar = CreateToolBar(wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT);
         toolBar->SetToolBitmapSize(wxSize(40, 32));
+		toolBar->SetMargins(0, 0);
+		toolBar->SetToolSeparation(0);
 
         wxBitmap bmpOpen(Open_xpm);
         toolBar->AddTool(wxID_OPEN, bmpOpen, wxT("Open"));
