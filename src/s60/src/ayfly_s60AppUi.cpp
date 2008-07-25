@@ -25,6 +25,8 @@ extern AbstractAudio *player;
 
 // ============================ MEMBER FUNCTIONS ===============================
 
+unsigned long timeElapsed;
+unsigned long maxElapsed;
 
 // -----------------------------------------------------------------------------
 // Cayfly_s60AppUi::ConstructL()
@@ -98,7 +100,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 	{
 		TBool bRet = CAknFileSelectionDialog::RunDlgLD(fileName, PathInfo::MemoryCardRootPath(), _L("Select file!"), NULL);
 		if (bRet)
-		{		
+		{
 			player->Stop();
 			shutdownSpeccy();
 			initSpeccy();
@@ -106,7 +108,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 			TParse parse;
 			parse.Set(fileName, NULL, NULL);
 			fileName = parse.DriveAndPath();
-			gConsole->Printf(_L("folderName = %S\N"), &fileName);
+			//gConsole->Printf(_L("folderName = %S\N"), &fileName);
 		}
 	}
 		break;

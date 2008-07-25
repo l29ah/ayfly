@@ -20,7 +20,7 @@
 
 #include "common.h"
 
-#define BUFFERSIZE (1024)
+#define BUFFERSIZE (16384)
 
 Cayfly_s60Audio::Cayfly_s60Audio(unsigned long _sr)
 : AbstractAudio(_sr)
@@ -74,7 +74,7 @@ void Cayfly_s60Audio::MaoscOpenComplete(TInt aError)
 	if (aError==KErrNone)
 	{
 		//printf("!!\n");
-		// set stream properties to 16bit,16KHz mono
+		// set stream properties to 16bit,44.1KHz stereo
 		iStream->SetAudioPropertiesL(TMdaAudioDataSettings::ESampleRate44100Hz, TMdaAudioDataSettings::EChannelsStereo);
 
 		// note that MaxVolume() is different in the emulator and the real device!

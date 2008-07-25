@@ -24,7 +24,7 @@
 
 Cayfly_s60Application::Cayfly_s60Application()
 {
-	gConsole = Console::NewL(_L("Debug output"), TSize(KDefaultConsWidth, KDefaultConsHeight));	
+	gConsole = 0;//Console::NewL(_L("Debug output"), TSize(KDefaultConsWidth, KDefaultConsHeight));
 }
 
 Cayfly_s60Application::~Cayfly_s60Application()
@@ -34,7 +34,7 @@ Cayfly_s60Application::~Cayfly_s60Application()
 		delete gConsole;
 		gConsole = 0;
 	}
-	
+
 }
 
 // ============================ MEMBER FUNCTIONS ===============================
