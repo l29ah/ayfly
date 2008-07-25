@@ -151,8 +151,11 @@ AyflyFrame::AyflyFrame(const wxString &title) :
 
     SetDropTarget(new DnDFiles(this));
 
-    this->SetSizeHints(650, 400);
-    //this->SetSizeHints(wxDefaultSize, wxDefaultSize);
+#ifdef WINDOWS
+    this->SetSizeHints(620, 400);
+#else
+    this->SetSizeHints(700, 400);
+#endif
 
     wxBoxSizer* allSizer;
     allSizer = new wxBoxSizer(wxVERTICAL);
