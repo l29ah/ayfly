@@ -948,7 +948,7 @@ int AyflyFrame::RecreateToolbar()
         SetToolBar(toolBar);
     }
 
-	return toolBar->GetToolsCount() * (40 + toolBar->GetMargins().GetWidth());
+	return (toolBar->GetToolSize().GetWidth() + toolBar->GetMargins().GetWidth()) * (toolBar->GetToolsCount() - 3);
 }
 
 double AyflyFrame::CalculateVolume(double volume_int)
