@@ -85,6 +85,7 @@ private:
     void OnSelectAll(wxCommandEvent &event);
     void OnSetRepeat(wxCommandEvent &event);
 	void OnKeyBindings(wxCommandEvent &event);
+	void OnChar(wxKeyEvent &event);
 
     DECLARE_EVENT_TABLE()
 };
