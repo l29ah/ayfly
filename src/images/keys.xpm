@@ -1,5 +1,5 @@
 /* XPM */
-static char * keys_xpm[] = {
+static const char * Keys_xpm[] = {
 "32 32 2 1",
 " 	c None",
 ".	c #000000",
