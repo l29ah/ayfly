@@ -47,9 +47,9 @@ IMPLEMENT_APP(AyflyApp)
 #define wxID_KEYS 1007
 
 
-#define wxID_AMUTE 1010
-#define wxID_BMUTE 1011
-#define wxID_CMUTE 1012
+#define wxID_AMUTE 1014
+#define wxID_BMUTE 1015
+#define wxID_CMUTE 1016
 
 #define wxID_CALLBACK 2000
 
@@ -91,7 +91,8 @@ BEGIN_EVENT_TABLE(AyflyFrame, wxFrame)
     EVT_COMMAND_SCROLL_THUMBTRACK(wxID_POSSLIDER, AyflyFrame::OnScroll)
     EVT_COMMAND_SCROLL_THUMBRELEASE(wxID_POSSLIDER, AyflyFrame::OnScroll)
     EVT_LIST_ITEM_ACTIVATED(PLAYLIST_ID, AyflyFrame::OnSelectSong)
-    EVT_LIST_KEY_DOWN(PLAYLIST_ID, AyflyFrame::OnListKeyDown)
+    //EVT_LIST_KEY_DOWN(PLAYLIST_ID, AyflyFrame::OnListKeyDown)
+	//EVT_CHAR(AyflyFrame::OnChar)
 END_EVENT_TABLE()
 
 
@@ -115,7 +116,7 @@ struct bindings default_bindings [] =
     {wxT("Toggle B channel"), wxT("wxID_BMUTE"), wxID_BMUTE, (int)'2', wxACCEL_NORMAL},
     {wxT("Toggle C channel"), wxT("wxID_CMUTE"), wxID_CMUTE, (int)'3', wxACCEL_NORMAL},
     {wxT("Select all playlist items"), wxT("wxID_SELECTALL"), wxID_SELECTALL, (int)'A', wxACCEL_CTRL},
-    {wxT(""), wxT(""), 0, 0}
+    {wxT(""), wxT(""), 0, 0, 0}
 };
 
 AyflyFrame::AyflyFrame(const wxString &title) :
@@ -262,7 +263,7 @@ AyflyFrame::AyflyFrame(const wxString &title) :
     wxAcceleratorEntry accel_entries[sizeof_array(default_bindings) - 1];
     int i = 0;
 
-    while (default_bindings [i].key != 0)
+    while (default_bindings [i].id != 0)
     {
         accel_entries[i].Set(default_bindings [i].modifier, default_bindings [i].key, default_bindings [i].id);
         i++;
@@ -548,7 +549,6 @@ void AyflyFrame::OnChnlMute(wxCommandEvent &event)
     switch (event.GetId())
     {
         case wxID_AMUTE:
-
             if (player)
                 player->ChnlToggle(0);
 

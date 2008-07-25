@@ -69,8 +69,13 @@ AyflyBindingsDlg::AyflyBindingsDlg(wxWindow* parent, wxWindowID id, const wxStri
     {
         bindingsView->InsertItem(index, default_bindings [i].name);
         wxString buf;
+		wxString mod = wxEmptyString;
+		if(default_bindings [i].modifier == wxACCEL_CTRL)
+		{
+			mod = wxT("CTRL + ");
+		}
         buf.Printf(wxT("%c"), default_bindings [i].key);
-        bindingsView->SetItem(index, 1, buf);
+        bindingsView->SetItem(index, 1, mod + buf);
         index++;
         i++;
     }
