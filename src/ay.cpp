@@ -287,7 +287,7 @@ void ay::ayProcess(unsigned char *stream, int len)
     {
         buffer [0] [i] = buffer [1] [i] = buffer [2] [i] = 0;
 
-        for(unsigned long ii = 0; ii < Z80_TO_AUDIO / 16; ii++)
+        for(unsigned long ii = 0; ii < (ay_tacts - 1); ii++)
             execInstruction(elapsedCallback, elapsedCallbackArg);
 
         //if(TONE_ENABLE(0) == 0)

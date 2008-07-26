@@ -83,6 +83,7 @@ static unsigned char intnz[] =
 0x18, 0xf7 /* jr loop */
 };
 
+
 //for .ay format
 struct ayTrack
 {
@@ -277,7 +278,10 @@ bool readFile(const TXT_TYPE &filePath)
     bool bRet = false;
     char *fileData = 0;
 
-    if (filePath.rfind(TXT(".ay")) != wxString::npos)
+    wxString cfp = filePath;
+    cfp = cfp.MakeLower();
+
+    if (cfp.rfind(TXT(".ay")) != wxString::npos)
     {
         char *fileData = osRead(filePath, &data_len);
         if (fileData)
@@ -289,7 +293,7 @@ bool readFile(const TXT_TYPE &filePath)
     {
         for (unsigned int i = 0; i < sizeof_array(Players); i++)
         {
-            if (filePath.rfind(Players[i].ext) != wxString::npos)
+            if (cfp.rfind(Players[i].ext) != wxString::npos)
             {
                 char *fileData = osRead(filePath, &data_len);
                 if (fileData)
@@ -441,7 +445,9 @@ bool getSongInfo(SongInfo *info)
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
     unsigned long data_len = 65536;
 #ifndef __SYMBIAN32__
-    if (info->FilePath.rfind(TXT(".ay")) != wxString::npos)
+    wxString cfp = info->FilePath;
+    cfp = cfp.MakeLower();
+    if (cfp.rfind(TXT(".ay")) != wxString::npos)
 #else
     TParse parse;
     parse.Set(info->FilePath, NULL, NULL);
@@ -500,7 +506,9 @@ bool getSongInfo(SongInfo *info)
         for (unsigned int i = 0; i < sizeof_array(Players); i++)
         {
 #ifndef __SYMBIAN32__
-            if (info->FilePath.rfind(Players[i].ext) != wxString::npos)
+            wxString cfp = info->FilePath;
+            cfp = cfp.MakeLower();
+            if (cfp.rfind(Players[i].ext) != wxString::npos)
 #else
             TPtrC ext = parse.Ext();
             TPtrC ext_cur = Players [i].ext;
