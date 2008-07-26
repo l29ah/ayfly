@@ -127,7 +127,11 @@ extern "C"
 #        include "pathinfo.h"
 #    endif
 
+#    ifndef __SYMBIAN32__
 #    define AUDIO_FREQ 44100
+#    else
+#    define AUDIO_FREQ 32000
+#    endif
 #    define Z80_FREQ 3500000
 #    define INTR_FREQ 50
 #    define Z80_TO_INTR (Z80_FREQ / INTR_FREQ)

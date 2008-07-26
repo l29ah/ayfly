@@ -707,7 +707,8 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
 
                 timeElapsed = timeCurrent;
 
-                z80Memory[7] = 0xfb;
+                z80Memory[6] = 0x0;
+                z80Memory[7] = 0x0;
 
                 while (timeElapsed != pos)
                 {
@@ -720,6 +721,8 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
                 wxCommandEvent evt;
 
                 OnPlay(evt);
+
+                z80Memory[6] = 0xfb;
                 z80Memory[7] = 0x76;
                 bTracking = false;
             }

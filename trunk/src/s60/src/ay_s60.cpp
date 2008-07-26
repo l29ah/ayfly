@@ -20,7 +20,7 @@
 
 #include "common.h"
 
-unsigned long ay::init_levels [] = {0x0000, 0x0385, 0x053D, 0x0770, 0x0AD7, 0x0FD5, 0x15B0, 0x230C, 0x2B4C,
+double ay::init_levels [] = {0x0000, 0x0385, 0x053D, 0x0770, 0x0AD7, 0x0FD5, 0x15B0, 0x230C, 0x2B4C,
     0x43C1, 0x5A4B, 0x732F, 0x9204, 0xAFF1, 0xD921, 0xFFFF
 };
 
@@ -47,9 +47,9 @@ ay::ay(long _ay_freq, int _buf_sz)
     if(tail_len < 4)
         tail_len = 4;
 
-    buffer_tail [0] = new unsigned long [tail_len];
-    buffer_tail [1] = new unsigned long [tail_len];
-    buffer_tail [2] = new unsigned long [tail_len];
+    buffer_tail [0] = new double [tail_len];
+    buffer_tail [1] = new double [tail_len];
+    buffer_tail [2] = new double [tail_len];
 
     float ay_tacts_f = (float)ay_freq / AUDIO_FREQ / 8;
     ay_tacts = ay_tacts_f;
@@ -63,28 +63,13 @@ ay::ay(long _ay_freq, int _buf_sz)
         buffer_tail [0] [i] = buffer_tail [1] [i] = buffer_tail [2] [i] = 0;
     }
 
-    unsigned long div = ay_tacts + 3;
+    double div = ay_tacts + 3;
 
 
     for(unsigned long i = 0; i < sizeof_array(ay::levels); i++)
     {
         ay::levels [i] = ay::init_levels [i] / div;
     }
-
-
-    FilterOpts fopts;
-    fopts.Fs = AUDIO_FREQ * ay_tacts;
-    fopts.bw = 1.8;
-    fopts.f0 = 12000;
-    fopts.type = LPF;
-    flt = new Filter3;
-    flt->Init(&fopts);
-    fopts.Fs = AUDIO_FREQ;
-    fopts.bw = 1;
-    fopts.f0 = 300;
-    fopts.type = LPF;
-    flt_bass = new Filter3;
-    flt_bass->Init(&fopts);
 
     elapsedCallback = 0;
     elapsedCallbackArg = 0;
@@ -101,7 +86,6 @@ ay::~ay()
     delete [] buffer_tail [0];
     delete [] buffer_tail [1];
     delete [] buffer_tail [2];
-    delete flt;
 }
 
 void ay::SetBufferSize(int _buf_sz)
@@ -128,9 +112,9 @@ void ay::SetBufferSize(int _buf_sz)
         buffer [2] = 0;
     }
 
-    buffer [0] = new unsigned long [q_len];
-    buffer [1] = new unsigned long [q_len];
-    buffer [2] = new unsigned long [q_len];
+    buffer [0] = new double [q_len];
+    buffer [1] = new double [q_len];
+    buffer [2] = new double [q_len];
 }
 
 void ay::ayReset()
@@ -287,7 +271,7 @@ void ay::ayProcess(unsigned char *stream, int len)
     {
         buffer [0] [i] = buffer [1] [i] = buffer [2] [i] = 0;
 
-        for(unsigned long ii = 0; ii < Z80_TO_AUDIO / 16; ii++)
+        for(unsigned long ii = 0; ii < 4; ii++)
             execInstruction(elapsedCallback, elapsedCallbackArg);
 
         //if(TONE_ENABLE(0) == 0)
@@ -324,32 +308,28 @@ void ay::ayProcess(unsigned char *stream, int len)
         }
         updateEnvelope();
 
-        if(i % ay_tacts)
-            continue;
-
-        if((chnl_trigger [0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)) & !chnl_mute [0])
-            buffer [0] [i] = (CHNL_ENVELOPE(0) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(0)]) * volume [0];
+        if((chnl_trigger [0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)))
+            buffer [0] [i] = (CHNL_ENVELOPE(0) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(0)]);
         else
             buffer [0] [i] = 0;
-        if((chnl_trigger [1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)) & !chnl_mute [1])
+        if((chnl_trigger [1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)))
         {
-            buffer [1] [i] = (CHNL_ENVELOPE(1) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(1)]) * volume [1];
+            buffer [1] [i] = (CHNL_ENVELOPE(1) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(1)]);
             buffer [1] [i] /= 1.42;
         }
         else
             buffer [1] [i] = 0;
-        if((chnl_trigger [2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)) & !chnl_mute [2])
-            buffer [2] [i] = (CHNL_ENVELOPE(2) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(2)]) * volume [2];
+        if((chnl_trigger [2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)))
+            buffer [2] [i] = (CHNL_ENVELOPE(2) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(2)]);
         else
             buffer [2] [i] = 0;
 
-        //flt->Process3(buffer [0] [i], buffer [1] [i], buffer [2] [i]);
     }
 
     short *stream16 = (short *)stream;
     unsigned long j = 0;
     unsigned long k = 0;
-    unsigned long tail0, tail1;
+    double tail0, tail1;
     //unsigned long t_index;
 
     for(unsigned long i = 0; i < (unsigned long)half_len; i += 2, j += ay_tacts, k++)
@@ -357,13 +337,9 @@ void ay::ayProcess(unsigned char *stream, int len)
         tail0 = k < tail_len ? buffer_tail [0] [k] : buffer [0] [(k - tail_len) * ay_tacts];
         tail1 = k < tail_len ? buffer_tail [2] [k] : buffer [2] [(k - tail_len) * ay_tacts];
 
-        unsigned long s = buffer [0] [j] + buffer [1] [j] + buffer [2] [j];
-        //flt_bass->Process(s);
+        double s = buffer [0] [j] + buffer [1] [j] + buffer [2] [j];
 
         buffer [1] [j] += s/2;
-
-        //buffer [0] [j] = buffer [2] [j] = 0;
-        //buffer [1] [j] = s;
 
         stream16 [i] = (buffer [0] [j] + buffer [1] [j] + tail1 / 4);
         stream16 [i + 1] = (buffer [2] [j] + buffer [1] [j] + tail0 / 4);
@@ -375,7 +351,6 @@ void ay::ayProcess(unsigned char *stream, int len)
         buffer_tail [0] [i] = buffer [0] [j];
         buffer_tail [2] [i] = buffer [2] [j];
     }
-    //fwrite(stream, len, 1, f);
 
 }
 

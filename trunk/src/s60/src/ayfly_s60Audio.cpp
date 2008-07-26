@@ -75,10 +75,10 @@ void Cayfly_s60Audio::MaoscOpenComplete(TInt aError)
 	{
 		//printf("!!\n");
 		// set stream properties to 16bit,44.1KHz stereo
-		iStream->SetAudioPropertiesL(TMdaAudioDataSettings::ESampleRate44100Hz, TMdaAudioDataSettings::EChannelsStereo);
+		iStream->SetAudioPropertiesL(TMdaAudioDataSettings::ESampleRate32000Hz, TMdaAudioDataSettings::EChannelsStereo);
 
 		// note that MaxVolume() is different in the emulator and the real device!
-		iStream->SetVolume(iStream->MaxVolume());
+		iStream->SetVolume(5);
 		iStream->SetPriority(EPriorityNormal, EMdaPriorityPreferenceNone);
 
 		bOpened = true;
