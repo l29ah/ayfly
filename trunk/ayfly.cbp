@@ -3,11 +3,12 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="ayfly" />
+		<Option makefile_is_custom="1" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/ayfly" prefix_auto="1" extension_auto="1" />
+				<Option output="../ayfly_unix/src/ayfly" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -29,6 +30,7 @@
 		<Unit filename="src/Filter3.cpp" />
 		<Unit filename="src/Filter3.h" />
 		<Unit filename="src/Makefile.am" />
+		<Unit filename="src/ay.cpp" />
 		<Unit filename="src/ay.h" />
 		<Unit filename="src/common.h" />
 		<Unit filename="src/fft.cpp" />

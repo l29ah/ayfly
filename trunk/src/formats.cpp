@@ -25,7 +25,7 @@
 #include "players/PSCPlay.h"
 #include "players/STCPlay.h"
 //#include "players/SQTPlay.h" not working
-//#include "players/ASCPlay.h" not working
+#include "players/ASCPlay.h"
 
 enum _FileTypes
 {
@@ -48,6 +48,7 @@ unsigned long STCGetTime(const char *fileData, unsigned long &loop);
 unsigned long STPGetTime(const char *fileData, unsigned long &loop);
 unsigned long PT3GetTime(const char *fileData, unsigned long &loop);
 unsigned long PT2GetTime(const char *fileData, unsigned long &loop);
+unsigned long ASCGetTime(const char *fileData, unsigned long &loop);
 
 _Players Players[] =
 {
@@ -57,7 +58,7 @@ _Players Players[] =
 { TXT(".psc"), PSCPlay_data, 0xc000, sizeof(PSCPlay_data), 0x0000, 0xc000, 0xc006, 0 },
 { TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0xc006, STCGetTime },
 //		{TEXT(".sqt"), SQTPlay_data, 0xc000, sizeof(SQTPlay_data), 0x0000, 0xc000, 0xc030}, not working
-        //		{TEXT(".asc"), ASCPlay_data, 0xc000, sizeof(ASCPlay_data), 0x0000, 0xc000 + 11, 0xc000 + 14} not working
+{ TXT(".asc"), ASCPlay_data, 0xc000, sizeof(ASCPlay_data), 0x0000, 0xc000 + 11, 0xc000 + 14, ASCGetTime}
 };
 
 /*
@@ -1065,6 +1066,175 @@ unsigned long PT2GetTime(const char *fileData, unsigned long &loop)
             }
             tm += b;
         } while (true);
+    }
+    return tm;
+}
+
+unsigned long ASCGetTime(const char *fileData, unsigned long &loop)
+{
+    short a1, a2, a3, a11, a22, a33;
+    unsigned long j1, j2, j3;
+    bool env1, env2, env3;
+    long i, tm = 0;
+    unsigned char b;
+    unsigned char ascDelay = fileData[0];
+    unsigned short ascLoopPos = fileData [1];
+    unsigned short ascPatPt = *(unsigned short *) &fileData[2];
+    unsigned char ascNumPos = fileData [8];
+
+    b = ascDelay;
+    a1 = a2 = a3 = a11 = a22 = a33 = 0;
+    env1 = env2 = env3 = false;
+    for(i = 0; i < ascNumPos; i++)
+    {
+        if(ascLoopPos == i)
+            loop = tm;
+        unsigned short idx = ascPatPt + 6 * ((unsigned char)fileData[i + 9]);
+        j1 = (*(unsigned short *) &fileData [idx]) + ascPatPt;
+        j2 = (*(unsigned short *) &fileData [idx + 2]) + ascPatPt;
+        j3 = (*(unsigned short *) &fileData [idx + 4]) + ascPatPt;
+
+        while(true)
+        {
+            a1--;
+            if(a1 < 0)
+            {
+                if(fileData [j1] == 255)
+                    break;
+                while(true)
+                {
+                    unsigned char val = (unsigned char) fileData [j1];
+                    if((val >= 0) && (val <= 0x55))
+                    {
+                        a1 = a11;
+                        j1++;
+                        if(env1)
+                            j1++;
+                        break;
+                    }
+                    else if((val >= 0x56) && (val <= 0x5f))
+                    {
+                        a1 = a11;
+                        j1++;
+                        break;
+                    }
+                    else if((val >= 0x60) && (val <= 0x9f))
+                    {
+                        a11 = val - 0x60;
+                    }
+                    else if(val == 0xe0)
+                    {
+                        env1 = true;
+                    }
+                    else if((val >= 0xe1) && (val <= 0xef))
+                    {
+                        env1 = false;
+                    }
+                    else if((val == 0xf0) || ((val >= 0xf5) && (val <= 0xf7)) || (val == 0xf9) || (val == 0xfb))
+                    {
+                        j1++;
+                    }
+                    else if(val == 0xf4)
+                    {
+                        j1++;
+                        b = fileData [j1];
+                    }
+                    j1++;
+                }
+            }
+
+            a2--;
+            if(a2 < 0)
+            {
+                while(true)
+                {
+                    unsigned char val = (unsigned char) fileData [j2];
+                    if((val >= 0) && (val <= 0x55))
+                    {
+                        a2 = a22;
+                        j2++;
+                        if(env2)
+                            j2++;
+                        break;
+                    }
+                    else if((val >= 0x56) && (val <= 0x5f))
+                    {
+                        a2 = a22;
+                        j2++;
+                        break;
+                    }
+                    else if((val >= 0x60) && (val <= 0x9f))
+                    {
+                        a22 = val - 0x60;
+                    }
+                    else if(val == 0xe0)
+                    {
+                        env2 = true;
+                    }
+                    else if((val >= 0xe1) && (val <= 0xef))
+                    {
+                        env2 = false;
+                    }
+                    else if((val == 0xf0) || ((val >= 0xf5) && (val <= 0xf7)) || (val == 0xf9) || (val == 0xfb))
+                    {
+                        j2++;
+                    }
+                    else if(val == 0xf4)
+                    {
+                        j2++;
+                        b = fileData [j2];
+                    }
+                    j2++;
+                }
+            }
+
+            a3--;
+            if(a3 < 0)
+            {
+                while(true)
+                {
+                    unsigned char val = (unsigned char) fileData [j3];
+                    if((val >= 0) && (val <= 0x55))
+                    {
+                        a3 = a33;
+                        j3++;
+                        if(env3)
+                            j3++;
+                        break;
+                    }
+                    else if((val >= 0x56) && (val <= 0x5f))
+                    {
+                        a3 = a33;
+                        j3++;
+                        break;
+                    }
+                    else if((val >= 0x60) && (val <= 0x9f))
+                    {
+                        a33 = val - 0x60;
+                    }
+                    else if(val == 0xe0)
+                    {
+                        env3 = true;
+                    }
+                    else if((val >= 0xe1) && (val <= 0xef))
+                    {
+                        env3 = false;
+                    }
+                    else if((val == 0xf0) || ((val >= 0xf5) && (val <= 0xf7)) || (val == 0xf9) || (val == 0xfb))
+                    {
+                        j3++;
+                    }
+                    else if(val == 0xf4)
+                    {
+                        j3++;
+                        b = fileData [j3];
+                    }
+                    j3++;
+                }
+            }
+
+        }
+        tm += b;
     }
     return tm;
 }
