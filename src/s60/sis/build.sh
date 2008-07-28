@@ -1,5 +1,6 @@
 #/bin/sh
 cd ../group
+bldmake bldfiles
 abld build gcce urel
 cd ../sis
 makesis ayfly_s60.pkg

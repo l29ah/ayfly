@@ -40,11 +40,8 @@ Z80EX_BYTE readMemory(Z80EX_CONTEXT *cpu, Z80EX_WORD addr, int m1_state, void *u
 void writeMemory(Z80EX_CONTEXT *cpu, Z80EX_WORD addr, Z80EX_BYTE value, void *user_data)
 {
 	//printf("[writeMemory]: address = %d, data = %c\n", (int)addr, value);
-	if(addr > 16383)
-	{
-		unsigned char *mem = (unsigned char *)user_data;
-		mem [addr] = value;
-	}
+	unsigned char *mem = (unsigned char *)user_data;
+	mem [addr] = value;
 
 }
 Z80EX_BYTE readPort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, void *user_data)
