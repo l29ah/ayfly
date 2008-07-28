@@ -1089,10 +1089,9 @@ unsigned long ASCGetTime(const char *fileData, unsigned long &loop)
     {
         if(ascLoopPos == i)
             loop = tm;
-        unsigned short idx = ascPatPt + 6 * ((unsigned char)fileData[i + 9]);
-        j1 = (*(unsigned short *) &fileData [idx]) + ascPatPt;
-        j2 = (*(unsigned short *) &fileData [idx + 2]) + ascPatPt;
-        j3 = (*(unsigned short *) &fileData [idx + 4]) + ascPatPt;
+        j1 = (*(unsigned short *) &fileData [ascPatPt + 6 * fileData[i + 9]]) + ascPatPt;
+        j2 = (*(unsigned short *) &fileData [ascPatPt + 6 * fileData[i + 9] + 2]) + ascPatPt;
+        j3 = (*(unsigned short *) &fileData [ascPatPt + 6 * fileData[i + 9] + 4]) + ascPatPt;
 
         while(true)
         {

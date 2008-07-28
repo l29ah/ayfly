@@ -29,7 +29,6 @@ static unsigned short ay_reg;
 static long interrupt = Z80_TO_INTR;
 
 
-
 Z80EX_BYTE readMemory(Z80EX_CONTEXT *cpu, Z80EX_WORD addr, int m1_state, void *user_data)
 {
 	//printf("[readMemory]: address = %d\n", (int)addr);

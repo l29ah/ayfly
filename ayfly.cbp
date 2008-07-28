@@ -75,6 +75,7 @@
 		<Unit filename="src/s60/inc/ayfly_s60Application.h" />
 		<Unit filename="src/s60/inc/ayfly_s60Audio.h" />
 		<Unit filename="src/s60/inc/ayfly_s60Document.h" />
+		<Unit filename="src/s60/inc/ayfly_s60GenThread.h" />
 		<Unit filename="src/s60/inc/players/ASCPlay.h" />
 		<Unit filename="src/s60/inc/players/PSCPlay.h" />
 		<Unit filename="src/s60/inc/players/PT2Play.h" />
@@ -90,6 +91,7 @@
 		<Unit filename="src/s60/src/ayfly_s60Application.cpp" />
 		<Unit filename="src/s60/src/ayfly_s60Audio.cpp" />
 		<Unit filename="src/s60/src/ayfly_s60Document.cpp" />
+		<Unit filename="src/s60/src/ayfly_s60GenThread.cpp" />
 		<Unit filename="src/speccy.cpp" />
 		<Unit filename="src/unix/Makefile.am" />
 		<Unit filename="src/unix/SDLAudio.cpp" />
