@@ -20,7 +20,7 @@
 
 #include "common.h"
 
-#define BUFFERSIZE (16384)
+#define BUFFERSIZE 16384
 
 Cayfly_s60Audio::Cayfly_s60Audio(unsigned long _sr)
 : AbstractAudio(_sr)
@@ -54,8 +54,8 @@ void Cayfly_s60Audio::ConstructL()
 	//console->Write(_L("S60Audio::ConstructL\n"));
 	iSoundData = new TUint8[BUFFERSIZE];
 	iSoundBuf = new TPtr8(iSoundData, BUFFERSIZE, BUFFERSIZE);
-	iStream = CMdaAudioOutputStream::NewL(*this);
-	ay8910 = new ay(Z80_FREQ / 2, BUFFERSIZE >> 2); // 16 bit, 2 ch.
+	iStream = CMdaAudioOutputStream::NewL(*this, EMdaPriorityMax, EMdaPriorityPreferenceTimeAndQuality);
+	ay8910 = new ay(Z80_FREQ / 2, BUFFERSIZE >> 1); // 16 bit, 2 ch.
 
 
 }
@@ -75,11 +75,11 @@ void Cayfly_s60Audio::MaoscOpenComplete(TInt aError)
 	{
 		//printf("!!\n");
 		// set stream properties to 16bit,44.1KHz stereo
-		iStream->SetAudioPropertiesL(TMdaAudioDataSettings::ESampleRate32000Hz, TMdaAudioDataSettings::EChannelsStereo);
+		iStream->SetAudioPropertiesL(TMdaAudioDataSettings::ESampleRate32000Hz, TMdaAudioDataSettings::EChannelsMono);
 
 		// note that MaxVolume() is different in the emulator and the real device!
 		iStream->SetVolume(5);
-		iStream->SetPriority(EPriorityNormal, EMdaPriorityPreferenceNone);
+		iStream->SetPriority(EMdaPriorityMax, EMdaPriorityPreferenceTimeAndQuality);
 
 		bOpened = true;
 		// Fill first buffer and write it to the stream

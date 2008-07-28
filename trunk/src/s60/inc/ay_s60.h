@@ -60,8 +60,8 @@ public:
     virtual void SetCallback(ELAPSED_CALLBACK _callback, void *_arg);
     void SetBufferSize(int _buf_sz);
 private:
-    static double init_levels[16];
-    double levels[16];
+    static unsigned long init_levels[16];
+    unsigned long levels[16];
     long ay_freq;
     float ay_tone_freq;
     float ay_env_freq;

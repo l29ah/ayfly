@@ -51,7 +51,7 @@ ay::ay(long _ay_freq, int _buf_sz)
     buffer_tail [1] = new double [tail_len];
     buffer_tail [2] = new double [tail_len];
 
-    float ay_tacts_f = (float)ay_freq / AUDIO_FREQ / 8;
+    float ay_tacts_f = (float)ay_freq / AUDIO_FREQ / 9;
     ay_tacts = ay_tacts_f;
     if(ay_tacts != ay_tacts_f)
         ay_tacts++;
@@ -326,19 +326,13 @@ void ay::ayProcess(unsigned char *stream, int len)
 
         if((chnl_trigger [0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)) & !chnl_mute [0])
             buffer [0] [i] = (CHNL_ENVELOPE(0) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(0)]) * volume [0];
-        else
-            buffer [0] [i] = 0;
         if((chnl_trigger [1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)) & !chnl_mute [1])
         {
             buffer [1] [i] = (CHNL_ENVELOPE(1) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(1)]) * volume [1];
             buffer [1] [i] /= 1.42;
         }
-        else
-            buffer [1] [i] = 0;
         if((chnl_trigger [2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)) & !chnl_mute [2])
             buffer [2] [i] = (CHNL_ENVELOPE(2) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(2)]) * volume [2];
-        else
-            buffer [2] [i] = 0;
 
         flt->Process3(buffer [0] [i], buffer [1] [i], buffer [2] [i]);
     }
