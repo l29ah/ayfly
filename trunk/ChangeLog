@@ -1,5 +1,11 @@
 Changelog:
 
+30.07.2008 - 0.0.13
+Make Symbian build work on 220x ARM processors. Defaults now are: 32Khz, stereo
+Fixed z80 interrupt time
+Fixed case sensivity in filename parsing
+Minor bugs fixed
+
 25.07.2008 - 0.0.12
 Added key bindings dialog (no editing yet)
 Probably fixed DXAudio driver
