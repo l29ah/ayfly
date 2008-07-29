@@ -48,7 +48,7 @@ void Cayfly_s60AppUi::ConstructL()
 
 	initSpeccy();
 	//readFile(TEXT("E:\\Others\\ayfly\\KSA-MTV.stc"));
-	player = Cayfly_s60Audio::NewL(44100);
+	player = new Cayfly_s60Audio();
 	setPlayer(player);
 
 }

@@ -261,7 +261,7 @@ void ay::updateEnvelope()
 void ay::ayProcess(unsigned char *stream, int len)
 {
     short *stream16 = (short *)stream;
-    for (unsigned long i = 0; i < q_len; i++)
+    for (unsigned long i = 0; i < (len >> 1); i++)
     {
         stream16 [i] = 0;
 
