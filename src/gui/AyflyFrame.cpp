@@ -514,7 +514,7 @@ void AyflyFrame::OnNext(wxCommandEvent &event)
 
 void AyflyFrame::OnStop(wxCommandEvent &event)
 {
-    if (fileOpened)
+    if (currentSong)
     {
         posslider->Disable();
         posslider->SetValue(0);

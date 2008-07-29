@@ -51,10 +51,10 @@ ay::ay(long _ay_freq, int _buf_sz)
     buffer_tail [1] = new double [tail_len];
     buffer_tail [2] = new double [tail_len];
 
-    float ay_tacts_f = (float)ay_freq / AUDIO_FREQ / 9;
+    float ay_tacts_f = (float)ay_freq / AUDIO_FREQ / 8;
     ay_tacts = ay_tacts_f;
-    if(ay_tacts != ay_tacts_f)
-        ay_tacts++;
+    /*if(ay_tacts != ay_tacts_f)
+        ay_tacts++;*/
 
     SetBufferSize(_buf_sz);
 
@@ -287,7 +287,7 @@ void ay::ayProcess(unsigned char *stream, int len)
     {
         buffer [0] [i] = buffer [1] [i] = buffer [2] [i] = 0;
 
-        for(unsigned long ii = 0; ii < 3; ii++)
+        for(unsigned long ii = 0; ii < 4; ii++)
             execInstruction(elapsedCallback, elapsedCallbackArg);
 
         //if(TONE_ENABLE(0) == 0)

@@ -1,41 +1,46 @@
 #ifndef S60AUDIO_H_
 #define S60AUDIO_H_
 
-#include <mda/common/audio.h>
-#include <mdaaudiooutputstream.h>
+#include "mmf/server/sounddevice.h"
+#include "mmf/common/mmfutilities.h"
 
-class CAsyncTask;
-
-class Cayfly_s60Audio : public AbstractAudio, MMdaAudioOutputStreamCallback
+class Cayfly_s60Audio : public AbstractAudio, MDevSoundObserver
 {
 public:
-	virtual ~Cayfly_s60Audio();
-	bool Start();
-	void Stop();
-	static Cayfly_s60Audio* NewL(unsigned long _sr);
-public:
-	void Open(); // opens the stream
+    Cayfly_s60Audio();
+    virtual ~Cayfly_s60Audio();
 
-public:
-	virtual void MaoscOpenComplete(TInt aError);
-	virtual void MaoscBufferCopied(TInt aError, const TDesC8& aBuffer);
-	virtual void MaoscPlayComplete(TInt aError);
-	static TInt ThreadEntryPoint(TAny* aParameters);
-	TInt DoGenerate();
-protected:
-	// this method fills the buffer and writes it into the stream
-	void UpdateBuffer();
-	CMdaAudioOutputStream* iStream; // handle to the stream
-	TMdaAudioDataSettings iSettings; // stream settings
-	TUint8* iSoundData [2]; // sound buffer
-	TPtr8* iSoundBuf [2]; // descriptor for using our soundbuffer
+    void StartPlay();
+    void StopPlay();
+
+    void SetVolume(TInt aVolume);
+    TInt GetVolume();
+
+    bool Start();
+	void Stop();
+
 private:
-	void ConstructL();
-	Cayfly_s60Audio(unsigned long _sr);
-	bool bOpened;
-	RThread iThread;         // Handle to created thread
-	RSemaphore sem;
-	unsigned long buffer_num;
+    void KillSound();
+
+    // from MDevSoundObserver
+    void BufferToBeFilled(CMMFBuffer *aBuffer);
+    void InitializeComplete(TInt aError);
+    void ToneFinished(TInt aError);
+    void PlayError(TInt aError);
+    void BufferToBeEmptied(CMMFBuffer *aBuffer);
+    void RecordError(TInt aError);
+    void ConvertError(TInt aError);
+    void DeviceMessage(TUid aMessageType, const TDesC8 &aMsg);
+
+    void DisplayError(const TDesC& aTitle, TInt aError);
+
+private:
+    TMMFPrioritySettings  iPrioritySettings;
+    CMMFDevSound* iDevSound;
+
+    TFourCC   iCodecType;
+    TInt      iVolume;
+    TUint8* iSoundData; // sound buffer
 };
 
 #endif /*S60AUDIO_H_*/

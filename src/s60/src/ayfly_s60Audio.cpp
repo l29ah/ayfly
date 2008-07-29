@@ -20,190 +20,188 @@
 
 #include "common.h"
 
-#define BUFFERSIZE 16384
+#define MAXBUFFERSIZE 85000
 
-Cayfly_s60Audio::Cayfly_s60Audio(unsigned long _sr)
-        : AbstractAudio(_sr)
+#include <f32file.h>
+#include <eikenv.h>
+
+
+Cayfly_s60Audio::Cayfly_s60Audio()
+        : AbstractAudio(AUDIO_FREQ), iDevSound(0), iVolume(50)
 {
-    bOpened = false;
-    sem.CreateLocal(0);
-    //console->Write(_L("S60Audio::S60Audio\n"));
+    iCodecType      = KMMFFourCCCodePCM16;
+    ay8910 = new ay(AY_CLOCK, MAXBUFFERSIZE >> 1); // 16 bit, 2 ch.
+    iSoundData = new TUint8[MAXBUFFERSIZE];
 }
 
 Cayfly_s60Audio::~Cayfly_s60Audio()
 {
-    iThread.Kill(KErrCancel);
-    iThread.Close();
-    if (ay8910)
+    KillSound();
+    if(ay8910)
     {
         delete ay8910;
         ay8910 = 0;
     }
-    bOpened = false;
-    shutdownSpeccy();
-}
 
-Cayfly_s60Audio* Cayfly_s60Audio::NewL(unsigned long _sr)
-{
-    Cayfly_s60Audio* self = new(ELeave) Cayfly_s60Audio(_sr);
-    CleanupStack::PushL(self);
-    self->ConstructL();
-    CleanupStack::Pop(self);
-    return self;
-}
-
-void Cayfly_s60Audio::ConstructL()
-{
-    //console->Write(_L("S60Audio::ConstructL\n"));
-    iSoundData [0] = new TUint8[BUFFERSIZE];
-    iSoundBuf [0] = new TPtr8(iSoundData [0], BUFFERSIZE, BUFFERSIZE);
-    iSoundData [1] = new TUint8[BUFFERSIZE];
-    iSoundBuf [1] = new TPtr8(iSoundData [1], BUFFERSIZE, BUFFERSIZE);
-    iStream = CMdaAudioOutputStream::NewL(*this, EMdaPriorityNormal, EMdaPriorityPreferenceTimeAndQuality);
-    ay8910 = new ay(Z80_FREQ / 2, BUFFERSIZE >> 1); // 16 bit, 2 ch.
-    buffer_num = 0;
-    TInt res = iThread.Create(_L("GenAudioThread"), ThreadEntryPoint,
-                              KDefaultStackSize, NULL, (TAny *)this);
-
-    if (res == KErrNone)
+    if(iSoundData)
     {
-        iThread.SetPriority(EPriorityMore);
-        iThread.Resume();
+        delete iSoundData;
+        iSoundData = 0;
+    }
+
+}
+
+void Cayfly_s60Audio::StartPlay()
+{
+    KillSound();
+
+    iDevSound = CMMFDevSound::NewL();
+    iDevSound->SetVolume(iVolume);
+
+    TMMFState aMode = EMMFStatePlaying;
+
+    TRAPD(err, iDevSound->InitializeL(*this, iCodecType, aMode));
+    if (err)
+    {
+        TBuf<10> errBuf;
+        errBuf.AppendNum(err);
+        CEikonEnv::Static()->InfoWinL(_L("Play error"), errBuf);
+        KillSound();
+        return;
+    }
+    iDevSound->PlayInitL();
+}
+
+void Cayfly_s60Audio::StopPlay()
+{
+    KillSound();
+}
+
+void Cayfly_s60Audio::SetVolume(TInt aVolume)
+{
+    iVolume = aVolume;
+    if (iDevSound)
+        iDevSound->SetVolume(iVolume);
+}
+
+TInt Cayfly_s60Audio::GetVolume()
+{
+    return iVolume;
+}
+
+void Cayfly_s60Audio::KillSound()
+{
+    if (iDevSound)
+    {
+        iDevSound->Stop();
+        delete iDevSound;
+        iDevSound = NULL;
     }
 }
 
-void Cayfly_s60Audio::Open()
+void Cayfly_s60Audio::BufferToBeFilled(CMMFBuffer*aBuffer)
 {
-    //printf("S60Audio::Open\n");
-    iStream->Open(&iSettings);
+    int reqSize = aBuffer->RequestSize();
+    TDes8& bufData = ((CMMFDataBuffer*)aBuffer)->Data();
+    ay8910->ayProcess((unsigned char *)iSoundData, reqSize);
+    bufData.Copy(iSoundData, reqSize);
+        //bufData.FillZ();
 
-}
 
-void Cayfly_s60Audio::MaoscOpenComplete(TInt aError)
-{
-    //printf("S60Audio::MaoscOpenComplete\n");
-
-    if (aError == KErrNone)
+    /*for(unsigned long i = 0 ; i < reqSize; i++)
     {
-        //printf("!!\n");
-        // set stream properties to 16bit,44.1KHz stereo
-        iStream->SetAudioPropertiesL(TMdaAudioDataSettings::ESampleRate32000Hz, TMdaAudioDataSettings::EChannelsMono);
-
-        // note that MaxVolume() is different in the emulator and the real device!
-        iStream->SetVolume(5);
-        //iStream->SetPriority(EMdaPriorityNomral, EMdaPriorityPreferenceTimeAndQuality);
-
-        bOpened = true;
-        // Fill first buffer and write it to the stream
-        UpdateBuffer();
-    }
+        bufData [i] = gen_buffer [i];
+    }*/
+    iDevSound->PlayData();
 }
 
-void Cayfly_s60Audio::UpdateBuffer()
-{
-    /*static long a = 0;
-    static long b = 1;
-    //printf("S60Audio::UpdateBuffer\n");
-
-    for(long i = 0; i < BUFFERSIZE; i += 2)
-    {
-     unsigned long val = b * 3000;
-     iSoundData [i] = (val & 0xff);
-     iSoundData [i + 1] = (val & 0xff00) >> 8;
-
-     if(++a > 200)
-     {
-      a = 0;
-      b ^= 1;
-     }
-    }
-
-    //printf("writing %d bytes, a = %u, b = %u\n", BUFFERSIZE, a, b);*/
-    // calculate the contents of the buffer
-    //ay8910->ayProcess((unsigned char *)iSoundData, BUFFERSIZE);
-
-
-    // call WriteL with a descriptor pointing at iSoundData
-    iStream->WriteL(*iSoundBuf [buffer_num]);
-}
-
-void Cayfly_s60Audio::MaoscBufferCopied(TInt aError, const TDesC8& /*aBuffer*/)
+void Cayfly_s60Audio::InitializeComplete(TInt aError)
 {
     if (aError == KErrNone)
     {
-        sem.Signal();
-        UpdateBuffer();
+        // priority and preference settings
+        /*iPrioritySettings.iPref = EMdaPriorityPreferenceQuality;
+        iPrioritySettings.iPriority = EMdaPriorityNormal;
+        iDevSound->SetPrioritySettings(iPrioritySettings);
+
+        // set sample rate and channels
+        TMMFCapabilities conf;
+        conf = iDevSound->Config();
+        conf.iRate = EMMFSampleRate32000Hz;
+        conf.iChannels = EMMFMono;
+        iDevSound->SetConfigL(conf);*/
     }
+
 }
 
-void Cayfly_s60Audio::MaoscPlayComplete(TInt aError)
+void Cayfly_s60Audio::ToneFinished(TInt aError)
 {
-    // we only want to restart in case of an underflow
-    // if aError!=KErrUnderflow the stream probably was stopped manually
+    DisplayError(_L("ToneFinished"), aError);
+}
+
+void Cayfly_s60Audio::PlayError(TInt aError)
+{
     if (aError == KErrUnderflow)
     {
-        UpdateBuffer();
+        iDevSound->Stop();
+        User::InfoPrint(_L("Play Finished"));
+        return;
     }
+    DisplayError(_L("PlayError"), aError);
+}
+
+// CMMFDevSound object calls this function when the buffer,
+// aBuffer gets filled while recording or converting.
+void Cayfly_s60Audio::BufferToBeEmptied(CMMFBuffer* /*aBuffer*/)
+{
+}
+
+void Cayfly_s60Audio::RecordError(TInt aError)
+{
+    DisplayError(_L("RecordError"), aError);
+}
+
+void Cayfly_s60Audio::ConvertError(TInt aError)
+{
+    DisplayError(_L("ConvertError"), aError);
+}
+
+void Cayfly_s60Audio::DeviceMessage(TUid aMessageType, const TDesC8& aMsg)
+{
+    HBufC* info;
+    HBufC* tmpBuf = HBufC::NewL(20);
+    tmpBuf->Des().AppendNum(aMessageType.iUid);
+    info = HBufC::NewL(tmpBuf->Length());
+    info->Des().Append(*tmpBuf);
+    delete tmpBuf;
+    tmpBuf = HBufC::NewL(aMsg.Length()+1);
+    tmpBuf->Des().Copy(aMsg);
+    tmpBuf->Des().Insert(0, _L(" "));
+    info->ReAlloc(info->Length()+tmpBuf->Length());
+    info->Des().Append(*tmpBuf);
+    delete tmpBuf;
+    CEikonEnv::InfoWinL(_L("DeviceMessage"), *info);
+    delete info;
+}
+
+void Cayfly_s60Audio::DisplayError(const TDesC& aTitle, TInt aError)
+{
+    if (aError == KErrNone)
+        return;
+
+    _LIT(KErrMsgCode, "error: %d");
+    TBuf<40> errBuf;
+    errBuf.Format(KErrMsgCode, aError);
+    CEikonEnv::InfoWinL(aTitle, errBuf);
 }
 
 bool Cayfly_s60Audio::Start()
 {
-    //printf("S60Audio::Start\n");
-
-    if (!bOpened)
-        Open();
-    else
-        UpdateBuffer();
+    StartPlay();
     return true;
-
 }
 
 void Cayfly_s60Audio::Stop()
 {
-    iStream->Stop();
-}
-
-TInt Cayfly_s60Audio::ThreadEntryPoint(TAny* aParameters)
-{
-    Cayfly_s60Audio *self = (Cayfly_s60Audio *)aParameters;
-    return self->DoGenerate();
-}
-
-TInt Cayfly_s60Audio::DoGenerate()
-{
-    static long a = 0;
-    static long b = 1;
-    static long c = 200;
-    static long cc = -1;
-    //printf("S60Audio::UpdateBuffer\n");
-
-    while (1)
-    {
-        unsigned long genbuf_bum = 1 - buffer_num;
-        sem.Wait();
-        for (long i = 0; i < BUFFERSIZE; i += 2)
-        {
-            unsigned long val = b * 3000;
-            iSoundData [genbuf_bum] [i] = (val & 0xff);
-            iSoundData [genbuf_bum] [i + 1] = (val & 0xff00) >> 8;
-
-            if (++a > c)
-            {
-                a = 0;
-                b ^= 1;
-                c += cc;
-                if (c <= 100)
-                    cc = 1;
-                else if (c >= 200)
-                    cc = -1;
-            }
-        }
-        //ay8910->ayProcess((unsigned char *)iSoundData [genbuf_bum], BUFFERSIZE);
-        buffer_num = 1 - buffer_num;
-    }
-
-
-
-    //printf("writing %d bytes, a = %u, b = %u\n", BUFFERSIZE, a, b);
-    return 0;
+    StopPlay();
 }

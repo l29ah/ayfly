@@ -132,10 +132,11 @@ extern "C"
 #    else
 #    define AUDIO_FREQ 32000
 #    endif
-#    define Z80_FREQ 3500000
+#    define Z80_FREQ 3546900
 #    define INTR_FREQ 50
 #    define Z80_TO_INTR (Z80_FREQ / INTR_FREQ)
 #    define Z80_TO_AUDIO (Z80_FREQ/AUDIO_FREQ)
+#    define AY_CLOCK 1773400
 
 #    define sizeof_array(x) sizeof(x) / sizeof(x [0])
 
