@@ -74,12 +74,24 @@ static unsigned char intz[] =
 0x76, /* halt */
 0x18, 0xfa /* jr loop */
 };
+#if 0
 static unsigned char intnz[] =
 { 0xf3, /* di */
 0xcd, 0, 0, /* call init */
 0xed, 0x56, /* loop: im 1 */
 0xfb, /* ei */
 0x76, /* halt */
+0xcd, 0, 0, /* call interrupt */
+0x18, 0xf7 /* jr loop */
+};
+#endif
+
+static unsigned char intnz[] =
+{ 0xf3, /* di */
+0xcd, 0, 0, /* call init */
+0x0, 0x0, /* loop: im 1 */
+0x00, /* ei */
+0x00, /* halt */
 0xcd, 0, 0, /* call interrupt */
 0x18, 0xf7 /* jr loop */
 };
@@ -313,15 +325,17 @@ bool readFile(const TXT_TYPE &filePath)
     return bRet;
 }
 #else
-bool readFile(const TDesC &filePath)
+bool readFile(TDes &filePath)
 {
     unsigned long data_len = 65536;
     bool bRet = false;
     char *fileData = 0;
+    filePath.LowerCase();
     TParse parse;
+    //cfp.LowerCase();
     parse.Set(filePath, NULL, NULL);
     //gConsole->Printf(_L("Reading file %S...\n"), &filePath);
-    if (parse.Ext() == _L(".ay"))
+    if (parse.Ext().Match(_L(".ay")) != KErrNotFound)
     {
         char *fileData = osRead(filePath, &data_len);
         if (fileData)

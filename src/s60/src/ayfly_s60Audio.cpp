@@ -27,23 +27,23 @@
 
 
 Cayfly_s60Audio::Cayfly_s60Audio()
-        : AbstractAudio(AUDIO_FREQ), iDevSound(0), iVolume(50)
+        : AbstractAudio(AUDIO_FREQ), iDevSound(0), iVolume(25)
 {
     iCodecType      = KMMFFourCCCodePCM16;
-    ay8910 = new ay(AY_CLOCK, MAXBUFFERSIZE >> 1); // 16 bit, 2 ch.
+    ay8910 = new ay(Z80_FREQ / 2, MAXBUFFERSIZE >> 1); // 16 bit, 2 ch.
     iSoundData = new TUint8[MAXBUFFERSIZE];
 }
 
 Cayfly_s60Audio::~Cayfly_s60Audio()
 {
     KillSound();
-    if(ay8910)
+    if (ay8910)
     {
         delete ay8910;
         ay8910 = 0;
     }
 
-    if(iSoundData)
+    if (iSoundData)
     {
         delete iSoundData;
         iSoundData = 0;
@@ -69,6 +69,17 @@ void Cayfly_s60Audio::StartPlay()
         KillSound();
         return;
     }
+    iPrioritySettings.iPref = EMdaPriorityPreferenceTime;
+    iPrioritySettings.iPriority = EMdaPriorityNormal;
+    iDevSound->SetPrioritySettings(iPrioritySettings);
+
+    // set sample rate and channels
+    TMMFCapabilities conf;
+    conf = iDevSound->Config();
+    conf.iRate = EMMFSampleRate32000Hz;
+    conf.iChannels = EMMFStereo;
+    iDevSound->SetConfigL(conf);
+
     iDevSound->PlayInitL();
 }
 
@@ -105,7 +116,7 @@ void Cayfly_s60Audio::BufferToBeFilled(CMMFBuffer*aBuffer)
     TDes8& bufData = ((CMMFDataBuffer*)aBuffer)->Data();
     ay8910->ayProcess((unsigned char *)iSoundData, reqSize);
     bufData.Copy(iSoundData, reqSize);
-        //bufData.FillZ();
+    //bufData.FillZ();
 
 
     /*for(unsigned long i = 0 ; i < reqSize; i++)
@@ -174,10 +185,10 @@ void Cayfly_s60Audio::DeviceMessage(TUid aMessageType, const TDesC8& aMsg)
     info = HBufC::NewL(tmpBuf->Length());
     info->Des().Append(*tmpBuf);
     delete tmpBuf;
-    tmpBuf = HBufC::NewL(aMsg.Length()+1);
+    tmpBuf = HBufC::NewL(aMsg.Length() + 1);
     tmpBuf->Des().Copy(aMsg);
     tmpBuf->Des().Insert(0, _L(" "));
-    info->ReAlloc(info->Length()+tmpBuf->Length());
+    info->ReAlloc(info->Length() + tmpBuf->Length());
     info->Des().Append(*tmpBuf);
     delete tmpBuf;
     CEikonEnv::InfoWinL(_L("DeviceMessage"), *info);

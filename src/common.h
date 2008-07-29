@@ -152,7 +152,7 @@ extern "C"
 #    ifndef __SYMBIAN32__
 extern bool readFile(const TXT_TYPE &filePath);
 #    else
-extern bool readFile(const TDesC &filePath);
+extern bool readFile(TDes &filePath);
 extern CConsoleBase *gConsole;
 #    endif
 
@@ -204,7 +204,7 @@ extern AbstractAudio *player;
 
 #    define AYFLY_VERSION_MAJOR 0
 #    define AYFLY_VERSION_MINOR 0
-#    define AYFLY_VERSION_PATCH 12
+#    define AYFLY_VERSION_PATCH 13
 
 #    define AYFLY_MAKE_VERSION ((AYFLY_VERSION_MAJOR << 16) | (AYFLY_VERSION_MINOR << 8) | AYFLY_VERSION_PATCH)
 #    define AYFLY_VERSION AYFLY_VERSION_MAJOR.AYFLY_VERSION_MINOR.AYFLY_VERSION_PATCH

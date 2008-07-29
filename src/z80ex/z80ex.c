@@ -77,12 +77,12 @@ LIB_EXPORT int z80ex_step(Z80EX_CONTEXT *cpu)
 {
 	Z80EX_BYTE opcode, d;
 	z80ex_opcode_fn ofn=NULL;
-	
+
 	cpu->doing_opcode=1;
 	cpu->noint_once=0;
 	cpu->tstate=0;
 	cpu->op_tstate=0;
-	
+
 	opcode=READ_OP_M1(); /*fetch opcode*/
 	if(cpu->int_vector_req)
 	{
@@ -111,7 +111,7 @@ LIB_EXPORT int z80ex_step(Z80EX_CONTEXT *cpu)
 						d=READ_OP(); /*displacement*/
 						temp_byte_s=(d & 0x80)? -(((~d) & 0x7f)+1): d;
 						opcode=READ_OP();
-						ofn = (cpu->prefix == 0xDD)? opcodes_ddcb[opcode]: opcodes_fdcb[opcode];						
+						ofn = (cpu->prefix == 0xDD)? opcodes_ddcb[opcode]: opcodes_fdcb[opcode];
 					}
 					else
 					{
@@ -119,27 +119,27 @@ LIB_EXPORT int z80ex_step(Z80EX_CONTEXT *cpu)
 						if(ofn == NULL) ofn=opcodes_base[opcode]; /*'mirrored' instructions*/
 					}
 					break;
-								
+
 				case 0xED:
 					ofn = opcodes_ed[opcode];
 					if(ofn == NULL) ofn=opcodes_base[0x00];
 					break;
-				
+
 				case 0xCB:
 					ofn = opcodes_cb[opcode];
 					break;
-					
+
 				default:
 					/*this must'nt happen!*/
 					break;
 			}
-		
+
 			ofn(cpu);
-		
+
 			cpu->prefix=0;
 		}
 	}
-		
+
 	cpu->doing_opcode=0;
 	return(cpu->tstate);
 }
@@ -148,7 +148,7 @@ LIB_EXPORT Z80EX_BYTE z80ex_last_op_type(Z80EX_CONTEXT *cpu)
 {
 	return(cpu->prefix);
 }
-	
+
 LIB_EXPORT void z80ex_reset(Z80EX_CONTEXT *cpu)
 {
 	PC=0x0000; IFF1=IFF2=0; IM=IM0;
@@ -177,23 +177,23 @@ LIB_EXPORT Z80EX_CONTEXT *z80ex_create(
 		initialized=1;
 		init_tables();
 	}
-	
+
 	if((cpu=(Z80EX_CONTEXT *)malloc(sizeof(Z80EX_CONTEXT))) == NULL) return(NULL);
 	memset(cpu,0x00,sizeof(Z80EX_CONTEXT));
-	
+
 	z80ex_reset(cpu);
-	
+
 	cpu->mread_cb=mrcb_fn;
 	cpu->mread_cb_user_data=mrcb_data;
 	cpu->mwrite_cb=mwcb_fn;
-	cpu->mwrite_cb_user_data=mwcb_data;	
+	cpu->mwrite_cb_user_data=mwcb_data;
 	cpu->pread_cb=prcb_fn;
-	cpu->pread_cb_user_data=prcb_data;	
+	cpu->pread_cb_user_data=prcb_data;
 	cpu->pwrite_cb=pwcb_fn;
 	cpu->pwrite_cb_user_data=pwcb_data;
 	cpu->intread_cb=ircb_fn;
-	cpu->intread_cb_user_data=ircb_data;	
-	
+	cpu->intread_cb_user_data=ircb_data;
+
 	return(cpu);
 }
 
@@ -212,25 +212,25 @@ LIB_EXPORT void z80ex_set_tstate_callback(Z80EX_CONTEXT *cpu, z80ex_tstate_cb cb
 LIB_EXPORT int z80ex_nmi(Z80EX_CONTEXT *cpu)
 {
 	if(cpu->doing_opcode || cpu->noint_once || cpu->prefix) return(0);
-	
+
 	cpu->doing_opcode=1;
-	
+
 	R++; /*accepting interrupt increases R by one*/
 	IFF1=0;
 
-	TSTATES(5); 
-	
+	TSTATES(5);
+
 	cpu->mwrite_cb(cpu, --SP, cpu->pc.b.h, cpu->mwrite_cb_user_data); /*PUSH PC -- high byte */
 	TSTATES(3);
-		
+
 	cpu->mwrite_cb(cpu, --SP, cpu->pc.b.l, cpu->mwrite_cb_user_data); /*PUSH PC -- low byte */
 	TSTATES(3);
-	
+
 	PC=0x0066;
 	MEMPTR=PC; /*FIXME: is it really so?*/
-		
+
 	cpu->doing_opcode=0;
-	
+
 	return(11); /*NMI always takes 11 t-states*/
 }
 
@@ -240,7 +240,7 @@ LIB_EXPORT int z80ex_int(Z80EX_CONTEXT *cpu)
 	Z80EX_WORD inttemp;
 	Z80EX_BYTE iv;
 	unsigned long tt;
-	
+
 	/*If the INT line is low and IFF1 is set, and there's no opcode executing just now,
 	a maskable interrupt is accepted, whether or not the
 	last INT routine has finished*/
@@ -248,59 +248,59 @@ LIB_EXPORT int z80ex_int(Z80EX_CONTEXT *cpu)
 
 	cpu->tstate=0;
 	cpu->op_tstate=0;
-	
+
 	if(cpu->halted) { PC++; cpu->halted = 0; } /*so we met an interrupt... stop waiting*/
-	
+
 	/*When an INT is accepted, both IFF1 and IFF2 are cleared, preventing another interrupt from
 	occurring which would end up as an infinite loop*/
 	IFF1=IFF2=0;
 
 	cpu->int_vector_req=1;
 	cpu->doing_opcode=1;
-	
+
 	switch(IM)
 	{
 		case IM0:
 			/*note: there's no need to do R++ and WAITs here, it'll be handled by z80ex_step*/
 			tt=z80ex_step(cpu);
-		
+
 			while(cpu->prefix) /*this is not the end?*/
 			{
 				tt+=z80ex_step(cpu);
 			}
-			
+
 			cpu->tstate=tt;
 			break;
-		
+
 		case IM1:
-			R++; 
+			R++;
 			TSTATES(2); /*two extra wait-states*/
 			/*An RST 38h is executed, no matter what value is put on the bus or what
 			value the I register has. 13 t-states (2 extra + 11 for RST).*/
 			opcodes_base[0xff](cpu); /*RST38*/
 			break;
-		
+
 		case IM2:
-			R++; 
+			R++;
 			/*takes 19 clock periods to complete (seven to fetch the
 			lower eight bits from the interrupting device, six to save the program
 			counter, and six to obtain the jump address)*/
 			iv=READ_OP();
 			T_WAIT_UNTIL(7);
 			inttemp=(0x100*I)+iv;
-		
+
 			PUSH(PC,7,10);
-				
+
 			READ_MEM(PCL,inttemp++,13); READ_MEM(PCH,inttemp,16);
 			MEMPTR=PC;
 			T_WAIT_UNTIL(19);
-			
+
 			break;
 	}
-	
+
 	cpu->doing_opcode=0;
 	cpu->int_vector_req=0;
-	
+
 	return(cpu->tstate);
 }
 
@@ -334,12 +334,12 @@ LIB_EXPORT Z80EX_WORD z80ex_get_reg(Z80EX_CONTEXT *cpu, Z80_REG_T reg)
 		case regSP: return(SP);
 		case regI: return(I);
 		case regR: return(R);
-		case regR7: return(R7);	
+		case regR7: return(R7);
 		case regIM: return(IM);
 		case regIFF1: return(IFF1);
 		case regIFF2: return(IFF2);
 	}
-	
+
 	return(0);
 }
 
@@ -361,7 +361,7 @@ LIB_EXPORT void z80ex_set_reg(Z80EX_CONTEXT *cpu, Z80_REG_T reg, Z80EX_WORD valu
 		case regSP: SP=value; return;
 		case regI: I=(value & 0xff); return;
 		case regR: R=(value & 0xff); return;
-		case regR7: R7=(value & 0xff); return;	
+		case regR7: R7=(value & 0xff); return;
 		case regIM:
 			switch(value & 0x03)
 			{
@@ -372,7 +372,7 @@ LIB_EXPORT void z80ex_set_reg(Z80EX_CONTEXT *cpu, Z80_REG_T reg, Z80EX_WORD valu
 		case regIFF1: IFF1=(value & 0x01); return;
 		case regIFF2: IFF2=(value & 0x01); return;
 	}
-	
+
 	return;
 }
 
