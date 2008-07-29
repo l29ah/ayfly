@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #ifndef AY_H_
 #define AY_H_
 
@@ -99,6 +99,8 @@ private:
     double volume[3];
     ELAPSED_CALLBACK elapsedCallback;
     void *elapsedCallbackArg;
+    unsigned long int_counter;
+    unsigned long int_limit;
 };
 
 #endif /*AY_H_*/

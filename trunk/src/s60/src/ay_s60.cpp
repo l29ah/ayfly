@@ -67,6 +67,8 @@ ay::ay(long _ay_freq, int _buf_sz)
     elapsedCallback = 0;
     elapsedCallbackArg = 0;
 
+    int_limit = AUDIO_FREQ / INTR_FREQ;
+
     ayReset();
     //f = fopen("ay_tone.raw", "wb");
 }
@@ -112,6 +114,7 @@ void ay::SetBufferSize(int _buf_sz)
 
 void ay::ayReset()
 {
+    int_counter = 0;
     //init regs with defaults
     memset(regs, 0, sizeof (regs));
     regs [AY_GPIO_A] = regs [AY_GPIO_B] = 0xff;
@@ -261,15 +264,20 @@ void ay::updateEnvelope()
 void ay::ayProcess(unsigned char *stream, int len)
 {
     short *stream16 = (short *)stream;
-    for (unsigned long i = 0; i < (len >> 1); i++)
+    for (unsigned long i = 0; i < len >> 1; i += 2)
     {
-        stream16 [i] = 0;
+        stream16 [i] = stream16 [i + 1] = 0;
+        if(++int_counter > int_limit)
+        {
+            int_counter = 0;
+            execInstruction(elapsedCallback, elapsedCallbackArg);
+        }
 
         for (unsigned long k = 0; k < ay_tacts; k++)
         {
 
-            for (unsigned long ii = 0; ii < 4; ii++)
-                execInstruction(elapsedCallback, elapsedCallbackArg);
+            /*for (unsigned long ii = 0; ii < 4; ii++)
+                execInstruction(elapsedCallback, elapsedCallbackArg);*/
 
             //if(TONE_ENABLE(0) == 0)
             if (++chnl_period [0] >= tone_period_init [0])
@@ -306,12 +314,15 @@ void ay::ayProcess(unsigned char *stream, int len)
             updateEnvelope();
         }
 
+        if ((chnl_trigger [1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)))
+            stream16 [i] = stream16 [i + 1] = ((CHNL_ENVELOPE(1) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(1)])) / 2;
+
         if ((chnl_trigger [0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)))
             stream16 [i] += (CHNL_ENVELOPE(0) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(0)]);
-        if ((chnl_trigger [1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)))
-            stream16 [i] += (CHNL_ENVELOPE(1) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(1)]);
+
         if ((chnl_trigger [2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)))
-            stream16 [i] += (CHNL_ENVELOPE(2) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(2)]);
+            stream16 [i + 1] += (CHNL_ENVELOPE(2) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(2)]);
+
 
     }
 

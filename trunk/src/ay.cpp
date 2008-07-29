@@ -89,6 +89,8 @@ ay::ay(long _ay_freq, int _buf_sz)
     elapsedCallback = 0;
     elapsedCallbackArg = 0;
 
+    int_limit = ay_tacts * (AUDIO_FREQ / INTR_FREQ);
+
     ayReset();
     //f = fopen("ay_tone.raw", "wb");
 }
@@ -136,6 +138,7 @@ void ay::SetBufferSize(int _buf_sz)
 void ay::ayReset()
 {
     //init regs with defaults
+    int_counter = 0;
     memset(regs, 0, sizeof (regs));
     regs [AY_GPIO_A] = regs [AY_GPIO_B] = 0xff;
     chnl_period [0] = chnl_period [1] = chnl_period [2] = 0;
@@ -287,8 +290,14 @@ void ay::ayProcess(unsigned char *stream, int len)
     {
         buffer [0] [i] = buffer [1] [i] = buffer [2] [i] = 0;
 
-        for(unsigned long ii = 0; ii < 4; ii++)
+        /*for(unsigned long ii = 0; ii < 4; ii++)
+            execInstruction(elapsedCallback, elapsedCallbackArg);*/
+
+        if(++int_counter > int_limit)
+        {
+            int_counter = 0;
             execInstruction(elapsedCallback, elapsedCallbackArg);
+        }
 
         //if(TONE_ENABLE(0) == 0)
             if(++chnl_period [0] >= tone_period_init [0])

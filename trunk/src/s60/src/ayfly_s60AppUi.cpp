@@ -105,9 +105,9 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 			shutdownSpeccy();
 			initSpeccy();
 			readFile(fileName);
-			TParse parse;
-			parse.Set(fileName, NULL, NULL);
-			fileName = parse.DriveAndPath();
+			//TParse parse;
+			//parse.Set(fileName, NULL, NULL);
+			fileName = PathInfo::MemoryCardRootPath();
 			//gConsole->Printf(_L("folderName = %S\N"), &fileName);
 		}
 	}

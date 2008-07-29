@@ -119,20 +119,17 @@
 }
 
 /*wait until end of opcode-tstate given (to be used on opcode execution)*/
-#define T_WAIT_UNTIL(t_state) {int nn;nn = t_state - cpu->op_tstate;if(nn>0){cpu->op_tstate += nn;cpu->tstate += nn;}}	
+#define T_WAIT_UNTIL(t_state)
+/*{int nn;nn = t_state - cpu->op_tstate;if(nn>0){cpu->op_tstate += nn;cpu->tstate += nn;}}*/
 	/*	if(cpu->tstate_cb != NULL) cpu->tstate_cb(cpu, cpu->tstate_cb_user_data); \ */
 
 /*spend <amount> t-states (not affecting opcode-tstate counter,
 for using outside of certain opcode execution)*/
-#define TSTATES(amount) \
+#define TSTATES(amount)
+/*\
 {\
-	int nn;\
-	for(nn=0; nn < amount; nn++) \
-	{ \
-		cpu->tstate++; \
-		if(cpu->tstate_cb != NULL) cpu->tstate_cb(cpu, cpu->tstate_cb_user_data); \
-	}\
-}
+    cpu->tstate += amount;\
+}*/
 
 /* instructions */
 
@@ -967,4 +964,4 @@ for using outside of certain opcode execution)*/
 }
 
 
-#endif	
+#endif

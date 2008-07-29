@@ -97,6 +97,8 @@ private:
     double volume[3];
     ELAPSED_CALLBACK elapsedCallback;
     void *elapsedCallbackArg;
+    unsigned long int_counter;
+    unsigned long int_limit;
 };
 
 #endif /*AY_H_*/

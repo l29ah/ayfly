@@ -62,7 +62,7 @@ private:
 	 *  size is changed.
 	 */
 	void HandleStatusPaneSizeChange();
-	
+
 
 private:
 	// Data
@@ -74,7 +74,7 @@ private:
 	Cayfly_s60AppView* iAppView;
 	TFileName fileName;
 	//TFileName folderName;
-	
+
 
 	};
 
