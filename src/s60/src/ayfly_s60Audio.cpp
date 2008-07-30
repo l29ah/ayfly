@@ -20,17 +20,17 @@
 
 #include "common.h"
 
-#define MAXBUFFERSIZE 85000
+#define MAXBUFFERSIZE 16384
 
 #include <f32file.h>
 #include <eikenv.h>
 
 
 Cayfly_s60Audio::Cayfly_s60Audio()
-        : AbstractAudio(AUDIO_FREQ), iDevSound(0), iVolume(25)
+        : AbstractAudio(AUDIO_FREQ), iDevSound(0), iVolume(7)
 {
     iCodecType      = KMMFFourCCCodePCM16;
-    ay8910 = new ay(Z80_FREQ / 2, MAXBUFFERSIZE >> 1); // 16 bit, 2 ch.
+    ay8910 = new ay(Z80_FREQ / 2, MAXBUFFERSIZE >> 2); // 16 bit, 2 ch.
     iSoundData = new TUint8[MAXBUFFERSIZE];
 }
 

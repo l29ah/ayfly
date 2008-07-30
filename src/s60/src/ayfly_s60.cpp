@@ -20,7 +20,6 @@
 
 // INCLUDE FILES
 #include "common.h"
-
 CConsoleBase *gConsole = 0;
 
 LOCAL_C CApaApplication* NewApplication()
@@ -29,7 +28,7 @@ LOCAL_C CApaApplication* NewApplication()
 }
 
 GLDEF_C TInt E32Main()
-{		
+{
 	return EikStart::RunApplication( NewApplication );
 }
 

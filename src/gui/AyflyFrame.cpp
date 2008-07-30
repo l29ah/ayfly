@@ -773,8 +773,6 @@ void AyflyFrame::OnListKeyDown(wxListEvent &event)
                     currentSong = 0;
                 }
 
-                delete filePath;
-
                 delete deletedSong;
                 playListView->DeleteItem(index);
                 index--;

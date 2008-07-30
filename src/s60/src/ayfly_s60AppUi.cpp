@@ -94,7 +94,12 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 	{
 	case EEikCmdExit:
 	case EAknSoftkeyExit:
+	{
+        shutdownSpeccy();
+        delete player;
+        player = 0;
 		Exit();
+	}
 		break;
 	case ECommand1:
 	{
