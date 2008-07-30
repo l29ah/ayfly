@@ -87,7 +87,6 @@ private:
     unsigned long tail_len;
     bool chnl_mute[3];
     unsigned long q_len;
-    unsigned long half_len;
     FILE *fd;
     int buf_sz;
     unsigned long tails_len;

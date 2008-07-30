@@ -273,6 +273,9 @@ void ay::ayProcess(unsigned char *stream, int len)
             execInstruction(elapsedCallback, elapsedCallbackArg);
         }
 
+        unsigned long s0, s1, s2;
+        s0 = s1 = s2 = 0;
+
         for (unsigned long k = 0; k < ay_tacts; k++)
         {
 
@@ -312,18 +315,29 @@ void ay::ayProcess(unsigned char *stream, int len)
                 noise_reg >>= 1;
             }
             updateEnvelope();
+
+            if ((chnl_trigger [0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)))
+                s0 += (CHNL_ENVELOPE(0) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(0)]);
+
+            if ((chnl_trigger [1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)))
+                s1 += ((CHNL_ENVELOPE(1) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(1)]));
+
+            if ((chnl_trigger [2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)))
+                s2 += (CHNL_ENVELOPE(2) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(2)]);
         }
 
-        if ((chnl_trigger [1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)))
+        /*if ((chnl_trigger [1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)))
             stream16 [i] = stream16 [i + 1] = ((CHNL_ENVELOPE(1) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(1)])) / 2;
 
         if ((chnl_trigger [0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)))
             stream16 [i] += (CHNL_ENVELOPE(0) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(0)]);
 
         if ((chnl_trigger [2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)))
-            stream16 [i + 1] += (CHNL_ENVELOPE(2) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(2)]);
+            stream16 [i + 1] += (CHNL_ENVELOPE(2) ? ay::levels [env_vol] : ay::levels [CHNL_VOLUME(2)]);*/
 
-
+        stream16 [i] = stream16 [i + 1] = (s1 / ay_tacts) / 2;
+        stream16 [i] += s0 / ay_tacts;
+        stream16 [i + 1] += s2 / ay_tacts;
     }
 
 }

@@ -44,11 +44,11 @@ struct _Players
     GETTIME_CALLBACK getTime;
 };
 
-unsigned long STCGetTime(const char *fileData, unsigned long &loop);
-unsigned long STPGetTime(const char *fileData, unsigned long &loop);
-unsigned long PT3GetTime(const char *fileData, unsigned long &loop);
-unsigned long PT2GetTime(const char *fileData, unsigned long &loop);
-unsigned long ASCGetTime(const char *fileData, unsigned long &loop);
+unsigned long STCGetTime(const unsigned char *fileData, unsigned long &loop);
+unsigned long STPGetTime(const unsigned char *fileData, unsigned long &loop);
+unsigned long PT3GetTime(const unsigned char *fileData, unsigned long &loop);
+unsigned long PT2GetTime(const unsigned char *fileData, unsigned long &loop);
+unsigned long ASCGetTime(const unsigned char *fileData, unsigned long &loop);
 
 _Players Players[] =
 {
@@ -534,7 +534,7 @@ bool getSongInfo(SongInfo *info)
                 if (fileData)
                 {
                     if (Players[i].getTime)
-                        info->Length = Players[i].getTime(fileData, info->Loop);
+                        info->Length = Players[i].getTime((unsigned char *)fileData, info->Loop);
                     delete fileData;
                 }
                 break;
@@ -545,7 +545,7 @@ bool getSongInfo(SongInfo *info)
     return true;
 }
 
-unsigned long STCGetTime(const char *fileData, unsigned long &loop)
+unsigned long STCGetTime(const unsigned char *fileData, unsigned long &loop)
 {
     unsigned long tm = 0;
     long j, j1, j2, i;
@@ -591,7 +591,7 @@ unsigned long STCGetTime(const char *fileData, unsigned long &loop)
     return tm;
 }
 
-unsigned long STPGetTime(const char *fileData, unsigned long &loop)
+unsigned long STPGetTime(const unsigned char *fileData, unsigned long &loop)
 {
     unsigned long tm = 0;
     unsigned char a = 1;
@@ -626,7 +626,7 @@ unsigned long STPGetTime(const char *fileData, unsigned long &loop)
     return tm;
 }
 
-unsigned long PT3GetTime(const char *fileData, unsigned long &loop)
+unsigned long PT3GetTime(const unsigned char *fileData, unsigned long &loop)
 {
     unsigned short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
@@ -942,7 +942,7 @@ unsigned long PT3GetTime(const char *fileData, unsigned long &loop)
     return tm;
 }
 
-unsigned long PT2GetTime(const char *fileData, unsigned long &loop)
+unsigned long PT2GetTime(const unsigned char *fileData, unsigned long &loop)
 {
     short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
@@ -1084,7 +1084,7 @@ unsigned long PT2GetTime(const char *fileData, unsigned long &loop)
     return tm;
 }
 
-unsigned long ASCGetTime(const char *fileData, unsigned long &loop)
+unsigned long ASCGetTime(const unsigned char *fileData, unsigned long &loop)
 {
     short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
@@ -1116,7 +1116,7 @@ unsigned long ASCGetTime(const char *fileData, unsigned long &loop)
                     break;
                 while(true)
                 {
-                    unsigned char val = (unsigned char) fileData [j1];
+                    unsigned char val = fileData [j1];
                     if((val >= 0) && (val <= 0x55))
                     {
                         a1 = a11;
@@ -1245,9 +1245,8 @@ unsigned long ASCGetTime(const char *fileData, unsigned long &loop)
                     j3++;
                 }
             }
-
+            tm += b;
         }
-        tm += b;
     }
     return tm;
 }

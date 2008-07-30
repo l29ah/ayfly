@@ -46,7 +46,7 @@
 #    endif
 
 typedef void (*ELAPSED_CALLBACK)(void *arg);
-typedef unsigned long (*GETTIME_CALLBACK)(const char *fileData, unsigned long &loop);
+typedef unsigned long (*GETTIME_CALLBACK)(const unsigned char *fileData, unsigned long &loop);
 
 #    include "stdio.h"
 #    include "stdlib.h"

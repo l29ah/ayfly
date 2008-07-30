@@ -109,10 +109,7 @@ ay::~ay()
 void ay::SetBufferSize(int _buf_sz)
 {
     buf_sz = _buf_sz;
-    q_len = buf_sz;
-    half_len = buf_sz << 1;
-
-    q_len *= ay_tacts;
+    q_len = buf_sz * ay_tacts;
 
     if(buffer [0])
     {
@@ -286,7 +283,8 @@ void ay::updateEnvelope()
 
 void ay::ayProcess(unsigned char *stream, int len)
 {
-    for(unsigned long i = 0; i < q_len; i++)
+    unsigned long work_len = (len >> 2) * ay_tacts;
+    for(unsigned long i = 0; i < work_len; i++)
     {
         buffer [0] [i] = buffer [1] [i] = buffer [2] [i] = 0;
 
@@ -349,14 +347,18 @@ void ay::ayProcess(unsigned char *stream, int len)
     short *stream16 = (short *)stream;
     unsigned long j = 0;
     unsigned long k = 0;
+    unsigned long k_tail = 0;
     double tail0, tail1;
     //unsigned long t_index;
 
-    for(unsigned long i = 0; i < (unsigned long)half_len; i += 2, j += ay_tacts, k++)
+    work_len = len >> 1;
+    unsigned long work_tail_len = tail_len * ay_tacts;
+    for(unsigned long i = 0; i < (unsigned long)work_len; i += 2, j += ay_tacts, k++, k_tail += ay_tacts)
     {
-        tail0 = k < tail_len ? buffer_tail [0] [k] : buffer [0] [(k - tail_len) * ay_tacts];
-        tail1 = k < tail_len ? buffer_tail [2] [k] : buffer [2] [(k - tail_len) * ay_tacts];
+        tail0 = k < tail_len ? buffer_tail [0] [k] : buffer [0] [k_tail - work_tail_len];
+        tail1 = k < tail_len ? buffer_tail [2] [k] : buffer [2] [k_tail - work_tail_len];
 
+#ifndef __SYMBIAN32__
         double s = buffer [0] [j] + buffer [1] [j] + buffer [2] [j];
         flt_bass->Process(s);
 
@@ -364,12 +366,13 @@ void ay::ayProcess(unsigned char *stream, int len)
 
         //buffer [0] [j] = buffer [2] [j] = 0;
         //buffer [1] [j] = s;
+#endif
 
         stream16 [i] = (buffer [0] [j] + buffer [1] [j] + tail1 / 4);
         stream16 [i + 1] = (buffer [2] [j] + buffer [1] [j] + tail0 / 4);
     }
 
-    j = (buf_sz - tail_len) * ay_tacts;
+    j = ((len >> 2) - tail_len) * ay_tacts;
     for(unsigned long i = 0; i < tail_len; i++, j += ay_tacts)
     {
         buffer_tail [0] [i] = buffer [0] [j];
