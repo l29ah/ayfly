@@ -67,7 +67,7 @@ private:
 
     void RecreateToolbar();
     double CalculateVolume(double volume_int);
-    bool OpenFile(const wxString &filePath);
+    bool OpenFile();
 
     void OnQuit(wxCommandEvent &event);
     void OnAbout(wxCommandEvent &event);

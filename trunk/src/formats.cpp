@@ -27,6 +27,11 @@
 //#include "players/SQTPlay.h" not working
 #include "players/ASCPlay.h"
 
+unsigned long timeElapsed;
+unsigned long maxElapsed;
+
+typedef void (*GETINFO_CALLBACK)(const unsigned char *fileData, SongInfo &info);
+
 enum _FileTypes
 {
     FILE_TYPE_AY, FILE_TYPE_TRACKER
@@ -39,26 +44,35 @@ struct _Players
     unsigned long player_base;
     unsigned long length;
     unsigned long module_base;
-    unsigned long init_proc;
-    unsigned long play_proc;
-    GETTIME_CALLBACK getTime;
+    union
+    {
+        unsigned long emul_init_proc;
+        PLAYER_INIT_PROC soft_init_proc;
+    };
+    union
+    {
+        unsigned long emul_play_proc;
+        PLAYER_PLAY_PROC soft_play_proc;
+
+    };
+    GETINFO_CALLBACK getInfo;
 };
 
-unsigned long STCGetTime(const unsigned char *fileData, unsigned long &loop);
-unsigned long STPGetTime(const unsigned char *fileData, unsigned long &loop);
-unsigned long PT3GetTime(const unsigned char *fileData, unsigned long &loop);
-unsigned long PT2GetTime(const unsigned char *fileData, unsigned long &loop);
-unsigned long ASCGetTime(const unsigned char *fileData, unsigned long &loop);
+void STCGetInfo(const unsigned char *fileData, SongInfo &info);
+void STPGetInfo(const unsigned char *fileData, SongInfo &info);
+void PT3GetInfo(const unsigned char *fileData, SongInfo &info);
+void PT2GetInfo(const unsigned char *fileData, SongInfo &info);
+void ASCGetInfo(const unsigned char *fileData, SongInfo &info);
 
 _Players Players[] =
 {
-{ TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0xc006, PT2GetTime },
-{ TXT(".pt3"), PT3Play_data, 0xc000, sizeof(PT3Play_data), 0x0000, 0xc000, 0xc005, PT3GetTime },
-{ TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0xc006, STPGetTime },
-{ TXT(".psc"), PSCPlay_data, 0xc000, sizeof(PSCPlay_data), 0x0000, 0xc000, 0xc006, 0 },
-{ TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0xc006, STCGetTime },
+    { TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0xc006, PT2GetInfo },
+    { TXT(".pt3"), PT3Play_data, 0xc000, sizeof(PT3Play_data), 0x0000, 0xc000, 0xc005, PT3GetInfo },
+    { TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0xc006, STPGetInfo },
+    { TXT(".psc"), PSCPlay_data, 0xc000, sizeof(PSCPlay_data), 0x0000, 0xc000, 0xc006, 0 },
+    { TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0xc006, STCGetInfo },
 //		{TEXT(".sqt"), SQTPlay_data, 0xc000, sizeof(SQTPlay_data), 0x0000, 0xc000, 0xc030}, not working
-{ TXT(".asc"), ASCPlay_data, 0xc000, sizeof(ASCPlay_data), 0x0000, 0xc000 + 11, 0xc000 + 14, ASCGetTime}
+    { TXT(".asc"), ASCPlay_data, 0xc000, sizeof(ASCPlay_data), 0x0000, 0xc000 + 11, 0xc000 + 14, ASCGetInfo}
 };
 
 /*
@@ -67,34 +81,34 @@ _Players Players[] =
  */
 
 static unsigned char intz[] =
-{ 0xf3, /* di */
-0xcd, 0, 0, /* call init */
-0xed, 0x5e, /* loop: im 2 */
-0xfb, /* ei */
-0x76, /* halt */
-0x18, 0xfa /* jr loop */
-};
+    { 0xf3, /* di */
+      0xcd, 0, 0, /* call init */
+      0xed, 0x5e, /* loop: im 2 */
+      0xfb, /* ei */
+      0x76, /* halt */
+      0x18, 0xfa /* jr loop */
+    };
 #if 0
 static unsigned char intnz[] =
-{ 0xf3, /* di */
-0xcd, 0, 0, /* call init */
-0xed, 0x56, /* loop: im 1 */
-0xfb, /* ei */
-0x76, /* halt */
-0xcd, 0, 0, /* call interrupt */
-0x18, 0xf7 /* jr loop */
-};
+    { 0xf3, /* di */
+      0xcd, 0, 0, /* call init */
+      0xed, 0x56, /* loop: im 1 */
+      0xfb, /* ei */
+      0x76, /* halt */
+      0xcd, 0, 0, /* call interrupt */
+      0x18, 0xf7 /* jr loop */
+    };
 #endif
 
 static unsigned char intnz[] =
-{ 0xf3, /* di */
-0xcd, 0, 0, /* call init */
-0x0, 0x0, /* loop: im 1 */
-0x00, /* ei */
-0x00, /* halt */
-0xcd, 0, 0, /* call interrupt */
-0x18, 0xf7 /* jr loop */
-};
+    { 0xf3, /* di */
+      0xcd, 0, 0, /* call init */
+      0x0, 0x0, /* loop: im 1 */
+      0x00, /* ei */
+      0x00, /* halt */
+      0xcd, 0, 0, /* call interrupt */
+      0x18, 0xf7 /* jr loop */
+    };
 
 
 //for .ay format
@@ -121,11 +135,7 @@ static ayData aydata;
 
 void initMemoryAY(unsigned char track);
 
-#ifndef __SYMBIAN32__
 char *osRead(const TXT_TYPE &filePath, unsigned long *data_len)
-#else
-char *osRead(const TDesC &filePath, unsigned long *data_len)
-#endif
 {
     char *fileData = new char[*data_len];
     if (!fileData)
@@ -180,7 +190,7 @@ char *osRead(const TDesC &filePath, unsigned long *data_len)
     TEntry entry;
     TInt err = readStream.Open(fsSession, filePath, EFileRead);
 
-    if(err == KErrNone)
+    if (err == KErrNone)
     {
         fsSession.Entry(filePath, entry);
         *data_len = (TUint)entry.iSize;
@@ -272,10 +282,10 @@ bool parseData(char *fileData, unsigned long fileLength, _FileTypes fileType, un
         //copy im1 loop to 0x0 of z80 memory
         memcpy(z80Memory, intnz, sizeof(intnz));
 
-        z80Memory[2] = Players[player].init_proc % 256;
-        z80Memory[3] = Players[player].init_proc / 256;
-        z80Memory[9] = Players[player].play_proc % 256;
-        z80Memory[10] = Players[player].play_proc / 256;
+        z80Memory[2] = Players[player].emul_init_proc % 256;
+        z80Memory[3] = Players[player].emul_init_proc / 256;
+        z80Memory[9] = Players[player].emul_play_proc % 256;
+        z80Memory[10] = Players[player].emul_play_proc / 256;
         z80ex_set_reg(ctx, regSP, 0xc000);
         return true;
 
@@ -283,20 +293,24 @@ bool parseData(char *fileData, unsigned long fileLength, _FileTypes fileType, un
     return false;
 }
 
-#ifndef __SYMBIAN32__
-bool readFile(const TXT_TYPE &filePath)
+
+bool readFile(SongInfo &info)
 {
     unsigned long data_len = 65536;
-
+    timeElapsed = 0;
+    maxElapsed = 0;
+    info.bEmul = true;
+    info.soft_init_proc = 0;
+    info.soft_play_proc = 0;
     bool bRet = false;
     char *fileData = 0;
-
-    wxString cfp = filePath;
+#ifndef __SYMBIAN32__
+    wxString cfp = info.FilePath;
     cfp = cfp.MakeLower();
 
     if (cfp.rfind(TXT(".ay")) != wxString::npos)
     {
-        char *fileData = osRead(filePath, &data_len);
+        char *fileData = osRead(info.FilePath, &data_len);
         if (fileData)
         {
             bRet = parseData(fileData, data_len, FILE_TYPE_AY);
@@ -308,7 +322,7 @@ bool readFile(const TXT_TYPE &filePath)
         {
             if (cfp.rfind(Players[i].ext) != wxString::npos)
             {
-                char *fileData = osRead(filePath, &data_len);
+                char *fileData = osRead(info.FilePath, &data_len);
                 if (fileData)
                 {
                     bRet = parseData(fileData, data_len, FILE_TYPE_TRACKER, i);
@@ -317,27 +331,16 @@ bool readFile(const TXT_TYPE &filePath)
             }
         }
     }
-    if (fileData)
-        delete fileData;
-    if (!bRet)
-        printf("Error reading file!\n");
-
-    return bRet;
-}
 #else
-bool readFile(TDes &filePath)
-{
-    unsigned long data_len = 65536;
-    bool bRet = false;
-    char *fileData = 0;
-    filePath.LowerCase();
+    TDes FilePath = SongInfo.FilePath;
+    FilePath.LowerCase();
     TParse parse;
     //cfp.LowerCase();
-    parse.Set(filePath, NULL, NULL);
+    parse.Set(FilePath, NULL, NULL);
     //gConsole->Printf(_L("Reading file %S...\n"), &filePath);
     if (parse.Ext().Match(_L(".ay")) != KErrNotFound)
     {
-        char *fileData = osRead(filePath, &data_len);
+        char *fileData = osRead(SongInfo.FilePath, &data_len);
         if (fileData)
         {
             bRet = parseData(fileData, data_len, FILE_TYPE_AY);
@@ -352,7 +355,7 @@ bool readFile(TDes &filePath)
             //gConsole->Printf(_L("Current ext = %S, file ext = %S\n"), &ext_cur, &ext);
             if (ext.Compare(ext_cur) == 0)
             {
-                char *fileData = osRead(filePath, &data_len);
+                char *fileData = osRead(SongInfo.FilePath, &data_len);
                 if (fileData)
                 {
                     bRet = parseData(fileData, data_len, FILE_TYPE_TRACKER, i);
@@ -361,16 +364,18 @@ bool readFile(TDes &filePath)
             }
         }
     }
+#endif
     if (fileData)
-    delete fileData;
-
-    //if(!bRet)
-    //gConsole->Printf(_L("Error reading file %S...\n"), &filePath);
+        delete fileData;
+    if(bRet)
+    {
+        getSongInfo(info);
+        maxElapsed = info.Length;
+    }
 
     return bRet;
-
 }
-#endif
+
 
 void initMemoryAY(unsigned char track)
 {
@@ -450,26 +455,30 @@ void initMemoryAY(unsigned char track)
 
 }
 
-bool getSongInfo(SongInfo *info)
+bool getSongInfo(SongInfo &info)
 {
     ayData aydata_loc;
-    info->Length = 0;
-    info->Loop = 0;
+    info.Length = 0;
+    info.Loop = 0;
+    info.Name = TXT("");
+    info.Author = TXT("");
 #undef GET_WORD
 #define GET_WORD(x) {(x) = (*ptr++) << 8; (x) |= *ptr++;}
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
     unsigned long data_len = 65536;
 #ifndef __SYMBIAN32__
-    wxString cfp = info->FilePath;
+    wxString cfp = info.FilePath;
     cfp = cfp.MakeLower();
     if (cfp.rfind(TXT(".ay")) != wxString::npos)
 #else
+    TDes FilePath = SongInfo.FilePath;
+    FilePath.LowerCase();
     TParse parse;
-    parse.Set(info->FilePath, NULL, NULL);
+    parse.Set(FilePath, NULL, NULL);
     if (parse.Ext() == _L(".ay"))
 #endif
     {
-        char *fileData = osRead(info->FilePath, &data_len);
+        char *fileData = osRead(info.FilePath, &data_len);
         if (fileData)
         {
             unsigned char *ptr = (unsigned char *) fileData;
@@ -505,7 +514,7 @@ bool getSongInfo(SongInfo *info)
                     }
                     if (aydata_loc.num_tracks)
                     {
-                        info->Length = aydata_loc.tracks[0].fadestart;
+                        info.Length = aydata_loc.tracks[0].fadestart;
                     }
 
                     free(aydata_loc.tracks);
@@ -521,8 +530,6 @@ bool getSongInfo(SongInfo *info)
         for (unsigned int i = 0; i < sizeof_array(Players); i++)
         {
 #ifndef __SYMBIAN32__
-            wxString cfp = info->FilePath;
-            cfp = cfp.MakeLower();
             if (cfp.rfind(Players[i].ext) != wxString::npos)
 #else
             TPtrC ext = parse.Ext();
@@ -530,11 +537,11 @@ bool getSongInfo(SongInfo *info)
             if (ext.Compare(ext_cur) == 0)
 #endif
             {
-                char *fileData = osRead(info->FilePath, &data_len);
+                char *fileData = osRead(info.FilePath, &data_len);
                 if (fileData)
                 {
-                    if (Players[i].getTime)
-                        info->Length = Players[i].getTime((unsigned char *)fileData, info->Loop);
+                    if (Players[i].getInfo)
+                        Players[i].getInfo((unsigned char *)fileData, info);
                     delete fileData;
                 }
                 break;
@@ -545,13 +552,12 @@ bool getSongInfo(SongInfo *info)
     return true;
 }
 
-unsigned long STCGetTime(const unsigned char *fileData, unsigned long &loop)
+void STCGetInfo(const unsigned char *fileData, SongInfo &info)
 {
     unsigned long tm = 0;
     long j, j1, j2, i;
     unsigned char stDelay = fileData[0];
     unsigned short stPosPt = *(unsigned short *) &fileData[1];
-    //unsigned long stOrnPt = *(unsigned short *)fileData [3];
     unsigned short stPatPt = *(unsigned short *) &fileData[5];
     unsigned char a;
 
@@ -566,7 +572,8 @@ unsigned long STCGetTime(const unsigned char *fileData, unsigned long &loop)
         {
             i++;
             j1 = stPatPt + 7 * i;
-        } while (fileData[j1] != j2);
+        }
+        while (fileData[j1] != j2);
         j1 = *(unsigned short *) &fileData[j1 + 1];
         a = 1;
         while (*(unsigned char *) &fileData[j1] != 255)
@@ -586,12 +593,13 @@ unsigned long STCGetTime(const unsigned char *fileData, unsigned long &loop)
             }
             j1++;
         }
-    } while (j != fileData[stPosPt]);
+    }
+    while (j != fileData[stPosPt]);
     tm *= stDelay;
-    return tm;
+    info.Length = tm;
 }
 
-unsigned long STPGetTime(const unsigned char *fileData, unsigned long &loop)
+void STPGetInfo(const unsigned char *fileData, SongInfo &info)
 {
     unsigned long tm = 0;
     unsigned char a = 1;
@@ -623,10 +631,10 @@ unsigned long STPGetTime(const unsigned char *fileData, unsigned long &loop)
         }
     }
     tm *= stDelay;
-    return tm;
+    info.Length = tm;
 }
 
-unsigned long PT3GetTime(const unsigned char *fileData, unsigned long &loop)
+void PT3GetInfo(const unsigned char *fileData, SongInfo &info)
 {
     unsigned short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
@@ -645,7 +653,7 @@ unsigned long PT3GetTime(const unsigned char *fileData, unsigned long &loop)
     {
         if (i == ptLoopPos)
         {
-            loop = tm;
+            info.Loop = tm;
         }
         j1 = *(unsigned short *) &fileData[ptPatPt + ptPosList[i] * 2];
         j2 = *(unsigned short *) &fileData[ptPatPt + ptPosList[i] * 2 + 2];
@@ -689,39 +697,40 @@ unsigned long PT3GetTime(const unsigned char *fileData, unsigned long &loop)
                     {
                         switch (val)
                         {
-                            case 1:
-                                j++;
-                                c1 = j;
-                                break;
-                            case 2:
-                                j++;
-                                c2 = j;
-                                break;
-                            case 3:
-                                j++;
-                                c3 = j;
-                                break;
-                            case 4:
-                                j++;
-                                c4 = j;
-                                break;
-                            case 5:
-                                j++;
-                                c5 = j;
-                                break;
-                            case 8:
-                                j++;
-                                c8 = j;
-                                break;
-                            case 9:
-                                j++;
-                                break;
-                            default:
-                                break;
+                        case 1:
+                            j++;
+                            c1 = j;
+                            break;
+                        case 2:
+                            j++;
+                            c2 = j;
+                            break;
+                        case 3:
+                            j++;
+                            c3 = j;
+                            break;
+                        case 4:
+                            j++;
+                            c4 = j;
+                            break;
+                        case 5:
+                            j++;
+                            c5 = j;
+                            break;
+                        case 8:
+                            j++;
+                            c8 = j;
+                            break;
+                        case 9:
+                            j++;
+                            break;
+                        default:
+                            break;
                         }
                     }
                     j1++;
-                } while (true);
+                }
+                while (true);
 
                 while (j > 0)
                 {
@@ -782,39 +791,40 @@ unsigned long PT3GetTime(const unsigned char *fileData, unsigned long &loop)
                         {
                             switch (val)
                             {
-                                case 1:
-                                    j++;
-                                    c1 = j;
-                                    break;
-                                case 2:
-                                    j++;
-                                    c2 = j;
-                                    break;
-                                case 3:
-                                    j++;
-                                    c3 = j;
-                                    break;
-                                case 4:
-                                    j++;
-                                    c4 = j;
-                                    break;
-                                case 5:
-                                    j++;
-                                    c5 = j;
-                                    break;
-                                case 8:
-                                    j++;
-                                    c8 = j;
-                                    break;
-                                case 9:
-                                    j++;
-                                    break;
-                                default:
-                                    break;
+                            case 1:
+                                j++;
+                                c1 = j;
+                                break;
+                            case 2:
+                                j++;
+                                c2 = j;
+                                break;
+                            case 3:
+                                j++;
+                                c3 = j;
+                                break;
+                            case 4:
+                                j++;
+                                c4 = j;
+                                break;
+                            case 5:
+                                j++;
+                                c5 = j;
+                                break;
+                            case 8:
+                                j++;
+                                c8 = j;
+                                break;
+                            case 9:
+                                j++;
+                                break;
+                            default:
+                                break;
                             }
                         }
                         j2++;
-                    } while (true);
+                    }
+                    while (true);
                     while (j > 0)
                     {
                         if (j == c1 || j == c8)
@@ -875,39 +885,40 @@ unsigned long PT3GetTime(const unsigned char *fileData, unsigned long &loop)
                         {
                             switch (val)
                             {
-                                case 1:
-                                    j++;
-                                    c1 = j;
-                                    break;
-                                case 2:
-                                    j++;
-                                    c2 = j;
-                                    break;
-                                case 3:
-                                    j++;
-                                    c3 = j;
-                                    break;
-                                case 4:
-                                    j++;
-                                    c4 = j;
-                                    break;
-                                case 5:
-                                    j++;
-                                    c5 = j;
-                                    break;
-                                case 8:
-                                    j++;
-                                    c8 = j;
-                                    break;
-                                case 9:
-                                    j++;
-                                    break;
-                                default:
-                                    break;
+                            case 1:
+                                j++;
+                                c1 = j;
+                                break;
+                            case 2:
+                                j++;
+                                c2 = j;
+                                break;
+                            case 3:
+                                j++;
+                                c3 = j;
+                                break;
+                            case 4:
+                                j++;
+                                c4 = j;
+                                break;
+                            case 5:
+                                j++;
+                                c5 = j;
+                                break;
+                            case 8:
+                                j++;
+                                c8 = j;
+                                break;
+                            case 9:
+                                j++;
+                                break;
+                            default:
+                                break;
                             }
                         }
                         j3++;
-                    } while (true);
+                    }
+                    while (true);
                     while (j > 0)
                     {
                         if (j == c1 || j == c8)
@@ -936,13 +947,14 @@ unsigned long PT3GetTime(const unsigned char *fileData, unsigned long &loop)
                 }
             }
             tm += b;
-        } while (true);
+        }
+        while (true);
 
     }
-    return tm;
+    info.Length = tm;
 }
 
-unsigned long PT2GetTime(const unsigned char *fileData, unsigned long &loop)
+void PT2GetInfo(const unsigned char *fileData, SongInfo &info)
 {
     short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
@@ -960,7 +972,7 @@ unsigned long PT2GetTime(const unsigned char *fileData, unsigned long &loop)
     {
         if (i == ptLoopPos)
         {
-            loop = tm;
+            info.Loop = tm;
         }
         j1 = *(unsigned short *) &fileData[ptPatPt + ptPosList[i] * 6];
         j2 = *(unsigned short *) &fileData[ptPatPt + ptPosList[i] * 6 + 2];
@@ -1003,7 +1015,8 @@ unsigned long PT2GetTime(const unsigned char *fileData, unsigned long &loop)
                         j1 += 3;
                     }
                     j1++;
-                } while (true);
+                }
+                while (true);
             }
 
             a2--;
@@ -1040,7 +1053,8 @@ unsigned long PT2GetTime(const unsigned char *fileData, unsigned long &loop)
                         j2 += 3;
                     }
                     j2++;
-                } while (true);
+                }
+                while (true);
             }
             a3--;
             if (a3 < 0)
@@ -1076,15 +1090,17 @@ unsigned long PT2GetTime(const unsigned char *fileData, unsigned long &loop)
                         j3 += 3;
                     }
                     j3++;
-                } while (true);
+                }
+                while (true);
             }
             tm += b;
-        } while (true);
+        }
+        while (true);
     }
-    return tm;
+    info.Length = tm;
 }
 
-unsigned long ASCGetTime(const unsigned char *fileData, unsigned long &loop)
+void ASCGetInfo(const unsigned char *fileData, SongInfo &info)
 {
     short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
@@ -1099,55 +1115,55 @@ unsigned long ASCGetTime(const unsigned char *fileData, unsigned long &loop)
     b = ascDelay;
     a1 = a2 = a3 = a11 = a22 = a33 = 0;
     env1 = env2 = env3 = false;
-    for(i = 0; i < ascNumPos; i++)
+    for (i = 0; i < ascNumPos; i++)
     {
-        if(ascLoopPos == i)
-            loop = tm;
+        if (ascLoopPos == i)
+            info.Loop = tm;
         j1 = (*(unsigned short *) &fileData [ascPatPt + 6 * fileData[i + 9]]) + ascPatPt;
         j2 = (*(unsigned short *) &fileData [ascPatPt + 6 * fileData[i + 9] + 2]) + ascPatPt;
         j3 = (*(unsigned short *) &fileData [ascPatPt + 6 * fileData[i + 9] + 4]) + ascPatPt;
 
-        while(true)
+        while (true)
         {
             a1--;
-            if(a1 < 0)
+            if (a1 < 0)
             {
-                if(fileData [j1] == 255)
+                if (fileData [j1] == 255)
                     break;
-                while(true)
+                while (true)
                 {
                     unsigned char val = fileData [j1];
-                    if((val >= 0) && (val <= 0x55))
+                    if ((val >= 0) && (val <= 0x55))
                     {
                         a1 = a11;
                         j1++;
-                        if(env1)
+                        if (env1)
                             j1++;
                         break;
                     }
-                    else if((val >= 0x56) && (val <= 0x5f))
+                    else if ((val >= 0x56) && (val <= 0x5f))
                     {
                         a1 = a11;
                         j1++;
                         break;
                     }
-                    else if((val >= 0x60) && (val <= 0x9f))
+                    else if ((val >= 0x60) && (val <= 0x9f))
                     {
                         a11 = val - 0x60;
                     }
-                    else if(val == 0xe0)
+                    else if (val == 0xe0)
                     {
                         env1 = true;
                     }
-                    else if((val >= 0xe1) && (val <= 0xef))
+                    else if ((val >= 0xe1) && (val <= 0xef))
                     {
                         env1 = false;
                     }
-                    else if((val == 0xf0) || ((val >= 0xf5) && (val <= 0xf7)) || (val == 0xf9) || (val == 0xfb))
+                    else if ((val == 0xf0) || ((val >= 0xf5) && (val <= 0xf7)) || (val == 0xf9) || (val == 0xfb))
                     {
                         j1++;
                     }
-                    else if(val == 0xf4)
+                    else if (val == 0xf4)
                     {
                         j1++;
                         b = fileData [j1];
@@ -1157,42 +1173,42 @@ unsigned long ASCGetTime(const unsigned char *fileData, unsigned long &loop)
             }
 
             a2--;
-            if(a2 < 0)
+            if (a2 < 0)
             {
-                while(true)
+                while (true)
                 {
                     unsigned char val = (unsigned char) fileData [j2];
-                    if((val >= 0) && (val <= 0x55))
+                    if ((val >= 0) && (val <= 0x55))
                     {
                         a2 = a22;
                         j2++;
-                        if(env2)
+                        if (env2)
                             j2++;
                         break;
                     }
-                    else if((val >= 0x56) && (val <= 0x5f))
+                    else if ((val >= 0x56) && (val <= 0x5f))
                     {
                         a2 = a22;
                         j2++;
                         break;
                     }
-                    else if((val >= 0x60) && (val <= 0x9f))
+                    else if ((val >= 0x60) && (val <= 0x9f))
                     {
                         a22 = val - 0x60;
                     }
-                    else if(val == 0xe0)
+                    else if (val == 0xe0)
                     {
                         env2 = true;
                     }
-                    else if((val >= 0xe1) && (val <= 0xef))
+                    else if ((val >= 0xe1) && (val <= 0xef))
                     {
                         env2 = false;
                     }
-                    else if((val == 0xf0) || ((val >= 0xf5) && (val <= 0xf7)) || (val == 0xf9) || (val == 0xfb))
+                    else if ((val == 0xf0) || ((val >= 0xf5) && (val <= 0xf7)) || (val == 0xf9) || (val == 0xfb))
                     {
                         j2++;
                     }
-                    else if(val == 0xf4)
+                    else if (val == 0xf4)
                     {
                         j2++;
                         b = fileData [j2];
@@ -1202,42 +1218,42 @@ unsigned long ASCGetTime(const unsigned char *fileData, unsigned long &loop)
             }
 
             a3--;
-            if(a3 < 0)
+            if (a3 < 0)
             {
-                while(true)
+                while (true)
                 {
                     unsigned char val = (unsigned char) fileData [j3];
-                    if((val >= 0) && (val <= 0x55))
+                    if ((val >= 0) && (val <= 0x55))
                     {
                         a3 = a33;
                         j3++;
-                        if(env3)
+                        if (env3)
                             j3++;
                         break;
                     }
-                    else if((val >= 0x56) && (val <= 0x5f))
+                    else if ((val >= 0x56) && (val <= 0x5f))
                     {
                         a3 = a33;
                         j3++;
                         break;
                     }
-                    else if((val >= 0x60) && (val <= 0x9f))
+                    else if ((val >= 0x60) && (val <= 0x9f))
                     {
                         a33 = val - 0x60;
                     }
-                    else if(val == 0xe0)
+                    else if (val == 0xe0)
                     {
                         env3 = true;
                     }
-                    else if((val >= 0xe1) && (val <= 0xef))
+                    else if ((val >= 0xe1) && (val <= 0xef))
                     {
                         env3 = false;
                     }
-                    else if((val == 0xf0) || ((val >= 0xf5) && (val <= 0xf7)) || (val == 0xf9) || (val == 0xfb))
+                    else if ((val == 0xf0) || ((val >= 0xf5) && (val <= 0xf7)) || (val == 0xf9) || (val == 0xfb))
                     {
                         j3++;
                     }
-                    else if(val == 0xf4)
+                    else if (val == 0xf4)
                     {
                         j3++;
                         b = fileData [j3];
@@ -1248,5 +1264,34 @@ unsigned long ASCGetTime(const unsigned char *fileData, unsigned long &loop)
             tm += b;
         }
     }
-    return tm;
+    info.Length = tm;
+}
+
+void rewindSong(SongInfo &info, unsigned long new_position)
+{
+    if (player && player->Started())
+        player->Stop();
+    if (info.bEmul)
+    {
+        unsigned long timeCurrent = timeElapsed;
+        timeElapsed = new_position;
+
+        if (timeElapsed < timeCurrent)
+        {
+            timeCurrent = 0;
+            if(!readFile(info))
+                return;
+        }
+
+        timeElapsed = timeCurrent;
+
+        while (timeElapsed != new_position)
+        {
+            z80ex_step(ctx);
+            if (z80ex_get_reg(ctx, regPC) == 4)
+                timeElapsed++;
+        }
+
+    }
+
 }

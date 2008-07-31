@@ -25,9 +25,6 @@ extern AbstractAudio *player;
 
 // ============================ MEMBER FUNCTIONS ===============================
 
-unsigned long timeElapsed;
-unsigned long maxElapsed;
-
 // -----------------------------------------------------------------------------
 // Cayfly_s60AppUi::ConstructL()
 // Symbian 2nd phase constructor can leave.
