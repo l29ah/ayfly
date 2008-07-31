@@ -118,24 +118,10 @@ void execInstruction(ELAPSED_CALLBACK callback, void *arg)
     {
         z80ex_step(ctx);
     }
-    while (z80ex_get_reg(ctx, regPC) != 4);
+    while (z80ex_get_reg(ctx, regPC) != 8);
     if (++timeElapsed >= maxElapsed)
     {
         if (callback)
             callback(arg);
     }
-    /*int t = z80ex_step(ctx);
-    interrupt -= t;
-    if(interrupt <=0)
-    {
-     interrupt += Z80_TO_INTR;
-     t = z80ex_int(ctx);
-     interrupt -= t;
-     if(++timeElapsed >= maxElapsed)
-     {
-         if(callback)
-             callback(arg);
-     }
-
-    }*/
 }
