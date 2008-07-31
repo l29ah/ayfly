@@ -99,8 +99,8 @@ void ASC_PatternInterpreter(unsigned char *module, ASC_Channel_Parameters &chan)
             chan.Note = val;
             chan.Address_In_Pattern++;
             chan.Current_Noise = chan.Initial_Noise;
-            if((char)chan.Ton_Sliding_Counter <= 0)
-                chan.Ton_Sliding_Counter = 0;
+            if((short)chan.Ton_Sliding_Counter <= 0)
+                chan.Current_Ton_Sliding = 0;
             if(!Initialization_Of_Sample_Disabled)
             {
                 chan.Addition_To_Amplitude = 0;
@@ -141,7 +141,7 @@ void ASC_PatternInterpreter(unsigned char *module, ASC_Channel_Parameters &chan)
         }
         else if ((val >= 0x60) && (val <= 0x9f))
         {
-            chan.Number_Of_Notes_To_Skip = module[chan.Address_In_Pattern] - 0x60;
+            chan.Number_Of_Notes_To_Skip = val - 0x60;
         }
         else if ((val >= 0xa0) && (val <= 0xbf))
         {
@@ -187,13 +187,13 @@ void ASC_PatternInterpreter(unsigned char *module, ASC_Channel_Parameters &chan)
         else if (val == 0xf5)
         {
             chan.Address_In_Pattern++;
-            chan.Substruction_for_Ton_Sliding = -((short)module [chan.Address_In_Pattern]) * 16;
+            chan.Substruction_for_Ton_Sliding = -((short)module [chan.Address_In_Pattern] * 16);
             chan.Ton_Sliding_Counter = 255;
         }
         else if (val == 0xf6)
         {
             chan.Address_In_Pattern++;
-            chan.Substruction_for_Ton_Sliding = ((short)module [chan.Address_In_Pattern]) * 16;
+            chan.Substruction_for_Ton_Sliding = ((short)module [chan.Address_In_Pattern] * 16);
             chan.Ton_Sliding_Counter = 255;
         }
         else if (val == 0xf7)
@@ -201,15 +201,13 @@ void ASC_PatternInterpreter(unsigned char *module, ASC_Channel_Parameters &chan)
             chan.Address_In_Pattern++;
             Initialization_Of_Sample_Disabled = true;
             if(module [chan.Address_In_Pattern + 1] < 0x56)
-            {
                 delta_ton = ASM_Table [chan.Note] + (chan.Current_Ton_Sliding / 16) -
                             ASM_Table [module [chan.Address_In_Pattern + 1]];
-            }
             else
                 delta_ton = chan.Current_Ton_Sliding / 16;
             delta_ton <<= 4;
-            chan.Substruction_for_Ton_Sliding = -(delta_ton / (short)module [chan.Address_In_Pattern]);
-            chan.Current_Ton_Sliding = delta_ton - (delta_ton % (short)module [chan.Address_In_Pattern]);
+            chan.Substruction_for_Ton_Sliding = -delta_ton / (short)module [chan.Address_In_Pattern];
+            chan.Current_Ton_Sliding = delta_ton - delta_ton % (short)module [chan.Address_In_Pattern];
             chan.Ton_Sliding_Counter = (short)module [chan.Address_In_Pattern];
         }
         else if (val == 0xf8)
@@ -226,8 +224,8 @@ void ASC_PatternInterpreter(unsigned char *module, ASC_Channel_Parameters &chan)
             else
                 delta_ton = chan.Current_Ton_Sliding / 16;
             delta_ton <<= 4;
-            chan.Substruction_for_Ton_Sliding = -(delta_ton / (short)module [chan.Address_In_Pattern]);
-            chan.Current_Ton_Sliding = delta_ton - (delta_ton % (short)module [chan.Address_In_Pattern]);
+            chan.Substruction_for_Ton_Sliding = -delta_ton / (short)module [chan.Address_In_Pattern];
+            chan.Current_Ton_Sliding = delta_ton - delta_ton % (short)module [chan.Address_In_Pattern];
             chan.Ton_Sliding_Counter = (short)module [chan.Address_In_Pattern];
 
         }
@@ -288,16 +286,12 @@ void ASC_GetRegisters(unsigned char *module, ASC_Channel_Parameters &chan, unsig
                         chan.Addition_To_Amplitude--;
                 }
                 else if(chan.Addition_To_Amplitude < 15)
-                {
                     chan.Addition_To_Amplitude++;
-                }
                 chan.Amplitude_Delay_Counter = chan.Amplitude_Delay;
             }
         }
         if((module [chan.Point_In_Sample] & 128) != 0)
-        {
             chan.Loop_Point_In_Sample = chan.Point_In_Sample;
-        }
         if((module [chan.Point_In_Sample] & 96) == 32)
             chan.Sample_Finished = true;
         chan.Ton_Deviation += (short)module [chan.Point_In_Sample + 1];
@@ -323,7 +317,7 @@ void ASC_GetRegisters(unsigned char *module, ASC_Channel_Parameters &chan, unsig
             chan.Amplitude = 15;
         chan.Amplitude = (chan.Amplitude * (chan.Volume + 1)) >> 4;
         if(Sample_Says_OK_for_Envelope && ((TempMixer & 64) != 0))
-            player->WriteAy(AY_ENV_FINE, player->ReadAy(AY_ENV_FINE) + ((module [chan.Point_In_Sample] << 3) / 8));
+            player->WriteAy(AY_ENV_FINE, player->ReadAy(AY_ENV_FINE) + (((short)module [chan.Point_In_Sample] << 3) / 8));
         else
             chan.Current_Noise += ((short)module [chan.Point_In_Sample] << 3) / 8;
         chan.Point_In_Sample += 3;
@@ -342,13 +336,13 @@ void ASC_GetRegisters(unsigned char *module, ASC_Channel_Parameters &chan, unsig
         if((module [chan.Point_In_Ornament - 2] & 64) != 0)
             chan.Point_In_Ornament = chan.Loop_Point_In_Ornament;
         if((TempMixer & 64) == 0)
-            player->WriteAy(AY_NOISE_PERIOD, (unsigned char)(chan.Current_Ton_Sliding >> 8) + chan.Current_Noise);
+            player->WriteAy(AY_NOISE_PERIOD, ((unsigned char)(chan.Current_Ton_Sliding >> 8) + chan.Current_Noise) & 0x1f);
         j = chan.Note + chan.Addition_To_Note;
         if(j < 0)
             j = 0;
         else if(j > 0x55)
             j = 0x55;
-        chan.Ton = (ASM_Table [j] + chan.Ton_Deviation + (chan.Current_Ton_Sliding / 16));
+        chan.Ton = (ASM_Table [j] + chan.Ton_Deviation + (chan.Current_Ton_Sliding / 16)) & 0xfff;
         if(chan.Ton_Sliding_Counter != 0)
         {
             if((short)chan.Ton_Sliding_Counter > 0)
