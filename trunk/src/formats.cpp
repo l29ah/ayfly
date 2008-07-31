@@ -27,8 +27,10 @@
 //#include "players/SQTPlay.h" not working
 #include "players/ASCPlay.h"
 
-unsigned long timeElapsed;
-unsigned long maxElapsed;
+unsigned long timeElapsed = 0;
+unsigned long maxElapsed = 0;
+PLAYER_INIT_PROC soft_init_proc = 0;
+PLAYER_PLAY_PROC soft_play_proc = 0;
 
 typedef void (*GETINFO_CALLBACK)(const unsigned char *fileData, SongInfo &info);
 
@@ -44,17 +46,10 @@ struct _Players
     unsigned long player_base;
     unsigned long length;
     unsigned long module_base;
-    union
-    {
-        unsigned long emul_init_proc;
-        PLAYER_INIT_PROC soft_init_proc;
-    };
-    union
-    {
-        unsigned long emul_play_proc;
-        PLAYER_PLAY_PROC soft_play_proc;
-
-    };
+    unsigned long emul_init_proc;
+    PLAYER_INIT_PROC soft_init_proc;
+    unsigned long emul_play_proc;
+    PLAYER_PLAY_PROC soft_play_proc;
     GETINFO_CALLBACK getInfo;
 };
 
@@ -66,13 +61,13 @@ void ASCGetInfo(const unsigned char *fileData, SongInfo &info);
 
 _Players Players[] =
 {
-    { TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0xc006, PT2GetInfo },
-    { TXT(".pt3"), PT3Play_data, 0xc000, sizeof(PT3Play_data), 0x0000, 0xc000, 0xc005, PT3GetInfo },
-    { TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0xc006, STPGetInfo },
-    { TXT(".psc"), PSCPlay_data, 0xc000, sizeof(PSCPlay_data), 0x0000, 0xc000, 0xc006, 0 },
-    { TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0xc006, STCGetInfo },
+    { TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0, 0xc006, 0, PT2GetInfo },
+    { TXT(".pt3"), PT3Play_data, 0xc000, sizeof(PT3Play_data), 0x0000, 0xc000, 0, 0xc005, 0, PT3GetInfo },
+    { TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STPGetInfo },
+    { TXT(".psc"), PSCPlay_data, 0xc000, sizeof(PSCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, 0 },
+    { TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STCGetInfo },
 //		{TEXT(".sqt"), SQTPlay_data, 0xc000, sizeof(SQTPlay_data), 0x0000, 0xc000, 0xc030}, not working
-    { TXT(".asc"), ASCPlay_data, 0xc000, sizeof(ASCPlay_data), 0x0000, 0xc000 + 11, 0xc000 + 14, ASCGetInfo}
+    { TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASCGetInfo}
 };
 
 /*
@@ -172,7 +167,7 @@ char *osRead(const TXT_TYPE &filePath, unsigned long *data_len)
     return fileData;
 }
 
-bool parseData(char *fileData, unsigned long fileLength, _FileTypes fileType, unsigned long player = 0)
+bool parseData(SongInfo &info, char *fileData, unsigned long fileLength, _FileTypes fileType, unsigned long player = 0)
 {
 #define GET_WORD(x) {(x) = (*ptr++) << 8; (x) |= *ptr++;}
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
@@ -221,6 +216,15 @@ bool parseData(char *fileData, unsigned long fileLength, _FileTypes fileType, un
     }
     else if (fileType == FILE_TYPE_TRACKER)
     {
+        if(Players [player].player == 0) //soft player
+        {
+            memset(z80Memory, 0, 65536);
+            memcpy(z80Memory, fileData, fileLength);
+            soft_init_proc = info.soft_init_proc = Players [player].soft_init_proc;
+            soft_play_proc = info.soft_play_proc = Players [player].soft_play_proc;
+            info.bEmul = false;
+            return true;
+        }
         //fill z80 memory
         memset(z80Memory + 0x0000, 0xc9, 0x0100);
         memset(z80Memory + 0x0100, 0xff, 0x3f00);
@@ -261,8 +265,8 @@ bool readFile(SongInfo &info)
     timeElapsed = 0;
     maxElapsed = 0;
     info.bEmul = true;
-    info.soft_init_proc = 0;
-    info.soft_play_proc = 0;
+    soft_init_proc = info.soft_init_proc = 0;
+    soft_play_proc = info.soft_play_proc = 0;
     bool bRet = false;
     char *fileData = 0;
 #ifndef __SYMBIAN32__
@@ -274,7 +278,7 @@ bool readFile(SongInfo &info)
         char *fileData = osRead(info.FilePath, &data_len);
         if (fileData)
         {
-            bRet = parseData(fileData, data_len, FILE_TYPE_AY);
+            bRet = parseData(info, fileData, data_len, FILE_TYPE_AY);
         }
     }
     else
@@ -286,7 +290,7 @@ bool readFile(SongInfo &info)
                 char *fileData = osRead(info.FilePath, &data_len);
                 if (fileData)
                 {
-                    bRet = parseData(fileData, data_len, FILE_TYPE_TRACKER, i);
+                    bRet = parseData(info, fileData, data_len, FILE_TYPE_TRACKER, i);
                 }
                 break;
             }
@@ -302,7 +306,7 @@ bool readFile(SongInfo &info)
         char *fileData = osRead(SongInfo.FilePath, &data_len);
         if (fileData)
         {
-            bRet = parseData(fileData, data_len, FILE_TYPE_AY);
+            bRet = parseData(info, fileData, data_len, FILE_TYPE_AY);
         }
     }
     else
@@ -317,7 +321,7 @@ bool readFile(SongInfo &info)
                 char *fileData = osRead(SongInfo.FilePath, &data_len);
                 if (fileData)
                 {
-                    bRet = parseData(fileData, data_len, FILE_TYPE_TRACKER, i);
+                    bRet = parseData(info, fileData, data_len, FILE_TYPE_TRACKER, i);
                 }
                 break;
             }
@@ -1063,17 +1067,23 @@ void PT2GetInfo(const unsigned char *fileData, SongInfo &info)
     info.Length = tm;
 }
 
-void ASCGetInfo(const unsigned char *fileData, SongInfo &info)
+void ASCGetInfo(const unsigned char *module, SongInfo &info)
 {
+    ASC1_File *header = (ASC1_File *)module;
     short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
     bool env1, env2, env3;
     long i, tm = 0;
     unsigned char b;
-    unsigned char ascDelay = fileData[0];
+    /*unsigned char ascDelay = fileData[0];
     unsigned short ascLoopPos = fileData [1];
     unsigned short ascPatPt = *(unsigned short *) &fileData[2];
-    unsigned char ascNumPos = fileData [8];
+    unsigned char ascNumPos = fileData [8];*/
+
+    unsigned char ascDelay = header->ASC1_Delay;
+    unsigned short ascLoopPos = header->ASC1_LoopingPosition;
+    unsigned short ascPatPt = header->ASC1_PatternsPointers;
+    unsigned char ascNumPos = header->ASC1_Number_Of_Positions;
 
     b = ascDelay;
     a1 = a2 = a3 = a11 = a22 = a33 = 0;
@@ -1082,20 +1092,20 @@ void ASCGetInfo(const unsigned char *fileData, SongInfo &info)
     {
         if (ascLoopPos == i)
             info.Loop = tm;
-        j1 = (*(unsigned short *) &fileData [ascPatPt + 6 * fileData[i + 9]]) + ascPatPt;
-        j2 = (*(unsigned short *) &fileData [ascPatPt + 6 * fileData[i + 9] + 2]) + ascPatPt;
-        j3 = (*(unsigned short *) &fileData [ascPatPt + 6 * fileData[i + 9] + 4]) + ascPatPt;
+        j1 = (*(unsigned short *) &module [ascPatPt + 6 * module[i + 9]]) + ascPatPt;
+        j2 = (*(unsigned short *) &module [ascPatPt + 6 * module[i + 9] + 2]) + ascPatPt;
+        j3 = (*(unsigned short *) &module [ascPatPt + 6 * module[i + 9] + 4]) + ascPatPt;
 
         while (true)
         {
             a1--;
             if (a1 < 0)
             {
-                if (fileData [j1] == 255)
+                if (module [j1] == 255)
                     break;
                 while (true)
                 {
-                    unsigned char val = fileData [j1];
+                    unsigned char val = module [j1];
                     if ((val >= 0) && (val <= 0x55))
                     {
                         a1 = a11;
@@ -1129,7 +1139,7 @@ void ASCGetInfo(const unsigned char *fileData, SongInfo &info)
                     else if (val == 0xf4)
                     {
                         j1++;
-                        b = fileData [j1];
+                        b = module [j1];
                     }
                     j1++;
                 }
@@ -1140,7 +1150,7 @@ void ASCGetInfo(const unsigned char *fileData, SongInfo &info)
             {
                 while (true)
                 {
-                    unsigned char val = (unsigned char) fileData [j2];
+                    unsigned char val = (unsigned char) module [j2];
                     if ((val >= 0) && (val <= 0x55))
                     {
                         a2 = a22;
@@ -1174,7 +1184,7 @@ void ASCGetInfo(const unsigned char *fileData, SongInfo &info)
                     else if (val == 0xf4)
                     {
                         j2++;
-                        b = fileData [j2];
+                        b = module [j2];
                     }
                     j2++;
                 }
@@ -1185,7 +1195,7 @@ void ASCGetInfo(const unsigned char *fileData, SongInfo &info)
             {
                 while (true)
                 {
-                    unsigned char val = (unsigned char) fileData [j3];
+                    unsigned char val = (unsigned char) module [j3];
                     if ((val >= 0) && (val <= 0x55))
                     {
                         a3 = a33;
@@ -1219,7 +1229,7 @@ void ASCGetInfo(const unsigned char *fileData, SongInfo &info)
                     else if (val == 0xf4)
                     {
                         j3++;
-                        b = fileData [j3];
+                        b = module [j3];
                     }
                     j3++;
                 }

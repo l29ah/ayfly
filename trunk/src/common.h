@@ -149,7 +149,7 @@ extern "C"
 #    endif
 
 typedef void (*PLAYER_INIT_PROC)(unsigned char *module);
-typedef void (*PLAYER_PLAY_PROC)(unsigned char *module);
+typedef void (*PLAYER_PLAY_PROC)(unsigned char *module, ELAPSED_CALLBACK callback, void *arg);
 
 struct SongInfo
 {
@@ -171,6 +171,8 @@ extern void rewindSong(SongInfo &info, unsigned long new_position);
 
 extern unsigned long timeElapsed;
 extern unsigned long maxElapsed;
+extern PLAYER_INIT_PROC soft_init_proc;
+extern PLAYER_PLAY_PROC soft_play_proc;
 
 
 #    ifndef __SYMBIAN32__
