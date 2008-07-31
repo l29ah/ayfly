@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #include "ay.h"
 
 #ifndef AUDIO_H_
@@ -37,6 +37,15 @@ public:
         ay8910->ayWrite(reg, val);
     }
     ;
+    unsigned char ReadAy(unsigned char reg)
+    {
+        return ay8910->ayRead(reg);
+    }
+    ;
+    void ResetAy()
+    {
+        ay8910->ayReset();
+    };
     inline virtual bool ChnlToggle(unsigned long chnl)
     {
         return ay8910 ? ay8910->chnlToggle(chnl) : true;

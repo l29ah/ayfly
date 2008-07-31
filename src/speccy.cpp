@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2008 by Deryabin Andrew                      *
+ *   Copyright (C) 2008 by Deryabin Andrew                                 *
  *   andrew@it-optima.ru                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -114,6 +114,11 @@ void setPlayer(AbstractAudio *_player)
 
 void execInstruction(ELAPSED_CALLBACK callback, void *arg)
 {
+    if(soft_play_proc)
+    {
+        soft_play_proc(z80Memory, callback, arg);
+        return;
+    }
     do
     {
         z80ex_step(ctx);
