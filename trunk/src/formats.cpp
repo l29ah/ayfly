@@ -88,17 +88,6 @@ static unsigned char intz[] =
       0x76, /* halt */
       0x18, 0xfa /* jr loop */
     };
-#if 0
-static unsigned char intnz[] =
-    { 0xf3, /* di */
-      0xcd, 0, 0, /* call init */
-      0xed, 0x56, /* loop: im 1 */
-      0xfb, /* ei */
-      0x76, /* halt */
-      0xcd, 0, 0, /* call interrupt */
-      0x18, 0xf7 /* jr loop */
-    };
-#endif
 
 static unsigned char intnz[] =
     { 0xf3, /* di */
@@ -107,9 +96,8 @@ static unsigned char intnz[] =
       0x00, /* ei */
       0x00, /* halt */
       0xcd, 0, 0, /* call interrupt */
-      0x18, 0xf7 /* jr loop */
+      0x18, 0xfb /* jr loop */
     };
-
 
 //for .ay format
 struct ayTrack
@@ -142,30 +130,6 @@ char *osRead(const TXT_TYPE &filePath, unsigned long *data_len)
         return 0;
     memset(fileData, 0, *data_len);
 #ifndef __SYMBIAN32__
-    /*#ifndef WINDOWS
-     SDL_RWops *f = SDL_RWFromFile(filePath, "rb");
-     if(f)
-     {
-     f->read(f, fileData, *data_len, 1);
-     *data_len = f->seek(f, 0, SEEK_CUR);
-     f->close(f);
-     }
-     else
-     *data_len = 0;
-     #else
-     HANDLE hFile = CreateFileW(filePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-     if(hFile != INVALID_HANDLE_VALUE)
-     {
-     DWORD dwRead = 0;
-     if(ReadFile(hFile, fileData, *data_len, &dwRead, NULL) != FALSE)
-     *data_len = dwRead;
-     else
-     *data_len = 0;
-     CloseHandle(hFile);
-     }
-     else
-     *data_len = 0;
-     #endif*/
     wxFile f(filePath);
     *data_len = 0;
     if (f.IsOpened())
@@ -184,8 +148,6 @@ char *osRead(const TXT_TYPE &filePath, unsigned long *data_len)
 
 #else
     RFs fsSession = CCoeEnv::Static()->FsSession();
-    //User::LeaveIfError(fsSession.Connect());
-
     RFileReadStream readStream;
     TEntry entry;
     TInt err = readStream.Open(fsSession, filePath, EFileRead);
@@ -195,15 +157,12 @@ char *osRead(const TXT_TYPE &filePath, unsigned long *data_len)
         fsSession.Entry(filePath, entry);
         *data_len = (TUint)entry.iSize;
         readStream.ReadL((TUint8 *)fileData, *data_len);
-        //gConsole->Printf(_L("File Read. Length=%d...\n"), *data_len);
         readStream.Close();
     }
     else
     {
-        //gConsole->Printf(_L("File not opened!\n"));
         *data_len = 0;
     }
-    //fsSession.Close();
 #endif
     if (!*data_len)
     {
@@ -253,6 +212,8 @@ bool parseData(char *fileData, unsigned long fileLength, _FileTypes fileType, un
                 aydata.filelen = fileLength;
                 aydata.filedata = (unsigned char *) fileData;
                 initMemoryAY(0);
+                free(aydata.tracks);
+                aydata.tracks = 0;
                 return true;
             }
         }
@@ -335,9 +296,7 @@ bool readFile(SongInfo &info)
     TDes FilePath = SongInfo.FilePath;
     FilePath.LowerCase();
     TParse parse;
-    //cfp.LowerCase();
     parse.Set(FilePath, NULL, NULL);
-    //gConsole->Printf(_L("Reading file %S...\n"), &filePath);
     if (parse.Ext().Match(_L(".ay")) != KErrNotFound)
     {
         char *fileData = osRead(SongInfo.FilePath, &data_len);
@@ -369,6 +328,10 @@ bool readFile(SongInfo &info)
         delete fileData;
     if(bRet)
     {
+        if(info.bEmul)
+            resetSpeccy();
+        else
+            info.soft_init_proc(z80Memory);
         getSongInfo(info);
         maxElapsed = info.Length;
     }
@@ -1288,7 +1251,7 @@ void rewindSong(SongInfo &info, unsigned long new_position)
         while (timeElapsed != new_position)
         {
             z80ex_step(ctx);
-            if (z80ex_get_reg(ctx, regPC) == 4)
+            if (z80ex_get_reg(ctx, regPC) == 8)
                 timeElapsed++;
         }
 
