@@ -46,7 +46,7 @@
 #    endif
 
 typedef void (*ELAPSED_CALLBACK)(void *arg);
-typedef unsigned long (*GETTIME_CALLBACK)(const unsigned char *fileData, unsigned long &loop);
+
 
 #    include "stdio.h"
 #    include "stdlib.h"
@@ -145,20 +145,11 @@ extern "C"
 #        define TXT_TYPE wxString
 #    else
 #        define TXT(x) _L(x)
-#        define TXT_TYPE TPtrC
+#        define TXT_TYPE TDes
 #    endif
 
-//loader functions
-#    ifndef __SYMBIAN32__
-extern bool readFile(const TXT_TYPE &filePath);
-#    else
-extern bool readFile(TDes &filePath);
-extern CConsoleBase *gConsole;
-#    endif
-
-extern unsigned long timeElapsed;
-extern unsigned long maxElapsed;
-
+typedef void (*PLAYER_INIT_PROC)(unsigned char *module);
+typedef void (*PLAYER_PLAY_PROC)(unsigned char *module);
 
 struct SongInfo
 {
@@ -166,8 +157,20 @@ struct SongInfo
     TXT_TYPE Name; /* Song name */
     TXT_TYPE FilePath;
     unsigned long Length; /* Song length in seconds */
-    unsigned long Loop;
+    unsigned long Loop; /* Loop start position */
+    bool bEmul; /* player is in z80 asm? */
+    PLAYER_INIT_PROC soft_init_proc; /* init for soft player */
+    PLAYER_PLAY_PROC soft_play_proc; /* play for soft player */
 };
+
+
+//loader functions
+extern bool readFile(SongInfo &info);
+extern bool getSongInfo(SongInfo &info);
+extern void rewindSong(SongInfo &info, unsigned long new_position);
+
+extern unsigned long timeElapsed;
+extern unsigned long maxElapsed;
 
 
 #    ifndef __SYMBIAN32__
@@ -196,7 +199,7 @@ extern void resetSpeccy();
 extern void shutdownSpeccy();
 extern void setPlayer(AbstractAudio *_player);
 extern void execInstruction(ELAPSED_CALLBACK callback, void *arg);
-extern bool getSongInfo(SongInfo *info);
+
 extern unsigned char *z80Memory;
 extern Z80EX_CONTEXT *ctx;
 extern AbstractAudio *player;
