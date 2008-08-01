@@ -228,7 +228,7 @@ void ay::setEnvelope()
         env_type_old = env_type;
         env_period = 0;
         env_tick = 0;
-        bool env_attack = (env_type & 0x4);
+        bool env_attack = (env_type & 0x4) ? true : false;
         env_vol = env_attack ? 0 : 15;
         env_trigger = env_attack ? 1 : -1;
         //printf("env_type = %ld\n", env_type);
@@ -248,7 +248,7 @@ void ay::updateEnvelope()
         {
             if((env_tick == 15) && (env_type & 0x1) && (env_type && 0x8)) //hold + continue
             {
-                bool env_attack = (env_type & 0x4);
+                bool env_attack = (env_type & 0x4) ? true : false;
                 if(env_type & 0x2) //alternate;
                     env_attack = !env_attack;
                 env_vol = env_attack ? 15 : 0;
@@ -269,7 +269,7 @@ void ay::updateEnvelope()
                         env_trigger = -env_trigger;
                     else //restart
                     {
-                        bool env_attack = (env_type & 0x4);
+                        bool env_attack = (env_type & 0x4) ? true : false;
                         env_vol = env_attack ? 0 : 15;
                         env_trigger = env_attack ? 1 : -1;
                     }

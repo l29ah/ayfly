@@ -764,7 +764,7 @@ void AyflyFrame::OnListKeyDown(wxListEvent &event)
                     index = playListView->GetNextSelected(index);
             }
         }
-		toolBar->EnableTool(wxID_PLAY, playListView->GetItemCount());
+		toolBar->EnableTool(wxID_PLAY, playListView->GetItemCount() ? true : false);
     }
 }
 
@@ -779,7 +779,7 @@ void AyflyFrame::OnSelectAll(wxCommandEvent &event)
 void AyflyFrame::OnSetRepeat(wxCommandEvent &event)
 {
     if(toolBar)
-        toolBar->ToggleTool(wxID_REPEAT, 1 - toolBar->GetToolState(wxID_REPEAT));
+        toolBar->ToggleTool(wxID_REPEAT, (1 - toolBar->GetToolState(wxID_REPEAT))  ? true : false);
 }
 
 void AyflyFrame::OnKeyBindings(wxCommandEvent &event)
@@ -909,11 +909,11 @@ void AyflyFrame::RecreateToolbar()
     toolBar->SetToolShortHelp(wxID_CMUTE, b_muted ? wxT("Enable C") : wxT("Mute C"));
     toolBar->SetToolLongHelp(wxID_CMUTE, c_muted ? wxT("Enable C channel") : wxT("Mute C channel"));
 
-    toolBar->EnableTool(wxID_PLAY, playListView->GetItemCount());
-    toolBar->EnableTool(wxID_REWIND, playListView->GetItemCount());
+    toolBar->EnableTool(wxID_PLAY, (playListView->GetItemCount()) ? true : false);
+    toolBar->EnableTool(wxID_REWIND, (playListView->GetItemCount()) ? true : false);
     toolBar->EnableTool(wxID_PREV, true);
     toolBar->EnableTool(wxID_NEXT, true);
-    toolBar->EnableTool(wxID_STOP, playListView->GetItemCount());
+    toolBar->EnableTool(wxID_STOP, (playListView->GetItemCount()) ? true : false);
 
     toolBar->ToggleTool(wxID_PLAY, started);
 

@@ -28,7 +28,7 @@ extern struct bindings default_bindings [];
 
 AyflyBindingsDlg::AyflyBindingsDlg(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : wxDialog(parent, id, title, pos, size, style)
 {
-    this->SetSizeHints(wxDefaultSize, wxDefaultSize);
+    this->SetSizeHints(400, 300);
 
     wxBoxSizer* allSizer;
     allSizer = new wxBoxSizer(wxVERTICAL);
