@@ -216,7 +216,7 @@ bool parseData(SongInfo &info, unsigned char *fileData, unsigned long fileLength
     }
     else if (fileType == FILE_TYPE_TRACKER)
     {
-        if(Players [player].player == 0) //soft player
+        if (Players [player].player == 0) //soft player
         {
             memset(z80Memory, 0, 65536);
             memcpy(z80Memory, fileData, fileLength);
@@ -330,9 +330,9 @@ bool readFile(SongInfo &info)
 #endif
     if (fileData)
         delete fileData;
-    if(bRet)
+    if (bRet)
     {
-        if(info.bEmul)
+        if (info.bEmul)
             resetSpeccy();
         else
             info.soft_init_proc(z80Memory);
@@ -1240,22 +1240,22 @@ void ASCGetInfo(const unsigned char *module, SongInfo &info)
     info.Length = tm;
 }
 
-void rewindSong(SongInfo &info, unsigned long new_position)
+void rewindSong(SongInfo &info, long new_position)
 {
     if (player && player->Started())
         player->Stop();
 
-        unsigned long timeCurrent = timeElapsed;
-        timeElapsed = new_position;
+    unsigned long timeCurrent = timeElapsed;
+    timeElapsed = new_position;
 
-        if (timeElapsed < timeCurrent)
-        {
-            timeCurrent = 0;
-            if(!readFile(info))
-                return;
-        }
+    if (timeElapsed < timeCurrent)
+    {
+        timeCurrent = 0;
+        if (!readFile(info))
+            return;
+    }
 
-        timeElapsed = timeCurrent;
+    timeElapsed = timeCurrent;
     if (info.bEmul)
     {
         while (timeElapsed != new_position)
@@ -1266,7 +1266,7 @@ void rewindSong(SongInfo &info, unsigned long new_position)
         }
 
     }
-    else if(info.soft_play_proc)
+    else if (info.soft_play_proc)
     {
         while (timeElapsed != new_position)
         {

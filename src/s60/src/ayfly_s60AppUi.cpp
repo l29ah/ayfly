@@ -106,7 +106,6 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 			player->Stop();
 			shutdownSpeccy();
 			initSpeccy();
-			SongInfo info;
 			info.FilePath = fileName;
 			readFile(info);
 			//TParse parse;
