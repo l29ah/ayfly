@@ -1244,8 +1244,7 @@ void rewindSong(SongInfo &info, unsigned long new_position)
 {
     if (player && player->Started())
         player->Stop();
-    if (info.bEmul)
-    {
+
         unsigned long timeCurrent = timeElapsed;
         timeElapsed = new_position;
 
@@ -1257,12 +1256,21 @@ void rewindSong(SongInfo &info, unsigned long new_position)
         }
 
         timeElapsed = timeCurrent;
-
+    if (info.bEmul)
+    {
         while (timeElapsed != new_position)
         {
             z80ex_step(ctx);
             if (z80ex_get_reg(ctx, regPC) == 8)
                 timeElapsed++;
+        }
+
+    }
+    else if(info.soft_play_proc)
+    {
+        while (timeElapsed != new_position)
+        {
+            info.soft_play_proc(z80Memory, 0, 0);
         }
 
     }

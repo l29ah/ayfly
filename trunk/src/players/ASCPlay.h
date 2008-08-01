@@ -4,7 +4,7 @@ Version 3.0 for Windows 95
 Author Sergey Vladimirovich Bulba
 (c)1999-2004 S.V.Bulba
 */
-unsigned short ASM_Table [] =
+unsigned long ASM_Table [] =
 {0xedc, 0xe07, 0xd3e, 0xc80, 0xbcc, 0xb22, 0xa82, 0x9ec, 0x95c, 0x8d6, 0x858, 0x7e0, 0x76e, 0x704, 0x69f,
  0x640, 0x5e6, 0x591, 0x541, 0x4f6, 0x4ae, 0x46b, 0x42c, 0x3f0, 0x3b7, 0x382, 0x34f, 0x320, 0x2f3, 0x2c8,
  0x2a1, 0x27b, 0x257, 0x236, 0x216, 0x1f8, 0x1dc, 0x1c1, 0x1a8, 0x190, 0x179, 0x164, 0x150, 0x13d, 0x12c,
@@ -20,6 +20,7 @@ struct ASC1_File
     unsigned char ASC1_Number_Of_Positions;
     unsigned char ASC1_Positions [65535 - 8];
 };
+#pragma pack(pop)
 
 struct ASC_Channel_Parameters
 {
@@ -42,9 +43,9 @@ struct ASC_Channel_Parameters
     Amplitude,
     Amplitude_Delay,
     Amplitude_Delay_Counter;
-    int Current_Ton_Sliding,
+    short Current_Ton_Sliding,
     Substruction_for_Ton_Sliding;
-    short Note_Skip_Counter,
+    char Note_Skip_Counter,
     Addition_To_Amplitude;
     bool Envelope_Enabled,
     Sound_Enabled,
@@ -59,7 +60,7 @@ struct ASC_Parameters
     DelayCounter,
     CurrentPosition;
 };
-#pragma pack(pop)
+
 
 ASC_Parameters ASC;
 ASC_Channel_Parameters ASC_A, ASC_B, ASC_C;
@@ -83,7 +84,7 @@ void ASC_Init(unsigned char *module)
 void ASC_PatternInterpreter(unsigned char *module, ASC_Channel_Parameters &chan)
 {
     ASC1_File *header = (ASC1_File *)module;
-    int delta_ton;
+    short delta_ton;
     bool Initialization_Of_Ornament_Disabled,
     Initialization_Of_Sample_Disabled;
 
@@ -94,12 +95,12 @@ void ASC_PatternInterpreter(unsigned char *module, ASC_Channel_Parameters &chan)
     while (true)
     {
         unsigned char val = module [chan.Address_In_Pattern];
-        if ((val >= 0) && (val <= 0x55))
+        if (val <= 0x55)
         {
             chan.Note = val;
             chan.Address_In_Pattern++;
             chan.Current_Noise = chan.Initial_Noise;
-            if((short)chan.Ton_Sliding_Counter <= 0)
+            if((char)chan.Ton_Sliding_Counter <= 0)
                 chan.Current_Ton_Sliding = 0;
             if(!Initialization_Of_Sample_Disabled)
             {
@@ -145,11 +146,11 @@ void ASC_PatternInterpreter(unsigned char *module, ASC_Channel_Parameters &chan)
         }
         else if ((val >= 0xa0) && (val <= 0xbf))
         {
-            chan.Initial_Point_In_Sample = *(unsigned short *) &module [(module [chan.Address_In_Pattern] - 0xa0) * 2 + header->ASC1_SamplesPointers] + header->ASC1_SamplesPointers;
+            chan.Initial_Point_In_Sample = (*(unsigned short *) &module [(module [chan.Address_In_Pattern] - 0xa0) * 2 + header->ASC1_SamplesPointers]) + header->ASC1_SamplesPointers;
         }
         else if ((val >= 0xc0) && (val <= 0xdf))
         {
-            chan.Initial_Point_In_Ornament = *(unsigned short *) &module [(module [chan.Address_In_Pattern] - 0xc0) * 2 + header->ASC1_OrnamentsPointers] + header->ASC1_OrnamentsPointers;
+            chan.Initial_Point_In_Ornament = (*(unsigned short *) &module [(module [chan.Address_In_Pattern] - 0xc0) * 2 + header->ASC1_OrnamentsPointers]) + header->ASC1_OrnamentsPointers;
         }
         else if (val == 0xe0)
         {
@@ -187,13 +188,13 @@ void ASC_PatternInterpreter(unsigned char *module, ASC_Channel_Parameters &chan)
         else if (val == 0xf5)
         {
             chan.Address_In_Pattern++;
-            chan.Substruction_for_Ton_Sliding = -((short)module [chan.Address_In_Pattern] * 16);
+            chan.Substruction_for_Ton_Sliding = -char(module [chan.Address_In_Pattern]) * 16;
             chan.Ton_Sliding_Counter = 255;
         }
         else if (val == 0xf6)
         {
             chan.Address_In_Pattern++;
-            chan.Substruction_for_Ton_Sliding = ((short)module [chan.Address_In_Pattern] * 16);
+            chan.Substruction_for_Ton_Sliding = char(module [chan.Address_In_Pattern]) * 16;
             chan.Ton_Sliding_Counter = 255;
         }
         else if (val == 0xf7)
@@ -205,10 +206,10 @@ void ASC_PatternInterpreter(unsigned char *module, ASC_Channel_Parameters &chan)
                             ASM_Table [module [chan.Address_In_Pattern + 1]];
             else
                 delta_ton = chan.Current_Ton_Sliding / 16;
-            delta_ton <<= 4;
-            chan.Substruction_for_Ton_Sliding = -delta_ton / (short)module [chan.Address_In_Pattern];
-            chan.Current_Ton_Sliding = delta_ton - delta_ton % (short)module [chan.Address_In_Pattern];
-            chan.Ton_Sliding_Counter = (short)module [chan.Address_In_Pattern];
+            delta_ton = delta_ton << 4;
+            chan.Substruction_for_Ton_Sliding = -delta_ton / char(module [chan.Address_In_Pattern]);
+            chan.Current_Ton_Sliding = delta_ton - delta_ton % char(module [chan.Address_In_Pattern]);
+            chan.Ton_Sliding_Counter = char(module [chan.Address_In_Pattern]);
         }
         else if (val == 0xf8)
         {
@@ -223,10 +224,10 @@ void ASC_PatternInterpreter(unsigned char *module, ASC_Channel_Parameters &chan)
             }
             else
                 delta_ton = chan.Current_Ton_Sliding / 16;
-            delta_ton <<= 4;
-            chan.Substruction_for_Ton_Sliding = -delta_ton / (short)module [chan.Address_In_Pattern];
-            chan.Current_Ton_Sliding = delta_ton - delta_ton % (short)module [chan.Address_In_Pattern];
-            chan.Ton_Sliding_Counter = (short)module [chan.Address_In_Pattern];
+            delta_ton = delta_ton << 4;
+            chan.Substruction_for_Ton_Sliding = -delta_ton / char(module [chan.Address_In_Pattern]);
+            chan.Current_Ton_Sliding = delta_ton - delta_ton % char(module [chan.Address_In_Pattern]);
+            chan.Ton_Sliding_Counter = char(module [chan.Address_In_Pattern]);
 
         }
         else if (val == 0xfa)
@@ -262,7 +263,7 @@ void ASC_PatternInterpreter(unsigned char *module, ASC_Channel_Parameters &chan)
 
 void ASC_GetRegisters(unsigned char *module, ASC_Channel_Parameters &chan, unsigned char &TempMixer)
 {
-    short j;
+    char j;
     bool Sample_Says_OK_for_Envelope;
     if(chan.Sample_Finished || !chan.Sound_Enabled)
         chan.Amplitude = 0;
@@ -294,7 +295,7 @@ void ASC_GetRegisters(unsigned char *module, ASC_Channel_Parameters &chan, unsig
             chan.Loop_Point_In_Sample = chan.Point_In_Sample;
         if((module [chan.Point_In_Sample] & 96) == 32)
             chan.Sample_Finished = true;
-        chan.Ton_Deviation += (short)module [chan.Point_In_Sample + 1];
+        chan.Ton_Deviation += char(module [chan.Point_In_Sample + 1]);
         TempMixer |= (module [chan.Point_In_Sample + 2] & 9) << 3;
         if((module [chan.Point_In_Sample + 2] & 6) == 2)
             Sample_Says_OK_for_Envelope = true;
@@ -311,15 +312,15 @@ void ASC_GetRegisters(unsigned char *module, ASC_Channel_Parameters &chan, unsig
                 chan.Addition_To_Amplitude++;
         }
         chan.Amplitude = chan.Addition_To_Amplitude + (module [chan.Point_In_Sample + 2] >> 4);
-        if((short)chan.Amplitude < 0)
+        if(char(chan.Amplitude) < 0)
             chan.Amplitude = 0;
         else if(chan.Amplitude > 15)
             chan.Amplitude = 15;
         chan.Amplitude = (chan.Amplitude * (chan.Volume + 1)) >> 4;
         if(Sample_Says_OK_for_Envelope && ((TempMixer & 64) != 0))
-            player->WriteAy(AY_ENV_FINE, player->ReadAy(AY_ENV_FINE) + (((short)module [chan.Point_In_Sample] << 3) / 8));
+            player->WriteAy(AY_ENV_FINE, player->ReadAy(AY_ENV_FINE) + (char(module [chan.Point_In_Sample] << 3) / 8));
         else
-            chan.Current_Noise += ((short)module [chan.Point_In_Sample] << 3) / 8;
+            chan.Current_Noise += char(module [chan.Point_In_Sample] << 3) / 8;
         chan.Point_In_Sample += 3;
         if((module [chan.Point_In_Sample - 3] & 64) != 0)
         {
@@ -331,7 +332,7 @@ void ASC_GetRegisters(unsigned char *module, ASC_Channel_Parameters &chan, unsig
         if((module [chan.Point_In_Ornament] & 128) != 0)
             chan.Loop_Point_In_Ornament = chan.Point_In_Ornament;
         chan.Addition_To_Note += module [chan.Point_In_Ornament + 1];
-        chan.Current_Noise += (-(short)(module [chan.Point_In_Ornament] & 0x10)) | module [chan.Point_In_Ornament];
+        chan.Current_Noise += (-char(module [chan.Point_In_Ornament] & 0x10)) | module [chan.Point_In_Ornament];
         chan.Point_In_Ornament += 2;
         if((module [chan.Point_In_Ornament - 2] & 64) != 0)
             chan.Point_In_Ornament = chan.Loop_Point_In_Ornament;
@@ -345,14 +346,14 @@ void ASC_GetRegisters(unsigned char *module, ASC_Channel_Parameters &chan, unsig
         chan.Ton = (ASM_Table [j] + chan.Ton_Deviation + (chan.Current_Ton_Sliding / 16)) & 0xfff;
         if(chan.Ton_Sliding_Counter != 0)
         {
-            if((short)chan.Ton_Sliding_Counter > 0)
+            if(char(chan.Ton_Sliding_Counter) > 0)
                 chan.Ton_Sliding_Counter--;
             chan.Current_Ton_Sliding += chan.Substruction_for_Ton_Sliding;
         }
         if(chan.Envelope_Enabled && Sample_Says_OK_for_Envelope)
             chan.Amplitude |= 0x10;
     }
-    TempMixer >>= 1;
+    TempMixer = TempMixer >> 1;
 }
 
 void ASC_Play(unsigned char *module, ELAPSED_CALLBACK callback, void *arg)
