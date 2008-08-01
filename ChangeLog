@@ -1,5 +1,12 @@
 Changelog:
 
+01.08.2008 - 0.0.14
+Added filters for synth signal in symbian build
+Volume on Symbian can now be changed with up an down arrows
+Added ASC Sound Master player
+Initial work began for moving player core to the library
+
+
 30.07.2008 - 0.0.13
 Make Symbian build work on 220x ARM processors. Defaults now are: 32Khz, stereo
 Fixed z80 interrupt time
