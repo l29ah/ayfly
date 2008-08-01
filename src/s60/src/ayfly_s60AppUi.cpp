@@ -106,7 +106,9 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 			player->Stop();
 			shutdownSpeccy();
 			initSpeccy();
-			readFile(fileName);
+			SongInfo info;
+			info.FilePath = fileName;
+			readFile(info);
 			//TParse parse;
 			//parse.Set(fileName, NULL, NULL);
 			fileName = PathInfo::MemoryCardRootPath();
@@ -147,10 +149,36 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 	}
 		break;
 	default:
+	{
+	    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("!!!"));
 		Panic(Eayfly_s60Ui);
+	}
 		break;
 	}
 }
+
+TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEventCode aType)
+{
+    if(aType != EEventKey)
+    {
+        return EKeyWasNotConsumed;
+    }
+    else
+    {
+        if(aKeyEvent.iCode == EKeyUpArrow)
+        {
+            Cayfly_s60Audio *_player = (Cayfly_s60Audio *)player;
+            _player->SetDeviceVolume(_player->GetDeviceVolume() + 1);
+        }
+        else if(aKeyEvent.iCode == EKeyDownArrow)
+        {
+            Cayfly_s60Audio *_player = (Cayfly_s60Audio *)player;
+            _player->SetDeviceVolume(_player->GetDeviceVolume() - 1);
+        }
+    }
+
+}
+
 // -----------------------------------------------------------------------------
 //  Called by the framework when the application status pane
 //  size is changed.  Passes the new client rectangle to the

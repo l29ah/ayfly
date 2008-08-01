@@ -108,7 +108,7 @@ extern "C"
 #        include "f32file.h"
 #        include "s32std.h"
 #        include "s32file.h"
-#        include "e32cons.h"
+#        include "e32cmn.h"
 #        include "ayfly_s60.hrh"
 #        include "ayfly_s60.pan"
 #        include "ayfly_s60Document.h"
@@ -145,7 +145,8 @@ extern "C"
 #        define TXT_TYPE wxString
 #    else
 #        define TXT(x) _L(x)
-#        define TXT_TYPE TDes
+#        define TXT_TYPE TFileName
+#        pragma pack(0)
 #    endif
 
 typedef void (*PLAYER_INIT_PROC)(unsigned char *module);
