@@ -13,7 +13,7 @@ unsigned short ASM_Table [] =
  0x22, 0x20, 0x1e, 0x1c};
 
 #ifndef __SYMBIAN32__
-#pragma pack(push, 0)
+#pragma pack(push, 1)
 #endif
 struct ASC1_File
 {
