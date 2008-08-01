@@ -32,7 +32,7 @@ unsigned long maxElapsed = 0;
 PLAYER_INIT_PROC soft_init_proc = 0;
 PLAYER_PLAY_PROC soft_play_proc = 0;
 
-typedef void (*GETINFO_CALLBACK)(const unsigned char *fileData, SongInfo &info);
+typedef void (*GETINFO_CALLBACK)(const unsigned char *module, SongInfo &info);
 
 enum _FileTypes
 {
@@ -42,7 +42,7 @@ enum _FileTypes
 struct _Players
 {
     TXT_TYPE ext;
-    const char *player;
+    const unsigned char *player;
     unsigned long player_base;
     unsigned long length;
     unsigned long module_base;
@@ -53,11 +53,11 @@ struct _Players
     GETINFO_CALLBACK getInfo;
 };
 
-void STCGetInfo(const unsigned char *fileData, SongInfo &info);
-void STPGetInfo(const unsigned char *fileData, SongInfo &info);
-void PT3GetInfo(const unsigned char *fileData, SongInfo &info);
-void PT2GetInfo(const unsigned char *fileData, SongInfo &info);
-void ASCGetInfo(const unsigned char *fileData, SongInfo &info);
+void STCGetInfo(const unsigned char *module, SongInfo &info);
+void STPGetInfo(const unsigned char *module, SongInfo &info);
+void PT3GetInfo(const unsigned char *module, SongInfo &info);
+void PT2GetInfo(const unsigned char *module, SongInfo &info);
+void ASCGetInfo(const unsigned char *module, SongInfo &info);
 
 _Players Players[] =
 {
@@ -118,9 +118,9 @@ static ayData aydata;
 
 void initMemoryAY(unsigned char track);
 
-char *osRead(const TXT_TYPE &filePath, unsigned long *data_len)
+unsigned char *osRead(const TXT_TYPE &filePath, unsigned long *data_len)
 {
-    char *fileData = new char[*data_len];
+    unsigned char *fileData = new unsigned char[*data_len];
     if (!fileData)
         return 0;
     memset(fileData, 0, *data_len);
@@ -167,7 +167,7 @@ char *osRead(const TXT_TYPE &filePath, unsigned long *data_len)
     return fileData;
 }
 
-bool parseData(SongInfo &info, char *fileData, unsigned long fileLength, _FileTypes fileType, unsigned long player = 0)
+bool parseData(SongInfo &info, unsigned char *fileData, unsigned long fileLength, _FileTypes fileType, unsigned long player = 0)
 {
 #define GET_WORD(x) {(x) = (*ptr++) << 8; (x) |= *ptr++;}
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
@@ -205,7 +205,7 @@ bool parseData(SongInfo &info, char *fileData, unsigned long fileLength, _FileTy
                     GET_WORD(aydata.tracks [i].fadelen);
                 }
                 aydata.filelen = fileLength;
-                aydata.filedata = (unsigned char *) fileData;
+                aydata.filedata = fileData;
                 initMemoryAY(0);
                 free(aydata.tracks);
                 aydata.tracks = 0;
@@ -268,14 +268,14 @@ bool readFile(SongInfo &info)
     soft_init_proc = info.soft_init_proc = 0;
     soft_play_proc = info.soft_play_proc = 0;
     bool bRet = false;
-    char *fileData = 0;
+    unsigned char *fileData = 0;
 #ifndef __SYMBIAN32__
     wxString cfp = info.FilePath;
     cfp = cfp.MakeLower();
 
     if (cfp.rfind(TXT(".ay")) != wxString::npos)
     {
-        char *fileData = osRead(info.FilePath, &data_len);
+        fileData = osRead(info.FilePath, &data_len);
         if (fileData)
         {
             bRet = parseData(info, fileData, data_len, FILE_TYPE_AY);
@@ -287,7 +287,7 @@ bool readFile(SongInfo &info)
         {
             if (cfp.rfind(Players[i].ext) != wxString::npos)
             {
-                char *fileData = osRead(info.FilePath, &data_len);
+                fileData = osRead(info.FilePath, &data_len);
                 if (fileData)
                 {
                     bRet = parseData(info, fileData, data_len, FILE_TYPE_TRACKER, i);
@@ -297,13 +297,13 @@ bool readFile(SongInfo &info)
         }
     }
 #else
-    TDes FilePath = SongInfo.FilePath;
-    FilePath.LowerCase();
+    TFileName cfp = info.FilePath;
+    cfp.LowerCase();
     TParse parse;
-    parse.Set(FilePath, NULL, NULL);
+    parse.Set(cfp, NULL, NULL);
     if (parse.Ext().Match(_L(".ay")) != KErrNotFound)
     {
-        char *fileData = osRead(SongInfo.FilePath, &data_len);
+        fileData = osRead(info.FilePath, &data_len);
         if (fileData)
         {
             bRet = parseData(info, fileData, data_len, FILE_TYPE_AY);
@@ -318,7 +318,7 @@ bool readFile(SongInfo &info)
             //gConsole->Printf(_L("Current ext = %S, file ext = %S\n"), &ext_cur, &ext);
             if (ext.Compare(ext_cur) == 0)
             {
-                char *fileData = osRead(SongInfo.FilePath, &data_len);
+                fileData = osRead(info.FilePath, &data_len);
                 if (fileData)
                 {
                     bRet = parseData(info, fileData, data_len, FILE_TYPE_TRACKER, i);
@@ -438,17 +438,17 @@ bool getSongInfo(SongInfo &info)
     cfp = cfp.MakeLower();
     if (cfp.rfind(TXT(".ay")) != wxString::npos)
 #else
-    TDes FilePath = SongInfo.FilePath;
-    FilePath.LowerCase();
+    TFileName cfp = info.FilePath;
+    cfp.LowerCase();
     TParse parse;
-    parse.Set(FilePath, NULL, NULL);
+    parse.Set(cfp, NULL, NULL);
     if (parse.Ext() == _L(".ay"))
 #endif
     {
-        char *fileData = osRead(info.FilePath, &data_len);
+        unsigned char *fileData = osRead(info.FilePath, &data_len);
         if (fileData)
         {
-            unsigned char *ptr = (unsigned char *) fileData;
+            unsigned char *ptr = fileData;
             unsigned char *ptr2;
             if (!memcmp(ptr, "ZXAYEMUL", 8))
             {
@@ -504,7 +504,7 @@ bool getSongInfo(SongInfo &info)
             if (ext.Compare(ext_cur) == 0)
 #endif
             {
-                char *fileData = osRead(info.FilePath, &data_len);
+                unsigned char *fileData = osRead(info.FilePath, &data_len);
                 if (fileData)
                 {
                     if (Players[i].getInfo)
@@ -545,8 +545,8 @@ void STCGetInfo(const unsigned char *fileData, SongInfo &info)
         a = 1;
         while (*(unsigned char *) &fileData[j1] != 255)
         {
-            unsigned char val = *(unsigned char *) &fileData[j1];
-            if ((val >= 0 && val <= 0x5f) || (val == 0x80) || (val == 0x81))
+            unsigned char val = fileData[j1];
+            if ((val <= 0x5f) || (val == 0x80) || (val == 0x81))
             {
                 tm += a;
             }
@@ -643,7 +643,7 @@ void PT3GetInfo(const unsigned char *fileData, SongInfo &info)
                         j1++;
                         break;
                     }
-                    else if (val == 0x10 || (val >= 0xf0 && val <= 0xff))
+                    else if (val == 0x10 || val >= 0xf0)
                     {
                         j1++;
                     }
@@ -737,11 +737,11 @@ void PT3GetInfo(const unsigned char *fileData, SongInfo &info)
                             j2++;
                             break;
                         }
-                        else if (val == 0x10 || (val >= 0xf0 && val <= 0xff))
+                        else if (val == 0x10 || val >= 0xf0)
                         {
                             j2++;
                         }
-                        else if ((val >= 0xb2) & (val <= 0xbf))
+                        else if (val >= 0xb2 && val <= 0xbf)
                         {
                             j2 += 2;
                         }
@@ -831,11 +831,11 @@ void PT3GetInfo(const unsigned char *fileData, SongInfo &info)
                             j3++;
                             break;
                         }
-                        else if (val == 0x10 || (val >= 0xf0 && val <= 0xff))
+                        else if (val == 0x10 || val >= 0xf0)
                         {
                             j3++;
                         }
-                        else if ((val >= 0xb2) & (val <= 0xbf))
+                        else if (val >= 0xb2 && val <= 0xbf)
                         {
                             j3 += 2;
                         }
@@ -1106,7 +1106,7 @@ void ASCGetInfo(const unsigned char *module, SongInfo &info)
                 while (true)
                 {
                     unsigned char val = module [j1];
-                    if ((val >= 0) && (val <= 0x55))
+                    if (val <= 0x55)
                     {
                         a1 = a11;
                         j1++;
@@ -1150,8 +1150,8 @@ void ASCGetInfo(const unsigned char *module, SongInfo &info)
             {
                 while (true)
                 {
-                    unsigned char val = (unsigned char) module [j2];
-                    if ((val >= 0) && (val <= 0x55))
+                    unsigned char val = module [j2];
+                    if (val <= 0x55)
                     {
                         a2 = a22;
                         j2++;
@@ -1196,7 +1196,7 @@ void ASCGetInfo(const unsigned char *module, SongInfo &info)
                 while (true)
                 {
                     unsigned char val = (unsigned char) module [j3];
-                    if ((val >= 0) && (val <= 0x55))
+                    if (val <= 0x55)
                     {
                         a3 = a33;
                         j3++;

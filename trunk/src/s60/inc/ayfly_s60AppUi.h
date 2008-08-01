@@ -63,6 +63,8 @@ private:
 	 */
 	void HandleStatusPaneSizeChange();
 
+	TKeyResponse HandleKeyEventL(const TKeyEvent &aKeyEvent, TEventCode aType);
+
 
 private:
 	// Data

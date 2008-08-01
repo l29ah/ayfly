@@ -13,8 +13,8 @@ public:
     void StartPlay();
     void StopPlay();
 
-    void SetVolume(TInt aVolume);
-    TInt GetVolume();
+    void SetDeviceVolume(TInt aVolume);
+    TInt GetDeviceVolume();
 
     bool Start();
 	void Stop();

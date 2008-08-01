@@ -88,14 +88,18 @@ void Cayfly_s60Audio::StopPlay()
     KillSound();
 }
 
-void Cayfly_s60Audio::SetVolume(TInt aVolume)
+void Cayfly_s60Audio::SetDeviceVolume(TInt aVolume)
 {
+    if(aVolume > 50)
+        aVolume = 50;
+    if(aVolume < 0)
+        aVolume = 0;
     iVolume = aVolume;
     if (iDevSound)
         iDevSound->SetVolume(iVolume);
 }
 
-TInt Cayfly_s60Audio::GetVolume()
+TInt Cayfly_s60Audio::GetDeviceVolume()
 {
     return iVolume;
 }
