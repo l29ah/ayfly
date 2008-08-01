@@ -18,12 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "ay.h"
+
 
 #ifndef AUDIO_H_
 #define AUDIO_H_
-
-class ay;
 
 class AbstractAudio
 {
