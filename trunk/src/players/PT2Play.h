@@ -164,3 +164,149 @@ unsigned char PT2Play_data[] = {
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 };
+
+void PT2GetInfo(const unsigned char *fileData, SongInfo &info)
+{
+    short a1, a2, a3, a11, a22, a33;
+    unsigned long j1, j2, j3;
+    long i, tm = 0;
+    unsigned char b;
+    unsigned char ptDelay = fileData[0];
+    unsigned char ptNumPos = fileData[1];
+    unsigned short ptLoopPos = fileData[2];
+    unsigned short ptPatPt = *(unsigned short *)&fileData[99];
+    const unsigned char *ptPosList = (unsigned char *)&fileData[131];
+
+    b = ptDelay;
+    a1 = a2 = a3 = a11 = a22 = a33 = 0;
+    for(i = 0; i < ptNumPos; i++)
+    {
+        if(i == ptLoopPos)
+        {
+            info.Loop = tm;
+        }
+        j1 = *(unsigned short *)&fileData[ptPatPt + ptPosList[i] * 6];
+        j2 = *(unsigned short *)&fileData[ptPatPt + ptPosList[i] * 6 + 2];
+        j3 = *(unsigned short *)&fileData[ptPatPt + ptPosList[i] * 6 + 4];
+        do
+        {
+            a1--;
+            if(a1 < 0)
+            {
+                if(fileData[j1] == 0)
+                    break;
+                do
+                {
+                    unsigned char val = (unsigned char)fileData[j1];
+                    if(val == 0x70 || (val >= 0x80 && val <= 0xe0))
+                    {
+                        a1 = a11;
+                        j1++;
+                        break;
+                    }
+                    else if(val >= 0x71 && val <= 0x7e)
+                    {
+                        j1 += 2;
+                    }
+                    else if(val >= 0x20 && val <= 0x5f)
+                    {
+                        a11 = fileData[j1] - 0x20;
+                    }
+                    else if(val == 0xf)
+                    {
+                        j1++;
+                        b = fileData[j1];
+                    }
+                    else if((val >= 1 && val <= 0xb) || val == 0xe)
+                    {
+                        j1++;
+                    }
+                    else if(val == 0xd)
+                    {
+                        j1 += 3;
+                    }
+                    j1++;
+                }
+                while(true);
+            }
+
+            a2--;
+            if(a2 < 0)
+            {
+                do
+                {
+                    unsigned char val = (unsigned char)fileData[j2];
+                    if(val == 0x70 || (val >= 0x80 && val <= 0xe0))
+                    {
+                        a2 = a22;
+                        j2++;
+                        break;
+                    }
+                    else if(val >= 0x71 && val <= 0x7e)
+                    {
+                        j2 += 2;
+                    }
+                    else if(val >= 0x20 && val <= 0x5f)
+                    {
+                        a22 = fileData[j2] - 0x20;
+                    }
+                    else if(val == 0xf)
+                    {
+                        j2++;
+                        b = fileData[j2];
+                    }
+                    else if((val >= 1 && val <= 0xb) || val == 0xe)
+                    {
+                        j2++;
+                    }
+                    else if(val == 0xd)
+                    {
+                        j2 += 3;
+                    }
+                    j2++;
+                }
+                while(true);
+            }
+            a3--;
+            if(a3 < 0)
+            {
+                do
+                {
+                    unsigned char val = (unsigned char)fileData[j3];
+                    if(val == 0x70 || (val >= 0x80 && val <= 0xe0))
+                    {
+                        a3 = a33;
+                        j3++;
+                        break;
+                    }
+                    else if(val >= 0x71 && val <= 0x7e)
+                    {
+                        j3 += 2;
+                    }
+                    else if(val >= 0x20 && val <= 0x5f)
+                    {
+                        a33 = fileData[j3] - 0x20;
+                    }
+                    else if(val == 0xf)
+                    {
+                        j3++;
+                        b = fileData[j3];
+                    }
+                    else if((val >= 1 && val <= 0xb) || val == 0xe)
+                    {
+                        j3++;
+                    }
+                    else if(val == 0xd)
+                    {
+                        j3 += 3;
+                    }
+                    j3++;
+                }
+                while(true);
+            }
+            tm += b;
+        }
+        while(true);
+    }
+    info.Length = tm;
+}

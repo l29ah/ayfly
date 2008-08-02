@@ -69,3 +69,50 @@ unsigned char STCPlay_data[] = {
   0xae,0xc0,0xaf,0xb6,0x3e,0x0d,0x20,0x05,0xd6,0x03,0x2b,0x2b,0x2b,0x0e,0xfd,0x06,
   0xff,0xed,0x79,0x06,0xbf,0xed,0xab,0x3d,0xf2,0x2f,0xc4,0xc9
 };
+
+void STCGetInfo(const unsigned char *fileData, SongInfo &info)
+{
+    unsigned long tm = 0;
+    long j, j1, j2, i;
+    unsigned char stDelay = fileData[0];
+    unsigned short stPosPt = *(unsigned short *)&fileData[1];
+    unsigned short stPatPt = *(unsigned short *)&fileData[5];
+    unsigned char a;
+
+    j = -1;
+    do
+    {
+        j++;
+        j2 = stPosPt + j * 2 + 1;
+        j2 = fileData[j2];
+        i = -1;
+        do
+        {
+            i++;
+            j1 = stPatPt + 7 * i;
+        }
+        while(fileData[j1] != j2);
+        j1 = *(unsigned short *)&fileData[j1 + 1];
+        a = 1;
+        while(*(unsigned char *)&fileData[j1] != 255)
+        {
+            unsigned char val = fileData[j1];
+            if((val <= 0x5f) || (val == 0x80) || (val == 0x81))
+            {
+                tm += a;
+            }
+            else if(val >= 0xa1 && val <= 0xe0)
+            {
+                a = val - 0xa0;
+            }
+            else if(val >= 0x83 && val <= 0x8e)
+            {
+                j1++;
+            }
+            j1++;
+        }
+    }
+    while(j != fileData[stPosPt]);
+    tm *= stDelay;
+    info.Length = tm;
+}

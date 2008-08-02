@@ -118,3 +118,38 @@ unsigned char STPPlay_data[] = {
   0x1a,0x00,0x19,0x00,0x17,0x00,0x16,0x00,0x15,0x00,0x13,0x00,0x12,0x00,0x11,0x00,
   0x10,0x00,0x0f,0x00,
 };
+
+void STPGetInfo(const unsigned char *fileData, SongInfo &info)
+{
+    unsigned long tm = 0;
+    unsigned char a = 1;
+    unsigned long i, j1;
+    unsigned char stDelay = fileData[0];
+    unsigned short stPosPt = *(unsigned short *)&fileData[1];
+    //unsigned long stOrnPt = *(unsigned short *)fileData [5];
+    unsigned long stPatPt = *(unsigned short *)&fileData[3];
+
+    for(i = 0; i < (unsigned char)fileData[stPosPt]; i++)
+    {
+        j1 = *(unsigned short *)&fileData[stPatPt + fileData[stPosPt + 2 + i * 2]];
+        while(*(unsigned char *)&fileData[j1] != 0)
+        {
+            unsigned char val = *(unsigned char *)&fileData[j1];
+            if((val >= 1 && val <= 0x60) || (val >= 0xd0 && val <= 0xef))
+            {
+                tm += a;
+            }
+            else if(val >= 0x80 && val <= 0xbf)
+            {
+                a = val - 0x7f;
+            }
+            else if((val >= 0xc0 && val <= 0xcf) || val == 0xf0)
+            {
+                j1++;
+            }
+            j1++;
+        }
+    }
+    tm *= stDelay;
+    info.Length = tm;
+}

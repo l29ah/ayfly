@@ -137,3 +137,323 @@ unsigned char PT3Play_data[] = {
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 };
+
+void PT3GetInfo(const unsigned char *fileData, SongInfo &info)
+{
+    unsigned short a1, a2, a3, a11, a22, a33;
+    unsigned long j1, j2, j3;
+    long c1, c2, c3, c4, c5, c8;
+    long i, j, tm = 0;
+    unsigned char b;
+    unsigned char ptDelay = fileData[100];
+    unsigned char ptNumPos = fileData[101];
+    unsigned short ptLoopPos = fileData[102];
+    unsigned short ptPatPt = *(unsigned short *)&fileData[103];
+    const unsigned char *ptPosList = (unsigned char *)&fileData[201];
+
+    b = ptDelay;
+    a11 = a22 = a33 = 1;
+    for(i = 0; i < ptNumPos; i++)
+    {
+        if(i == ptLoopPos)
+        {
+            info.Loop = tm;
+        }
+        j1 = *(unsigned short *)&fileData[ptPatPt + ptPosList[i] * 2];
+        j2 = *(unsigned short *)&fileData[ptPatPt + ptPosList[i] * 2 + 2];
+        j3 = *(unsigned short *)&fileData[ptPatPt + ptPosList[i] * 2 + 4];
+        a1 = a2 = a3 = 1;
+        do
+        {
+            a1--;
+            if(a1 == 0)
+            {
+                if(fileData[j1] == 0)
+                    break;
+                j = c1 = c2 = c3 = c4 = c5 = c8 = 0;
+                do
+                {
+                    unsigned char val = fileData[j1];
+                    if(val == 0xd0 || val == 0xc0 || (val >= 0x50 && val <= 0xaf))
+                    {
+                        a1 = a11;
+                        j1++;
+                        break;
+                    }
+                    else if(val == 0x10 || val >= 0xf0)
+                    {
+                        j1++;
+                    }
+                    else if(val >= 0xb2 && val <= 0xbf)
+                    {
+                        j1 += 2;
+                    }
+                    else if(val == 0xb1)
+                    {
+                        j1++;
+                        a11 = fileData[j1];
+                    }
+                    else if(val >= 0x11 && val <= 0x1f)
+                    {
+                        j1 += 3;
+                    }
+                    else
+                    {
+                        switch(val)
+                        {
+                            case 1:
+                                j++;
+                                c1 = j;
+                                break;
+                            case 2:
+                                j++;
+                                c2 = j;
+                                break;
+                            case 3:
+                                j++;
+                                c3 = j;
+                                break;
+                            case 4:
+                                j++;
+                                c4 = j;
+                                break;
+                            case 5:
+                                j++;
+                                c5 = j;
+                                break;
+                            case 8:
+                                j++;
+                                c8 = j;
+                                break;
+                            case 9:
+                                j++;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    j1++;
+                }
+                while(true);
+
+                while(j > 0)
+                {
+                    if(j == c1 || j == c8)
+                    {
+                        j1 += 3;
+                    }
+                    else if(j == c2)
+                    {
+                        j1 += 5;
+                    }
+                    else if(j == c3 || j == c4)
+                    {
+                        j1++;
+                    }
+                    else if(j == c5)
+                    {
+                        j1 += 2;
+                    }
+                    else
+                    {
+                        b = fileData[j1];
+                        j1++;
+                    }
+                    j--;
+                }
+                a2--;
+                if(a2 == 0)
+                {
+                    j = c1 = c2 = c3 = c4 = c5 = c8 = 0;
+                    do
+                    {
+                        unsigned char val = fileData[j2];
+                        if(val == 0xd0 || val == 0xc0 || (val >= 0x50 && val <= 0xaf))
+                        {
+                            a2 = a22;
+                            j2++;
+                            break;
+                        }
+                        else if(val == 0x10 || val >= 0xf0)
+                        {
+                            j2++;
+                        }
+                        else if(val >= 0xb2 && val <= 0xbf)
+                        {
+                            j2 += 2;
+                        }
+                        else if(val == 0xb1)
+                        {
+                            j2++;
+                            a22 = fileData[j2];
+                        }
+                        else if(val >= 0x11 && val <= 0x1f)
+                        {
+                            j2 += 3;
+                        }
+                        else
+                        {
+                            switch(val)
+                            {
+                                case 1:
+                                    j++;
+                                    c1 = j;
+                                    break;
+                                case 2:
+                                    j++;
+                                    c2 = j;
+                                    break;
+                                case 3:
+                                    j++;
+                                    c3 = j;
+                                    break;
+                                case 4:
+                                    j++;
+                                    c4 = j;
+                                    break;
+                                case 5:
+                                    j++;
+                                    c5 = j;
+                                    break;
+                                case 8:
+                                    j++;
+                                    c8 = j;
+                                    break;
+                                case 9:
+                                    j++;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        j2++;
+                    }
+                    while(true);
+                    while(j > 0)
+                    {
+                        if(j == c1 || j == c8)
+                        {
+                            j2 += 3;
+                        }
+                        else if(j == c2)
+                        {
+                            j2 += 5;
+                        }
+                        else if(j == c3 || j == c4)
+                        {
+                            j2++;
+                        }
+                        else if(j == c5)
+                        {
+                            j2 += 2;
+                        }
+                        else
+                        {
+                            b = fileData[j2];
+                            j2++;
+                        }
+                        j--;
+                    }
+                }
+                a3--;
+                if(a3 == 0)
+                {
+                    j = c1 = c2 = c3 = c4 = c5 = c8 = 0;
+                    do
+                    {
+                        unsigned char val = fileData[j3];
+                        if(val == 0xd0 || val == 0xc0 || (val >= 0x50 && val <= 0xaf))
+                        {
+                            a3 = a33;
+                            j3++;
+                            break;
+                        }
+                        else if(val == 0x10 || val >= 0xf0)
+                        {
+                            j3++;
+                        }
+                        else if(val >= 0xb2 && val <= 0xbf)
+                        {
+                            j3 += 2;
+                        }
+                        else if(val == 0xb1)
+                        {
+                            j3++;
+                            a33 = fileData[j3];
+                        }
+                        else if(val >= 0x11 && val <= 0x1f)
+                        {
+                            j3 += 3;
+                        }
+                        else
+                        {
+                            switch(val)
+                            {
+                                case 1:
+                                    j++;
+                                    c1 = j;
+                                    break;
+                                case 2:
+                                    j++;
+                                    c2 = j;
+                                    break;
+                                case 3:
+                                    j++;
+                                    c3 = j;
+                                    break;
+                                case 4:
+                                    j++;
+                                    c4 = j;
+                                    break;
+                                case 5:
+                                    j++;
+                                    c5 = j;
+                                    break;
+                                case 8:
+                                    j++;
+                                    c8 = j;
+                                    break;
+                                case 9:
+                                    j++;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        j3++;
+                    }
+                    while(true);
+                    while(j > 0)
+                    {
+                        if(j == c1 || j == c8)
+                        {
+                            j3 += 3;
+                        }
+                        else if(j == c2)
+                        {
+                            j3 += 5;
+                        }
+                        else if(j == c3 || j == c4)
+                        {
+                            j3++;
+                        }
+                        else if(j == c5)
+                        {
+                            j3 += 2;
+                        }
+                        else
+                        {
+                            b = fileData[j3];
+                            j3++;
+                        }
+                        j--;
+                    }
+                }
+            }
+            tm += b;
+        }
+        while(true);
+
+    }
+    info.Length = tm;
+}
