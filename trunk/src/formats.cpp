@@ -24,7 +24,7 @@
 #include "players/STPPlay.h"
 #include "players/PSCPlay.h"
 #include "players/STCPlay.h"
-//#include "players/SQTPlay.h" not working
+#include "players/SQTPlay.h"
 #include "players/ASCPlay.h"
 
 unsigned long timeElapsed = 0;
@@ -60,7 +60,7 @@ _Players Players[] =
     { TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STPGetInfo },
     { TXT(".psc"), PSCPlay_data, 0xc000, sizeof(PSCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, 0 },
     { TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STCGetInfo },
-//		{TEXT(".sqt"), SQTPlay_data, 0xc000, sizeof(SQTPlay_data), 0x0000, 0xc000, 0xc030}, not working
+    { TXT(".sqt"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, SQTGetInfo},
     { TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASCGetInfo}
 };
 
@@ -502,7 +502,7 @@ bool getSongInfo(SongInfo &info)
                 if (fileData)
                 {
                     if (Players[i].getInfo)
-                        Players[i].getInfo((unsigned char *)fileData, info);
+                        Players[i].getInfo(fileData, info);
                     delete fileData;
                 }
                 break;
