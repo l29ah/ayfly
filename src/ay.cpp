@@ -75,7 +75,7 @@ ay::ay(long _ay_freq, int _buf_sz)
     FilterOpts fopts;
     fopts.Fs = AUDIO_FREQ * ay_tacts;
     fopts.bw = 1.8;
-    fopts.f0 = 12000;
+    fopts.f0 = 22000;
     fopts.type = LPF;
     flt = new Filter3;
     flt->Init(&fopts);
