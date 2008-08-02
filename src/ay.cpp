@@ -89,7 +89,7 @@ ay::~ay()
     delete[] buffer_tail[0];
     delete[] buffer_tail[1];
     delete[] buffer_tail[2];
-    delete flt;
+    delete flt_bass;
 }
 
 void ay::SetBufferSize(int _buf_sz)

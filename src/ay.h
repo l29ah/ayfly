@@ -106,7 +106,6 @@ private:
     int buf_sz;
     unsigned long tails_len;
     unsigned long ay_tacts;
-    Filter3 *flt;
     Filter3 *flt_bass;
     void setEnvelope();
     void updateEnvelope();
