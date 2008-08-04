@@ -94,7 +94,7 @@ extern "C"
 #        define TXT(x) _L(x)
 #        define TXT_TYPE TFileName
 #        pragma pack(0)
-#    define AUDIO_FREQ 32000
+#        define AUDIO_FREQ 32000
 #    endif
 #    define Z80_FREQ 3546900
 #    define INTR_FREQ 50
@@ -133,7 +133,8 @@ struct SongInfo
 #        include "Filter3.h"
 #        include "ay.h"
 #        else
-#        include "ay_s60.h"
+#        include "Filter3.h"
+#        include "ay.h"
 #        endif
 
 #        include "AbstractAudio.h"

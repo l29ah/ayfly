@@ -108,10 +108,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 			initSpeccy();
 			info.FilePath = fileName;
 			readFile(info);
-			//TParse parse;
-			//parse.Set(fileName, NULL, NULL);
 			fileName = PathInfo::MemoryCardRootPath();
-			//gConsole->Printf(_L("folderName = %S\N"), &fileName);
 		}
 	}
 		break;
@@ -174,7 +171,9 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
             Cayfly_s60Audio *_player = (Cayfly_s60Audio *)player;
             _player->SetDeviceVolume(_player->GetDeviceVolume() - 1);
         }
+        return EKeyWasConsumed;
     }
+
 
 }
 

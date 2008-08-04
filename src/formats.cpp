@@ -22,10 +22,10 @@
 #include "players/PT2Play.h"
 #include "players/PT3Play.h"
 #include "players/STPPlay.h"
-#include "players/PSCPlay.h"
 #include "players/STCPlay.h"
 #include "players/SQTPlay.h"
 #include "players/ASCPlay.h"
+#include "players/PSCPlay.h"
 
 unsigned long timeElapsed = 0;
 unsigned long maxElapsed = 0;
@@ -58,9 +58,9 @@ _Players Players[] =
     { TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0, 0xc006, 0, PT2GetInfo },
     { TXT(".pt3"), PT3Play_data, 0xc000, sizeof(PT3Play_data), 0x0000, 0xc000, 0, 0xc005, 0, PT3GetInfo },
     { TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STPGetInfo },
-    { TXT(".psc"), PSCPlay_data, 0xc000, sizeof(PSCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, 0 },
+    { TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_GetInfo},
     { TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STCGetInfo },
-    { TXT(".sqt"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, SQTGetInfo},
+   // { TXT(".sqt"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, SQTGetInfo},
     { TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASCGetInfo}
 };
 
@@ -309,7 +309,6 @@ bool readFile(SongInfo &info)
         {
             TPtrC ext = parse.Ext();
             TPtrC ext_cur = Players [i].ext;
-            //gConsole->Printf(_L("Current ext = %S, file ext = %S\n"), &ext_cur, &ext);
             if (ext.Compare(ext_cur) == 0)
             {
                 fileData = osRead(info.FilePath, &data_len);
@@ -322,8 +321,9 @@ bool readFile(SongInfo &info)
         }
     }
 #endif
+
     if (fileData)
-        delete fileData;
+        delete [] fileData;
     if (bRet)
     {
         if (info.bEmul)
@@ -333,7 +333,6 @@ bool readFile(SongInfo &info)
         getSongInfo(info);
         maxElapsed = info.Length;
     }
-
     return bRet;
 }
 
@@ -427,6 +426,7 @@ bool getSongInfo(SongInfo &info)
 #define GET_WORD(x) {(x) = (*ptr++) << 8; (x) |= *ptr++;}
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
     unsigned long data_len = 65536;
+    unsigned char *fileData = 0;
 #ifndef __SYMBIAN32__
     wxString cfp = info.FilePath;
     cfp = cfp.MakeLower();
@@ -436,10 +436,11 @@ bool getSongInfo(SongInfo &info)
     cfp.LowerCase();
     TParse parse;
     parse.Set(cfp, NULL, NULL);
+
     if (parse.Ext() == _L(".ay"))
 #endif
     {
-        unsigned char *fileData = osRead(info.FilePath, &data_len);
+        fileData = osRead(info.FilePath, &data_len);
         if (fileData)
         {
             unsigned char *ptr = fileData;
@@ -482,7 +483,7 @@ bool getSongInfo(SongInfo &info)
                 }
 
             }
-            delete fileData;
+            delete [] fileData;
         }
 
     }
@@ -498,12 +499,12 @@ bool getSongInfo(SongInfo &info)
             if (ext.Compare(ext_cur) == 0)
 #endif
             {
-                unsigned char *fileData = osRead(info.FilePath, &data_len);
+                fileData = osRead(info.FilePath, &data_len);
                 if (fileData)
                 {
                     if (Players[i].getInfo)
                         Players[i].getInfo(fileData, info);
-                    delete fileData;
+                    delete [] fileData;
                 }
                 break;
             }

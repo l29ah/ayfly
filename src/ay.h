@@ -45,7 +45,7 @@ class ay
 {
 public:
     ay(long _ay_freq, int _buf_sz);
-    ~ay();
+    virtual ~ay();
     void ayReset();
     void ayWrite(unsigned char reg, unsigned char val);
     unsigned char ayRead(unsigned char reg);
