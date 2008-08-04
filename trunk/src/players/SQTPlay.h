@@ -39,21 +39,18 @@ SQT_Channel_Parameters SQT_A, SQT_B, SQT_C;
 void SQTGetInfo(const unsigned char *module, SongInfo &info)
 {
     SQT_File *header = (SQT_File *)module;
-    short t;
-    unsigned char a, b, b1;
+    unsigned char b;
     unsigned long tm = 0;
-    int i, j;
-    char a1, a2, a3, a11, a22, a33;
+    int i;
+    char a1, a2, a3;
     unsigned long j1, j2, j3;
-    int k, c1, c2, c3, c4, c5, c8;
-    unsigned short *pwrd;
-    bool Env1, Env2, Env3;
     unsigned long pptr, cptr;
     bool f71, f72, f73, f61, f62, f63, f41, f42, f43, flg;
     unsigned short j11, j22, j33;
     f71 = f72 = f73 = f61 = f62 = f63 = f41 = f42 = f43 = flg = false;
+    j11 = j22 = j33 = 0;
 
-    pptr = *(unsigned short *)&module [8]; //header->SQT_PositionsPointer;
+    pptr = header->SQT_PositionsPointer;
     while(module[pptr] != 0)
     {
         if(pptr == header->SQT_LoopPointer)
