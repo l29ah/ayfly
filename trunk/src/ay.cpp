@@ -154,7 +154,7 @@ void ay::ayReset()
 
 void ay::ayWrite(unsigned char reg, unsigned char val)
 {
-    regs[reg] = val;
+    regs[reg & 0xf] = val;
     switch(reg)
     {
         case AY_CHNL_A_COARSE:

@@ -36,8 +36,92 @@ struct SQT_Parameters
 SQT_Parameters SQT;
 SQT_Channel_Parameters SQT_A, SQT_B, SQT_C;
 
-void SQTGetInfo(const unsigned char *module, SongInfo &info)
+bool SQT_PreInit(unsigned char *module)
 {
+    SQT_File *header = (SQT_File *)module;
+    int i, i1, i2;
+    unsigned long j2;
+    unsigned short *pwrd;
+    i = header->SQT_SamplesPointer - 10;
+    if(i < 0)
+        return false;
+    i1 = 0;
+    i2 = header->SQT_PositionsPointer - i;
+    if(i2 < 0)
+        return false;
+    while(module[i2] != 0)
+    {
+        if(i2 > 65536 - 8)
+            return false;
+        if(i1 < (module[i2] & 0x7f))
+            i1 = module[i2] & 0x7f;
+        i2 += 2;
+        if(i1 < (module[i2] & 0x7f))
+            i1 = module[i2] & 0x7f;
+        i2 += 2;
+        if(i1 < (module[i2] & 0x7f))
+            i1 = module[i2] & 0x7f;
+        i2 += 3;
+    }
+    j2 = (unsigned long)(&module [65535]);
+    pwrd = &header->SQT_SamplesPointer;
+    i1 = (header->SQT_PatternsPointer - i + i1 * 2) / 2;
+    if(i1 < 1)
+        return false;
+    for(i2 = 1; i2 <= i1; i2++)
+    {
+        if((unsigned long)(pwrd) >= j2)
+            return false;
+        if(*pwrd < i)
+            return false;
+        *pwrd -= i;
+        pwrd++;
+    }
+    return true;
+}
+
+void SQT_Init(unsigned char *module)
+{
+    SQT_File *header = (SQT_File *)module;
+
+    SQT_A.Ton = 0;
+    SQT_A.Envelope_Enabled = false;
+    SQT_A.Ornament_Enabled = false;
+    SQT_A.Gliss = false;
+    SQT_A.Enabled = false;
+
+    SQT_B.Ton = 0;
+    SQT_B.Envelope_Enabled = false;
+    SQT_B.Ornament_Enabled = false;
+    SQT_B.Gliss = false;
+    SQT_B.Enabled = false;
+
+    SQT_C.Ton = 0;
+    SQT_C.Envelope_Enabled = false;
+    SQT_C.Ornament_Enabled = false;
+    SQT_C.Gliss = false;
+    SQT_C.Enabled = false;
+
+    SQT.DelayCounter = 1;
+    SQT.Delay = 1;
+    SQT.Lines_Counter = 1;
+    SQT.Positions_Pointer = header->SQT_PositionsPointer;
+
+    player->ResetAy();
+
+}
+
+void SQT_Play(unsigned char *module, ELAPSED_CALLBACK callback, void *arg)
+{
+}
+
+void SQT_GetInfo(unsigned char *module, SongInfo &info)
+{
+    if(!SQT_PreInit(module))
+    {
+        info.Length = 0;
+        return;
+    }
     SQT_File *header = (SQT_File *)module;
     unsigned char b;
     unsigned long tm = 0;

@@ -70,7 +70,7 @@ unsigned char STCPlay_data[] = {
   0xff,0xed,0x79,0x06,0xbf,0xed,0xab,0x3d,0xf2,0x2f,0xc4,0xc9
 };
 
-void STCGetInfo(const unsigned char *fileData, SongInfo &info)
+void STCGetInfo(unsigned char *fileData, SongInfo &info)
 {
     unsigned long tm = 0;
     long j, j1, j2, i;
