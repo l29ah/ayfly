@@ -86,6 +86,7 @@ private:
     float chnl_vol[3];
     bool chnl_enable[3];
     long tone_period_init[3];
+    long chnl_dc [3];
     long noise_period_init;
     long chnl_trigger[3];
     bool noise_enable[3];
@@ -106,9 +107,6 @@ private:
     int buf_sz;
     unsigned long tails_len;
     unsigned long ay_tacts;
-#ifndef __SYMBIAN32__
-    Filter3 *flt;
-#endif
     Filter3 *flt_bass;
     void setEnvelope();
     void updateEnvelope();

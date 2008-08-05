@@ -49,6 +49,9 @@ ay::ay(long _ay_freq, int _buf_sz)
     buffer_tail[2] = new double[tail_len];
 
     ay_tacts = (float)ay_freq / AUDIO_FREQ / 8;
+    /*ay_tacts = ay_tacts_f;
+    if(ay_tacts != ay_tacts_f)
+        ay_tacts++;*/
 
     SetBufferSize(_buf_sz);
 
@@ -65,15 +68,6 @@ ay::ay(long _ay_freq, int _buf_sz)
     }
 
     FilterOpts fopts;
-#ifndef __SYMBIAN32__
-    fopts.Fs = AUDIO_FREQ * ay_tacts;
-    fopts.bw = 0.5;
-    fopts.f0 = AUDIO_FREQ / 2;
-    fopts.type = LPF;
-    flt = new Filter3;
-    flt->Init(&fopts);
-#endif
-
     fopts.Fs = AUDIO_FREQ;
     fopts.bw = 1;
     fopts.f0 = 300;
@@ -97,9 +91,6 @@ ay::~ay()
     delete[] buffer_tail[0];
     delete[] buffer_tail[1];
     delete[] buffer_tail[2];
-#ifndef __SYMBIAN32__
-    delete flt;
-#endif
     delete flt_bass;
 }
 
@@ -317,33 +308,16 @@ void ay::ayProcess(unsigned char *stream, int len)
             }
             updateEnvelope();
 
-#ifndef __SYMBIAN32__
-            if((chnl_trigger[0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)) & !chnl_mute[0])
-                s0 = (CHNL_ENVELOPE(0) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(0)]) * volume[0];
-            if((chnl_trigger[1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)) & !chnl_mute[1])
-                s1 = (CHNL_ENVELOPE(1) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(1)]) * volume[1];
-            if((chnl_trigger[2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)) & !chnl_mute[2])
-                s2 = (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2)]) * volume[2];
-            flt->Process3(s0, s1, s2);
-
-#else
             if((chnl_trigger[0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)) & !chnl_mute[0])
             s0 += (CHNL_ENVELOPE(0) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(0)]) * volume[0];
             if((chnl_trigger[1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)) & !chnl_mute[1])
             s1 += (CHNL_ENVELOPE(1) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(1)]) * volume[1];
             if((chnl_trigger[2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)) & !chnl_mute[2])
             s2 += (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2)]) * volume[2];
-#endif
         }
-#ifndef __SYMBIAN32__
-        buffer[0][i] = s0;
-        buffer[1][i] = s1 / 1.42;
-        buffer[2][i] = s2;
-#else
         buffer[0][i] = s0 / (double)ay_tacts;
         buffer[1][i] = (s1 / (double)ay_tacts) / 1.42;
         buffer[2][i] = s2 / (double)ay_tacts;
-#endif
     }
 
     short *stream16 = (short *)stream;

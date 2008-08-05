@@ -332,7 +332,7 @@ void PSC_GetRegisters(unsigned char *module, PSC_Channel_Parameters &chan, unsig
         else
         {
             chan.Noise_Accumulator += module[chan.SamplePointer + chan.Position_In_Sample * 6 + 2];
-            if(b & 8 == 0)
+            if((b & 8) == 0)
                 player->WriteAy(AY_NOISE_PERIOD, chan.Noise_Accumulator & 31);
         }
         if((b & 128) == 0)
