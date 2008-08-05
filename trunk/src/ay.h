@@ -106,6 +106,9 @@ private:
     int buf_sz;
     unsigned long tails_len;
     unsigned long ay_tacts;
+#ifndef __SYMBIAN32__
+    Filter3 *flt;
+#endif
     Filter3 *flt_bass;
     void setEnvelope();
     void updateEnvelope();

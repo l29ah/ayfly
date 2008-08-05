@@ -4,7 +4,7 @@
  Author Sergey Vladimirovich Bulba
  (c)1999-2004 S.V.Bulba
  */
-unsigned short SQL_Table[] =
+unsigned short SQT_Table[] =
 { 0xd5d, 0xc9c, 0xbe7, 0xb3c, 0xa9b, 0xa02, 0x973, 0x8eb, 0x86b, 0x7f2, 0x780, 0x714, 0x6ae, 0x64e, 0x5f4, 0x59e, 0x54f, 0x501, 0x4b9, 0x475, 0x435, 0x3f9, 0x3c0, 0x38a, 0x357, 0x327, 0x2fa, 0x2cf, 0x2a7, 0x281, 0x25d, 0x23b, 0x21b, 0x1fc, 0x1e0, 0x1c5, 0x1ac, 0x194, 0x17d, 0x168, 0x153, 0x140, 0x12e, 0x11d, 0x10d, 0xfe, 0xf0, 0xe2, 0xd6, 0xca, 0xbe, 0xb4, 0xaa, 0xa0, 0x97, 0x8f, 0x87, 0x7f, 0x78, 0x71, 0x6b, 0x65, 0x5f, 0x5a, 0x55, 0x50, 0x4c, 0x47, 0x43, 0x40, 0x3c, 0x39, 0x35, 0x32, 0x30, 0x2d, 0x2a, 0x28, 0x26, 0x24, 0x22, 0x20, 0x1e, 0x1c, 0x1b, 0x19, 0x18, 0x16, 0x15, 0x14, 0x13, 0x12, 0x11, 0x10, 0xf, 0xe };
 
 #ifndef __SYMBIAN32__
@@ -84,6 +84,9 @@ void SQT_Init(unsigned char *module)
 {
     SQT_File *header = (SQT_File *)module;
 
+    if(!SQT_PreInit(module))
+        return;
+
     SQT_A.Ton = 0;
     SQT_A.Envelope_Enabled = false;
     SQT_A.Ornament_Enabled = false;
@@ -108,7 +111,6 @@ void SQT_Init(unsigned char *module)
     SQT.Positions_Pointer = header->SQT_PositionsPointer;
 
     player->ResetAy();
-
 }
 
 void SQT_Call_LC1D1(unsigned char *module, SQT_Channel_Parameters &chan, unsigned short &Ptr, unsigned char a)
@@ -161,23 +163,22 @@ void SQT_Call_LC1D1(unsigned char *module, SQT_Channel_Parameters &chan, unsigne
                 if(SQT.DelayCounter == 0)
                     SQT.DelayCounter = 32;
                 SQT.Delay = SQT.DelayCounter;
-
             }
             break;
         case 6:
             chan.Current_Ton_Sliding = 0;
             chan.Gliss = true;
-            chan.Ton_Slide_Step = -module [Ptr];
+            chan.Ton_Slide_Step = -module[Ptr];
             break;
         case 7:
             chan.Current_Ton_Sliding = 0;
             chan.Gliss = true;
-            chan.Ton_Slide_Step = module [Ptr];
+            chan.Ton_Slide_Step = module[Ptr];
             break;
         default:
             chan.Envelope_Enabled = true;
             player->WriteAy(AY_ENV_SHAPE, (a - 1) & 15);
-            player->WriteAy(AY_ENV_FINE, module [Ptr]);
+            player->WriteAy(AY_ENV_FINE, module[Ptr]);
             break;
     }
 }
@@ -189,8 +190,9 @@ void SQT_Call_LC2A8(unsigned char *module, SQT_Channel_Parameters &chan, unsigne
     chan.Ornament_Enabled = false;
     chan.Gliss = false;
     chan.Enabled = true;
-    chan.SamplePointer = *(unsigned short *) &module [a * 2 + header->SQT_SamplesPointer];
+    chan.SamplePointer = *(unsigned short *)&module[a * 2 + header->SQT_SamplesPointer];
     chan.Point_In_Sample = chan.SamplePointer + 2;
+    chan.Sample_Tik_Counter = 32;
     chan.MixNoise = true;
     chan.MixTon = true;
 }
@@ -198,7 +200,7 @@ void SQT_Call_LC2A8(unsigned char *module, SQT_Channel_Parameters &chan, unsigne
 void SQT_Call_LC2D9(unsigned char *module, SQT_Channel_Parameters &chan, unsigned char a)
 {
     SQT_File *header = (SQT_File *)module;
-    chan.OrnamentPointer = *(unsigned short *) & module [a * 2 + header->SQT_OrnamentsPointer];
+    chan.OrnamentPointer = *(unsigned short *)&module[a * 2 + header->SQT_OrnamentsPointer];
     chan.Point_In_Ornament = chan.OrnamentPointer + 2;
     chan.Ornament_Tik_Counter = 32;
     chan.Ornament_Enabled = true;
@@ -206,11 +208,10 @@ void SQT_Call_LC2D9(unsigned char *module, SQT_Channel_Parameters &chan, unsigne
 
 void SQT_Call_LC283(unsigned char *module, SQT_Channel_Parameters &chan, unsigned short &Ptr)
 {
-    SQT_File *header = (SQT_File *)module;
-    unsigned char val = module [Ptr];
+    unsigned char val = module[Ptr];
     if(val <= 0x7f)
     {
-        SQT_Call_LC1D1(val);
+        SQT_Call_LC1D1(module, chan, Ptr, val);
     }
     else if(val >= 0x80)
     {
@@ -218,14 +219,14 @@ void SQT_Call_LC283(unsigned char *module, SQT_Channel_Parameters &chan, unsigne
             SQT_Call_LC2A8(module, chan, (val >> 1) & 31);
         if((val & 64) != 0)
         {
-            int Temp = module [Ptr + 1] >> 4;
+            int Temp = module[Ptr + 1] >> 4;
             if((val & 1) != 0)
                 Temp = Temp | 16;
             if(Temp != 0)
                 SQT_Call_LC2D9(module, chan, Temp);
             Ptr++;
-            if((module [Ptr] & 15) != 0)
-                SQT_Call_LC1D1(module, chan, Ptr, module [Ptr] & 15);
+            if((module[Ptr] & 15) != 0)
+                SQT_Call_LC1D1(module, chan, Ptr, module[Ptr] & 15);
         }
     }
     Ptr++;
@@ -235,14 +236,14 @@ void SQT_Call_LC191(unsigned char *module, SQT_Channel_Parameters &chan, unsigne
 {
     Ptr = chan.ix27;
     chan.b6ix0 = false;
-    if(module [Ptr] <= 0x7f)
+    if(module[Ptr] <= 0x7f)
     {
         Ptr++;
-        SQT_Call_LC283(module, chan, Ptr, a);
+        SQT_Call_LC283(module, chan, Ptr);
     }
-    else if(module [Ptr] >= 0x80)
+    else if(module[Ptr] >= 0x80)
     {
-        SQT_Call_LC2A8(module, chan, module [Ptr] & 31);
+        SQT_Call_LC2A8(module, chan, module[Ptr] & 31);
     }
 
 }
@@ -255,21 +256,27 @@ void SQT_PatternInterpreter(unsigned char *module, SQT_Channel_Parameters &chan)
         chan.ix21--;
         if(chan.b7ix0)
             SQT_Call_LC191(module, chan, Ptr);
+        return;
     }
     Ptr = chan.Address_In_Pattern;
     chan.b6ix0 = true;
     chan.b7ix0 = false;
     while(true)
     {
-        unsigned char val = module [Ptr];
+        unsigned char val = module[Ptr];
         if(val <= 0x5f)
         {
-            chan.Note = module [Ptr];
+            chan.Note = module[Ptr];
             chan.ix27 = Ptr;
             Ptr++;
             SQT_Call_LC283(module, chan, Ptr);
             if(chan.b6ix0)
                 chan.Address_In_Pattern = Ptr;
+            break;
+        }
+        else if(val >= 0x60 && val <= 0x6e)
+        {
+            SQT_Call_LC1D1(module, chan, Ptr, module [Ptr] - 0x60);
             break;
         }
         else if(val >= 0x6f && val <= 0x7f)
@@ -278,7 +285,7 @@ void SQT_PatternInterpreter(unsigned char *module, SQT_Channel_Parameters &chan)
             chan.MixTon = false;
             chan.Enabled = false;
             if(val != 0x6f)
-                SQT_Call_LC1D1(module, chan, Ptr, module [Ptr] - 0x6f);
+                SQT_Call_LC1D1(module, chan, Ptr, module[Ptr] - 0x6f);
             else
                 chan.Address_In_Pattern = Ptr + 1;
             break;
@@ -320,7 +327,7 @@ void SQT_GetRegisters(unsigned char *module, SQT_Channel_Parameters &chan, unsig
     TempMixer = TempMixer << 1;
     if(chan.Enabled)
     {
-        b0 = module [chan.Position_In_Sample];
+        b0 = module[chan.Point_In_Sample];
         chan.Amplitude = b0 & 15;
         if(chan.Amplitude != 0)
         {
@@ -330,34 +337,35 @@ void SQT_GetRegisters(unsigned char *module, SQT_Channel_Parameters &chan, unsig
         }
         else if(chan.Envelope_Enabled)
             chan.Amplitude = 16;
-        b1 = module [chan.Point_In_Sample + 1];
+        b1 = module[chan.Point_In_Sample + 1];
         if((b1 & 32) != 0)
         {
             TempMixer |= 8;
-            player->WriteAy(AY_NOISE_PERIOD, (b0 & 0xf0) >> 3);
+            unsigned char noise = (b0 & 0xf0) >> 3;
             if((signed char)(b1) < 0)
-                player->WriteAy(AY_NOISE_PERIOD, player->ReadAy(AY_NOISE_PERIOD) + 1);
+                noise++;
+            player->WriteAy(AY_NOISE_PERIOD, noise);
         }
-        if((b1 & 61) != 0)
+        if((b1 & 64) != 0)
         {
             TempMixer |= 1;
         }
         j = chan.Note;
         if(chan.Ornament_Enabled)
         {
-            j += module [chan.Point_In_Ornament];
+            j += module[chan.Point_In_Ornament];
             chan.Ornament_Tik_Counter--;
             if(chan.Ornament_Tik_Counter == 0)
             {
-                if(module [chan.OrnamentPointer] != 32)
+                if(module[chan.OrnamentPointer] != 32)
                 {
-                    chan.Ornament_Tik_Counter = module [chan.OrnamentPointer + 1];
-                    chan.Point_In_Ornament = chan.OrnamentPointer + 2 + module [chan.OrnamentPointer];
+                    chan.Ornament_Tik_Counter = module[chan.OrnamentPointer + 1];
+                    chan.Point_In_Ornament = chan.OrnamentPointer + 2 + module[chan.OrnamentPointer];
                 }
                 else
                 {
-                    chan.Ornament_Tik_Counter = module [chan.SamplePointer + 1];
-                    chan.Point_In_Ornament = chan.OrnamentPointer + 2 + module [chan.SamplePointer];
+                    chan.Ornament_Tik_Counter = module[chan.SamplePointer + 1];
+                    chan.Point_In_Ornament = chan.OrnamentPointer + 2 + module[chan.SamplePointer];
                 }
             }
             else
@@ -367,19 +375,19 @@ void SQT_GetRegisters(unsigned char *module, SQT_Channel_Parameters &chan, unsig
         if(j > 0x5f)
             j = 0x5f;
         if((b1 & 16) == 0)
-            chan.Ton = SQT_Table [j] - (((unsigned short)(b1 & 15) << 8) + module [chan.Point_In_Sample + 2]);
+            chan.Ton = SQT_Table[j] - (((unsigned short)(b1 & 15) << 8) + module[chan.Point_In_Sample + 2]);
         else
-            chan.Ton = SQT_Table [j] + (((unsigned short)(b1 & 15) << 8) + module [chan.Point_In_Sample + 2]);
+            chan.Ton = SQT_Table[j] + (((unsigned short)(b1 & 15) << 8) + module[chan.Point_In_Sample + 2]);
         chan.Sample_Tik_Counter--;
         if(chan.Sample_Tik_Counter == 0)
         {
-            chan.Sample_Tik_Counter = module [chan.SamplePointer + 1];
-            if(module [chan.SamplePointer] == 32)
+            chan.Sample_Tik_Counter = module[chan.SamplePointer + 1];
+            if(module[chan.SamplePointer] == 32)
             {
                 chan.Enabled = false;
                 chan.Ornament_Enabled = false;
             }
-            chan.Point_In_Sample = chan.SamplePointer + 2 + module [chan.SamplePointer] * 3;
+            chan.Point_In_Sample = chan.SamplePointer + 2 + module[chan.SamplePointer] * 3;
         }
         else
             chan.Point_In_Sample += 3;
@@ -396,6 +404,112 @@ void SQT_GetRegisters(unsigned char *module, SQT_Channel_Parameters &chan, unsig
 
 void SQT_Play(unsigned char *module, ELAPSED_CALLBACK callback, void *arg)
 {
+    SQT_File *header = (SQT_File *)module;
+    unsigned char TempMixer;
+    if(timeElapsed >= maxElapsed)
+    {
+        if(callback)
+            callback(arg);
+    }
+
+    if(--SQT.DelayCounter == 0)
+    {
+        SQT.DelayCounter = SQT.Delay;
+        if(--SQT.Lines_Counter == 0)
+        {
+            if(module[SQT.Positions_Pointer] == 0)
+                SQT.Positions_Pointer = header->SQT_LoopPointer;
+            if((signed char)(module[SQT.Positions_Pointer]) < 0)
+                SQT_C.b4ix0 = true;
+            else
+                SQT_C.b4ix0 = false;
+            SQT_C.Address_In_Pattern = *(unsigned short *)&module[(unsigned char)(module[SQT.Positions_Pointer] * 2) + header->SQT_PatternsPointer];
+            SQT.Lines_Counter = module[SQT_C.Address_In_Pattern];
+            SQT_C.Address_In_Pattern++;
+            SQT.Positions_Pointer++;
+            SQT_C.Volume = module[SQT.Positions_Pointer] & 15;
+            if((module[SQT.Positions_Pointer] >> 4) < 9)
+                SQT_C.Transposit = module[SQT.Positions_Pointer] >> 4;
+            else
+                SQT_C.Transposit = -((module[SQT.Positions_Pointer] >> 4) - 9) - 1;
+            SQT.Positions_Pointer++;
+            SQT_C.ix21 = 0;
+
+            if(module[SQT.Positions_Pointer] == 0)
+                SQT.Positions_Pointer = header->SQT_LoopPointer;
+            if((signed char)(module[SQT.Positions_Pointer]) < 0)
+                SQT_B.b4ix0 = true;
+            else
+                SQT_B.b4ix0 = false;
+            SQT_B.Address_In_Pattern = (*(unsigned short *)&module[(unsigned char)(module[SQT.Positions_Pointer] * 2) + header->SQT_PatternsPointer]) + 1;
+            SQT.Positions_Pointer++;
+            SQT_B.Volume = module[SQT.Positions_Pointer] & 15;
+            if((module[SQT.Positions_Pointer] >> 4) < 9)
+                SQT_B.Transposit = module[SQT.Positions_Pointer] >> 4;
+            else
+                SQT_B.Transposit = -((module[SQT.Positions_Pointer] >> 4) - 9) - 1;
+            SQT.Positions_Pointer++;
+            SQT_B.ix21 = 0;
+
+            if(module[SQT.Positions_Pointer] == 0)
+                SQT.Positions_Pointer = header->SQT_LoopPointer;
+            if((signed char)(module[SQT.Positions_Pointer]) < 0)
+                SQT_A.b4ix0 = true;
+            else
+                SQT_A.b4ix0 = false;
+            SQT_A.Address_In_Pattern = (*(unsigned short *)&module[(unsigned char)(module[SQT.Positions_Pointer] * 2) + header->SQT_PatternsPointer]) + 1;
+            SQT.Positions_Pointer++;
+            SQT_A.Volume = module[SQT.Positions_Pointer] & 15;
+            if((module[SQT.Positions_Pointer] >> 4) < 9)
+                SQT_A.Transposit = module[SQT.Positions_Pointer] >> 4;
+            else
+                SQT_A.Transposit = -((module[SQT.Positions_Pointer] >> 4) - 9) - 1;
+            SQT.Positions_Pointer++;
+            SQT_A.ix21 = 0;
+
+            SQT.Delay = module[SQT.Positions_Pointer];
+            SQT.DelayCounter = SQT.Delay;
+            SQT.Positions_Pointer++;
+        }
+        SQT_PatternInterpreter(module, SQT_C);
+        SQT_PatternInterpreter(module, SQT_B);
+        SQT_PatternInterpreter(module, SQT_A);
+    }
+
+    TempMixer = 0;
+    SQT_GetRegisters(module, SQT_C, TempMixer);
+    SQT_GetRegisters(module, SQT_B, TempMixer);
+    SQT_GetRegisters(module, SQT_A, TempMixer);
+    TempMixer = (-(TempMixer + 1)) & 0x3f;
+
+    if(!SQT_A.MixNoise)
+        TempMixer |= 8;
+    if(!SQT_A.MixTon)
+        TempMixer |= 1;
+
+    if(!SQT_B.MixNoise)
+        TempMixer |= 16;
+    if(!SQT_B.MixTon)
+        TempMixer |= 2;
+
+    if(!SQT_C.MixNoise)
+        TempMixer |= 32;
+    if(!SQT_C.MixTon)
+        TempMixer |= 4;
+
+    player->WriteAy(AY_MIXER, TempMixer);
+    player->WriteAy(AY_CHNL_A_FINE, SQT_A.Ton & 0xff);
+    player->WriteAy(AY_CHNL_A_COARSE, (SQT_A.Ton >> 8) & 0xf);
+    player->WriteAy(AY_CHNL_B_FINE, SQT_B.Ton & 0xff);
+    player->WriteAy(AY_CHNL_B_COARSE, (SQT_B.Ton >> 8) & 0xf);
+    player->WriteAy(AY_CHNL_C_FINE, SQT_C.Ton & 0xff);
+    player->WriteAy(AY_CHNL_C_COARSE, (SQT_C.Ton >> 8) & 0xf);
+    player->WriteAy(AY_CHNL_A_VOL, SQT_A.Amplitude);
+    player->WriteAy(AY_CHNL_B_VOL, SQT_B.Amplitude);
+    player->WriteAy(AY_CHNL_C_VOL, SQT_C.Amplitude);
+
+    timeElapsed++;
+
 }
 
 void SQT_GetChannelInfo(unsigned char *module, unsigned char &b, unsigned long &tm, char &a1, unsigned long &j1, unsigned long &pptr, unsigned long &cptr, bool &f71, bool &f61, bool &f41, unsigned short &j11)
