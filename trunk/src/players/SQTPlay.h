@@ -63,7 +63,7 @@ bool SQT_PreInit(unsigned char *module)
             i1 = module[i2] & 0x7f;
         i2 += 3;
     }
-    j2 = (unsigned long)(&module [65535]);
+    j2 = (unsigned long)(&module[65535]);
     pwrd = &header->SQT_SamplesPointer;
     i1 = (header->SQT_PatternsPointer - i + i1 * 2) / 2;
     if(i1 < 1)
@@ -111,8 +111,608 @@ void SQT_Init(unsigned char *module)
 
 }
 
+void SQT_Call_LC1D1(unsigned char *module, SQT_Channel_Parameters &chan, unsigned short &Ptr, unsigned char a)
+{
+    Ptr++;
+    if(chan.b6ix0)
+    {
+        chan.Address_In_Pattern = Ptr + 1;
+        chan.b6ix0 = false;
+    }
+    switch(a - 1)
+    {
+        case 0:
+            if(chan.b4ix0)
+                chan.Volume = module[Ptr] & 15;
+            break;
+        case 1:
+            if(chan.b4ix0)
+                chan.Volume = (chan.Volume + module[Ptr]) & 15;
+            break;
+        case 2:
+            if(chan.b4ix0)
+            {
+                SQT_A.Volume = module[Ptr];
+                SQT_B.Volume = module[Ptr];
+                SQT_C.Volume = module[Ptr];
+            }
+            break;
+        case 3:
+            if(chan.b4ix0)
+            {
+                SQT_A.Volume = (SQT_A.Volume + module[Ptr]) & 15;
+                SQT_B.Volume = (SQT_B.Volume + module[Ptr]) & 15;
+                SQT_C.Volume = (SQT_C.Volume + module[Ptr]) & 15;
+            }
+            break;
+        case 4:
+            if(chan.b4ix0)
+            {
+                SQT.DelayCounter = module[Ptr] & 31;
+                if(SQT.DelayCounter == 0)
+                    SQT.DelayCounter = 32;
+                SQT.Delay = SQT.DelayCounter;
+            }
+            break;
+        case 5:
+            if(chan.b4ix0)
+            {
+                SQT.DelayCounter = (SQT.DelayCounter + module[Ptr]) & 31;
+                if(SQT.DelayCounter == 0)
+                    SQT.DelayCounter = 32;
+                SQT.Delay = SQT.DelayCounter;
+
+            }
+            break;
+        case 6:
+            chan.Current_Ton_Sliding = 0;
+            chan.Gliss = true;
+            chan.Ton_Slide_Step = -module [Ptr];
+            break;
+        case 7:
+            chan.Current_Ton_Sliding = 0;
+            chan.Gliss = true;
+            chan.Ton_Slide_Step = module [Ptr];
+            break;
+        default:
+            chan.Envelope_Enabled = true;
+            player->WriteAy(AY_ENV_SHAPE, (a - 1) & 15);
+            player->WriteAy(AY_ENV_FINE, module [Ptr]);
+            break;
+    }
+}
+
+void SQT_Call_LC2A8(unsigned char *module, SQT_Channel_Parameters &chan, unsigned char a)
+{
+    SQT_File *header = (SQT_File *)module;
+    chan.Envelope_Enabled = false;
+    chan.Ornament_Enabled = false;
+    chan.Gliss = false;
+    chan.Enabled = true;
+    chan.SamplePointer = *(unsigned short *) &module [a * 2 + header->SQT_SamplesPointer];
+    chan.Point_In_Sample = chan.SamplePointer + 2;
+    chan.MixNoise = true;
+    chan.MixTon = true;
+}
+
+void SQT_Call_LC2D9(unsigned char *module, SQT_Channel_Parameters &chan, unsigned char a)
+{
+    SQT_File *header = (SQT_File *)module;
+    chan.OrnamentPointer = *(unsigned short *) & module [a * 2 + header->SQT_OrnamentsPointer];
+    chan.Point_In_Ornament = chan.OrnamentPointer + 2;
+    chan.Ornament_Tik_Counter = 32;
+    chan.Ornament_Enabled = true;
+}
+
+void SQT_Call_LC283(unsigned char *module, SQT_Channel_Parameters &chan, unsigned short &Ptr)
+{
+    SQT_File *header = (SQT_File *)module;
+    unsigned char val = module [Ptr];
+    if(val <= 0x7f)
+    {
+        SQT_Call_LC1D1(val);
+    }
+    else if(val >= 0x80)
+    {
+        if(((val >> 1) & 31) != 0)
+            SQT_Call_LC2A8(module, chan, (val >> 1) & 31);
+        if((val & 64) != 0)
+        {
+            int Temp = module [Ptr + 1] >> 4;
+            if((val & 1) != 0)
+                Temp = Temp | 16;
+            if(Temp != 0)
+                SQT_Call_LC2D9(module, chan, Temp);
+            Ptr++;
+            if((module [Ptr] & 15) != 0)
+                SQT_Call_LC1D1(module, chan, Ptr, module [Ptr] & 15);
+        }
+    }
+    Ptr++;
+}
+
+void SQT_Call_LC191(unsigned char *module, SQT_Channel_Parameters &chan, unsigned short &Ptr)
+{
+    Ptr = chan.ix27;
+    chan.b6ix0 = false;
+    if(module [Ptr] <= 0x7f)
+    {
+        Ptr++;
+        SQT_Call_LC283(module, chan, Ptr, a);
+    }
+    else if(module [Ptr] >= 0x80)
+    {
+        SQT_Call_LC2A8(module, chan, module [Ptr] & 31);
+    }
+
+}
+
+void SQT_PatternInterpreter(unsigned char *module, SQT_Channel_Parameters &chan)
+{
+    unsigned short Ptr = 0;
+    if(chan.ix21 != 0)
+    {
+        chan.ix21--;
+        if(chan.b7ix0)
+            SQT_Call_LC191(module, chan, Ptr);
+    }
+    Ptr = chan.Address_In_Pattern;
+    chan.b6ix0 = true;
+    chan.b7ix0 = false;
+    while(true)
+    {
+        unsigned char val = module [Ptr];
+        if(val <= 0x5f)
+        {
+            chan.Note = module [Ptr];
+            chan.ix27 = Ptr;
+            Ptr++;
+            SQT_Call_LC283(module, chan, Ptr);
+            if(chan.b6ix0)
+                chan.Address_In_Pattern = Ptr;
+            break;
+        }
+        else if(val >= 0x6f && val <= 0x7f)
+        {
+            chan.MixNoise = false;
+            chan.MixTon = false;
+            chan.Enabled = false;
+            if(val != 0x6f)
+                SQT_Call_LC1D1(module, chan, Ptr, module [Ptr] - 0x6f);
+            else
+                chan.Address_In_Pattern = Ptr + 1;
+            break;
+        }
+        else if(val >= 0x80 && val <= 0xbf)
+        {
+            chan.Address_In_Pattern = Ptr + 1;
+            if(val <= 0x9f)
+            {
+                if((val & 16) == 0)
+                    chan.Note += val & 15;
+                else
+                    chan.Note -= val & 15;
+            }
+            else
+            {
+                chan.ix21 = val & 15;
+                if((val & 16) == 0)
+                    break;
+                if(chan.ix21 != 0)
+                    chan.b7ix0 = true;
+            }
+            SQT_Call_LC191(module, chan, Ptr);
+            break;
+        }
+        else if(val >= 0xc0)
+        {
+            chan.Address_In_Pattern = Ptr + 1;
+            chan.ix27 = Ptr;
+            SQT_Call_LC2A8(module, chan, val & 31);
+            break;
+        }
+    }
+}
+
+void SQT_GetRegisters(unsigned char *module, SQT_Channel_Parameters &chan, unsigned char &TempMixer)
+{
+    unsigned char j, b0, b1;
+    TempMixer = TempMixer << 1;
+    if(chan.Enabled)
+    {
+        b0 = module [chan.Position_In_Sample];
+        chan.Amplitude = b0 & 15;
+        if(chan.Amplitude != 0)
+        {
+            chan.Amplitude -= chan.Volume;
+            if((signed char)(chan.Amplitude) < 0)
+                chan.Amplitude = 0;
+        }
+        else if(chan.Envelope_Enabled)
+            chan.Amplitude = 16;
+        b1 = module [chan.Point_In_Sample + 1];
+        if((b1 & 32) != 0)
+        {
+            TempMixer |= 8;
+            player->WriteAy(AY_NOISE_PERIOD, (b0 & 0xf0) >> 3);
+            if((signed char)(b1) < 0)
+                player->WriteAy(AY_NOISE_PERIOD, player->ReadAy(AY_NOISE_PERIOD) + 1);
+        }
+        if((b1 & 61) != 0)
+        {
+            TempMixer |= 1;
+        }
+        j = chan.Note;
+        if(chan.Ornament_Enabled)
+        {
+            j += module [chan.Point_In_Ornament];
+            chan.Ornament_Tik_Counter--;
+            if(chan.Ornament_Tik_Counter == 0)
+            {
+                if(module [chan.OrnamentPointer] != 32)
+                {
+                    chan.Ornament_Tik_Counter = module [chan.OrnamentPointer + 1];
+                    chan.Point_In_Ornament = chan.OrnamentPointer + 2 + module [chan.OrnamentPointer];
+                }
+                else
+                {
+                    chan.Ornament_Tik_Counter = module [chan.SamplePointer + 1];
+                    chan.Point_In_Ornament = chan.OrnamentPointer + 2 + module [chan.SamplePointer];
+                }
+            }
+            else
+                chan.Point_In_Ornament++;
+        }
+        j += chan.Transposit;
+        if(j > 0x5f)
+            j = 0x5f;
+        if((b1 & 16) == 0)
+            chan.Ton = SQT_Table [j] - (((unsigned short)(b1 & 15) << 8) + module [chan.Point_In_Sample + 2]);
+        else
+            chan.Ton = SQT_Table [j] + (((unsigned short)(b1 & 15) << 8) + module [chan.Point_In_Sample + 2]);
+        chan.Sample_Tik_Counter--;
+        if(chan.Sample_Tik_Counter == 0)
+        {
+            chan.Sample_Tik_Counter = module [chan.SamplePointer + 1];
+            if(module [chan.SamplePointer] == 32)
+            {
+                chan.Enabled = false;
+                chan.Ornament_Enabled = false;
+            }
+            chan.Point_In_Sample = chan.SamplePointer + 2 + module [chan.SamplePointer] * 3;
+        }
+        else
+            chan.Point_In_Sample += 3;
+        if(chan.Gliss)
+        {
+            chan.Ton += chan.Current_Ton_Sliding;
+            chan.Current_Ton_Sliding += chan.Ton_Slide_Step;
+        }
+        chan.Ton = chan.Ton & 0xfff;
+    }
+    else
+        chan.Amplitude = 0;
+}
+
 void SQT_Play(unsigned char *module, ELAPSED_CALLBACK callback, void *arg)
 {
+}
+
+void SQT_GetChannelInfo(unsigned char *module, unsigned char &b, unsigned long &tm, char &a1, unsigned long &j1, unsigned long &pptr, unsigned long &cptr, bool &f71, bool &f61, bool &f41, unsigned short &j11)
+{
+    if(a1 != 0)
+    {
+        a1--;
+        if(f71)
+        {
+            cptr = j11;
+            f61 = false;
+            if(module[cptr] <= 0x7f)
+            {
+                cptr++;
+                unsigned char val = module[cptr];
+                if(val <= 0x7f)
+                {
+                    cptr++;
+                    if(f61)
+                        j1 = cptr + 1;
+                    switch(module[cptr - 1] - 1)
+                    {
+                        case 4:
+                            if(f41)
+                            {
+                                b = module[cptr] & 31;
+                                if(b == 0)
+                                    b = 32;
+                            }
+                            break;
+                        case 5:
+                            if(f41)
+                            {
+                                b = (b + module[cptr]) & 31;
+                                if(b == 0)
+                                    b = 32;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else if(val >= 0x80)
+                {
+                    if((val & 64) != 0)
+                    {
+                        cptr++;
+                        if((module[cptr] & 15) != 0)
+                        {
+                            cptr++;
+                            if(f61)
+                                j1 = cptr + 1;
+                            switch((module[cptr - 1] & 15) - 1)
+                            {
+                                case 4:
+                                    if(f41)
+                                    {
+                                        b = module[cptr] & 31;
+                                        if(b == 0)
+                                            b = 32;
+                                    }
+                                    break;
+                                case 5:
+                                    if(f41)
+                                    {
+                                        b = (b + module[cptr]) & 31;
+                                        if(b == 0)
+                                            b = 32;
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        cptr = j1;
+        f61 = true;
+        f71 = false;
+        while(true)
+        {
+            unsigned char val = module[cptr];
+            if(val <= 0x5f)
+            {
+                j11 = cptr;
+                cptr++;
+                unsigned char val = module[cptr];
+                if(val <= 0x7f)
+                {
+                    cptr++;
+                    if(f61)
+                    {
+                        j1 = cptr + 1;
+                        f61 = false;
+                    }
+                    switch(module[cptr - 1] - 1)
+                    {
+                        case 4:
+                            if(f41)
+                            {
+                                b = module[cptr] & 31;
+                                if(b == 0)
+                                    b = 32;
+                            }
+                            break;
+                        case 5:
+                            if(f41)
+                            {
+                                b = (b + module[cptr]) & 31;
+                                if(b == 0)
+                                    b = 32;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else if(val >= 0x80)
+                {
+                    if((module[cptr] & 64) != 0)
+                    {
+                        cptr++;
+                        if((module[cptr] & 15) != 0)
+                        {
+                            cptr++;
+                            if(f61)
+                            {
+                                j1 = cptr + 1;
+                                f61 = false;
+                            }
+                            switch((module[cptr - 1] & 15) - 1)
+                            {
+                                case 4:
+                                    if(f41)
+                                    {
+                                        b = module[cptr] & 31;
+                                        if(b == 0)
+                                            b = 32;
+                                    }
+                                    break;
+                                case 5:
+                                    if(f41)
+                                    {
+                                        b = (b + module[cptr]) & 31;
+                                        if(b == 0)
+                                            b = 32;
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                        }
+                    }
+                }
+                cptr++;
+                if(f61)
+                    j1 = cptr;
+                break;
+            }
+            else if(val >= 0x60 && val <= 0x6e)
+            {
+                cptr++;
+                if(f61)
+                    j1 = cptr + 1;
+                switch(module[cptr - 1] - 0x60 - 1)
+                {
+                    case 4:
+                        if(f41)
+                        {
+                            b = module[cptr] & 31;
+                            if(b == 0)
+                                b = 32;
+                        }
+                        break;
+                    case 5:
+                        if(f41)
+                        {
+                            b = (b + module[cptr]) & 31;
+                            if(b == 0)
+                                b = 32;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            else if(val >= 0x6f && val <= 0x7f)
+            {
+                if(module[cptr] != 0x6f)
+                {
+                    cptr++;
+                    if(f61)
+                        j1 = cptr + 1;
+                    switch(module[cptr - 1] - 0x6f - 1)
+                    {
+                        case 4:
+                            if(f41)
+                            {
+                                b = module[cptr] & 31;
+                                if(b == 0)
+                                    b = 32;
+                            }
+                            break;
+                        case 5:
+                            if(f41)
+                            {
+                                b = (b + module[cptr]) & 31;
+                                if(b == 0)
+                                    b = 32;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else
+                    j1 = cptr + 1;
+                break;
+            }
+            else if(val >= 0x80 && val <= 0xbf)
+            {
+                j1 = cptr + 1;
+                if(module[cptr] >= 0xa0 && module[cptr] <= 0xbf)
+                {
+                    a1 = module[cptr] & 15;
+                    if((module[cptr] & 16) == 0)
+                        break;
+                    if(a1 != 0)
+                        f71 = true;
+                }
+                cptr = j11;
+                f61 = false;
+                if(module[cptr] <= 0x7f)
+                {
+                    cptr++;
+                    unsigned char val = module[cptr];
+                    if(val <= 0x7f)
+                    {
+                        cptr++;
+                        if(f61)
+                            j1 = cptr + 1;
+                        switch(module[cptr - 1] - 1)
+                        {
+                            case 4:
+                                if(f41)
+                                {
+                                    b = module[cptr] & 31;
+                                    if(b == 0)
+                                        b = 32;
+                                }
+                                break;
+                            case 5:
+                                if(f41)
+                                {
+                                    b = (b + module[cptr]) & 31;
+                                    if(b == 0)
+                                        b = 32;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else if(val >= 0x80)
+                    {
+                        if((module[cptr] & 64) != 0)
+                        {
+                            cptr++;
+                            if((module[cptr] & 15) != 0)
+                            {
+                                cptr++;
+                                if(f61)
+                                    j1 = cptr + 1;
+                                switch((module[cptr - 1] & 15) - 1)
+                                {
+                                    case 4:
+                                        if(f41)
+                                        {
+                                            b = module[cptr] & 31;
+                                            if(b == 0)
+                                                b = 32;
+                                        }
+                                        break;
+                                    case 5:
+                                        if(f41)
+                                        {
+                                            b = (b + module[cptr]) & 31;
+                                            if(b == 0)
+                                                b = 32;
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+                break;
+            }
+            else if(val >= 0xc0)
+            {
+                j1 = cptr + 1;
+                j11 = cptr;
+                break;
+            }
+        }
+    }
 }
 
 void SQT_GetInfo(unsigned char *module, SongInfo &info)
@@ -139,953 +739,26 @@ void SQT_GetInfo(unsigned char *module, SongInfo &info)
     {
         if(pptr == header->SQT_LoopPointer)
             info.Loop = tm;
-        f41 = module[pptr] & 128 ? true : false;
+        f41 = (module[pptr] & 128) ? true : false;
         j1 = (*(unsigned short *)&module[(unsigned char)(module[pptr] * 2) + header->SQT_PatternsPointer]);
         j1++;
         pptr += 2;
-        f42 = module[pptr] & 128 ? true : false;
+        f42 = (module[pptr] & 128) ? true : false;
         j2 = (*(unsigned short *)&module[(unsigned char)(module[pptr] * 2) + header->SQT_PatternsPointer]);
         j2++;
         pptr += 2;
-        f43 = module[pptr] & 128 ? true : false;
+        f43 = (module[pptr] & 128) ? true : false;
         j3 = (*(unsigned short *)&module[(unsigned char)(module[pptr] * 2) + header->SQT_PatternsPointer]);
         j3++;
         pptr += 2;
         b = module[pptr];
         pptr++;
         a1 = a2 = a3 = 0;
-        for(i = 1; i < module[j1 - 1]; i++)
+        for(i = 0; i < module[j1 - 1]; i++)
         {
-            if(a1 != 0)
-            {
-                a1--;
-                if(f71)
-                {
-                    cptr = j11;
-                    f61 = false;
-                    if(module[cptr] <= 0x7f)
-                    {
-                        cptr++;
-                        unsigned char val = module[cptr];
-                        if(val <= 0x7f)
-                        {
-                            cptr++;
-                            if(f61)
-                                j1 = cptr + 1;
-                            switch(module[cptr - 1] - 1)
-                            {
-                                case 4:
-                                    if(f41)
-                                    {
-                                        b = module[cptr] & 31;
-                                    }
-                                    break;
-                                case 5:
-                                    if(f41)
-                                    {
-                                        b = (b + module[cptr]) & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        else if(val >= 0x80)
-                        {
-                            if(val & 64 != 0)
-                            {
-                                cptr++;
-                                if(module[cptr] & 15 != 0)
-                                {
-                                    cptr++;
-                                    if(f61)
-                                        j1 = cptr + 1;
-                                    switch((module[cptr - 1] & 15) - 1)
-                                    {
-                                        case 4:
-                                            if(f41)
-                                            {
-                                                b = module[cptr] & 31;
-                                                if(b == 0)
-                                                    b = 32;
-                                            }
-                                            break;
-                                        case 5:
-                                            if(f41)
-                                            {
-                                                b = (b + module[cptr]) & 31;
-                                                if(b == 0)
-                                                    b = 32;
-                                            }
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                cptr = j1;
-                f61 = true;
-                f71 = false;
-                while(true)
-                {
-                    unsigned char val = module[cptr];
-                    if(val <= 0x5f)
-                    {
-                        j11 = cptr;
-                        cptr++;
-                        unsigned char val = module[cptr];
-                        if(val <= 0x7f)
-                        {
-                            cptr++;
-                            if(f61)
-                            {
-                                j1 = cptr + 1;
-                                f61 = false;
-                            }
-                            switch(module[cptr - 1] - 1)
-                            {
-                                case 4:
-                                    if(f41)
-                                    {
-                                        b = module[cptr] & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                case 5:
-                                    if(f41)
-                                    {
-                                        b = (b + module[cptr]) & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        else if(val >= 0x80)
-                        {
-                            if(module[cptr] & 64 != 0)
-                            {
-                                cptr++;
-                                if(module[cptr] & 15 != 0)
-                                {
-                                    cptr++;
-                                    if(f61)
-                                    {
-                                        j1 = cptr + 1;
-                                        f61 = false;
-                                    }
-                                    switch((module[cptr - 1] & 15) - 1)
-                                    {
-                                        case 4:
-                                            if(f41)
-                                            {
-                                                b = module[cptr] & 31;
-                                                if(b == 0)
-                                                    b = 32;
-                                            }
-                                            break;
-                                        case 5:
-                                            if(f41)
-                                            {
-                                                b = (b + module[cptr]) & 31;
-                                                if(b == 0)
-                                                    b = 32;
-                                            }
-                                            break;
-                                        default:
-                                            break;
-                                    }
-
-                                }
-                            }
-                        }
-                        cptr++;
-                        if(f61)
-                            j1 = cptr;
-                        break;
-                    }
-                    else if(val >= 0x60 && val <= 0x6e)
-                    {
-                        cptr++;
-                        if(f61)
-                            j1 = cptr + 1;
-                        switch(module[cptr - 1] - 0x60 - 1)
-                        {
-                            case 4:
-                                if(f41)
-                                {
-                                    b = module[cptr] & 31;
-                                    if(b == 0)
-                                        b = 32;
-                                }
-                                break;
-                            case 5:
-                                if(f41)
-                                {
-                                    b = (b + module[cptr]) & 31;
-                                    if(b == 0)
-                                        b = 32;
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    }
-                    else if(val >= 0x6f && val <= 0x7f)
-                    {
-                        if(module[cptr] != 0x6f)
-                        {
-                            cptr++;
-                            if(f61)
-                                j1 = cptr + 1;
-                            switch(module[cptr - 1] - 0x6f - 1)
-                            {
-                                case 4:
-                                    if(f41)
-                                    {
-                                        b = module[cptr] & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                case 5:
-                                    if(f41)
-                                    {
-                                        b = (b + module[cptr]) & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        else
-                            j1 = cptr + 1;
-                        break;
-                    }
-                    else if(val >= 0x80 && val <= 0xbf)
-                    {
-                        j1 = cptr + 1;
-                        if(module[cptr] >= 0xa0 && module[cptr] <= 0xbf)
-                        {
-                            a1 = module[cptr] & 15;
-                            if(module[cptr] & 16 == 0)
-                                break;
-                            if(a1 != 0)
-                                f71 = true;
-                        }
-                        cptr = j11;
-                        f61 = false;
-                        if(module[cptr] <= 0x7f)
-                        {
-                            cptr++;
-                            unsigned char val = module[cptr];
-                            if(val <= 0x7f)
-                            {
-                                cptr++;
-                                if(f61)
-                                    j1 = cptr + 1;
-                                switch(module[cptr - 1] - 1)
-                                {
-                                    case 4:
-                                        if(f41)
-                                        {
-                                            b = module[cptr] & 31;
-                                            if(b == 0)
-                                                b = 32;
-                                        }
-                                        break;
-                                    case 5:
-                                        if(f41)
-                                        {
-                                            b = (b + module[cptr]) & 31;
-                                            if(b == 0)
-                                                b = 32;
-                                        }
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                            else if(val >= 0x80)
-                            {
-                                if(module[cptr] & 64 != 0)
-                                {
-                                    cptr++;
-                                    if(module[cptr] & 15 != 0)
-                                    {
-                                        cptr++;
-                                        if(f61)
-                                            j1 = cptr + 1;
-                                        switch((module[cptr - 1] & 15) - 1)
-                                        {
-                                            case 4:
-                                                if(f41)
-                                                {
-                                                    b = module[cptr] & 31;
-                                                    if(b == 0)
-                                                        b = 32;
-                                                }
-                                                break;
-                                            case 5:
-                                                if(f41)
-                                                {
-                                                    b = (b + module[cptr]) & 31;
-                                                    if(b == 0)
-                                                        b = 32;
-                                                }
-                                                break;
-                                            default:
-                                                break;
-                                        }
-
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-                    else if(val >= 0xc0)
-                    {
-                        j1 = cptr + 1;
-                        j11 = cptr;
-                        break;
-                    }
-                }
-            }
-            if(a2 != 0)
-            {
-                a2--;
-                if(f72)
-                {
-                    cptr = j22;
-                    f62 = false;
-                    if(module[cptr] <= 0x7f)
-                    {
-                        cptr++;
-                        unsigned char val = module[cptr];
-                        if(val <= 0x7f)
-                        {
-                            cptr++;
-                            if(f62)
-                                j2 = cptr + 1;
-                            switch(module[cptr - 1] - 1)
-                            {
-                                case 4:
-                                    if(f42)
-                                    {
-                                        b = module[cptr] & 31;
-                                    }
-                                    break;
-                                case 5:
-                                    if(f42)
-                                    {
-                                        b = (b + module[cptr]) & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        else if(val >= 0x80)
-                        {
-                            if(val & 64 != 0)
-                            {
-                                cptr++;
-                                if(module[cptr] & 15 != 0)
-                                {
-                                    cptr++;
-                                    if(f62)
-                                        j2 = cptr + 1;
-                                    switch((module[cptr - 1] & 15) - 1)
-                                    {
-                                        case 4:
-                                            if(f42)
-                                            {
-                                                b = module[cptr] & 31;
-                                                if(b == 0)
-                                                    b = 32;
-                                            }
-                                            break;
-                                        case 5:
-                                            if(f42)
-                                            {
-                                                b = (b + module[cptr]) & 31;
-                                                if(b == 0)
-                                                    b = 32;
-                                            }
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                cptr = j2;
-                f62 = true;
-                f72 = false;
-                while(true)
-                {
-                    unsigned char val = module[cptr];
-                    if(val <= 0x5f)
-                    {
-                        j22 = cptr;
-                        cptr++;
-                        unsigned char val = module[cptr];
-                        if(val <= 0x7f)
-                        {
-                            cptr++;
-                            if(f62)
-                            {
-                                j2 = cptr + 1;
-                                f62 = false;
-                            }
-                            switch(module[cptr - 1] - 1)
-                            {
-                                case 4:
-                                    if(f42)
-                                    {
-                                        b = module[cptr] & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                case 5:
-                                    if(f42)
-                                    {
-                                        b = (b + module[cptr]) & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        else if(val >= 0x80)
-                        {
-                            if(module[cptr] & 64 != 0)
-                            {
-                                cptr++;
-                                if(module[cptr] & 15 != 0)
-                                {
-                                    cptr++;
-                                    if(f62)
-                                    {
-                                        j2 = cptr + 1;
-                                        f62 = false;
-                                    }
-                                    switch((module[cptr - 1] & 15) - 1)
-                                    {
-                                        case 4:
-                                            if(f42)
-                                            {
-                                                b = module[cptr] & 31;
-                                                if(b == 0)
-                                                    b = 32;
-                                            }
-                                            break;
-                                        case 5:
-                                            if(f42)
-                                            {
-                                                b = (b + module[cptr]) & 31;
-                                                if(b == 0)
-                                                    b = 32;
-                                            }
-                                            break;
-                                        default:
-                                            break;
-                                    }
-
-                                }
-                            }
-                        }
-                        cptr++;
-                        if(f62)
-                            j2 = cptr;
-                        break;
-                    }
-                    else if(val >= 0x60 && val <= 0x6e)
-                    {
-                        cptr++;
-                        if(f62)
-                            j2 = cptr + 1;
-                        switch(module[cptr - 1] - 0x60 - 1)
-                        {
-                            case 4:
-                                if(f42)
-                                {
-                                    b = module[cptr] & 31;
-                                    if(b == 0)
-                                        b = 32;
-                                }
-                                break;
-                            case 5:
-                                if(f42)
-                                {
-                                    b = (b + module[cptr]) & 31;
-                                    if(b == 0)
-                                        b = 32;
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    }
-                    else if(val >= 0x6f && val <= 0x7f)
-                    {
-                        if(module[cptr] != 0x6f)
-                        {
-                            cptr++;
-                            if(f62)
-                                j2 = cptr + 1;
-                            switch(module[cptr - 1] - 0x6f - 1)
-                            {
-                                case 4:
-                                    if(f42)
-                                    {
-                                        b = module[cptr] & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                case 5:
-                                    if(f42)
-                                    {
-                                        b = (b + module[cptr]) & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        else
-                            j2 = cptr + 1;
-                        break;
-                    }
-                    else if(val >= 0x80 && val <= 0xbf)
-                    {
-                        j2 = cptr + 1;
-                        if(module[cptr] >= 0xa0 && module[cptr] <= 0xbf)
-                        {
-                            a2 = module[cptr] & 15;
-                            if(module[cptr] & 16 == 0)
-                                break;
-                            if(a2 != 0)
-                                f72 = true;
-                        }
-                        cptr = j22;
-                        f62 = false;
-                        if(module[cptr] <= 0x7f)
-                        {
-                            cptr++;
-                            unsigned char val = module[cptr];
-                            if(val <= 0x7f)
-                            {
-                                cptr++;
-                                if(f62)
-                                    j2 = cptr + 1;
-                                switch(module[cptr - 1] - 1)
-                                {
-                                    case 4:
-                                        if(f42)
-                                        {
-                                            b = module[cptr] & 31;
-                                            if(b == 0)
-                                                b = 32;
-                                        }
-                                        break;
-                                    case 5:
-                                        if(f42)
-                                        {
-                                            b = (b + module[cptr]) & 31;
-                                            if(b == 0)
-                                                b = 32;
-                                        }
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                            else if(val >= 0x80)
-                            {
-                                if(module[cptr] & 64 != 0)
-                                {
-                                    cptr++;
-                                    if(module[cptr] & 15 != 0)
-                                    {
-                                        cptr++;
-                                        if(f62)
-                                            j2 = cptr + 1;
-                                        switch((module[cptr - 1] & 15) - 1)
-                                        {
-                                            case 4:
-                                                if(f42)
-                                                {
-                                                    b = module[cptr] & 31;
-                                                    if(b == 0)
-                                                        b = 32;
-                                                }
-                                                break;
-                                            case 5:
-                                                if(f42)
-                                                {
-                                                    b = (b + module[cptr]) & 31;
-                                                    if(b == 0)
-                                                        b = 32;
-                                                }
-                                                break;
-                                            default:
-                                                break;
-                                        }
-
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-                    else if(val >= 0xc0)
-                    {
-                        j2 = cptr + 1;
-                        j22 = cptr;
-                        break;
-                    }
-                }
-            }
-            if(a3 != 0)
-            {
-                a3--;
-                if(f73)
-                {
-                    cptr = j33;
-                    f63 = false;
-                    if(module[cptr] <= 0x7f)
-                    {
-                        cptr++;
-                        unsigned char val = module[cptr];
-                        if(val <= 0x7f)
-                        {
-                            cptr++;
-                            if(f63)
-                                j3 = cptr + 1;
-                            switch(module[cptr - 1] - 1)
-                            {
-                                case 4:
-                                    if(f43)
-                                    {
-                                        b = module[cptr] & 31;
-                                    }
-                                    break;
-                                case 5:
-                                    if(f43)
-                                    {
-                                        b = (b + module[cptr]) & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        else if(val >= 0x80)
-                        {
-                            if(val & 64 != 0)
-                            {
-                                cptr++;
-                                if(module[cptr] & 15 != 0)
-                                {
-                                    cptr++;
-                                    if(f63)
-                                        j3 = cptr + 1;
-                                    switch((module[cptr - 1] & 15) - 1)
-                                    {
-                                        case 4:
-                                            if(f43)
-                                            {
-                                                b = module[cptr] & 31;
-                                                if(b == 0)
-                                                    b = 32;
-                                            }
-                                            break;
-                                        case 5:
-                                            if(f43)
-                                            {
-                                                b = (b + module[cptr]) & 31;
-                                                if(b == 0)
-                                                    b = 32;
-                                            }
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                cptr = j3;
-                f63 = true;
-                f73 = false;
-                while(true)
-                {
-                    unsigned char val = module[cptr];
-                    if(val <= 0x5f)
-                    {
-                        j33 = cptr;
-                        cptr++;
-                        unsigned char val = module[cptr];
-                        if(val <= 0x7f)
-                        {
-                            cptr++;
-                            if(f63)
-                            {
-                                j3 = cptr + 1;
-                                f63 = false;
-                            }
-                            switch(module[cptr - 1] - 1)
-                            {
-                                case 4:
-                                    if(f43)
-                                    {
-                                        b = module[cptr] & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                case 5:
-                                    if(f43)
-                                    {
-                                        b = (b + module[cptr]) & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        else if(val >= 0x80)
-                        {
-                            if(module[cptr] & 64 != 0)
-                            {
-                                cptr++;
-                                if(module[cptr] & 15 != 0)
-                                {
-                                    cptr++;
-                                    if(f63)
-                                    {
-                                        j3 = cptr + 1;
-                                        f63 = false;
-                                    }
-                                    switch((module[cptr - 1] & 15) - 1)
-                                    {
-                                        case 4:
-                                            if(f43)
-                                            {
-                                                b = module[cptr] & 31;
-                                                if(b == 0)
-                                                    b = 32;
-                                            }
-                                            break;
-                                        case 5:
-                                            if(f43)
-                                            {
-                                                b = (b + module[cptr]) & 31;
-                                                if(b == 0)
-                                                    b = 32;
-                                            }
-                                            break;
-                                        default:
-                                            break;
-                                    }
-
-                                }
-                            }
-                        }
-                        cptr++;
-                        if(f63)
-                            j3 = cptr;
-                        break;
-                    }
-                    else if(val >= 0x60 && val <= 0x6e)
-                    {
-                        cptr++;
-                        if(f63)
-                            j3 = cptr + 1;
-                        switch(module[cptr - 1] - 0x60 - 1)
-                        {
-                            case 4:
-                                if(f43)
-                                {
-                                    b = module[cptr] & 31;
-                                    if(b == 0)
-                                        b = 32;
-                                }
-                                break;
-                            case 5:
-                                if(f43)
-                                {
-                                    b = (b + module[cptr]) & 31;
-                                    if(b == 0)
-                                        b = 32;
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    }
-                    else if(val >= 0x6f && val <= 0x7f)
-                    {
-                        if(module[cptr] != 0x6f)
-                        {
-                            cptr++;
-                            if(f63)
-                                j3 = cptr + 1;
-                            switch(module[cptr - 1] - 0x6f - 1)
-                            {
-                                case 4:
-                                    if(f43)
-                                    {
-                                        b = module[cptr] & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                case 5:
-                                    if(f43)
-                                    {
-                                        b = (b + module[cptr]) & 31;
-                                        if(b == 0)
-                                            b = 32;
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        else
-                            j3 = cptr + 1;
-                        break;
-                    }
-                    else if(val >= 0x80 && val <= 0xbf)
-                    {
-                        j3 = cptr + 1;
-                        if(module[cptr] >= 0xa0 && module[cptr] <= 0xbf)
-                        {
-                            a3 = module[cptr] & 15;
-                            if(module[cptr] & 16 == 0)
-                                break;
-                            if(a3 != 0)
-                                f73 = true;
-                        }
-                        cptr = j33;
-                        f63 = false;
-                        if(module[cptr] <= 0x7f)
-                        {
-                            cptr++;
-                            unsigned char val = module[cptr];
-                            if(val <= 0x7f)
-                            {
-                                cptr++;
-                                if(f63)
-                                    j3 = cptr + 1;
-                                switch(module[cptr - 1] - 1)
-                                {
-                                    case 4:
-                                        if(f43)
-                                        {
-                                            b = module[cptr] & 31;
-                                            if(b == 0)
-                                                b = 32;
-                                        }
-                                        break;
-                                    case 5:
-                                        if(f43)
-                                        {
-                                            b = (b + module[cptr]) & 31;
-                                            if(b == 0)
-                                                b = 32;
-                                        }
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                            else if(val >= 0x80)
-                            {
-                                if(module[cptr] & 64 != 0)
-                                {
-                                    cptr++;
-                                    if(module[cptr] & 15 != 0)
-                                    {
-                                        cptr++;
-                                        if(f63)
-                                            j3 = cptr + 1;
-                                        switch((module[cptr - 1] & 15) - 1)
-                                        {
-                                            case 4:
-                                                if(f43)
-                                                {
-                                                    b = module[cptr] & 31;
-                                                    if(b == 0)
-                                                        b = 32;
-                                                }
-                                                break;
-                                            case 5:
-                                                if(f43)
-                                                {
-                                                    b = (b + module[cptr]) & 31;
-                                                    if(b == 0)
-                                                        b = 32;
-                                                }
-                                                break;
-                                            default:
-                                                break;
-                                        }
-
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-                    else if(val >= 0xc0)
-                    {
-                        j3 = cptr + 1;
-                        j33 = cptr;
-                        break;
-                    }
-                }
-            }
+            SQT_GetChannelInfo(module, b, tm, a1, j1, pptr, cptr, f71, f61, f41, j11);
+            SQT_GetChannelInfo(module, b, tm, a2, j2, pptr, cptr, f72, f62, f42, j22);
+            SQT_GetChannelInfo(module, b, tm, a3, j3, pptr, cptr, f73, f63, f43, j33);
             tm += b;
         }
     }
