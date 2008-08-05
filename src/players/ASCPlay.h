@@ -387,7 +387,7 @@ void ASC_Play(unsigned char *module, ELAPSED_CALLBACK callback, void *arg)
     timeElapsed++;
 }
 
-void ASCGetInfo(const unsigned char *module, SongInfo &info)
+void ASC_GetInfo(unsigned char *module, SongInfo &info)
 {
     ASC1_File *header = (ASC1_File *)module;
     short a1, a2, a3, a11, a22, a33;

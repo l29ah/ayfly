@@ -32,7 +32,7 @@ unsigned long maxElapsed = 0;
 PLAYER_INIT_PROC soft_init_proc = 0;
 PLAYER_PLAY_PROC soft_play_proc = 0;
 
-typedef void (*GETINFO_CALLBACK)(const unsigned char *module, SongInfo &info);
+typedef void (*GETINFO_CALLBACK)(unsigned char *module, SongInfo &info);
 
 enum _FileTypes
 {
@@ -60,8 +60,8 @@ _Players Players[] =
     { TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STPGetInfo },
     { TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_GetInfo},
     { TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STCGetInfo },
-   // { TXT(".sqt"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, SQTGetInfo},
-    { TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASCGetInfo}
+    { TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_GetInfo},
+    { TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASC_GetInfo}
 };
 
 /*

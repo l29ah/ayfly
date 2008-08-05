@@ -16,9 +16,10 @@ struct PSC_File
 
 struct PSC_Channel_Parameters
 {
+    unsigned char num;
     unsigned short Address_In_Pattern, OrnamentPointer, SamplePointer, Ton;
     short Current_Ton_Sliding, Ton_Accumulator, Addition_To_Ton;
-    char Initial_Volume, Note_Skip_Counter;
+    signed char Initial_Volume, Note_Skip_Counter;
     unsigned char Note, Volume, Amplitude, Volume_Counter, Volume_Counter1, Volume_Counter_Init, Noise_Accumulator, Position_In_Sample, Loop_Sample_Position, Position_In_Ornament, Loop_Ornament_Position;
     bool Enabled, Ornament_Enabled, Envelope_Enabled, Gliss, Ton_Slide_Enabled, Break_Sample_Loop, Break_Ornament_Loop, Volume_Inc;
 };
@@ -40,6 +41,10 @@ void PSC_Init(unsigned char *module)
     PSC.Positions_Pointer = header->PSC_PatternsPointer;
     PSC.Lines_Counter = 1;
     PSC.Noise_Base = 0;
+
+    PSC_A.num = 0;
+    PSC_B.num = 1;
+    PSC_C.num = 2;
 
     PSC_A.SamplePointer = header->PSC_SamplesPointers[0] + 0x4c;
     PSC_B.SamplePointer = PSC_A.SamplePointer;
@@ -141,7 +146,7 @@ void PSC_PatternInterpreter(unsigned char *module, PSC_Channel_Parameters &chan)
         else if(val == 0x7a)
         {
             chan.Address_In_Pattern++;
-            if(&chan == &PSC_B)
+            if(chan.num == 1)
             {
                 player->WriteAy(AY_ENV_SHAPE, module[chan.Address_In_Pattern] & 15);
                 player->WriteAy(AY_ENV_FINE, module[chan.Address_In_Pattern + 1]);
@@ -152,8 +157,8 @@ void PSC_PatternInterpreter(unsigned char *module, PSC_Channel_Parameters &chan)
         else if(val == 0x7b)
         {
             chan.Address_In_Pattern++;
-            if(&chan == &PSC_B)
-                PSC.Noise_Base = module [chan.Address_In_Pattern];
+            if(chan.num == 1)
+                PSC.Noise_Base = module[chan.Address_In_Pattern];
         }
         else if(val == 0x7c)
         {
@@ -166,7 +171,7 @@ void PSC_PatternInterpreter(unsigned char *module, PSC_Channel_Parameters &chan)
         }
         else if(val >= 0x58 && val <= 0x66)
         {
-            chan.Initial_Volume = module[chan.Address_In_Pattern] - 0x57;
+            chan.Initial_Volume = val - 0x57;
             chan.Envelope_Enabled = false;
             b6b = true;
         }
@@ -221,7 +226,7 @@ void PSC_PatternInterpreter(unsigned char *module, PSC_Channel_Parameters &chan)
     {
         chan.Volume_Counter = chan.Volume_Counter1;
         chan.Volume_Inc = true;
-        if(chan.Volume_Counter & 0x40 != 0)
+        if((chan.Volume_Counter & 0x40) != 0)
         {
             chan.Volume_Counter = -(signed char)(chan.Volume_Counter | 128);
             chan.Volume_Inc = false;
@@ -257,23 +262,23 @@ void PSC_GetRegisters(unsigned char *module, PSC_Channel_Parameters &chan, unsig
                 j -= 0x56;
             if(j > 0x55)
                 j = 0x55;
-            if(b & 128 == 0)
+            if((b & 128) == 0)
                 chan.Loop_Ornament_Position = chan.Position_In_Ornament;
-            if(b & 64 == 0)
+            if((b & 64) == 0)
             {
                 if(!chan.Break_Ornament_Loop)
                     chan.Position_In_Ornament = chan.Loop_Ornament_Position;
                 else
                 {
                     chan.Break_Ornament_Loop = false;
-                    if(b & 32 == 0)
+                    if((b & 32) == 0)
                         chan.Ornament_Enabled = false;
                     chan.Position_In_Ornament++;
                 }
             }
             else
             {
-                if(b & 32 == 0)
+                if((b & 32) == 0)
                     chan.Ornament_Enabled = false;
                 chan.Position_In_Ornament++;
             }
@@ -289,13 +294,13 @@ void PSC_GetRegisters(unsigned char *module, PSC_Channel_Parameters &chan, unsig
                 chan.Ton_Slide_Enabled = false;
             chan.Ton += chan.Current_Ton_Sliding;
         }
-        chan.Ton &= 0xfff;
+        chan.Ton = chan.Ton & 0xfff;
         b = module[chan.SamplePointer + chan.Position_In_Sample * 6 + 4];
-        TempMixer |= (b & 9) << 3;
+        TempMixer = TempMixer | ((b & 9) << 3);
         j = 0;
-        if(b & 2 != 0)
+        if((b & 2) != 0)
             j++;
-        if(b & 4 != 0)
+        if((b & 4) != 0)
             j--;
         if(chan.Volume_Counter > 0)
         {
@@ -315,9 +320,9 @@ void PSC_GetRegisters(unsigned char *module, PSC_Channel_Parameters &chan, unsig
         else if(chan.Volume > 15)
             chan.Volume = 15;
         chan.Amplitude = ((chan.Volume + 1) * (module[chan.SamplePointer + chan.Position_In_Sample * 6 + 3] & 15)) >> 4;
-        if(chan.Envelope_Enabled && (b & 16 == 0))
+        if(chan.Envelope_Enabled && ((b & 16) == 0))
             chan.Amplitude = chan.Amplitude | 16;
-        if((chan.Amplitude & 16 != 0) & (b & 8 != 0))
+        if(((chan.Amplitude & 16) != 0) & ((b & 8) != 0))
         {
             unsigned short env = player->ReadAy(AY_ENV_FINE) | (player->ReadAy(AY_ENV_COARSE) << 8);
             env += (signed char)(module[chan.SamplePointer + chan.Position_In_Sample * 6 + 2]);
@@ -330,23 +335,23 @@ void PSC_GetRegisters(unsigned char *module, PSC_Channel_Parameters &chan, unsig
             if(b & 8 == 0)
                 player->WriteAy(AY_NOISE_PERIOD, chan.Noise_Accumulator & 31);
         }
-        if(b & 128 == 0)
+        if((b & 128) == 0)
             chan.Loop_Sample_Position = chan.Position_In_Sample;
-        if(b & 64 == 0)
+        if((b & 64) == 0)
         {
             if(!chan.Break_Sample_Loop)
                 chan.Position_In_Sample = chan.Loop_Sample_Position;
             else
             {
                 chan.Break_Sample_Loop = false;
-                if(b & 32 == 0)
+                if((b & 32) == 0)
                     chan.Enabled = false;
                 chan.Position_In_Sample++;
             }
         }
         else
         {
-            if(b & 32 == 0)
+            if((b & 32) == 0)
                 chan.Enabled = false;
             chan.Position_In_Sample++;
         }
@@ -358,7 +363,6 @@ void PSC_GetRegisters(unsigned char *module, PSC_Channel_Parameters &chan, unsig
 
 void PSC_Play(unsigned char *module, ELAPSED_CALLBACK callback, void *arg)
 {
-    PSC_File *header = (PSC_File *)module;
     unsigned char TempMixer;
     if(timeElapsed >= maxElapsed)
     {
@@ -379,7 +383,7 @@ void PSC_Play(unsigned char *module, ELAPSED_CALLBACK callback, void *arg)
             PSC.Positions_Pointer += 8;
             PSC_A.Note_Skip_Counter = 1;
             PSC_B.Note_Skip_Counter = 1;
-            PSC_B.Note_Skip_Counter = 1;
+            PSC_C.Note_Skip_Counter = 1;
         }
         if(--PSC_A.Note_Skip_Counter == 0)
             PSC_PatternInterpreter(module, PSC_A);
@@ -411,8 +415,140 @@ void PSC_Play(unsigned char *module, ELAPSED_CALLBACK callback, void *arg)
     timeElapsed++;
 }
 
-void PSC_GetInfo(const unsigned char *module, SongInfo &info)
+void PSC_GetInfo(unsigned char *module, SongInfo &info)
 {
-    info.Length = 4 * 60 * 50;
+
+    PSC_File *header = (PSC_File *)module;
+    unsigned char b;
+    unsigned long tm = 0;
+    int i;
+    char a1, a2, a3;
+    unsigned long j1, j2, j3;
+    unsigned long pptr, cptr;
+    bool f71, f72, f73, f61, f62, f63, f41, f42, f43, flg;
+    unsigned short j11, j22, j33;
+    f71 = f72 = f73 = f61 = f62 = f63 = f41 = f42 = f43 = flg = false;
+    j11 = j22 = j33 = 0;
+
+    b = header->PSC_Delay;
+    pptr = header->PSC_PatternsPointer;
+    pptr++;
+    while(module[pptr] != 255)
+    {
+        pptr += 8;
+        if(pptr >= 65536)
+        {
+            info.Length = 0;
+            return;
+        }
+    }
+    if(pptr >= 65546 - 2)
+    {
+        info.Length = 0;
+    }
+    cptr = *(unsigned short *)&module[pptr + 1];
+    cptr++;
+    pptr = header->PSC_PatternsPointer;
+    pptr++;
+    while(module[pptr] != 255)
+    {
+        if(pptr == cptr)
+            info.Loop = tm;
+        if(pptr >= 65536 - 6)
+        {
+            info.Length = 0;
+            return;
+        }
+        j1 = *(unsigned short *)&module[pptr + 1];
+        j2 = *(unsigned short *)&module[pptr + 3];
+        j3 = *(unsigned short *)&module[pptr + 5];
+        pptr += 8;
+        if(pptr >= 65536)
+        {
+            info.Length = 0;
+            return;
+        }
+        a1 = a2 = a3 = 1;
+        for(i = 0; i < module[pptr - 8]; i++)
+        {
+            a1--;
+            if(a1 == 0)
+            {
+                while(true)
+                {
+                    unsigned char val = module[j1];
+                    if(val >= 0xc0)
+                    {
+                        a1 = val - 0xbf;
+                        j1++;
+                        break;
+                    }
+                    else if((val >= 0x67 && val <= 0x6d) || (val >= 0x6f && val <= 0x7b))
+                    {
+                        j1++;
+                    }
+                    else if(val == 0x6e)
+                    {
+                        j1++;
+                        b = module[j1];
+                    }
+                    j1++;
+                }
+
+            }
+
+            a2--;
+            if(a2 == 0)
+            {
+                while(true)
+                {
+                    unsigned char val = module[j2];
+                    if(val >= 0xc0)
+                    {
+                        a2 = val - 0xbf;
+                        j2++;
+                        break;
+                    }
+                    else if((val >= 0x67 && val <= 0x6d) || (val >= 0x6f && val <= 0x7b))
+                    {
+                        j2++;
+                    }
+                    else if(val == 0x6e)
+                    {
+                        j2++;
+                        b = module[j2];
+                    }
+                    j2++;
+                }
+            }
+
+            a3--;
+            if(a3 == 0)
+            {
+                while(true)
+                {
+                    unsigned char val = module[j3];
+                    if(val >= 0xc0)
+                    {
+                        a3 = val - 0xbf;
+                        j3++;
+                        break;
+                    }
+                    else if((val >= 0x67 && val <= 0x6d) || (val >= 0x6f && val <= 0x7b))
+                    {
+                        j3++;
+                    }
+                    else if(val == 0x6e)
+                    {
+                        j3++;
+                        b = module[j3];
+                    }
+                    j3++;
+                }
+            }
+            tm += b;
+        }
+    }
+    info.Length = tm;
 }
 

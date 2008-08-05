@@ -119,7 +119,7 @@ unsigned char STPPlay_data[] = {
   0x10,0x00,0x0f,0x00,
 };
 
-void STPGetInfo(const unsigned char *fileData, SongInfo &info)
+void STPGetInfo(unsigned char *fileData, SongInfo &info)
 {
     unsigned long tm = 0;
     unsigned char a = 1;
