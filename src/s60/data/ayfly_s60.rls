@@ -12,7 +12,7 @@
 //  LOCALISATION STRINGS
 
 // Caption string for app.
-#define qtn_caption_string "ayfly_s60 v0.0.14"
+#define qtn_caption_string "ayfly_s60 v0.0.15"
 
 // First item in "Options" menu pane
 #define qtn_command1 "Open file"
@@ -34,6 +34,6 @@
 
 #define qtn_about_dialog_title "About"
 
-#define qtn_about_dialog_text "ayfly_s60 Version 0.0.14\n\nAuthor: Andrew Deryabin\n\nSupport: andrew@it-optima.ru\n\n(c) Andrew Deryabin (c) 2008"
+#define qtn_about_dialog_text "ayfly_s60 Version 0.0.15\n\nAuthor: Andrew Deryabin\n\nSupport: andrew@it-optima.ru\n\n(c) Andrew Deryabin (c) 2008"
 
 // End of File

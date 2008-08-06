@@ -82,7 +82,7 @@ INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)/src/z80ex -I$(top_srcdir)/src/z80
 
 SUBDIRS = gui z80ex $(EXTRASUBDIRS)
 bin_PROGRAMS = ayfly
-ayfly_SOURCES = AbstractAudio.cpp ay.cpp Filter3.cpp formats.cpp speccy.cpp
+ayfly_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp
 @IS_WINDOWS_TRUE@EXTRASUBDIRS =  windows
 @IS_WINDOWS_FALSE@EXTRASUBDIRS = unix
 
@@ -102,7 +102,7 @@ DEFS = @DEFS@ -I. -I$(srcdir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-ayfly_OBJECTS =  AbstractAudio.o ay.o Filter3.o formats.o speccy.o
+ayfly_OBJECTS =  AbstractAudio.o ay.o formats.o speccy.o
 @IS_WINDOWS_FALSE@ayfly_DEPENDENCIES =  z80ex/libz80ex.a gui/libgui.a \
 @IS_WINDOWS_FALSE@unix/libunix.a
 @IS_WINDOWS_TRUE@ayfly_DEPENDENCIES =  z80ex/libz80ex.a gui/libgui.a \
@@ -120,8 +120,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DIST_SUBDIRS =  gui z80ex windows unix
-DEP_FILES =  .deps/AbstractAudio.P .deps/Filter3.P .deps/ay.P \
-.deps/formats.P .deps/speccy.P
+DEP_FILES =  .deps/AbstractAudio.P .deps/ay.P .deps/formats.P \
+.deps/speccy.P
 SOURCES = $(ayfly_SOURCES)
 OBJECTS = $(ayfly_OBJECTS)
 
