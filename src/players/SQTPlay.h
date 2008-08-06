@@ -276,7 +276,7 @@ void SQT_PatternInterpreter(unsigned char *module, SQT_Channel_Parameters &chan)
         }
         else if(val >= 0x60 && val <= 0x6e)
         {
-            SQT_Call_LC1D1(module, chan, Ptr, module [Ptr] - 0x60);
+            SQT_Call_LC1D1(module, chan, Ptr, module[Ptr] - 0x60);
             break;
         }
         else if(val >= 0x6f && val <= 0x7f)
@@ -512,7 +512,7 @@ void SQT_Play(unsigned char *module, ELAPSED_CALLBACK callback, void *arg)
 
 }
 
-void SQT_GetChannelInfo(unsigned char *module, unsigned char &b, unsigned long &tm, char &a1, unsigned long &j1, unsigned long &pptr, unsigned long &cptr, bool &f71, bool &f61, bool &f41, unsigned short &j11)
+void SQT_GetChannelInfo(unsigned char *module, unsigned char &b, unsigned long &tm, char &a1, unsigned long &j1, unsigned long &pptr, unsigned long &cptr, bool &f71, bool &f61, bool &f41, unsigned short &j11, unsigned char chnl_num)
 {
     if(a1 != 0)
     {
@@ -739,13 +739,27 @@ void SQT_GetChannelInfo(unsigned char *module, unsigned char &b, unsigned long &
             else if(val >= 0x80 && val <= 0xbf)
             {
                 j1 = cptr + 1;
-                if(module[cptr] >= 0xa0 && module[cptr] <= 0xbf)
+                if(chnl_num == 1)
                 {
-                    a1 = module[cptr] & 15;
-                    if((module[cptr] & 16) == 0)
-                        break;
-                    if(a1 != 0)
-                        f71 = true;
+                    if(val >= 0xa0)
+                    {
+                        a1 = module[cptr] & 15;
+                        if((module[cptr] & 16) == 0)
+                            break;
+                        if(a1 != 0)
+                            f71 = true;
+                    }
+                }
+                else if(chnl_num == 2 || chnl_num == 3)
+                {
+                    if(val > 0x9f)
+                    {
+                        a1 = module [cptr] & 15;
+                        if((module [cptr] & 16) == 0)
+                            break;
+                        if(a1 != 0)
+                            f71 = true;
+                    }
                 }
                 cptr = j11;
                 f61 = false;
@@ -868,11 +882,12 @@ void SQT_GetInfo(unsigned char *module, SongInfo &info)
         b = module[pptr];
         pptr++;
         a1 = a2 = a3 = 0;
-        for(i = 0; i < module[j1 - 1]; i++)
+        unsigned char limit = module[j1 - 1];
+        for(i = 0; i < limit; i++)
         {
-            SQT_GetChannelInfo(module, b, tm, a1, j1, pptr, cptr, f71, f61, f41, j11);
-            SQT_GetChannelInfo(module, b, tm, a2, j2, pptr, cptr, f72, f62, f42, j22);
-            SQT_GetChannelInfo(module, b, tm, a3, j3, pptr, cptr, f73, f63, f43, j33);
+            SQT_GetChannelInfo(module, b, tm, a1, j1, pptr, cptr, f71, f61, f41, j11, 1);
+            SQT_GetChannelInfo(module, b, tm, a2, j2, pptr, cptr, f72, f62, f42, j22, 2);
+            SQT_GetChannelInfo(module, b, tm, a3, j3, pptr, cptr, f73, f63, f43, j33, 3);
             tm += b;
         }
     }

@@ -45,7 +45,7 @@ DXAudio::~DXAudio()
 		delete ay8910;
 		ay8910 = 0;
 	}
-	
+
 }
 
 bool DXAudio::Start()
@@ -58,7 +58,7 @@ bool DXAudio::Start()
 					if(SUCCEEDED(SetNotificationPositions()))
 					{
 						dx_created = true;
-                        ay8910->SetBufferSize(buffer_size >> 3);						
+                        ay8910->SetBufferSize(buffer_size >> 3);
 					}
 	if(dx_created)
 	{
@@ -85,7 +85,7 @@ void DXAudio::Stop()
         ResetEvent(hNotifyEvent1);
         ResetEvent(hNotifyEvent2);
 	}
-    
+
 	if(pDsb8)
 	{
 		while(pDsb8->Release()) {};
@@ -121,7 +121,7 @@ HRESULT DXAudio::CreateBasicBuffer()
 	dsbdesc.dwSize = sizeof(DSBUFFERDESC);
 	dsbdesc.dwFlags = DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLPOSITIONNOTIFY
 		| DSBCAPS_GETCURRENTPOSITION2;
-	dsbdesc.dwBufferBytes = 16384; //wfx.nAvgBytesPerSec;
+	dsbdesc.dwBufferBytes = wfx.nAvgBytesPerSec;
 	dsbdesc.lpwfxFormat = &wfx;
 
 	// Create buffer.
