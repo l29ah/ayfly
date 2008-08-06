@@ -44,7 +44,7 @@ enum
 class ay
 {
 public:
-    ay(long _ay_freq, int _buf_sz);
+    ay(long _sr, long _ay_freq, int _buf_sz);
     virtual ~ay();
     void ayReset();
     void ayWrite(unsigned char reg, unsigned char val);
@@ -105,9 +105,9 @@ private:
     unsigned long q_len;
     FILE *fd;
     int buf_sz;
+    long sr;
     unsigned long tails_len;
     unsigned long ay_tacts;
-    Filter3 *flt_bass;
     void setEnvelope();
     void updateEnvelope();
     double volume[3];

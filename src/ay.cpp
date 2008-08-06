@@ -33,11 +33,13 @@ double ay::init_levels[] =
 
 FILE *f = 0;
 
-ay::ay(long _ay_freq, int _buf_sz)
+ay::ay(long _sr, long _ay_freq, int _buf_sz)
 {
     buffer[0] = 0;
     buffer[1] = 0;
     buffer[2] = 0;
+
+    sr = _sr;
 
     ay_freq = _ay_freq;
     tail_len = 512;//buf_sz >> 2;
@@ -48,10 +50,10 @@ ay::ay(long _ay_freq, int _buf_sz)
     buffer_tail[1] = new double[tail_len];
     buffer_tail[2] = new double[tail_len];
 
-    ay_tacts = (float)ay_freq / AUDIO_FREQ / 8;
+    ay_tacts = (float)ay_freq / sr / 8;
     /*ay_tacts = ay_tacts_f;
-    if(ay_tacts != ay_tacts_f)
-        ay_tacts++;*/
+     if(ay_tacts != ay_tacts_f)
+     ay_tacts++;*/
 
     SetBufferSize(_buf_sz);
 
@@ -67,18 +69,10 @@ ay::ay(long _ay_freq, int _buf_sz)
         ay::levels[i] = (ay::init_levels[i] * 28 * 256 + 0x8000) / 0xffff;
     }
 
-    FilterOpts fopts;
-    fopts.Fs = AUDIO_FREQ;
-    fopts.bw = 1;
-    fopts.f0 = 300;
-    fopts.type = LPF;
-    flt_bass = new Filter3;
-    flt_bass->Init(&fopts);
-
     elapsedCallback = 0;
     elapsedCallbackArg = 0;
 
-    int_limit = AUDIO_FREQ / INTR_FREQ;
+    int_limit = sr / INTR_FREQ;
 
     ayReset();
 }
@@ -91,7 +85,7 @@ ay::~ay()
     delete[] buffer_tail[0];
     delete[] buffer_tail[1];
     delete[] buffer_tail[2];
-    delete flt_bass;
+    buffer[0] = buffer[1] = buffer[2] = buffer_tail[0] = buffer_tail[1] = buffer_tail[2] = 0;
 }
 
 void ay::SetBufferSize(int _buf_sz)
@@ -309,15 +303,17 @@ void ay::ayProcess(unsigned char *stream, int len)
             updateEnvelope();
 
             if((chnl_trigger[0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)) & !chnl_mute[0])
-            s0 += (CHNL_ENVELOPE(0) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(0)]) * volume[0];
+                s0 += (CHNL_ENVELOPE(0) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(0)]) * volume[0];
             if((chnl_trigger[1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)) & !chnl_mute[1])
-            s1 += (CHNL_ENVELOPE(1) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(1)]) * volume[1];
+                s1 += (CHNL_ENVELOPE(1) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(1)]) * volume[1];
             if((chnl_trigger[2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)) & !chnl_mute[2])
-            s2 += (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2)]) * volume[2];
+                s2 += (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2)]) * volume[2];
         }
+
         buffer[0][i] = s0 / (double)ay_tacts;
         buffer[1][i] = (s1 / (double)ay_tacts) / 1.42;
         buffer[2][i] = s2 / (double)ay_tacts;
+
     }
 
     short *stream16 = (short *)stream;

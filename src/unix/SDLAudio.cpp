@@ -37,7 +37,7 @@ SDLAudio::SDLAudio(unsigned long _sr)
         return;
     }
 
-    ay8910 = new ay(Z80_FREQ / 2, fmt_out.size >> 2); // 16 bit, 2 ch.
+    ay8910 = new ay(sr, Z80_FREQ / 2, fmt_out.size >> 2); // 16 bit, 2 ch.
 
 }
 

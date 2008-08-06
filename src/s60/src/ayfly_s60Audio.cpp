@@ -25,25 +25,24 @@
 #include <f32file.h>
 #include <eikenv.h>
 
-
-Cayfly_s60Audio::Cayfly_s60Audio()
-        : AbstractAudio(AUDIO_FREQ), iDevSound(0), iVolume(7)
+Cayfly_s60Audio::Cayfly_s60Audio() :
+    AbstractAudio(AUDIO_FREQ), iDevSound(0), iVolume(7)
 {
-    iCodecType      = KMMFFourCCCodePCM16;
-    ay8910 = new ay(Z80_FREQ / 2, MAXBUFFERSIZE >> 2); // 16 bit, 2 ch.
+    iCodecType = KMMFFourCCCodePCM16;
+    ay8910 = new ay(sr, Z80_FREQ / 2, MAXBUFFERSIZE >> 2); // 16 bit, 2 ch.
     iSoundData = new TUint8[MAXBUFFERSIZE];
 }
 
 Cayfly_s60Audio::~Cayfly_s60Audio()
 {
     KillSound();
-    if (ay8910)
+    if(ay8910)
     {
         delete ay8910;
         ay8910 = 0;
     }
 
-    if (iSoundData)
+    if(iSoundData)
     {
         delete iSoundData;
         iSoundData = 0;
@@ -61,7 +60,7 @@ void Cayfly_s60Audio::StartPlay()
     TMMFState aMode = EMMFStatePlaying;
 
     TRAPD(err, iDevSound->InitializeL(*this, iCodecType, aMode));
-    if (err)
+    if(err)
     {
         TBuf<10> errBuf;
         errBuf.AppendNum(err);
@@ -76,7 +75,32 @@ void Cayfly_s60Audio::StartPlay()
     // set sample rate and channels
     TMMFCapabilities conf;
     conf = iDevSound->Config();
-    conf.iRate = EMMFSampleRate32000Hz;
+
+    switch(sr)
+    {
+        case 8000:
+            conf.iRate = EMMFSampleRate8000Hz;
+            break;
+        case 11025:
+            conf.iRate = EMMFSampleRate11025Hz;
+            break;
+        case 22050:
+            conf.iRate = EMMFSampleRate22050Hz;
+            break;
+        case 32000:
+            conf.iRate = EMMFSampleRate32000Hz;
+            break;
+        case 44100:
+            conf.iRate = EMMFSampleRate44100Hz;
+            break;
+        case 48000:
+            conf.iRate = EMMFSampleRate48000Hz;
+            break;
+        case 96000:
+            conf.iRate = EMMFSampleRate96000Hz;
+            break;
+
+    }
     conf.iChannels = EMMFStereo;
     iDevSound->SetConfigL(conf);
 
@@ -95,7 +119,7 @@ void Cayfly_s60Audio::SetDeviceVolume(TInt aVolume)
     if(aVolume < 0)
         aVolume = 0;
     iVolume = aVolume;
-    if (iDevSound)
+    if(iDevSound)
         iDevSound->SetVolume(iVolume);
 }
 
@@ -106,7 +130,7 @@ TInt Cayfly_s60Audio::GetDeviceVolume()
 
 void Cayfly_s60Audio::KillSound()
 {
-    if (iDevSound)
+    if(iDevSound)
     {
         iDevSound->Stop();
         delete iDevSound;
@@ -124,27 +148,27 @@ void Cayfly_s60Audio::BufferToBeFilled(CMMFBuffer*aBuffer)
 
 
     /*for(unsigned long i = 0 ; i < reqSize; i++)
-    {
-        bufData [i] = gen_buffer [i];
-    }*/
+     {
+     bufData [i] = gen_buffer [i];
+     }*/
     iDevSound->PlayData();
 }
 
 void Cayfly_s60Audio::InitializeComplete(TInt aError)
 {
-    if (aError == KErrNone)
+    if(aError == KErrNone)
     {
         // priority and preference settings
         /*iPrioritySettings.iPref = EMdaPriorityPreferenceQuality;
-        iPrioritySettings.iPriority = EMdaPriorityNormal;
-        iDevSound->SetPrioritySettings(iPrioritySettings);
+         iPrioritySettings.iPriority = EMdaPriorityNormal;
+         iDevSound->SetPrioritySettings(iPrioritySettings);
 
-        // set sample rate and channels
-        TMMFCapabilities conf;
-        conf = iDevSound->Config();
-        conf.iRate = EMMFSampleRate32000Hz;
-        conf.iChannels = EMMFMono;
-        iDevSound->SetConfigL(conf);*/
+         // set sample rate and channels
+         TMMFCapabilities conf;
+         conf = iDevSound->Config();
+         conf.iRate = EMMFSampleRate32000Hz;
+         conf.iChannels = EMMFMono;
+         iDevSound->SetConfigL(conf);*/
     }
 
 }
@@ -156,7 +180,7 @@ void Cayfly_s60Audio::ToneFinished(TInt aError)
 
 void Cayfly_s60Audio::PlayError(TInt aError)
 {
-    if (aError == KErrUnderflow)
+    if(aError == KErrUnderflow)
     {
         iDevSound->Stop();
         User::InfoPrint(_L("Play Finished"));
@@ -201,7 +225,7 @@ void Cayfly_s60Audio::DeviceMessage(TUid aMessageType, const TDesC8& aMsg)
 
 void Cayfly_s60Audio::DisplayError(const TDesC& aTitle, TInt aError)
 {
-    if (aError == KErrNone)
+    if(aError == KErrNone)
         return;
 
     _LIT(KErrMsgCode, "error: %d");

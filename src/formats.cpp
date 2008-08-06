@@ -330,8 +330,12 @@ bool readFile(SongInfo &info)
             resetSpeccy();
         else
             info.soft_init_proc(z80Memory);
+#ifndef __SYMBIAN32__
         getSongInfo(info);
         maxElapsed = info.Length;
+#else
+        maxElapsed = -1;
+#endif
     }
     return bRet;
 }
