@@ -93,7 +93,7 @@ extern "C"
 #    else
 #        define TXT(x) _L(x)
 #        define TXT_TYPE TFileName
-#        pragma pack(0)
+#        pragma pack(1)
 #        define AUDIO_FREQ 32000
 #    endif
 #    define Z80_FREQ 3546900
@@ -182,7 +182,7 @@ struct SongInfo
 
 #    define AYFLY_VERSION_MAJOR 0
 #    define AYFLY_VERSION_MINOR 0
-#    define AYFLY_VERSION_PATCH 14
+#    define AYFLY_VERSION_PATCH 15
 
 #    define AYFLY_MAKE_VERSION ((AYFLY_VERSION_MAJOR << 16) | (AYFLY_VERSION_MINOR << 8) | AYFLY_VERSION_PATCH)
 #    define AYFLY_VERSION AYFLY_VERSION_MAJOR.AYFLY_VERSION_MINOR.AYFLY_VERSION_PATCH

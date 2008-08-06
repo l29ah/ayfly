@@ -20,30 +20,16 @@
 
 #include "common.h"
 
-SDLAudio::SDLAudio(unsigned long _sr)
-: AbstractAudio(_sr)
+SDLAudio::SDLAudio(unsigned long _sr) :
+    AbstractAudio(_sr)
 {
-    SDL_AudioSpec fmt;
-    SDL_memset(&fmt, 0, sizeof (SDL_AudioSpec));
-    fmt.callback = SDLAudio::Play;
-    fmt.channels = 2;
-    fmt.format = AUDIO_S16;
-    fmt.samples = 1024 * 2 * 2;
-    fmt.freq = sr;
-    fmt.userdata = this;
-    if(SDL_OpenAudio(&fmt, &fmt_out) < 0)
-    {
-        fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
-        return;
-    }
-
-    ay8910 = new ay(sr, Z80_FREQ / 2, fmt_out.size >> 2); // 16 bit, 2 ch.
+    ay8910 = new ay(sr, Z80_FREQ / 2, 1024 * 2 * 2); // 16 bit, 2 ch.
 
 }
 
 SDLAudio::~SDLAudio()
 {
-    SDL_CloseAudio();
+    Stop();
     if(ay8910)
     {
         delete ay8910;
@@ -56,6 +42,23 @@ bool SDLAudio::Start()
 
     if(!started)
     {
+        SDL_AudioSpec fmt;
+        SDL_memset(&fmt, 0, sizeof(SDL_AudioSpec));
+        fmt.callback = SDLAudio::Play;
+        fmt.channels = 2;
+        fmt.format = AUDIO_S16;
+        fmt.samples = 1024 * 2 * 2;
+        fmt.freq = sr;
+        fmt.userdata = this;
+        if(SDL_OpenAudio(&fmt, &fmt_out) < 0)
+        {
+            return false;
+        }
+
+        if(ay8910 == 0)
+            ay8910 = new ay(sr, Z80_FREQ / 2, fmt_out.size >> 2); // 16 bit, 2 ch.
+        else
+            ay8910->SetBufferSize(fmt_out.size >> 2);
         SDL_PauseAudio(0);
         started = true;
     }
@@ -67,10 +70,9 @@ void SDLAudio::Stop()
 {
     if(started)
     {
-        SDL_LockAudio();
         started = false;
         SDL_PauseAudio(1);
-        SDL_UnlockAudio();
+        SDL_CloseAudio();
     }
 
 }

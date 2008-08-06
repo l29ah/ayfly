@@ -1,5 +1,10 @@
 Changelog:
 
+06.08.2008 - 0.0.15
+New formats supported: SQT and PSC
+Fixed bugs in AY emulator
+AY emulator code is now he same on PC and Symbian builds
+
 01.08.2008 - 0.0.14
 Added filters for synth signal in symbian build
 Volume on Symbian can now be changed with up an down arrows
