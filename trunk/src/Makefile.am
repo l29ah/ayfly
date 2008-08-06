@@ -1,7 +1,7 @@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)/src/z80ex -I$(top_srcdir)/src/z80ex/include $(SDL_CFLAGS) $(DX_CFLAGS) $(all_includes)
 SUBDIRS = gui z80ex
 bin_PROGRAMS = ayfly
-ayfly_SOURCES = AbstractAudio.cpp ay.cpp Filter3.cpp formats.cpp speccy.cpp
+ayfly_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp
 
 if IS_WINDOWS
 EXTRASUBDIRS += windows

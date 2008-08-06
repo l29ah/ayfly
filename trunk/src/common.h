@@ -129,16 +129,9 @@ struct SongInfo
     PLAYER_INIT_PROC soft_init_proc; /* init for soft player */
     PLAYER_PLAY_PROC soft_play_proc; /* play for soft player */
 };
-#    ifndef __SYMBIAN32__
-#        include "Filter3.h"
-#        include "ay.h"
-#        else
-#        include "Filter3.h"
-#        include "ay.h"
-#        endif
 
+#        include "ay.h"
 #        include "AbstractAudio.h"
-
 #    ifndef __SYMBIAN32__
 #        ifndef WINDOWS
 #            include "SDL.h"
