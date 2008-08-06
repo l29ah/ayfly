@@ -176,7 +176,7 @@ void ay::ayWrite(unsigned char reg, unsigned char val)
                 tone_period_init[2]++;
             break;
         case AY_NOISE_PERIOD:
-            noise_period_init = NOISE_PERIOD;
+            noise_period_init = NOISE_PERIOD * 2;
             break;
         case AY_MIXER:
 

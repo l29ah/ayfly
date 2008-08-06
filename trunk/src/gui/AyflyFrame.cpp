@@ -998,7 +998,10 @@ bool AyflyFrame::AddFile(const wxString &filePath)
     long index = playListView->GetItemCount();
 
     playListView->InsertItem(index, buf);
-    unsigned long seconds = info->Length / 50;
+    float seconds_f = info->Length / INTR_FREQ;
+    unsigned long seconds = seconds_f;
+    if((float)seconds != seconds_f)
+        seconds++;
     unsigned long minutes = seconds / 60;
     seconds = seconds % 60;
     buf.Printf(wxT("00:%.2lu:%.2lu"), minutes, seconds);
