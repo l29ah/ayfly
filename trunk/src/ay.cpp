@@ -50,10 +50,17 @@ ay::ay(long _sr, long _ay_freq, int _buf_sz)
     buffer_tail[1] = new double[tail_len];
     buffer_tail[2] = new double[tail_len];
 
-    ay_tacts = (float)ay_freq / sr / 8;
-    /*ay_tacts = ay_tacts_f;
-     if(ay_tacts != ay_tacts_f)
-     ay_tacts++;*/
+    switch(sr)
+    {
+        case 32000:
+            ay_tacts = 7;
+            break;
+        case 44100:
+            ay_tacts = 5;
+            break;
+        default:
+            break;
+    }
 
     SetBufferSize(_buf_sz);
 
@@ -61,8 +68,6 @@ ay::ay(long _sr, long _ay_freq, int _buf_sz)
     {
         buffer_tail[0][i] = buffer_tail[1][i] = buffer_tail[2][i] = 0;
     }
-
-    double div = 3;
 
     for(unsigned long i = 0; i < sizeof_array(ay::levels); i++)
     {

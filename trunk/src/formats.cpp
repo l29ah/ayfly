@@ -19,6 +19,9 @@
  ***************************************************************************/
 
 #include "common.h"
+#ifdef __SYMBIAN32__
+#pragma pack(1)
+#endif
 #include "players/PT2Play.h"
 #include "players/PT3Play.h"
 #include "players/STPPlay.h"
