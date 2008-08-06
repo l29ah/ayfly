@@ -165,17 +165,17 @@ unsigned char PT2Play_data[] = {
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 };
 
-void PT2GetInfo(unsigned char *fileData, SongInfo &info)
+void PT2_GetInfo(unsigned char *module, SongInfo &info)
 {
     short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
     long i, tm = 0;
     unsigned char b;
-    unsigned char ptDelay = fileData[0];
-    unsigned char ptNumPos = fileData[1];
-    unsigned short ptLoopPos = fileData[2];
-    unsigned short ptPatPt = *(unsigned short *)&fileData[99];
-    const unsigned char *ptPosList = (unsigned char *)&fileData[131];
+    unsigned char ptDelay = module[0];
+    unsigned char ptNumPos = module[1];
+    unsigned short ptLoopPos = module[2];
+    unsigned short ptPatPt = *(unsigned short *)&module[99];
+    const unsigned char *ptPosList = (unsigned char *)&module[131];
 
     b = ptDelay;
     a1 = a2 = a3 = a11 = a22 = a33 = 0;
@@ -185,19 +185,19 @@ void PT2GetInfo(unsigned char *fileData, SongInfo &info)
         {
             info.Loop = tm;
         }
-        j1 = *(unsigned short *)&fileData[ptPatPt + ptPosList[i] * 6];
-        j2 = *(unsigned short *)&fileData[ptPatPt + ptPosList[i] * 6 + 2];
-        j3 = *(unsigned short *)&fileData[ptPatPt + ptPosList[i] * 6 + 4];
+        j1 = *(unsigned short *)&module[ptPatPt + ptPosList[i] * 6];
+        j2 = *(unsigned short *)&module[ptPatPt + ptPosList[i] * 6 + 2];
+        j3 = *(unsigned short *)&module[ptPatPt + ptPosList[i] * 6 + 4];
         do
         {
             a1--;
             if(a1 < 0)
             {
-                if(fileData[j1] == 0)
+                if(module[j1] == 0)
                     break;
                 do
                 {
-                    unsigned char val = (unsigned char)fileData[j1];
+                    unsigned char val = (unsigned char)module[j1];
                     if(val == 0x70 || (val >= 0x80 && val <= 0xe0))
                     {
                         a1 = a11;
@@ -210,12 +210,12 @@ void PT2GetInfo(unsigned char *fileData, SongInfo &info)
                     }
                     else if(val >= 0x20 && val <= 0x5f)
                     {
-                        a11 = fileData[j1] - 0x20;
+                        a11 = module[j1] - 0x20;
                     }
                     else if(val == 0xf)
                     {
                         j1++;
-                        b = fileData[j1];
+                        b = module[j1];
                     }
                     else if((val >= 1 && val <= 0xb) || val == 0xe)
                     {
@@ -235,7 +235,7 @@ void PT2GetInfo(unsigned char *fileData, SongInfo &info)
             {
                 do
                 {
-                    unsigned char val = (unsigned char)fileData[j2];
+                    unsigned char val = (unsigned char)module[j2];
                     if(val == 0x70 || (val >= 0x80 && val <= 0xe0))
                     {
                         a2 = a22;
@@ -248,12 +248,12 @@ void PT2GetInfo(unsigned char *fileData, SongInfo &info)
                     }
                     else if(val >= 0x20 && val <= 0x5f)
                     {
-                        a22 = fileData[j2] - 0x20;
+                        a22 = module[j2] - 0x20;
                     }
                     else if(val == 0xf)
                     {
                         j2++;
-                        b = fileData[j2];
+                        b = module[j2];
                     }
                     else if((val >= 1 && val <= 0xb) || val == 0xe)
                     {
@@ -272,7 +272,7 @@ void PT2GetInfo(unsigned char *fileData, SongInfo &info)
             {
                 do
                 {
-                    unsigned char val = (unsigned char)fileData[j3];
+                    unsigned char val = (unsigned char)module[j3];
                     if(val == 0x70 || (val >= 0x80 && val <= 0xe0))
                     {
                         a3 = a33;
@@ -285,12 +285,12 @@ void PT2GetInfo(unsigned char *fileData, SongInfo &info)
                     }
                     else if(val >= 0x20 && val <= 0x5f)
                     {
-                        a33 = fileData[j3] - 0x20;
+                        a33 = module[j3] - 0x20;
                     }
                     else if(val == 0xf)
                     {
                         j3++;
-                        b = fileData[j3];
+                        b = module[j3];
                     }
                     else if((val >= 1 && val <= 0xb) || val == 0xe)
                     {

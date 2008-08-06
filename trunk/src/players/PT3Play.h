@@ -138,18 +138,18 @@ unsigned char PT3Play_data[] = {
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 };
 
-void PT3GetInfo(unsigned char *fileData, SongInfo &info)
+void PT3_GetInfo(unsigned char *module, SongInfo &info)
 {
     unsigned short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
     long c1, c2, c3, c4, c5, c8;
     long i, j, tm = 0;
     unsigned char b;
-    unsigned char ptDelay = fileData[100];
-    unsigned char ptNumPos = fileData[101];
-    unsigned short ptLoopPos = fileData[102];
-    unsigned short ptPatPt = *(unsigned short *)&fileData[103];
-    const unsigned char *ptPosList = (unsigned char *)&fileData[201];
+    unsigned char ptDelay = module[100];
+    unsigned char ptNumPos = module[101];
+    unsigned short ptLoopPos = module[102];
+    unsigned short ptPatPt = *(unsigned short *)&module[103];
+    const unsigned char *ptPosList = (unsigned char *)&module[201];
 
     b = ptDelay;
     a11 = a22 = a33 = 1;
@@ -159,21 +159,21 @@ void PT3GetInfo(unsigned char *fileData, SongInfo &info)
         {
             info.Loop = tm;
         }
-        j1 = *(unsigned short *)&fileData[ptPatPt + ptPosList[i] * 2];
-        j2 = *(unsigned short *)&fileData[ptPatPt + ptPosList[i] * 2 + 2];
-        j3 = *(unsigned short *)&fileData[ptPatPt + ptPosList[i] * 2 + 4];
+        j1 = *(unsigned short *)&module[ptPatPt + ptPosList[i] * 2];
+        j2 = *(unsigned short *)&module[ptPatPt + ptPosList[i] * 2 + 2];
+        j3 = *(unsigned short *)&module[ptPatPt + ptPosList[i] * 2 + 4];
         a1 = a2 = a3 = 1;
         do
         {
             a1--;
             if(a1 == 0)
             {
-                if(fileData[j1] == 0)
+                if(module[j1] == 0)
                     break;
                 j = c1 = c2 = c3 = c4 = c5 = c8 = 0;
                 do
                 {
-                    unsigned char val = fileData[j1];
+                    unsigned char val = module[j1];
                     if(val == 0xd0 || val == 0xc0 || (val >= 0x50 && val <= 0xaf))
                     {
                         a1 = a11;
@@ -191,7 +191,7 @@ void PT3GetInfo(unsigned char *fileData, SongInfo &info)
                     else if(val == 0xb1)
                     {
                         j1++;
-                        a11 = fileData[j1];
+                        a11 = module[j1];
                     }
                     else if(val >= 0x11 && val <= 0x1f)
                     {
@@ -256,7 +256,7 @@ void PT3GetInfo(unsigned char *fileData, SongInfo &info)
                     }
                     else
                     {
-                        b = fileData[j1];
+                        b = module[j1];
                         j1++;
                     }
                     j--;
@@ -267,7 +267,7 @@ void PT3GetInfo(unsigned char *fileData, SongInfo &info)
                     j = c1 = c2 = c3 = c4 = c5 = c8 = 0;
                     do
                     {
-                        unsigned char val = fileData[j2];
+                        unsigned char val = module[j2];
                         if(val == 0xd0 || val == 0xc0 || (val >= 0x50 && val <= 0xaf))
                         {
                             a2 = a22;
@@ -285,7 +285,7 @@ void PT3GetInfo(unsigned char *fileData, SongInfo &info)
                         else if(val == 0xb1)
                         {
                             j2++;
-                            a22 = fileData[j2];
+                            a22 = module[j2];
                         }
                         else if(val >= 0x11 && val <= 0x1f)
                         {
@@ -349,7 +349,7 @@ void PT3GetInfo(unsigned char *fileData, SongInfo &info)
                         }
                         else
                         {
-                            b = fileData[j2];
+                            b = module[j2];
                             j2++;
                         }
                         j--;
@@ -361,7 +361,7 @@ void PT3GetInfo(unsigned char *fileData, SongInfo &info)
                     j = c1 = c2 = c3 = c4 = c5 = c8 = 0;
                     do
                     {
-                        unsigned char val = fileData[j3];
+                        unsigned char val = module[j3];
                         if(val == 0xd0 || val == 0xc0 || (val >= 0x50 && val <= 0xaf))
                         {
                             a3 = a33;
@@ -379,7 +379,7 @@ void PT3GetInfo(unsigned char *fileData, SongInfo &info)
                         else if(val == 0xb1)
                         {
                             j3++;
-                            a33 = fileData[j3];
+                            a33 = module[j3];
                         }
                         else if(val >= 0x11 && val <= 0x1f)
                         {
@@ -443,7 +443,7 @@ void PT3GetInfo(unsigned char *fileData, SongInfo &info)
                         }
                         else
                         {
-                            b = fileData[j3];
+                            b = module[j3];
                             j3++;
                         }
                         j--;

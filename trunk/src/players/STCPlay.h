@@ -70,13 +70,13 @@ unsigned char STCPlay_data[] = {
   0xff,0xed,0x79,0x06,0xbf,0xed,0xab,0x3d,0xf2,0x2f,0xc4,0xc9
 };
 
-void STCGetInfo(unsigned char *fileData, SongInfo &info)
+void STC_GetInfo(unsigned char *module, SongInfo &info)
 {
     unsigned long tm = 0;
     long j, j1, j2, i;
-    unsigned char stDelay = fileData[0];
-    unsigned short stPosPt = *(unsigned short *)&fileData[1];
-    unsigned short stPatPt = *(unsigned short *)&fileData[5];
+    unsigned char stDelay = module[0];
+    unsigned short stPosPt = *(unsigned short *)&module[1];
+    unsigned short stPatPt = *(unsigned short *)&module[5];
     unsigned char a;
 
     j = -1;
@@ -84,19 +84,19 @@ void STCGetInfo(unsigned char *fileData, SongInfo &info)
     {
         j++;
         j2 = stPosPt + j * 2 + 1;
-        j2 = fileData[j2];
+        j2 = module[j2];
         i = -1;
         do
         {
             i++;
             j1 = stPatPt + 7 * i;
         }
-        while(fileData[j1] != j2);
-        j1 = *(unsigned short *)&fileData[j1 + 1];
+        while(module[j1] != j2);
+        j1 = *(unsigned short *)&module[j1 + 1];
         a = 1;
-        while(*(unsigned char *)&fileData[j1] != 255)
+        while(*(unsigned char *)&module[j1] != 255)
         {
-            unsigned char val = fileData[j1];
+            unsigned char val = module[j1];
             if((val <= 0x5f) || (val == 0x80) || (val == 0x81))
             {
                 tm += a;
@@ -112,7 +112,7 @@ void STCGetInfo(unsigned char *fileData, SongInfo &info)
             j1++;
         }
     }
-    while(j != fileData[stPosPt]);
+    while(j != module[stPosPt]);
     tm *= stDelay;
     info.Length = tm;
 }
