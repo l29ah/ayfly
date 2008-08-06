@@ -29,7 +29,7 @@ DXAudio::DXAudio(unsigned long _sr) :
 	hNotifyEvent1 = CreateEvent(NULL, FALSE, FALSE, NULL);
 	hNotifyEvent2 = CreateEvent(NULL, FALSE, FALSE, NULL);
 	hSyncEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-    ay8910 = new ay(Z80_FREQ / 2, buffer_size >> 3); // 16 bit, 2 ch.
+    ay8910 = new ay(sr, Z80_FREQ / 2, buffer_size >> 3); // 16 bit, 2 ch.
 	pDsb8 = 0;
 	lpds = 0;
 }
