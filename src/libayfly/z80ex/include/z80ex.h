@@ -10,10 +10,10 @@
 #ifndef _Z80EX_H_INCLUDED
 #define _Z80EX_H_INCLUDED
 
-#include "z80ex_common.h"
+#include "z80ex/include/z80ex_common.h"
 
 typedef
-enum {regAF,regBC,regDE,regHL,regAF_,regBC_,regDE_,regHL_,regIX,regIY,regPC,regSP,regI,regR,regR7,regIM/*0,1 или 2*/,regIFF1,regIFF2}
+enum {regAF,regBC,regDE,regHL,regAF_,regBC_,regDE_,regHL_,regIX,regIY,regPC,regSP,regI,regR,regR7,regIM/*0,1 О©╫О©╫О©╫ 2*/,regIFF1,regIFF2}
 Z80_REG_T;
 
 #ifndef __Z80EX_SELF_INCLUDE
@@ -46,7 +46,7 @@ typedef Z80EX_BYTE (*z80ex_intread_cb)(Z80EX_CONTEXT *cpu, void *user_data);
 
 
 #ifndef __Z80EX_SELF_INCLUDE
-	
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,7 +67,7 @@ extern int z80ex_step(Z80EX_CONTEXT *cpu);
 /*return type of last opcode, processed with z80ex_step.
 type will be 0 for complete instruction, or prefix value for dd/fd/cb/ed prefixes*/
 extern Z80EX_BYTE z80ex_last_op_type(Z80EX_CONTEXT *cpu);
-	
+
 /*set T-state callback*/
 extern void z80ex_set_tstate_callback(Z80EX_CONTEXT *cpu, z80ex_tstate_cb cb_fn, void *user_data);
 
@@ -97,7 +97,7 @@ else returns t-states taken by last opcode executed*/
 extern int z80ex_op_tstate(Z80EX_CONTEXT *cpu);
 
 /*generate <w_states> Wait-states. (T-state callback will be called for each of them).
-must be used in t-state callback or I/O callbacks to simulate WAIT signal or disabled CLK*/ 
+must be used in t-state callback or I/O callbacks to simulate WAIT signal or disabled CLK*/
 extern void z80ex_w_states(Z80EX_CONTEXT *cpu, unsigned w_states);
 
 /*spend one T-state doing nothing (often IO devices don't handle data request on

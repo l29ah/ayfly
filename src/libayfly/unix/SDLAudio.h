@@ -17,9 +17,11 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
- 
+
 #ifndef SDLSOUND_H_
 #define SDLSOUND_H_
+
+#include "SDL.h"
 
 class AbstractAudio;
 

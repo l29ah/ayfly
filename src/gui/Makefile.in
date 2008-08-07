@@ -63,13 +63,13 @@ host_alias = @host_alias@
 host_triplet = @host@
 target_alias = @target_alias@
 target_triplet = @target@
-AYFLY_CXXFLAGS = @AYFLY_CXXFLAGS@
-AYFLY_LIBS = @AYFLY_LIBS@
 CC = @CC@
 CXX = @CXX@
 DX_CFLAGS = @DX_CFLAGS@
 DX_LIBS = @DX_LIBS@
 EXEEXT = @EXEEXT@
+GUI_CXXFLAGS = @GUI_CXXFLAGS@
+GUI_LIBS = @GUI_LIBS@
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
@@ -78,28 +78,30 @@ SDL_CONFIG = @SDL_CONFIG@
 SDL_LIBS = @SDL_LIBS@
 VERSION = @VERSION@
 
-INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)/src/z80ex -I$(top_srcdir)/src/z80ex/include $(AYFLY_CXXFLAGS) $(all_includes) $(EXTRAINCLUDES)
+INCLUDES = -I$(top_srcdir)/gui -I$(top_srcdir)/src/libayfly $(GUI_CXXFLAGS) $(all_includes) $(EXTRAINCLUDES)
+
+bin_PROGRAMS = ayfly
+ayfly_SOURCES = AyflyApp.cpp AyflyFrame.cpp DnDFiles.cpp AyflyBindingsDlg.cpp
 
 @IS_UNIX_TRUE@EXTRAINCLUDES =  $(SDL_CFLAGS)
 @IS_WINDOWS_TRUE@EXTRAINCLUDES = $(DX_CFLAGS)
 
-noinst_LIBRARIES = libgui.a
-libgui_a_SOURCES = AyflyApp.cpp AyflyFrame.cpp DnDFiles.cpp AyflyBindingsDlg.cpp
+ayfly_LDADD = $(top_srcdir)/libayfly/libayfly.a $(GUI_LIBS)
 
 datarootdir = @datarootdir@
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
-LIBRARIES =  $(noinst_LIBRARIES)
+bin_PROGRAMS =  ayfly$(EXEEXT)
+PROGRAMS =  $(bin_PROGRAMS)
 
 
 DEFS = @DEFS@ -I. -I$(srcdir) 
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-libgui_a_LIBADD = 
-libgui_a_OBJECTS =  AyflyApp.o AyflyFrame.o DnDFiles.o \
-AyflyBindingsDlg.o
-AR = ar
+ayfly_OBJECTS =  AyflyApp.o AyflyFrame.o DnDFiles.o AyflyBindingsDlg.o
+ayfly_DEPENDENCIES =  $(top_srcdir)/libayfly/libayfly.a
+ayfly_LDFLAGS = 
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
@@ -113,8 +115,8 @@ TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/AyflyApp.P .deps/AyflyBindingsDlg.P \
 .deps/AyflyFrame.P .deps/DnDFiles.P
-SOURCES = $(libgui_a_SOURCES)
-OBJECTS = $(libgui_a_OBJECTS)
+SOURCES = $(ayfly_SOURCES)
+OBJECTS = $(ayfly_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -127,14 +129,30 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 
-mostlyclean-noinstLIBRARIES:
+mostlyclean-binPROGRAMS:
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
-distclean-noinstLIBRARIES:
+distclean-binPROGRAMS:
 
-maintainer-clean-noinstLIBRARIES:
+maintainer-clean-binPROGRAMS:
+
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo "  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
+	     $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
+	done
 
 .s.o:
 	$(COMPILE) -c $<
@@ -152,10 +170,9 @@ distclean-compile:
 
 maintainer-clean-compile:
 
-libgui.a: $(libgui_a_OBJECTS) $(libgui_a_DEPENDENCIES)
-	-rm -f libgui.a
-	$(AR) cru libgui.a $(libgui_a_OBJECTS) $(libgui_a_LIBADD)
-	$(RANLIB) libgui.a
+ayfly$(EXEEXT): $(ayfly_OBJECTS) $(ayfly_DEPENDENCIES)
+	@rm -f ayfly$(EXEEXT)
+	$(CXXLINK) $(ayfly_LDFLAGS) $(ayfly_OBJECTS) $(ayfly_LDADD) $(LIBS)
 .cpp.o:
 	$(CXXCOMPILE) -c $<
 
@@ -267,7 +284,7 @@ check-am: all-am
 check: check-am
 installcheck-am:
 installcheck: installcheck-am
-install-exec-am:
+install-exec-am: install-binPROGRAMS
 install-exec: install-exec-am
 
 install-data-am:
@@ -276,13 +293,14 @@ install-data: install-data-am
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-am
-uninstall-am:
+uninstall-am: uninstall-binPROGRAMS
 uninstall: uninstall-am
-all-am: Makefile $(LIBRARIES)
+all-am: Makefile $(PROGRAMS)
 all-redirect: all-am
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs:
+	$(mkinstalldirs)  $(DESTDIR)$(bindir)
 
 
 mostlyclean-generic:
@@ -294,23 +312,22 @@ distclean-generic:
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
-mostlyclean-am:  mostlyclean-noinstLIBRARIES mostlyclean-compile \
+mostlyclean-am:  mostlyclean-binPROGRAMS mostlyclean-compile \
 		mostlyclean-tags mostlyclean-depend mostlyclean-generic
 
 mostlyclean: mostlyclean-am
 
-clean-am:  clean-noinstLIBRARIES clean-compile clean-tags clean-depend \
+clean-am:  clean-binPROGRAMS clean-compile clean-tags clean-depend \
 		clean-generic mostlyclean-am
 
 clean: clean-am
 
-distclean-am:  distclean-noinstLIBRARIES distclean-compile \
-		distclean-tags distclean-depend distclean-generic \
-		clean-am
+distclean-am:  distclean-binPROGRAMS distclean-compile distclean-tags \
+		distclean-depend distclean-generic clean-am
 
 distclean: distclean-am
 
-maintainer-clean-am:  maintainer-clean-noinstLIBRARIES \
+maintainer-clean-am:  maintainer-clean-binPROGRAMS \
 		maintainer-clean-compile maintainer-clean-tags \
 		maintainer-clean-depend maintainer-clean-generic \
 		distclean-am
@@ -319,8 +336,8 @@ maintainer-clean-am:  maintainer-clean-noinstLIBRARIES \
 
 maintainer-clean: maintainer-clean-am
 
-.PHONY: mostlyclean-noinstLIBRARIES distclean-noinstLIBRARIES \
-clean-noinstLIBRARIES maintainer-clean-noinstLIBRARIES \
+.PHONY: mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
+maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
 mostlyclean-compile distclean-compile clean-compile \
 maintainer-clean-compile tags mostlyclean-tags distclean-tags \
 clean-tags maintainer-clean-tags distdir mostlyclean-depend \
