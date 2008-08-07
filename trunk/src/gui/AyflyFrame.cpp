@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "common.h"
+#include "gui.h"
 
 #include "images/open.xpm"
 #include "images/play.xpm"

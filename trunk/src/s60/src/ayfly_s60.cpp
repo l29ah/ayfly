@@ -19,8 +19,7 @@
  ***************************************************************************/
 
 // INCLUDE FILES
-#include "common.h"
-CConsoleBase *gConsole = 0;
+#include "s60.h"
 
 LOCAL_C CApaApplication* NewApplication()
 {

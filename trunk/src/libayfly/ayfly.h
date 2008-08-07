@@ -73,7 +73,9 @@ extern "C"
 #    define Z80_TO_INTR (Z80_FREQ / INTR_FREQ)
 #    define Z80_TO_AUDIO (Z80_FREQ/AUDIO_FREQ)
 #    define AY_CLOCK 1773400
+#ifndef sizeof_array
 #    define sizeof_array(x) sizeof(x) / sizeof(x [0])
+#endif
 
 typedef void (*ELAPSED_CALLBACK)(void *arg);
 typedef void (*PLAYER_INIT_PROC)(unsigned char *module);

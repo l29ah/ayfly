@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "common.h"
+#include "s60.h"
 
 CAsyncTask::CAsyncTask()
         : CActive(EPriorityStandard) // Standard priority unless good reason

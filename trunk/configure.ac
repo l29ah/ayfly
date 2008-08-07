@@ -26,23 +26,23 @@ case "$host_os" in
 		;;
 *) unix=yes
 		AM_PATH_SDL
+		if test "x$SDL_LIBS" = x0; then
+			AC_ERROR([SDL libraries cannot be found...!])
+		fi
 		;;
 esac
 
-if test "x$SDL_LIBS" = x0; then
-	AC_ERROR([SDL libraries cannot be found...!])
-fi
 
 AM_CONDITIONAL(IS_WINDOWS, test x$windows = xyes)
 AM_CONDITIONAL(IS_UNIX, test x$unix = xyes)
 
-AC_SUBST(AYFLY_CXXFLAGS, `wx-config --cxxflags`)
-AC_SUBST(AYFLY_LIBS, `wx-config --libs`)
+AC_SUBST(GUI_CXXFLAGS, `wx-config --cxxflags`)
+AC_SUBST(GUI_LIBS, `wx-config --libs`)
 
-if test "x$AYFLY_LIBS" = x0; then
+if test "x$GUI_LIBS" = x0; then
 	AC_ERROR([wxWidgets libraries cannot be found...!])
 fi
 
-AC_CONFIG_FILES([Makefile src/Makefile src/gui/Makefile src/z80ex/Makefile src/unix/Makefile src/windows/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/gui/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile])
 AC_OUTPUT
 

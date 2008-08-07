@@ -18,13 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "common.h"
+#include "gui.h"
 
 bool AyflyApp::OnInit()
 {
     wxString title = wxT(WINDOW_TEXT);
     AyflyFrame *frame = new AyflyFrame(title.c_str());
-    
+
 #ifndef _WIN32_WCE
     wxSize sz = frame->GetSize();
     sz.x = 550;

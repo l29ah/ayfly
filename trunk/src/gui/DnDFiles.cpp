@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "common.h"
+#include "gui.h"
 
 DnDFiles::DnDFiles(AyflyFrame *owner)
 {
@@ -31,7 +31,7 @@ bool DnDFiles::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames)
     wxString str;
     str.Printf(wxT("%d files dropped"), (int)nFiles);
     for(size_t n = 0; n < nFiles; n++)
-    {        
+    {
         m_owner->AddFile(filenames[n]);
     }
     return true;
