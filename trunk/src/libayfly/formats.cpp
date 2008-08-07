@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "common.h"
+#include "ayfly.h"
 #ifdef __SYMBIAN32__
 #pragma pack(1)
 #endif
@@ -132,7 +132,6 @@ unsigned char *osRead(const TXT_TYPE &filePath, unsigned long *data_len)
             if (f.Read(fileData, (size_t) nSize) == nSize)
             {
                 *data_len = nSize;
-
             }
         }
         f.Close();

@@ -18,9 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "common.h"
+#include "ayfly.h"
 
-double ay::init_levels[] =
+float ay::init_levels[] =
 { 0x0000, 0x0385, 0x053D, 0x0770, 0x0AD7, 0x0FD5, 0x15B0, 0x230C, 0x2B4C, 0x43C1, 0x5A4B, 0x732F, 0x9204, 0xAFF1, 0xD921, 0xFFFF };
 
 #define TONE_ENABLE(ch) ((regs [AY_MIXER] >> (ch)) & 1)
@@ -46,9 +46,9 @@ ay::ay(long _sr, long _ay_freq, int _buf_sz)
     if(tail_len < 4)
         tail_len = 4;
 
-    buffer_tail[0] = new double[tail_len];
-    buffer_tail[1] = new double[tail_len];
-    buffer_tail[2] = new double[tail_len];
+    buffer_tail[0] = new float[tail_len];
+    buffer_tail[1] = new float[tail_len];
+    buffer_tail[2] = new float[tail_len];
 
     switch(sr)
     {
@@ -114,9 +114,9 @@ void ay::SetBufferSize(int _buf_sz)
         buffer[2] = 0;
     }
 
-    buffer[0] = new double[q_len];
-    buffer[1] = new double[q_len];
-    buffer[2] = new double[q_len];
+    buffer[0] = new float[q_len];
+    buffer[1] = new float[q_len];
+    buffer[2] = new float[q_len];
 }
 
 void ay::ayReset()
@@ -264,7 +264,7 @@ void ay::updateEnvelope()
 void ay::ayProcess(unsigned char *stream, int len)
 {
     unsigned long work_len = (len >> 2);
-    double s0, s1, s2;
+    float s0, s1, s2;
     for(unsigned long i = 0; i < work_len; i++)
     {
         if(++int_counter > int_limit)
@@ -315,9 +315,9 @@ void ay::ayProcess(unsigned char *stream, int len)
                 s2 += (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2)]) * volume[2];
         }
 
-        buffer[0][i] = s0 / (double)ay_tacts;
-        buffer[1][i] = (s1 / (double)ay_tacts) / 1.42;
-        buffer[2][i] = s2 / (double)ay_tacts;
+        buffer[0][i] = s0 / (float)ay_tacts;
+        buffer[1][i] = (s1 / (float)ay_tacts) / 1.42;
+        buffer[2][i] = s2 / (float)ay_tacts;
 
     }
 
@@ -325,7 +325,7 @@ void ay::ayProcess(unsigned char *stream, int len)
     unsigned long j = 0;
     unsigned long k = 0;
     unsigned long k_tail = 0;
-    double tail0, tail1;
+    float tail0, tail1;
 
     work_len = len >> 1;
     unsigned long work_tail_len = tail_len;
@@ -333,14 +333,6 @@ void ay::ayProcess(unsigned char *stream, int len)
     {
         tail0 = k < tail_len ? buffer_tail[0][k] : buffer[0][k_tail - work_tail_len];
         tail1 = k < tail_len ? buffer_tail[2][k] : buffer[2][k_tail - work_tail_len];
-
-#ifndef __SYMBIAN32__
-        /*double s = buffer[0][j] + buffer[1][j] + buffer[2][j];
-         flt_bass->Process(s);
-
-         buffer[1][j] += s / 2;*/
-
-#endif
 
         stream16[i] = (buffer[0][j] + buffer[1][j] + tail1 / 4);
         stream16[i + 1] = (buffer[2][j] + buffer[1][j] + tail0 / 4);

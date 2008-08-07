@@ -61,12 +61,12 @@ public:
         return chnl_mute[chnl];
     }
     ;
-    inline double GetVolume(unsigned long chnl)
+    inline float GetVolume(unsigned long chnl)
     {
         return volume[chnl];
     }
     ;
-    inline void SetVolume(unsigned long chnl, double new_volume)
+    inline void SetVolume(unsigned long chnl, float new_volume)
     {
         volume[chnl] = new_volume;
     }
@@ -75,8 +75,8 @@ public:
     virtual void SetCallback(ELAPSED_CALLBACK _callback, void *_arg);
     void SetBufferSize(int _buf_sz);
 private:
-    static double init_levels[16];
-    double levels[16];
+    static float init_levels[16];
+    float levels[16];
     long ay_freq;
     float ay_tone_freq;
     float ay_env_freq;
@@ -98,8 +98,8 @@ private:
     unsigned long env_tick;
     unsigned long env_vol;
     long env_trigger;
-    double *buffer[3];
-    double *buffer_tail[3];
+    float *buffer[3];
+    float *buffer_tail[3];
     unsigned long tail_len;
     bool chnl_mute[3];
     unsigned long q_len;
@@ -110,7 +110,7 @@ private:
     unsigned long ay_tacts;
     void setEnvelope();
     void updateEnvelope();
-    double volume[3];
+    float volume[3];
     ELAPSED_CALLBACK elapsedCallback;
     void *elapsedCallbackArg;
     unsigned long int_counter;

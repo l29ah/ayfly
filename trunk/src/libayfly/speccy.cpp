@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "common.h"
+#include "ayfly.h"
 
 Z80EX_CONTEXT *ctx = 0;
 unsigned char *z80Memory = 0;
