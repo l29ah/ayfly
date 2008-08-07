@@ -115,7 +115,11 @@ static ayData aydata;
 
 void initMemoryAY(unsigned char track);
 
-unsigned char *osRead(const TXT_TYPE &filePath, unsigned long *data_len)
+#ifndef __SYMBIAN32__
+unsigned char *osRead(const char *filePath, unsigned long *data_len)
+#else
+unsigned char *osRead(const TFileName &filePath, unsigned long *data_len)
+#endif
 {
     unsigned char *fileData = new unsigned char[*data_len];
     if (!fileData)
