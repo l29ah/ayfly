@@ -60,11 +60,9 @@ extern "C"
 
 #    ifndef __SYMBIAN32__
 #        define AUDIO_FREQ 44100
-#        define TXT(x) wxT(x)
-#        define TXT_TYPE wxString
+#        define TXT(x) x
 #    else
 #        define TXT(x) _L(x)
-#        define TXT_TYPE TFileName
 #        pragma pack(1)
 #        define AUDIO_FREQ 32000
 #    endif
@@ -83,9 +81,15 @@ typedef void (*PLAYER_PLAY_PROC)(unsigned char *module, ELAPSED_CALLBACK callbac
 
 struct SongInfo
 {
-    TXT_TYPE Author; /* Song author */
-    TXT_TYPE Name; /* Song name */
-    TXT_TYPE FilePath;
+#ifndef __SYMBIAN32__
+    char Author [64]; /* Song author */
+    char Name [64]; /* Song name */
+    const char FilePath;
+#else
+    TFileName Author;
+    TFileName Name;
+    TFileName FilePath;
+#endif
     unsigned long Length; /* Song length in seconds */
     unsigned long Loop; /* Loop start position */
     bool bEmul; /* player is in z80 asm? */
