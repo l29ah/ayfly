@@ -1,5 +1,8 @@
 INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)/src/z80ex -I$(top_srcdir)/src/z80ex/include $(AYFLY_CXXFLAGS) $(all_includes)
 
+bin_PROGRAMS = ayfly
+ayfly_SOURCES = AyflyApp.cpp AyflyFrame.cpp DnDFiles.cpp AyflyBindingsDlg.cpp
+
 if IS_UNIX
 EXTRAINCLUDES += $(SDL_CFLAGS)
 endif
@@ -10,7 +13,7 @@ endif
 
 INCLUDES += $(EXTRAINCLUDES)
 
-noinst_LIBRARIES = libgui.a
-libgui_a_SOURCES = AyflyApp.cpp AyflyFrame.cpp DnDFiles.cpp AyflyBindingsDlg.cpp
+ayfly_LDADD = libayfly.a
+AM_CXXFLAGS = $(AYFLY_CXXFLAGS)
 
 datarootdir = @datarootdir@
