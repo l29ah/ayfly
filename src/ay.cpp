@@ -71,7 +71,7 @@ ay::ay(long _sr, long _ay_freq, int _buf_sz)
 
     for(unsigned long i = 0; i < sizeof_array(ay::levels); i++)
     {
-        ay::levels[i] = (ay::init_levels[i] * 28 * 256 + 0x8000) / 0xffff;
+        ay::levels[i] = ay::init_levels[i] / ay_tacts;
     }
 
     elapsedCallback = 0;
