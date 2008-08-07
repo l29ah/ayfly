@@ -19,7 +19,7 @@
  ***************************************************************************/
 
 // INCLUDE FILES
-#include "common.h"
+#include "s60.h"
 
 
 Cayfly_s60Application::Cayfly_s60Application()

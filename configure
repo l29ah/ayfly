@@ -656,8 +656,8 @@ IS_WINDOWS_TRUE
 IS_WINDOWS_FALSE
 IS_UNIX_TRUE
 IS_UNIX_FALSE
-AYFLY_CXXFLAGS
-AYFLY_LIBS
+GUI_CXXFLAGS
+GUI_LIBS
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -3864,14 +3864,14 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
 
   rm -f conf.sdltest
 
+		if test "x$SDL_LIBS" = x0; then
+			{ { echo "$as_me:$LINENO: error: SDL libraries cannot be found...!" >&5
+echo "$as_me: error: SDL libraries cannot be found...!" >&2;}
+   { (exit 1); exit 1; }; }
+		fi
 		;;
 esac
 
-if test "x$SDL_LIBS" = x0; then
-	{ { echo "$as_me:$LINENO: error: SDL libraries cannot be found...!" >&5
-echo "$as_me: error: SDL libraries cannot be found...!" >&2;}
-   { (exit 1); exit 1; }; }
-fi
 
 
 
@@ -3892,18 +3892,18 @@ else
   IS_UNIX_FALSE=
 fi
 
-AYFLY_CXXFLAGS=`wx-config --cxxflags`
+GUI_CXXFLAGS=`wx-config --cxxflags`
 
-AYFLY_LIBS=`wx-config --libs`
+GUI_LIBS=`wx-config --libs`
 
 
-if test "x$AYFLY_LIBS" = x0; then
+if test "x$GUI_LIBS" = x0; then
 	{ { echo "$as_me:$LINENO: error: wxWidgets libraries cannot be found...!" >&5
 echo "$as_me: error: wxWidgets libraries cannot be found...!" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/gui/Makefile src/z80ex/Makefile src/unix/Makefile src/windows/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/gui/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4476,9 +4476,10 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "src/gui/Makefile") CONFIG_FILES="$CONFIG_FILES src/gui/Makefile" ;;
-    "src/z80ex/Makefile") CONFIG_FILES="$CONFIG_FILES src/z80ex/Makefile" ;;
-    "src/unix/Makefile") CONFIG_FILES="$CONFIG_FILES src/unix/Makefile" ;;
-    "src/windows/Makefile") CONFIG_FILES="$CONFIG_FILES src/windows/Makefile" ;;
+    "src/libayfly/Makefile") CONFIG_FILES="$CONFIG_FILES src/libayfly/Makefile" ;;
+    "src/libayfly/z80ex/Makefile") CONFIG_FILES="$CONFIG_FILES src/libayfly/z80ex/Makefile" ;;
+    "src/libayfly/unix/Makefile") CONFIG_FILES="$CONFIG_FILES src/libayfly/unix/Makefile" ;;
+    "src/libayfly/windows/Makefile") CONFIG_FILES="$CONFIG_FILES src/libayfly/windows/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -4619,8 +4620,8 @@ IS_WINDOWS_TRUE!$IS_WINDOWS_TRUE$ac_delim
 IS_WINDOWS_FALSE!$IS_WINDOWS_FALSE$ac_delim
 IS_UNIX_TRUE!$IS_UNIX_TRUE$ac_delim
 IS_UNIX_FALSE!$IS_UNIX_FALSE$ac_delim
-AYFLY_CXXFLAGS!$AYFLY_CXXFLAGS$ac_delim
-AYFLY_LIBS!$AYFLY_LIBS$ac_delim
+GUI_CXXFLAGS!$GUI_CXXFLAGS$ac_delim
+GUI_LIBS!$GUI_LIBS$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
