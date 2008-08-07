@@ -63,13 +63,13 @@ host_alias = @host_alias@
 host_triplet = @host@
 target_alias = @target_alias@
 target_triplet = @target@
-AYFLY_CXXFLAGS = @AYFLY_CXXFLAGS@
-AYFLY_LIBS = @AYFLY_LIBS@
 CC = @CC@
 CXX = @CXX@
 DX_CFLAGS = @DX_CFLAGS@
 DX_LIBS = @DX_LIBS@
 EXEEXT = @EXEEXT@
+GUI_CXXFLAGS = @GUI_CXXFLAGS@
+GUI_LIBS = @GUI_LIBS@
 MAKEINFO = @MAKEINFO@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
@@ -78,40 +78,11 @@ SDL_CONFIG = @SDL_CONFIG@
 SDL_LIBS = @SDL_LIBS@
 VERSION = @VERSION@
 
-INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)/src/z80ex -I$(top_srcdir)/src/z80ex/include $(SDL_CFLAGS) $(DX_CFLAGS) $(all_includes)
-
-SUBDIRS = gui z80ex $(EXTRASUBDIRS)
-bin_PROGRAMS = ayfly
-ayfly_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp
-@IS_WINDOWS_TRUE@EXTRASUBDIRS =  windows
-@IS_WINDOWS_FALSE@EXTRASUBDIRS = unix
-
-ayfly_LDADD = z80ex/libz80ex.a gui/libgui.a $(EXTRALIBS) $(AYFLY_LIBS)
-AM_CXXFLAGS = $(AYFLY_CXXFLAGS)
-@IS_WINDOWS_TRUE@EXTRALIBS =  windows/libwindows.a $(DX_LIBS)
-@IS_WINDOWS_FALSE@EXTRALIBS = unix/libunix.a $(SDL_LIBS)
+SUBDIRS = libayfly gui
 
 datarootdir = @datarootdir@
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_CLEAN_FILES = 
-bin_PROGRAMS =  ayfly$(EXEEXT)
-PROGRAMS =  $(bin_PROGRAMS)
-
-
-DEFS = @DEFS@ -I. -I$(srcdir) 
-CPPFLAGS = @CPPFLAGS@
-LDFLAGS = @LDFLAGS@
-LIBS = @LIBS@
-ayfly_OBJECTS =  AbstractAudio.o ay.o formats.o speccy.o
-@IS_WINDOWS_FALSE@ayfly_DEPENDENCIES =  z80ex/libz80ex.a gui/libgui.a \
-@IS_WINDOWS_FALSE@unix/libunix.a
-@IS_WINDOWS_TRUE@ayfly_DEPENDENCIES =  z80ex/libz80ex.a gui/libgui.a \
-@IS_WINDOWS_TRUE@windows/libwindows.a
-ayfly_LDFLAGS = 
-CXXFLAGS = @CXXFLAGS@
-CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-CXXLD = $(CXX)
-CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
 DIST_COMMON =  Makefile.am Makefile.in
 
 
@@ -119,15 +90,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DIST_SUBDIRS =  gui z80ex windows unix
-DEP_FILES =  .deps/AbstractAudio.P .deps/ay.P .deps/formats.P \
-.deps/speccy.P
-SOURCES = $(ayfly_SOURCES)
-OBJECTS = $(ayfly_OBJECTS)
-
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .c .cpp .o .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.ac $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile
 
@@ -135,53 +99,6 @@ Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
 	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
-
-mostlyclean-binPROGRAMS:
-
-clean-binPROGRAMS:
-	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
-
-distclean-binPROGRAMS:
-
-maintainer-clean-binPROGRAMS:
-
-install-binPROGRAMS: $(bin_PROGRAMS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(bindir)
-	@list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo "  $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`"; \
-	     $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
-	  else :; fi; \
-	done
-
-uninstall-binPROGRAMS:
-	@$(NORMAL_UNINSTALL)
-	list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  rm -f $(DESTDIR)$(bindir)/`echo $$p|sed 's/$(EXEEXT)$$//'|sed '$(transform)'|sed 's/$$/$(EXEEXT)/'`; \
-	done
-
-.s.o:
-	$(COMPILE) -c $<
-
-.S.o:
-	$(COMPILE) -c $<
-
-mostlyclean-compile:
-	-rm -f *.o core *.core
-
-clean-compile:
-
-distclean-compile:
-	-rm -f *.tab.c
-
-maintainer-clean-compile:
-
-ayfly$(EXEEXT): $(ayfly_OBJECTS) $(ayfly_DEPENDENCIES)
-	@rm -f ayfly$(EXEEXT)
-	$(CXXLINK) $(ayfly_LDFLAGS) $(ayfly_OBJECTS) $(ayfly_LDADD) $(LIBS)
-.cpp.o:
-	$(CXXCOMPILE) -c $<
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -292,7 +209,7 @@ distdir: $(DISTFILES)
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
-	for subdir in $(DIST_SUBDIRS); do \
+	for subdir in $(SUBDIRS); do \
 	  if test "$$subdir" = .; then :; else \
 	    test -d $(distdir)/$$subdir \
 	    || mkdir $(distdir)/$$subdir \
@@ -302,57 +219,6 @@ distdir: $(DISTFILES)
 	      || exit 1; \
 	  fi; \
 	done
-
-DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
-
--include $(DEP_FILES)
-
-mostlyclean-depend:
-
-clean-depend:
-
-distclean-depend:
-	-rm -rf .deps
-
-maintainer-clean-depend:
-
-%.o: %.c
-	@echo '$(COMPILE) -c $<'; \
-	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
-	@-cp .deps/$(*F).pp .deps/$(*F).P; \
-	tr ' ' '\012' < .deps/$(*F).pp \
-	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
-	    >> .deps/$(*F).P; \
-	rm .deps/$(*F).pp
-
-%.lo: %.c
-	@echo '$(LTCOMPILE) -c $<'; \
-	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
-	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
-	  < .deps/$(*F).pp > .deps/$(*F).P; \
-	tr ' ' '\012' < .deps/$(*F).pp \
-	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
-	    >> .deps/$(*F).P; \
-	rm -f .deps/$(*F).pp
-
-%.o: %.cpp
-	@echo '$(CXXCOMPILE) -c $<'; \
-	$(CXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
-	@-cp .deps/$(*F).pp .deps/$(*F).P; \
-	tr ' ' '\012' < .deps/$(*F).pp \
-	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
-	    >> .deps/$(*F).P; \
-	rm .deps/$(*F).pp
-
-%.lo: %.cpp
-	@echo '$(LTCXXCOMPILE) -c $<'; \
-	$(LTCXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
-	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
-	  < .deps/$(*F).pp > .deps/$(*F).P; \
-	tr ' ' '\012' < .deps/$(*F).pp \
-	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
-	    >> .deps/$(*F).P; \
-	rm -f .deps/$(*F).pp
 info-am:
 info: info-recursive
 dvi-am:
@@ -361,7 +227,7 @@ check-am: all-am
 check: check-recursive
 installcheck-am:
 installcheck: installcheck-recursive
-install-exec-am: install-binPROGRAMS
+install-exec-am:
 install-exec: install-exec-recursive
 
 install-data-am:
@@ -370,15 +236,14 @@ install-data: install-data-recursive
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
 install: install-recursive
-uninstall-am: uninstall-binPROGRAMS
+uninstall-am:
 uninstall: uninstall-recursive
-all-am: Makefile $(PROGRAMS)
+all-am: Makefile
 all-redirect: all-recursive
 install-strip:
 	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
 installdirs: installdirs-recursive
 installdirs-am:
-	$(mkinstalldirs)  $(DESTDIR)$(bindir)
 
 
 mostlyclean-generic:
@@ -390,47 +255,37 @@ distclean-generic:
 	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
 
 maintainer-clean-generic:
-mostlyclean-am:  mostlyclean-binPROGRAMS mostlyclean-compile \
-		mostlyclean-tags mostlyclean-depend mostlyclean-generic
+mostlyclean-am:  mostlyclean-tags mostlyclean-generic
 
 mostlyclean: mostlyclean-recursive
 
-clean-am:  clean-binPROGRAMS clean-compile clean-tags clean-depend \
-		clean-generic mostlyclean-am
+clean-am:  clean-tags clean-generic mostlyclean-am
 
 clean: clean-recursive
 
-distclean-am:  distclean-binPROGRAMS distclean-compile distclean-tags \
-		distclean-depend distclean-generic clean-am
+distclean-am:  distclean-tags distclean-generic clean-am
 
 distclean: distclean-recursive
 
-maintainer-clean-am:  maintainer-clean-binPROGRAMS \
-		maintainer-clean-compile maintainer-clean-tags \
-		maintainer-clean-depend maintainer-clean-generic \
+maintainer-clean-am:  maintainer-clean-tags maintainer-clean-generic \
 		distclean-am
 	@echo "This command is intended for maintainers to use;"
 	@echo "it deletes files that may require special tools to rebuild."
 
 maintainer-clean: maintainer-clean-recursive
 
-.PHONY: mostlyclean-binPROGRAMS distclean-binPROGRAMS clean-binPROGRAMS \
-maintainer-clean-binPROGRAMS uninstall-binPROGRAMS install-binPROGRAMS \
-mostlyclean-compile distclean-compile clean-compile \
-maintainer-clean-compile install-data-recursive \
-uninstall-data-recursive install-exec-recursive \
-uninstall-exec-recursive installdirs-recursive uninstalldirs-recursive \
-all-recursive check-recursive installcheck-recursive info-recursive \
-dvi-recursive mostlyclean-recursive distclean-recursive clean-recursive \
+.PHONY: install-data-recursive uninstall-data-recursive \
+install-exec-recursive uninstall-exec-recursive installdirs-recursive \
+uninstalldirs-recursive all-recursive check-recursive \
+installcheck-recursive info-recursive dvi-recursive \
+mostlyclean-recursive distclean-recursive clean-recursive \
 maintainer-clean-recursive tags tags-recursive mostlyclean-tags \
-distclean-tags clean-tags maintainer-clean-tags distdir \
-mostlyclean-depend distclean-depend clean-depend \
-maintainer-clean-depend info-am info dvi-am dvi check check-am \
-installcheck-am installcheck install-exec-am install-exec \
-install-data-am install-data install-am install uninstall-am uninstall \
-all-redirect all-am all installdirs-am installdirs mostlyclean-generic \
-distclean-generic clean-generic maintainer-clean-generic clean \
-mostlyclean distclean maintainer-clean
+distclean-tags clean-tags maintainer-clean-tags distdir info-am info \
+dvi-am dvi check check-am installcheck-am installcheck install-exec-am \
+install-exec install-data-am install-data install-am install \
+uninstall-am uninstall all-redirect all-am all installdirs-am \
+installdirs mostlyclean-generic distclean-generic clean-generic \
+maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

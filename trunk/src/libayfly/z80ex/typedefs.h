@@ -14,7 +14,7 @@ struct _z80_cpu_context;
 typedef struct _z80_cpu_context Z80EX_CONTEXT;
 
 #define __Z80EX_SELF_INCLUDE
-#include "z80ex.h"
+#include "z80ex/include/z80ex.h"
 
 /* Union allowing a register pair to be accessed as bytes or as a word */
 typedef union {
@@ -34,7 +34,7 @@ struct _z80_cpu_context {
 	regpair af_,bc_,de_,hl_;
 	regpair ix,iy;
 	Z80EX_BYTE i;
-	Z80EX_WORD r;	
+	Z80EX_WORD r;
 	Z80EX_BYTE r7; /* The high bit of the R register */
 	regpair sp,pc;
 	Z80EX_BYTE iff1, iff2; /*interrupt flip-flops*/
@@ -44,12 +44,12 @@ struct _z80_cpu_context {
 
 	unsigned long tstate; /*t-state clock of current/last step*/
 	unsigned char op_tstate; /*clean (without WAITs and such) t-state of currently executing instruction*/
-	
+
 	int noint_once; /*disable int before next opcode -- for EI*/
 	int doing_opcode; /*flag that indicates that there's an opcode currently executed*/
 	char int_vector_req; /*flag indicates that opcode must be fetched from IO device (int vector read)*/
 	Z80EX_BYTE prefix;
-	
+
 	/*callbacks*/
 	z80ex_tstate_cb tstate_cb;
 	void *tstate_cb_user_data;
@@ -63,7 +63,7 @@ struct _z80_cpu_context {
 	void *mwrite_cb_user_data;
 	z80ex_intread_cb intread_cb;
 	void *intread_cb_user_data;
-	
+
 	/*other stuff*/
 	regpair tmpword;
 	regpair tmpaddr;

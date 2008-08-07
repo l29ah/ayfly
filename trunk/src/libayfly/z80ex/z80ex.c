@@ -12,9 +12,9 @@
 
 #define __Z80EX_SELF_INCLUDE
 
-#include "typedefs.h"
-#include "z80ex.h"
-#include "macros.h"
+#include "z80ex/typedefs.h"
+#include "z80ex/include/z80ex.h"
+#include "z80ex/macros.h"
 
 #define temp_byte cpu->tmpbyte
 #define temp_byte_s cpu->tmpbyte_s
@@ -44,14 +44,14 @@ static Z80EX_BYTE sz53_table[0x100]; /* The S, Z, 5 and 3 bits of the index */
 static Z80EX_BYTE parity_table[0x100]; /* The parity of the lookup value */
 static Z80EX_BYTE sz53p_table[0x100]; /* OR the above two tables together */
 
-#include "daa_table.c"
-#include "opcodes/opcodes_base.c"
-#include "opcodes/opcodes_dd.c"
-#include "opcodes/opcodes_fd.c"
-#include "opcodes/opcodes_cb.c"
-#include "opcodes/opcodes_ed.c"
-#include "opcodes/opcodes_ddcb.c"
-#include "opcodes/opcodes_fdcb.c"
+#include "z80ex/daa_table.c"
+#include "z80ex/opcodes/opcodes_base.c"
+#include "z80ex/opcodes/opcodes_dd.c"
+#include "z80ex/opcodes/opcodes_fd.c"
+#include "z80ex/opcodes/opcodes_cb.c"
+#include "z80ex/opcodes/opcodes_ed.c"
+#include "z80ex/opcodes/opcodes_ddcb.c"
+#include "z80ex/opcodes/opcodes_fdcb.c"
 
 /* Initalise the tables used to set flags */
 static void init_tables(void)
