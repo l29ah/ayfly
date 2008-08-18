@@ -116,7 +116,7 @@ struct ayData
 
 static ayData aydata;
 
-void ay_fmtay(unsigned char track);
+void initMemoryAY(unsigned char track);
 
 #ifndef __SYMBIAN32__
 unsigned char *osRead(AY_TXT_TYPE filePath, unsigned long *data_len)
@@ -228,7 +228,7 @@ bool parseData(SongInfo &info, unsigned char *fileData, unsigned long fileLength
                 }
                 aydata.filelen = fileLength;
                 aydata.filedata = fileData;
-                ay_fmtay(0);
+                initMemoryAY(0);
                 free(aydata.tracks);
                 aydata.tracks = 0;
                 return true;
@@ -366,7 +366,7 @@ bool ay_readfromfile(SongInfo &info)
     return bRet;
 }
 
-void ay_fmtay(unsigned char track)
+void initMemoryAY(unsigned char track)
 {
 
     unsigned long init, ay_1st_block, ourinit, interrupt;
