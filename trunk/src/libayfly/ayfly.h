@@ -40,15 +40,25 @@
 #			define _WINDOWS
 #		endif
 #        define WIN32_LEAN_AND_MEAN
-#        include "windows.h"
-#        include "commdlg.h"
-#        include "tchar.h"
+#        include <windows.h>
+#        include <commdlg.h>
+#        include <tchar.h>
 #    endif
 
-#    include "stdio.h"
-#    include "stdlib.h"
-#    include "math.h"
-#    include "string.h"
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <math.h>
+
+
+#    ifndef __SYMBIAN32__
+#    include <algorithm>
+#    include <cctype>
+#    include <wchar.h>
+#    include <string>
+#    include <fstream>
+#    include <iostream>
+#    endif
+
 
 extern "C"
 {
@@ -57,10 +67,10 @@ extern "C"
 #    ifdef _MSC_VER
 #        pragma warning(disable:4309)
 #    endif
-
 #    ifndef __SYMBIAN32__
 #        define AUDIO_FREQ 44100
-#        define TXT(x) x
+#        define TXT(x) L##x
+#        define AY_TXT_TYPE std::wstring
 #    else
 #        define TXT(x) _L(x)
 #        pragma pack(1)
@@ -82,9 +92,9 @@ typedef void (*PLAYER_PLAY_PROC)(unsigned char *module, ELAPSED_CALLBACK callbac
 struct SongInfo
 {
 #ifndef __SYMBIAN32__
-    char Author [64]; /* Song author */
-    char Name [64]; /* Song name */
-    const char FilePath;
+    AY_TXT_TYPE Author; /* Song author */
+    AY_TXT_TYPE Name; /* Song name */
+    AY_TXT_TYPE FilePath;
 #else
     TFileName Author;
     TFileName Name;
@@ -95,6 +105,7 @@ struct SongInfo
     bool bEmul; /* player is in z80 asm? */
     PLAYER_INIT_PROC soft_init_proc; /* init for soft player */
     PLAYER_PLAY_PROC soft_play_proc; /* play for soft player */
+
 };
 
 #include "ay.h"
@@ -108,23 +119,23 @@ struct SongInfo
 
 
 //loader functions
-bool readFile(SongInfo &info);
-bool getSongInfo(SongInfo &info);
-void rewindSong(SongInfo &info, long new_position);
-unsigned long timeElapsed;
-unsigned long maxElapsed;
-PLAYER_INIT_PROC soft_init_proc;
-PLAYER_PLAY_PROC soft_play_proc;
+bool ay_readfromfile(SongInfo &info);
+bool ay_getsonginfo(SongInfo &info);
+void ay_rewindsong(SongInfo &info, long new_position);
+extern unsigned long timeElapsed;
+extern unsigned long maxElapsed;
+extern PLAYER_INIT_PROC soft_init_proc;
+extern PLAYER_PLAY_PROC soft_play_proc;
 
 //emulator functions
-void initSpeccy();
-void resetSpeccy();
-void shutdownSpeccy();
+void ay_initz80();
+void ay_resetz80();
+void ay_shutdownz80();
 void setPlayer(AbstractAudio *_player);
 void execInstruction(ELAPSED_CALLBACK callback, void *arg);
-unsigned char *z80Memory;
-Z80EX_CONTEXT *ctx;
-AbstractAudio *player;
+extern unsigned char *z80Memory;
+extern Z80EX_CONTEXT *ctx;
+extern AbstractAudio *player;
 
 
 #    define AYFLY_VERSION_MAJOR 0

@@ -43,7 +43,7 @@ void Cayfly_s60AppUi::ConstructL()
 	fileName = PathInfo::MemoryCardRootPath();
 	//folderName = PathInfo::MemoryCardRootPath();
 
-	initSpeccy();
+	ay_initz80();
 	//readFile(TEXT("E:\\Others\\ayfly\\KSA-MTV.stc"));
 	player = new Cayfly_s60Audio();
 	setPlayer(player);
@@ -92,7 +92,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 	case EEikCmdExit:
 	case EAknSoftkeyExit:
 	{
-        shutdownSpeccy();
+        ay_shutdownz80();
         delete player;
         player = 0;
 		Exit();
@@ -104,10 +104,10 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		if (bRet)
 		{
 			player->Stop();
-			shutdownSpeccy();
-			initSpeccy();
+			ay_shutdownz80();
+			ay_initz80();
 			info.FilePath = fileName;
-			readFile(info);
+			ay_readfromfile(info);
 			fileName = PathInfo::MemoryCardRootPath();
 		}
 	}

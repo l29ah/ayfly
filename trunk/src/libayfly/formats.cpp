@@ -44,7 +44,11 @@ enum _FileTypes
 
 struct _Players
 {
-    TXT_TYPE ext;
+#ifndef __SYMBIAN32__
+    AY_TXT_TYPE ext;
+#else
+    TDesC ext;
+#endif
     const unsigned char *player;
     unsigned long player_base;
     unsigned long length;
@@ -58,14 +62,13 @@ struct _Players
 
 _Players Players[] =
 {
-    { TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0, 0xc006, 0, PT2_GetInfo },
-    { TXT(".pt3"), PT3Play_data, 0xc000, sizeof(PT3Play_data), 0x0000, 0xc000, 0, 0xc005, 0, PT3_GetInfo },
-    { TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STP_GetInfo },
-    { TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_GetInfo},
-    { TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STC_GetInfo },
-    { TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_GetInfo},
-    { TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASC_GetInfo}
-};
+{ TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0, 0xc006, 0, PT2_GetInfo },
+{ TXT(".pt3"), PT3Play_data, 0xc000, sizeof(PT3Play_data), 0x0000, 0xc000, 0, 0xc005, 0, PT3_GetInfo },
+{ TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STP_GetInfo },
+{ TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_GetInfo },
+{ TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STC_GetInfo },
+{ TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_GetInfo },
+{ TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASC_GetInfo } };
 
 /*
  * parts of ay read code and memory init are from aylet player:
@@ -73,23 +76,23 @@ _Players Players[] =
  */
 
 static unsigned char intz[] =
-    { 0xf3, /* di */
-      0xcd, 0, 0, /* call init */
-      0xed, 0x5e, /* loop: im 2 */
-      0xfb, /* ei */
-      0x76, /* halt */
-      0x18, 0xfa /* jr loop */
-    };
+{ 0xf3, /* di */
+0xcd, 0, 0, /* call init */
+0xed, 0x5e, /* loop: im 2 */
+0xfb, /* ei */
+0x76, /* halt */
+0x18, 0xfa /* jr loop */
+};
 
 static unsigned char intnz[] =
-    { 0xf3, /* di */
-      0xcd, 0, 0, /* call init */
-      0x0, 0x0, /* loop: im 1 */
-      0x00, /* ei */
-      0x00, /* halt */
-      0xcd, 0, 0, /* call interrupt */
-      0x18, 0xfb /* jr loop */
-    };
+{ 0xf3, /* di */
+0xcd, 0, 0, /* call init */
+0x0, 0x0, /* loop: im 1 */
+0x00, /* ei */
+0x00, /* halt */
+0xcd, 0, 0, /* call interrupt */
+0x18, 0xfb /* jr loop */
+};
 
 //for .ay format
 struct ayTrack
@@ -113,33 +116,52 @@ struct ayData
 
 static ayData aydata;
 
-void initMemoryAY(unsigned char track);
+void ay_fmtay(unsigned char track);
 
 #ifndef __SYMBIAN32__
-unsigned char *osRead(const char *filePath, unsigned long *data_len)
+unsigned char *osRead(AY_TXT_TYPE filePath, unsigned long *data_len)
 #else
 unsigned char *osRead(const TFileName &filePath, unsigned long *data_len)
 #endif
 {
     unsigned char *fileData = new unsigned char[*data_len];
-    if (!fileData)
+    if(!fileData)
         return 0;
-    memset(fileData, 0, *data_len);
 #ifndef __SYMBIAN32__
-    wxFile f(filePath);
-    *data_len = 0;
-    if (f.IsOpened())
+    std::ifstream f;
+#ifndef WINDOWS
+    size_t len = filePath.length() * 6;
+    char *mb_str = new char [len + 1];
+    if(!mb_str)
     {
-        wxFileOffset nSize = f.Length();
-        if (nSize != wxInvalidOffset)
-        {
-            if (f.Read(fileData, (size_t) nSize) == nSize)
-            {
-                *data_len = nSize;
-            }
-        }
-        f.Close();
+        *data_len = 0;
+        delete [] fileData;
+        return 0;
     }
+    mbstate_t mbstate;
+    ::memset((void*)&mbstate, 0, sizeof(mbstate));
+    const wchar_t *wc_str = filePath.c_str();
+    size_t cnt_conv = wcsrtombs(mb_str, &wc_str, len, &mbstate);
+    mb_str [cnt_conv] = 0;
+    std::cout << mb_str << std::endl;
+    f.open(mb_str, std::ios_base::in | std::ios_base::binary);
+    delete [] mb_str;
+#else
+    f.open(filePath.c_str(), std::ios_base::in | std::ios_base::binary);
+#endif
+    if(f)
+    {
+        f.seekg (0, std::ios::end);
+        *data_len = f.tellg();
+        f.seekg (0, std::ios::beg);
+        f.read((char *)fileData, *data_len);
+        if(f.bad())
+            *data_len = 0;
+        std::cout << *data_len << std::endl;
+        f.close();
+    }
+    else
+        *data_len = 0;
 
 #else
     RFs fsSession = CCoeEnv::Static()->FsSession();
@@ -159,9 +181,9 @@ unsigned char *osRead(const TFileName &filePath, unsigned long *data_len)
         *data_len = 0;
     }
 #endif
-    if (!*data_len)
+    if(!*data_len)
     {
-        delete[] fileData;
+        delete [] fileData;
         fileData = 0;
     }
     return fileData;
@@ -171,11 +193,11 @@ bool parseData(SongInfo &info, unsigned char *fileData, unsigned long fileLength
 {
 #define GET_WORD(x) {(x) = (*ptr++) << 8; (x) |= *ptr++;}
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
-    if (fileType == FILE_TYPE_AY)
+    if(fileType == FILE_TYPE_AY)
     {
-        unsigned char *ptr = (unsigned char *) fileData;
+        unsigned char *ptr = (unsigned char *)fileData;
         unsigned char *ptr2;
-        if (!memcmp(ptr, "ZXAYEMUL", 8))
+        if(!memcmp(ptr, "ZXAYEMUL", 8))
         {
             ptr += 8;
             aydata.filever = *ptr++;
@@ -187,14 +209,14 @@ bool parseData(SongInfo &info, unsigned char *fileData, unsigned long fileLength
             aydata.first_track = *ptr++;
             GET_PTR(ptr2);
             ptr = ptr2;
-            if ((aydata.tracks = (ayTrack *) malloc(aydata.num_tracks * sizeof(ayTrack))))
+            if((aydata.tracks = (ayTrack *)malloc(aydata.num_tracks * sizeof(ayTrack))))
             {
-                for (unsigned long i = 0; i < aydata.num_tracks; i++)
+                for(unsigned long i = 0; i < aydata.num_tracks; i++)
                 {
                     GET_PTR(aydata.tracks [i].name);
                     GET_PTR(aydata.tracks [i].data);
                 }
-                for (unsigned long i = 0; i < aydata.num_tracks; i++)
+                for(unsigned long i = 0; i < aydata.num_tracks; i++)
                 {
                     ptr = aydata.tracks[i].data + 10;
                     GET_PTR(aydata.tracks [i].data_points);
@@ -206,7 +228,7 @@ bool parseData(SongInfo &info, unsigned char *fileData, unsigned long fileLength
                 }
                 aydata.filelen = fileLength;
                 aydata.filedata = fileData;
-                initMemoryAY(0);
+                ay_fmtay(0);
                 free(aydata.tracks);
                 aydata.tracks = 0;
                 return true;
@@ -214,14 +236,14 @@ bool parseData(SongInfo &info, unsigned char *fileData, unsigned long fileLength
         }
 
     }
-    else if (fileType == FILE_TYPE_TRACKER)
+    else if(fileType == FILE_TYPE_TRACKER)
     {
-        if (Players [player].player == 0) //soft player
+        if(Players[player].player == 0) //soft player
         {
             memset(z80Memory, 0, 65536);
             memcpy(z80Memory, fileData, fileLength);
-            soft_init_proc = info.soft_init_proc = Players [player].soft_init_proc;
-            soft_play_proc = info.soft_play_proc = Players [player].soft_play_proc;
+            soft_init_proc = info.soft_init_proc = Players[player].soft_init_proc;
+            soft_play_proc = info.soft_play_proc = Players[player].soft_play_proc;
             info.bEmul = false;
             return true;
         }
@@ -234,7 +256,7 @@ bool parseData(SongInfo &info, unsigned char *fileData, unsigned long fileLength
         //copy player to 0xc000 of z80 memory
         memcpy(z80Memory + Players[player].player_base, Players[player].player, Players[player].length);
 
-        if (Players[player].module_base)
+        if(Players[player].module_base)
         {
             //copy module at given address
             memcpy(z80Memory + Players[player].module_base, fileData, fileLength);
@@ -258,8 +280,7 @@ bool parseData(SongInfo &info, unsigned char *fileData, unsigned long fileLength
     return false;
 }
 
-
-bool readFile(SongInfo &info)
+bool ay_readfromfile(SongInfo &info)
 {
     unsigned long data_len = 65536;
     timeElapsed = 0;
@@ -270,25 +291,24 @@ bool readFile(SongInfo &info)
     bool bRet = false;
     unsigned char *fileData = 0;
 #ifndef __SYMBIAN32__
-    wxString cfp = info.FilePath;
-    cfp = cfp.MakeLower();
-
-    if (cfp.rfind(TXT(".ay")) != wxString::npos)
+    AY_TXT_TYPE cfp = info.FilePath;
+    std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int)) std::tolower);
+    if(cfp.rfind(TXT(".ay")) != std::string::npos)
     {
         fileData = osRead(info.FilePath, &data_len);
-        if (fileData)
+        if(fileData)
         {
             bRet = parseData(info, fileData, data_len, FILE_TYPE_AY);
         }
     }
     else
     {
-        for (unsigned int i = 0; i < sizeof_array(Players); i++)
+        for(unsigned int i = 0; i < sizeof_array(Players); i++)
         {
-            if (cfp.rfind(Players[i].ext) != wxString::npos)
+            if(cfp.rfind(Players[i].ext) != std::string::npos)
             {
                 fileData = osRead(info.FilePath, &data_len);
-                if (fileData)
+                if(fileData)
                 {
                     bRet = parseData(info, fileData, data_len, FILE_TYPE_TRACKER, i);
                 }
@@ -328,16 +348,16 @@ bool readFile(SongInfo &info)
     }
 #endif
 
-    if (fileData)
-        delete [] fileData;
-    if (bRet)
+    if(fileData)
+        delete[] fileData;
+    if(bRet)
     {
-        if (info.bEmul)
-            resetSpeccy();
+        if(info.bEmul)
+            ay_resetz80();
         else
             info.soft_init_proc(z80Memory);
 #ifndef __SYMBIAN32__
-        getSongInfo(info);
+        ay_getsonginfo(info);
         maxElapsed = info.Length;
 #else
         maxElapsed = -1;
@@ -346,8 +366,7 @@ bool readFile(SongInfo &info)
     return bRet;
 }
 
-
-void initMemoryAY(unsigned char track)
+void ay_fmtay(unsigned char track)
 {
 
     unsigned long init, ay_1st_block, ourinit, interrupt;
@@ -369,7 +388,7 @@ void initMemoryAY(unsigned char track)
     /* call first AY block if no init */
     ourinit = (init ? init : ay_1st_block);
 
-    if (!interrupt)
+    if(!interrupt)
         memcpy(z80Memory, intz, sizeof(intz));
     else
     {
@@ -383,24 +402,24 @@ void initMemoryAY(unsigned char track)
 
     /* now put the memory blocks in place */
     ptr = aydata.tracks[track].data_memblocks;
-    while ((addr = GET_WORD(ptr)) != 0)
+    while((addr = GET_WORD(ptr)) != 0)
     {
         len = GET_WORD(ptr + 2);
         ofs = GET_WORD(ptr + 4);
-        if (ofs >= 0x8000)
+        if(ofs >= 0x8000)
             ofs = -0x10000 + ofs;
 
         /* range check */
-        if (ptr - 4 - aydata.filedata + ofs >= aydata.filelen || ptr - 4 - aydata.filedata + ofs < 0)
+        if(ptr - 4 - aydata.filedata + ofs >= aydata.filelen || ptr - 4 - aydata.filedata + ofs < 0)
         {
             ptr += 6;
             continue;
         }
 
         /* fix any broken length */
-        if (ptr + 4 + ofs + len >= aydata.filedata + aydata.filelen)
+        if(ptr + 4 + ofs + len >= aydata.filedata + aydata.filelen)
             len = aydata.filedata + aydata.filelen - (ptr + 4 + ofs);
-        if (addr + len > 0x10000)
+        if(addr + len > 0x10000)
             len = 0x10000 - addr;
 
         memcpy(z80Memory + addr, ptr + 4 + ofs, len);
@@ -425,7 +444,7 @@ void initMemoryAY(unsigned char track)
 
 }
 
-bool getSongInfo(SongInfo &info)
+bool ay_getsonginfo(SongInfo &info)
 {
     ayData aydata_loc;
     info.Length = 0;
@@ -438,9 +457,9 @@ bool getSongInfo(SongInfo &info)
     unsigned long data_len = 65536;
     unsigned char *fileData = 0;
 #ifndef __SYMBIAN32__
-    wxString cfp = info.FilePath;
-    cfp = cfp.MakeLower();
-    if (cfp.rfind(TXT(".ay")) != wxString::npos)
+    AY_TXT_TYPE cfp = info.FilePath;
+    std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int)) std::tolower);
+    if(cfp.rfind(TXT(".ay")) != std::string::npos)
 #else
     TFileName cfp = info.FilePath;
     cfp.LowerCase();
@@ -451,11 +470,11 @@ bool getSongInfo(SongInfo &info)
 #endif
     {
         fileData = osRead(info.FilePath, &data_len);
-        if (fileData)
+        if(fileData)
         {
             unsigned char *ptr = fileData;
             unsigned char *ptr2;
-            if (!memcmp(ptr, "ZXAYEMUL", 8))
+            if(!memcmp(ptr, "ZXAYEMUL", 8))
             {
                 ptr += 8;
                 aydata_loc.filever = *ptr++;
@@ -467,14 +486,14 @@ bool getSongInfo(SongInfo &info)
                 aydata_loc.first_track = *ptr++;
                 GET_PTR(ptr2);
                 ptr = ptr2;
-                if ((aydata_loc.tracks = (ayTrack *) malloc(aydata_loc.num_tracks * sizeof(ayTrack))))
+                if((aydata_loc.tracks = (ayTrack *)malloc(aydata_loc.num_tracks * sizeof(ayTrack))))
                 {
-                    for (unsigned long i = 0; i < aydata_loc.num_tracks; i++)
+                    for(unsigned long i = 0; i < aydata_loc.num_tracks; i++)
                     {
                         GET_PTR(aydata_loc.tracks [i].name);
                         GET_PTR(aydata_loc.tracks [i].data);
                     }
-                    for (unsigned long i = 0; i < aydata_loc.num_tracks; i++)
+                    for(unsigned long i = 0; i < aydata_loc.num_tracks; i++)
                     {
                         ptr = aydata_loc.tracks[i].data + 10;
                         GET_PTR(aydata_loc.tracks [i].data_points);
@@ -484,7 +503,7 @@ bool getSongInfo(SongInfo &info)
                         GET_WORD(aydata_loc.tracks [i].fadestart);
                         GET_WORD(aydata_loc.tracks [i].fadelen);
                     }
-                    if (aydata_loc.num_tracks)
+                    if(aydata_loc.num_tracks)
                     {
                         info.Length = aydata_loc.tracks[0].fadestart;
                     }
@@ -493,16 +512,16 @@ bool getSongInfo(SongInfo &info)
                 }
 
             }
-            delete [] fileData;
+            delete[] fileData;
         }
 
     }
     else
     {
-        for (unsigned int i = 0; i < sizeof_array(Players); i++)
+        for(unsigned int i = 0; i < sizeof_array(Players); i++)
         {
 #ifndef __SYMBIAN32__
-            if (cfp.rfind(Players[i].ext) != wxString::npos)
+            if(cfp.rfind(Players[i].ext) != std::string::npos)
 #else
             TPtrC ext = parse.Ext();
             TPtrC ext_cur = Players [i].ext;
@@ -510,11 +529,11 @@ bool getSongInfo(SongInfo &info)
 #endif
             {
                 fileData = osRead(info.FilePath, &data_len);
-                if (fileData)
+                if(fileData)
                 {
-                    if (Players[i].getInfo)
+                    if(Players[i].getInfo)
                         Players[i].getInfo(fileData, info);
-                    delete [] fileData;
+                    delete[] fileData;
                 }
                 break;
             }
@@ -524,35 +543,35 @@ bool getSongInfo(SongInfo &info)
     return true;
 }
 
-void rewindSong(SongInfo &info, long new_position)
+void ay_rewindsong(SongInfo &info, long new_position)
 {
-    if (player && player->Started())
+    if(player && player->Started())
         player->Stop();
 
     unsigned long timeCurrent = timeElapsed;
     timeElapsed = new_position;
 
-    if (timeElapsed < timeCurrent)
+    if(timeElapsed < timeCurrent)
     {
         timeCurrent = 0;
-        if (!readFile(info))
+        if(!ay_readfromfile(info))
             return;
     }
 
     timeElapsed = timeCurrent;
-    if (info.bEmul)
+    if(info.bEmul)
     {
-        while (timeElapsed != new_position)
+        while(timeElapsed != new_position)
         {
             z80ex_step(ctx);
-            if (z80ex_get_reg(ctx, regPC) == 8)
+            if(z80ex_get_reg(ctx, regPC) == 8)
                 timeElapsed++;
         }
 
     }
-    else if (info.soft_play_proc)
+    else if(info.soft_play_proc)
     {
-        while (timeElapsed != new_position)
+        while(timeElapsed != new_position)
         {
             info.soft_play_proc(z80Memory, 0, 0);
         }
