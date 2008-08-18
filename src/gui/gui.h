@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_H_
-#    define COMMON_H_
+#ifndef GUI_H_
+#    define GUI_H_
 
 #    ifndef UNICODE
 #        define UNICODE
@@ -49,15 +49,6 @@
 
 #include "ayfly.h"
 
-struct bindings
-{
-    wxString name; /* button name */
-    wxString str_id; /* string id for action */
-    int id; /* int id for action */
-    int key; /* key mapping */
-    int modifier; /* modifier */
-};
-
 #        include "wx/wx.h"
 #        include "wx/file.h"
 #        include "wx/filedlg.h"
@@ -68,6 +59,16 @@ struct bindings
 #        include "wx/tglbtn.h"
 #        include "wx/listctrl.h"
 #        include "wx/dialog.h"
+
+struct bindings
+{
+    wxString name; /* button name */
+    wxString str_id; /* string id for action */
+    int id; /* int id for action */
+    int key; /* key mapping */
+    int modifier; /* modifier */
+};
+
 
 #ifndef sizeof_array
 #    define sizeof_array(x) sizeof(x) / sizeof(x [0])

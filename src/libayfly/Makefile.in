@@ -80,15 +80,15 @@ VERSION = @VERSION@
 
 INCLUDES = -I$(top_srcdir)/src/libayfly $(SDL_CFLAGS) $(DX_CFLAGS) $(all_includes)
 
-SUBDIRS = z80ex $(EXTRASUBDIRS)
+SUBDIRS = z80ex  $(EXTRASUBDIRS)
 noinst_LIBRARIES = libayfly.a
 libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp
 @IS_WINDOWS_TRUE@EXTRASUBDIRS =  windows
 @IS_WINDOWS_FALSE@EXTRASUBDIRS = unix
-@IS_WINDOWS_TRUE@EXTRALIBS =  $(top_srcdir)/libayfly/windows/libwindows.a
-@IS_WINDOWS_FALSE@EXTRALIBS = $(top_srcdir)/libayfly/unix/libunix.a
+@IS_WINDOWS_TRUE@EXTRALIBS =  $(top_builddir)/src/libayfly/windows/DXAudio.o
+@IS_WINDOWS_FALSE@EXTRALIBS = $(top_builddir)/src/libayfly/unix/SDLAudio.o
 
-libayfly_a_LIBADD =  $(EXTRALIBS) $(top_srcdir)/libayfly/z80ex/libz80ex.a
+libayfly_a_LIBADD =  $(EXTRALIBS) $(top_builddir)/src/libayfly/z80ex/z80ex.o
 
 datarootdir = @datarootdir@
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -101,11 +101,11 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 @IS_WINDOWS_FALSE@libayfly_a_DEPENDENCIES =  \
-@IS_WINDOWS_FALSE@$(top_srcdir)/libayfly/unix/libunix.a \
-@IS_WINDOWS_FALSE@$(top_srcdir)/libayfly/z80ex/libz80ex.a
+@IS_WINDOWS_FALSE@$(top_builddir)/src/libayfly/unix/SDLAudio.o \
+@IS_WINDOWS_FALSE@$(top_builddir)/src/libayfly/z80ex/z80ex.o
 @IS_WINDOWS_TRUE@libayfly_a_DEPENDENCIES =  \
-@IS_WINDOWS_TRUE@$(top_srcdir)/libayfly/windows/libwindows.a \
-@IS_WINDOWS_TRUE@$(top_srcdir)/libayfly/z80ex/libz80ex.a
+@IS_WINDOWS_TRUE@$(top_builddir)/src/libayfly/windows/DXAudio.o \
+@IS_WINDOWS_TRUE@$(top_builddir)/src/libayfly/z80ex/z80ex.o
 libayfly_a_OBJECTS =  AbstractAudio.o ay.o formats.o speccy.o
 AR = ar
 CXXFLAGS = @CXXFLAGS@

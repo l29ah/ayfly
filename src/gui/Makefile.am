@@ -13,6 +13,6 @@ endif
 
 INCLUDES += $(EXTRAINCLUDES)
 
-ayfly_LDADD = $(top_srcdir)/libayfly/libayfly.a $(GUI_LIBS)
+ayfly_LDADD = $(top_builddir)/src/libayfly/libayfly.a $(GUI_LIBS)
 
 datarootdir = @datarootdir@

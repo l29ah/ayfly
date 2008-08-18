@@ -86,7 +86,7 @@ ayfly_SOURCES = AyflyApp.cpp AyflyFrame.cpp DnDFiles.cpp AyflyBindingsDlg.cpp
 @IS_UNIX_TRUE@EXTRAINCLUDES =  $(SDL_CFLAGS)
 @IS_WINDOWS_TRUE@EXTRAINCLUDES = $(DX_CFLAGS)
 
-ayfly_LDADD = $(top_srcdir)/libayfly/libayfly.a $(GUI_LIBS)
+ayfly_LDADD = $(top_builddir)/src/libayfly/libayfly.a $(GUI_LIBS)
 
 datarootdir = @datarootdir@
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -100,7 +100,7 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 ayfly_OBJECTS =  AyflyApp.o AyflyFrame.o DnDFiles.o AyflyBindingsDlg.o
-ayfly_DEPENDENCIES =  $(top_srcdir)/libayfly/libayfly.a
+ayfly_DEPENDENCIES =  $(top_builddir)/src/libayfly/libayfly.a
 ayfly_LDFLAGS = 
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)

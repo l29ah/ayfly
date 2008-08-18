@@ -83,7 +83,7 @@ Z80EX_BYTE readMemoryDasm(Z80EX_WORD addr, void *user_data)
 }
 
 
-void initSpeccy()
+void ay_initz80()
 {
     z80Memory = (unsigned char *)calloc(65536, 1);
     z80IO = (unsigned char *)calloc(65536, 1);
@@ -92,13 +92,13 @@ void initSpeccy()
     ay_reg = 0xff;
 }
 
-void resetSpeccy()
+void ay_resetz80()
 {
     interrupt = Z80_TO_INTR;
     z80ex_reset(ctx);
 }
 
-void shutdownSpeccy()
+void ay_shutdownz80()
 {
     if (z80Memory)
         free(z80Memory);
