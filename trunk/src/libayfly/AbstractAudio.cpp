@@ -20,9 +20,10 @@
 
 #include "ayfly.h"
 
-AbstractAudio::AbstractAudio(unsigned long _sr)
+AbstractAudio::AbstractAudio(unsigned long _sr, AYSongInfo *info)
 {
 	sr = _sr;
+	songinfo = info;
 	started = false;
 	ay8910 = 0;
 }
@@ -30,10 +31,4 @@ AbstractAudio::AbstractAudio(unsigned long _sr)
 AbstractAudio::~AbstractAudio()
 {
 
-}
-
-void AbstractAudio::SetCallback(ELAPSED_CALLBACK _callback, void *_arg)
-{
-    if(ay8910)
-        ay8910->SetCallback(_callback, _arg);
 }

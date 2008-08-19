@@ -165,7 +165,7 @@ unsigned char PT2Play_data[] = {
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 };
 
-void PT2_GetInfo(unsigned char *module, SongInfo &info)
+void PT2_GetInfo(unsigned char *module, AYSongInfo &info)
 {
     short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;

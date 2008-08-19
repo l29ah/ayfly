@@ -28,13 +28,14 @@ class AbstractAudio;
 class SDLAudio : public AbstractAudio
 {
 public:
-	SDLAudio(unsigned long _sr);
+	SDLAudio(unsigned long _sr, AYSongInfo *info);
 	virtual ~SDLAudio();
 	bool Start();
 	virtual void Stop();
 private:
 	static void Play(void *udata, Uint8 *stream, int len);
 	SDL_AudioSpec fmt_out;
+	AYSongInfo *songinfo;
 };
 
 #endif /*SDLSOUND_H_*/

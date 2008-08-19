@@ -57,7 +57,7 @@ private:
     wxSlider* posslider;
     wxListCtrl* playListCtrl;
 
-    SongInfo *currentSong;
+    AYSongInfo *currentSong;
 
     bool bTracking;
 

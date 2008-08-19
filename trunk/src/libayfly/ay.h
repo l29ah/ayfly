@@ -44,16 +44,15 @@ enum
 class ay
 {
 public:
-    ay(long _sr, long _ay_freq, int _buf_sz);
+    ay(long _sr, long _ay_freq, int _buf_sz, AYSongInfo *info);
     virtual ~ay();
     void ayReset();
     void ayWrite(unsigned char reg, unsigned char val);
     unsigned char ayRead(unsigned char reg);
     void ayProcess(unsigned char *stream, int len);
-    inline bool chnlToggle(unsigned long chnl)
+    inline void chnlMute(unsigned long chnl, bool mute)
     {
-        chnl_mute[chnl] = !chnl_mute[chnl];
-        return chnl_mute[chnl];
+        chnl_mute[chnl] = !mute;
     }
     ;
     inline bool chnlMuted(unsigned long chnl)
@@ -72,7 +71,6 @@ public:
     }
     ;
 
-    virtual void SetCallback(ELAPSED_CALLBACK _callback, void *_arg);
     void SetBufferSize(int _buf_sz);
 private:
     static float init_levels[16];
@@ -115,6 +113,7 @@ private:
     void *elapsedCallbackArg;
     unsigned long int_counter;
     unsigned long int_limit;
+    AYSongInfo *songinfo;
 };
 
 #endif /*AY_H_*/

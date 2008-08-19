@@ -415,7 +415,7 @@ void PSC_Play(unsigned char *module, ELAPSED_CALLBACK callback, void *arg)
     timeElapsed++;
 }
 
-void PSC_GetInfo(unsigned char *module, SongInfo &info)
+void PSC_GetInfo(unsigned char *module, AYSongInfo &info)
 {
 
     PSC_File *header = (PSC_File *)module;

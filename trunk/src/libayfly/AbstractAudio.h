@@ -26,7 +26,7 @@
 class AbstractAudio
 {
 public:
-    AbstractAudio(unsigned long _sr);
+    AbstractAudio(unsigned long _sr, AYSongInfo *info);
     virtual ~AbstractAudio();
     virtual bool Start(void) = 0;
     virtual void Stop() = 0;
@@ -44,9 +44,9 @@ public:
     {
         ay8910->ayReset();
     };
-    inline virtual bool ChnlToggle(unsigned long chnl)
+    inline virtual bool ChnlMute(unsigned long chnl, bool mute)
     {
-        return ay8910 ? ay8910->chnlToggle(chnl) : true;
+        if(ay8910) ay8910->chnlMute(chnl, mute);
     }
     ;
     inline virtual bool ChnlMuted(unsigned long chnl)
@@ -72,11 +72,11 @@ public:
         }
     }
     ;
-    virtual void SetCallback(ELAPSED_CALLBACK _callback, void *_arg);
 protected:
     unsigned long sr;
     ay *ay8910;
     bool started;
+    AYSongInfo *songinfo;
 };
 
 #endif /*AUDIO_H_*/

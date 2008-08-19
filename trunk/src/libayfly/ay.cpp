@@ -33,14 +33,14 @@ float ay::init_levels[] =
 
 FILE *f = 0;
 
-ay::ay(long _sr, long _ay_freq, int _buf_sz)
+ay::ay(long _sr, long _ay_freq, int _buf_sz, AYSongInfo *info)
 {
     buffer[0] = 0;
     buffer[1] = 0;
     buffer[2] = 0;
 
     sr = _sr;
-
+    songinfo = info;
     ay_freq = _ay_freq;
     tail_len = 512;//buf_sz >> 2;
     if(tail_len < 4)
@@ -270,7 +270,7 @@ void ay::ayProcess(unsigned char *stream, int len)
         if(++int_counter > int_limit)
         {
             int_counter = 0;
-            execInstruction(elapsedCallback, elapsedCallbackArg);
+            ay_z80xec(songinfo);
         }
 
         buffer[0][i] = buffer[1][i] = buffer[2][i] = 0;
@@ -345,10 +345,3 @@ void ay::ayProcess(unsigned char *stream, int len)
         buffer_tail[2][i] = buffer[2][j];
     }
 }
-
-void ay::SetCallback(ELAPSED_CALLBACK _callback, void *_arg)
-{
-    elapsedCallback = _callback;
-    elapsedCallbackArg = _arg;
-}
-

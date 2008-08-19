@@ -85,16 +85,21 @@ extern "C"
 #    define sizeof_array(x) sizeof(x) / sizeof(x [0])
 #endif
 
-typedef void (*ELAPSED_CALLBACK)(void *arg);
-typedef void (*PLAYER_INIT_PROC)(unsigned char *module);
-typedef void (*PLAYER_PLAY_PROC)(unsigned char *module, ELAPSED_CALLBACK callback, void *arg);
+struct AYSongInfo;
 
-struct SongInfo
+typedef void (*ELAPSED_CALLBACK)(void *arg);
+typedef void (*PLAYER_INIT_PROC)(AYSongInfo &info);
+typedef void (*PLAYER_PLAY_PROC)(AYSongInfo &info);
+
+#include "ay.h"
+#include "AbstractAudio.h"
+
+struct AYSongInfo
 {
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE Author; /* Song author */
     AY_TXT_TYPE Name; /* Song name */
-    AY_TXT_TYPE FilePath;
+    AY_TXT_TYPE FilePath; /* Song file path */
 #else
     TFileName Author;
     TFileName Name;
@@ -105,11 +110,17 @@ struct SongInfo
     bool bEmul; /* player is in z80 asm? */
     PLAYER_INIT_PROC soft_init_proc; /* init for soft player */
     PLAYER_PLAY_PROC soft_play_proc; /* play for soft player */
-
+    void *data; /* used for players */
+    unsigned char module [65536]; /* z80 memory or raw song data */
+    unsigned char z80IO [65536]; /* z80 ports */
+    AbstractAudio *player; /* player for this song */
+    Z80EX_CONTEXT *z80ctx; /* z80 execution context */
+    unsigned long timeElapsed; /* playing time in tacts */
+    ELAPSED_CALLBACK callback; /* song end callback function */
+    void *callback_arg; /* argument for callback */
+    unsigned short ay_reg; /* current AY register */
 };
 
-#include "ay.h"
-#include "AbstractAudio.h"
 
 #ifndef WINDOWS
 #include "unix/SDLAudio.h"
@@ -118,24 +129,32 @@ struct SongInfo
 #endif
 
 
-//loader functions
-bool ay_readfromfile(SongInfo &info);
-bool ay_getsonginfo(SongInfo &info);
-void ay_rewindsong(SongInfo &info, long new_position);
-extern unsigned long timeElapsed;
-extern unsigned long maxElapsed;
-extern PLAYER_INIT_PROC soft_init_proc;
-extern PLAYER_PLAY_PROC soft_play_proc;
+//system functions
+bool ay_sys_readfromfile(AYSongInfo &info);
+bool ay_sys_getsonginfo(AYSongInfo &info);
+void ay_sys_rewindsong(AYSongInfo &info, long new_position);
+bool ay_sys_initz80(AYSongInfo &info);
+void ay_sys_z80exec(AYSongInfo &info);
+void ay_sys_resetz80(AYSongInfo &info);
+void ay_sys_shutdownz80(AYSongInfo &info);
 
-//emulator functions
-void ay_initz80();
-void ay_resetz80();
-void ay_shutdownz80();
-void setPlayer(AbstractAudio *_player);
-void execInstruction(ELAPSED_CALLBACK callback, void *arg);
-extern unsigned char *z80Memory;
-extern Z80EX_CONTEXT *ctx;
-extern AbstractAudio *player;
+//common functions
+#ifndef __SYMBIAN32__
+void *ay_initsong(wchar_t *FilePath, unsigned long sr);
+#else
+void *ay_initsong(TFileName FilePath, unsigned long sr);
+#endif
+void *ay_initsongindirect(unsigned char *module, unsigned long sr, wchar_t *type, unsigned long size);
+bool ay_getsonginfo(void *info);
+void ay_z80xec(void *info);
+void ay_rewindsong(void *info, long new_position);
+void ay_resetsong(void *info);
+void ay_closesong(void *info);
+void ay_setvolume(void *info, unsigned long chnl, double volume);
+double ay_getvolume(void *info, unsigned long chnl);
+void ay_chnlmute(void *info, unsigned long chnl, bool mute);
+void ay_chnlmuted(void *info, unsigned long chnl);
+void ay_setcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg);
 
 
 #    define AYFLY_VERSION_MAJOR 0

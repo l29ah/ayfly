@@ -270,7 +270,7 @@ void ay::ayProcess(unsigned char *stream, int len)
         if(++int_counter > int_limit)
         {
             int_counter = 0;
-            execInstruction(elapsedCallback, elapsedCallbackArg);
+            ay_sys_z80exec(elapsedCallback, elapsedCallbackArg);
         }
 
         unsigned long s0, s1, s2;
