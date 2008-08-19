@@ -138,7 +138,7 @@ unsigned char PT3Play_data[] = {
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 };
 
-void PT3_GetInfo(unsigned char *module, SongInfo &info)
+void PT3_GetInfo(unsigned char *module, AYSongInfo &info)
 {
     unsigned short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;

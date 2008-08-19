@@ -4,15 +4,17 @@ bin_PROGRAMS = ayfly
 ayfly_SOURCES = AyflyApp.cpp AyflyFrame.cpp DnDFiles.cpp AyflyBindingsDlg.cpp
 
 if IS_UNIX
-EXTRAINCLUDES += $(SDL_CFLAGS)
+EXTRAINCLUDES = $(SDL_CFLAGS)
+EXTRALDADD = $(SDL_LIBS)
 endif
 
 if IS_WINDOWS
-EXTRAINCLUDES += $(DX_CFLAGS)
+EXTRAINCLUDES = $(DX_CFLAGS)
+EXTRALDADD = $(DX_LIBS)
 endif
 
 INCLUDES += $(EXTRAINCLUDES)
 
-ayfly_LDADD = $(top_builddir)/src/libayfly/libayfly.a $(GUI_LIBS)
+ayfly_LDADD = $(top_builddir)/src/libayfly/libayfly.a $(GUI_LIBS) $(SDL_LIBS) $(DX_LIBS)
 
 datarootdir = @datarootdir@

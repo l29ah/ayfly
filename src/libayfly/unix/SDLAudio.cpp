@@ -20,10 +20,11 @@
 
 #include "ayfly.h"
 
-SDLAudio::SDLAudio(unsigned long _sr) :
-    AbstractAudio(_sr)
+SDLAudio::SDLAudio(unsigned long _sr, AYSongInfo *info) :
+    AbstractAudio(_sr, info)
 {
-    ay8910 = new ay(sr, Z80_FREQ / 2, 1024 * 2 * 2); // 16 bit, 2 ch.
+    songinfo = info;
+    ay8910 = new ay(sr, Z80_FREQ / 2, 1024 * 2 * 2, songinfo); // 16 bit, 2 ch.
 
 }
 
@@ -56,7 +57,7 @@ bool SDLAudio::Start()
         }
 
         if(ay8910 == 0)
-            ay8910 = new ay(sr, Z80_FREQ / 2, fmt_out.size >> 2); // 16 bit, 2 ch.
+            ay8910 = new ay(sr, Z80_FREQ / 2, fmt_out.size >> 2, songinfo); // 16 bit, 2 ch.
         else
             ay8910->SetBufferSize(fmt_out.size >> 2);
         SDL_PauseAudio(0);

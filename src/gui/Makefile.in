@@ -83,10 +83,12 @@ INCLUDES = -I$(top_srcdir)/gui -I$(top_srcdir)/src/libayfly $(GUI_CXXFLAGS) $(al
 bin_PROGRAMS = ayfly
 ayfly_SOURCES = AyflyApp.cpp AyflyFrame.cpp DnDFiles.cpp AyflyBindingsDlg.cpp
 
-@IS_UNIX_TRUE@EXTRAINCLUDES =  $(SDL_CFLAGS)
+@IS_UNIX_TRUE@EXTRAINCLUDES = $(SDL_CFLAGS)
 @IS_WINDOWS_TRUE@EXTRAINCLUDES = $(DX_CFLAGS)
+@IS_UNIX_TRUE@EXTRALDADD = $(SDL_LIBS)
+@IS_WINDOWS_TRUE@EXTRALDADD = $(DX_LIBS)
 
-ayfly_LDADD = $(top_builddir)/src/libayfly/libayfly.a $(GUI_LIBS)
+ayfly_LDADD = $(top_builddir)/src/libayfly/libayfly.a $(GUI_LIBS) $(SDL_LIBS) $(DX_LIBS)
 
 datarootdir = @datarootdir@
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs

@@ -843,7 +843,7 @@ void SQT_GetChannelInfo(unsigned char *module, unsigned char &b, unsigned long &
     }
 }
 
-void SQT_GetInfo(unsigned char *module, SongInfo &info)
+void SQT_GetInfo(unsigned char *module, AYSongInfo &info)
 {
     if(!SQT_PreInit(module))
     {

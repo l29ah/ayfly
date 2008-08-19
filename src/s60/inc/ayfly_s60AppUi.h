@@ -75,7 +75,7 @@ private:
 	 */
 	Cayfly_s60AppView* iAppView;
 	TFileName fileName;
-	SongInfo info;
+	AYSongInfo info;
 	//TFileName folderName;
 
 
