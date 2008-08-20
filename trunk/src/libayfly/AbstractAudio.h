@@ -77,6 +77,11 @@ public:
         return ay8910 ? ay8910->GetRegs() : 0;
     }
     ;
+    inline void GetAYBuffer(unsigned char *buffer, unsigned long buffer_length, unsigned long chip_num)
+    {
+        ay8910->ayProcess(buffer, buffer_length);
+    }
+    ;
 protected:
     unsigned long sr;
     ay *ay8910;
