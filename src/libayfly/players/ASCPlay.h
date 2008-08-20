@@ -50,7 +50,7 @@ struct ASC_SongInfo
 
 void ASC_Init(AYSongInfo &info)
 {
-    unsigned char *module = info.module;
+    unsigned char *module = info.file_data;
     ASC1_File *header = (ASC1_File *)module;
     AbstractAudio *player = info.player;
     unsigned short ascPatPt = header->ASC1_PatternsPointers;
@@ -77,7 +77,7 @@ void ASC_Init(AYSongInfo &info)
 
 void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
 {
-    unsigned char *module = info.module;
+    unsigned char *module = info.file_data;
     ASC1_File *header = (ASC1_File *)module;
     AbstractAudio *player = info.player;
     short delta_ton;
@@ -257,7 +257,7 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
 
 void ASC_GetRegisters(AYSongInfo &info, ASC_Channel_Parameters &chan, unsigned char &TempMixer)
 {
-    unsigned char *module = info.module;
+    unsigned char *module = info.file_data;
     AbstractAudio *player = info.player;
     signed char j;
     bool Sample_Says_OK_for_Envelope;
@@ -354,13 +354,14 @@ void ASC_GetRegisters(AYSongInfo &info, ASC_Channel_Parameters &chan, unsigned c
 
 void ASC_Play(AYSongInfo &info)
 {
-    unsigned char *module = info.module;
+    unsigned char *module = info.file_data;
     ASC1_File *header = (ASC1_File *)module;
     AbstractAudio *player = info.player;
     unsigned char TempMixer;
 
     if(info.timeElapsed >= info.Length)
     {
+        info.timeElapsed = info.Loop;
         if(info.callback)
             info.callback(info.callback_arg);
     }
@@ -415,7 +416,7 @@ void ASC_Play(AYSongInfo &info)
 
 void ASC_GetInfo(AYSongInfo &info)
 {
-    unsigned char *module = info.module;
+    unsigned char *module = info.file_data;
     ASC1_File *header = (ASC1_File *)module;
     AbstractAudio *player = info.player;
     short a1, a2, a3, a11, a22, a33;
@@ -582,4 +583,13 @@ void ASC_GetInfo(AYSongInfo &info)
         }
     }
     info.Length = tm;
+}
+
+void ASC_Cleanup(AYSongInfo &info)
+{
+    if(info.data)
+    {
+        delete (ASC_SongInfo *)info.data;
+        info.data = 0;
+    }
 }
