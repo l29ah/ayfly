@@ -121,28 +121,14 @@ AyflyFrame::AyflyFrame(const wxString &title) :
     SetIcon( wxIcon(Icon_xpm));
     CreateStatusBar(2);
     SetStatusText(wxT("Welcome to Ayfly!"));
-    player = 0;
     toolBar = 0;
-    fileOpened = false;
     defaultDir = wxEmptyString;
     defaultFileName = wxEmptyString;
     path = wxEmptyString;
-    timeElapsed = 0;
     currentIndex = 0;
     currentSong = 0;
     bTracking = false;
-#ifdef _WIN32_WCE
-    player = new WaveAudio(AUDIO_FREQ);
-#else
-#    ifdef WINDOWS
-    hWndMain = (HWND) GetHandle();
-    player = new DXAudio(AUDIO_FREQ);
-#    else
-    player = new SDLAudio(AUDIO_FREQ);
-#    endif
-#endif
-    player->SetCallback(AyflyFrame::ElapsedCallback, this);
-    setPlayer(player);
+    songEnd = false;
 
     SetDropTarget(new DnDFiles(this));
 
@@ -257,7 +243,7 @@ AyflyFrame::AyflyFrame(const wxString &title) :
     wxAcceleratorEntry accel_entries[sizeof_array(default_bindings) - 1];
     int i = 0;
 
-    while(default_bindings[i].id != 0)
+    while (default_bindings[i].id != 0)
     {
         accel_entries[i].Set(default_bindings[i].modifier, default_bindings[i].key, default_bindings[i].id);
         i++;
@@ -269,16 +255,11 @@ AyflyFrame::AyflyFrame(const wxString &title) :
 
 AyflyFrame::~AyflyFrame()
 {
-    if(player)
+    if (currentSong)
     {
-        if(player->Started())
-            player->Stop();
-
-        delete player;
-
-        player = 0;
-
-        setPlayer(player);
+        if (currentSong->info)
+            ay_closesong((void **) &currentSong->info);
+        delete currentSong;
     }
 }
 
@@ -299,7 +280,7 @@ void AyflyFrame::OnOpen(wxCommandEvent &event)
 
     wxFileDialog dialog(this, caption, defaultDir, defaultFileName, filter, wxFD_OPEN);
 
-    if(dialog.ShowModal() == wxID_OK)
+    if (dialog.ShowModal() == wxID_OK)
     {
         path = dialog.GetPath();
 #ifndef WINDOWS
@@ -314,96 +295,79 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
 {
     playListView->Select(currentIndex);
     playListView->EnsureVisible(currentIndex);
+    if(!currentSong)
+        return;
 
-    if(currentSong)
-        if(currentSong->Length)
-            maxElapsed = currentSong->Length;
-
-    posslider->SetRange(0, maxElapsed);
-
-    if(currentSong)
+    if (currentSong->info)
     {
-        if(player->Started())
+        posslider->SetRange(0, ay_getsonglength(currentSong->info));
+        if (ay_songstarted(currentSong->info))
         {
-            if(timer.IsRunning())
+            if (timer.IsRunning())
                 timer.Stop();
 
-            player->Stop();
+            ay_stopsong(currentSong->info);
 
             RecreateToolbar();
         }
         else
         {
-            if(timer.IsRunning())
+            if (timer.IsRunning())
                 timer.Stop();
 
-            player->Start();
+            ay_startsong(currentSong->info);
 
             timer.Start(TIMER_INTERVAL);
 
             RecreateToolbar();
         }
+        ay_chnlmute(currentSong->info, 0, toolBar->GetToolState(wxID_AMUTE));
+        ay_chnlmute(currentSong->info, 1, toolBar->GetToolState(wxID_BMUTE));
+        ay_chnlmute(currentSong->info, 2, toolBar->GetToolState(wxID_CMUTE));
     }
     else
     {
         toolBar->ToggleTool(wxID_PLAY, false);
-        if(currentIndex >= playListView->GetItemCount())
+        if (currentIndex >= playListView->GetItemCount())
             return;
 
-        currentSong = (AYSongInfo *)playListView->GetItemData(currentIndex);
-
-        timeElapsed = 0;
-
-        if(!currentSong->FilePath.empty())
+        if (OpenFile())
         {
-            if(OpenFile())
-            {
-                wxCommandEvent evt;
-                OnPlay(evt);
-            }
+            wxCommandEvent evt;
+            OnPlay(evt);
         }
-
     }
 
-    posslider->SetValue(timeElapsed);
+    if (currentSong->info)
+    {
+        posslider->SetValue(ay_getelapsedtime(currentSong->info));
+        ay_setcallback(currentSong->info, AyflyFrame::ElapsedCallback, this);
 
-    if(player->Started())
-    {
-        posslider->Enable();
-    }
-    else
-    {
-        posslider->Disable();
+        if (ay_songstarted(currentSong->info))
+        {
+            posslider->Enable();
+        }
+        else
+        {
+            posslider->Disable();
+        }
     }
 }
 
 void AyflyFrame::OnRewind(wxCommandEvent &event)
 {
-    if(currentSong)
+    if (currentSong && currentSong->info)
     {
         posslider->Disable();
 
-        if(timer.IsRunning())
+        if (timer.IsRunning())
             timer.Stop();
 
-        timeElapsed = 0;
+        ay_resetsong(currentSong->info);
 
-        bool started = player->Started();
-
-        if(started)
-        {
-            player->Stop();
-        }
-
-        if(!currentSong->FilePath.empty())
-            ay_sys_readfromfile(*currentSong);
-
-        ay_sys_resetz80();
-
-        if(started)
+        if (ay_songstarted(currentSong->info))
         {
             posslider->Enable();
-            player->Start();
             timer.Start(TIMER_INTERVAL);
         }
     }
@@ -412,7 +376,7 @@ void AyflyFrame::OnRewind(wxCommandEvent &event)
 
 void AyflyFrame::OnPrev(wxCommandEvent &event)
 {
-    if(playListView->GetItemCount() == 0)
+    if (playListView->GetItemCount() == 0)
         return;
 
     playListView->Select(currentIndex, false);
@@ -421,7 +385,7 @@ void AyflyFrame::OnPrev(wxCommandEvent &event)
 
     currentIndex--;
 
-    if(currentIndex < 0)
+    if (currentIndex < 0)
     {
         currentIndex = 0;
         wxCommandEvent evt;
@@ -429,30 +393,25 @@ void AyflyFrame::OnPrev(wxCommandEvent &event)
         return;
     }
 
-    bool started = player->Started();
+    bool started = ay_songstarted(currentSong);
+    ay_closesong((void **)&currentSong->info);
 
     wxListEvent evt;
     playListView->Select(currentIndex);
     playListView->EnsureVisible(currentIndex);
-    currentSong = (AYSongInfo *)playListView->GetItemData(currentIndex);
-    timeElapsed = 0;
-
-    if(currentSong)
+    if (OpenFile())
     {
-        if(OpenFile())
+        if (started)
         {
-            if(started)
-            {
-                wxCommandEvent evt;
-                OnPlay(evt);
-            }
+            wxCommandEvent evt;
+            OnPlay(evt);
         }
     }
 }
 
 void AyflyFrame::OnNext(wxCommandEvent &event)
 {
-    if(playListView->GetItemCount() == 0)
+    if (playListView->GetItemCount() == 0)
         return;
 
     playListView->Select(currentIndex, false);
@@ -461,19 +420,19 @@ void AyflyFrame::OnNext(wxCommandEvent &event)
 
     currentIndex++;
 
-    if(currentIndex >= playListView->GetItemCount())
+    if (currentIndex >= playListView->GetItemCount())
     {
         currentIndex = 0;
         wxCommandEvent evt;
         OnStop(evt);
-        currentSong = (AYSongInfo *)playListView->GetItemData(currentIndex);
         OpenFile();
         return;
     }
 
-    bool started = player->Started();
+    bool started = ay_songstarted(currentSong->info);
+    ay_closesong((void **)&currentSong->info);
 
-    if(event.GetId() == wxID_CALLBACK)
+    if (event.GetId() == wxID_CALLBACK)
         started = true;
 
     wxListEvent evt;
@@ -482,80 +441,57 @@ void AyflyFrame::OnNext(wxCommandEvent &event)
 
     playListView->EnsureVisible(currentIndex);
 
-    currentSong = (AYSongInfo *)playListView->GetItemData(currentIndex);
-
-    timeElapsed = 0;
-
-    if(currentSong && (!currentSong->FilePath.empty()))
+    if (OpenFile())
     {
-        if(OpenFile())
+        if (started)
         {
-            if(started)
-            {
-                wxCommandEvent evt;
-                OnPlay(evt);
-            }
+            wxCommandEvent evt;
+            OnPlay(evt);
         }
     }
-
+    else
+    {
+        OnNext(event);
+    }
 }
 
 void AyflyFrame::OnStop(wxCommandEvent &event)
 {
-    if(currentSong)
+    if (currentSong && currentSong->info)
     {
         posslider->Disable();
         posslider->SetValue(0);
         posslider->SetRange(0, 1);
 
-        if(timer.IsRunning())
+        if (timer.IsRunning())
             timer.Stop();
 
-        timeElapsed = 0;
-
-        maxElapsed = 4 * 60 * 50;
-
-        if(currentSong)
-            if(currentSong->Length)
-                maxElapsed = currentSong->Length;
-
-        if(player->Started())
-        {
-            player->Stop();
-            RecreateToolbar();
-        }
-
-        if(!currentSong->FilePath.empty())
-            ay_sys_readfromfile(*currentSong);
-
-        ay_sys_resetz80();
+        ay_closesong((void **)&currentSong->info);
+        RecreateToolbar();
     }
 }
 
 void AyflyFrame::OnChnlMute(wxCommandEvent &event)
 {
-    switch(event.GetId())
+    if (currentSong && currentSong->info)
     {
-        case wxID_AMUTE:
-            if(player)
-                player->ChnlToggle(0);
+        switch (event.GetId())
+        {
+            case wxID_AMUTE:
+                ay_chnlmute(currentSong->info, 0, toolBar->GetToolState(wxID_AMUTE));
+                break;
 
-            break;
+            case wxID_BMUTE:
+                ay_chnlmute(currentSong->info, 1, toolBar->GetToolState(wxID_BMUTE));
+                break;
 
-        case wxID_BMUTE:
-            if(player)
-                player->ChnlToggle(1);
+            case wxID_CMUTE:
+                ay_chnlmute(currentSong->info, 2, toolBar->GetToolState(wxID_CMUTE));
+                break;
 
-            break;
-
-        case wxID_CMUTE:
-            if(player)
-                player->ChnlToggle(2);
-
-            break;
-
-        default:
-            return;
+            default:
+                return;
+        }
     }
 
     RecreateToolbar();
@@ -563,17 +499,22 @@ void AyflyFrame::OnChnlMute(wxCommandEvent &event)
 
 void AyflyFrame::OnTimer(wxTimerEvent& event)
 {
-    //timeElapsed++;
+    if (!currentSong)
+        return;
+    if (!currentSong->info)
+        return;
 
-    if(timeElapsed >= maxElapsed)
+    if (songEnd)
     {
+        songEnd = false;
         wxCommandEvent evt;
         evt.SetId(wxID_CALLBACK);
         OnNext(evt);
         return;
     }
 
-    if(!bTracking)
+    unsigned long timeElapsed = ay_getelapsedtime(currentSong->info);
+    if (!bTracking)
         posslider->SetValue(timeElapsed);
 
     unsigned long elapsedSeconds = timeElapsed / 50;
@@ -598,25 +539,23 @@ void AyflyFrame::OnTimer(wxTimerEvent& event)
 
 void AyflyFrame::ElapsedCallback(void *arg)
 {
-    AyflyFrame *frame = (AyflyFrame *)arg;
-    //frame->timer.Stop();
+    AyflyFrame *frame = (AyflyFrame *) arg;
     wxCommandEvent evt;
 
-    if(frame->toolBar->GetToolState(wxID_REPEAT))
+    frame->songEnd = true;
+
+    if (frame->toolBar->GetToolState(wxID_REPEAT))
     {
-        timeElapsed = frame->currentSong->Loop;
-        //frame->timer.Start(TIMER_INTERVAL);
-        return;
+        frame->songEnd = false;
     }
 
-    //frame->timer.Start(TIMER_INTERVAL);
 }
 
 void AyflyFrame::OnScroll(wxScrollEvent &event)
 {
     int id = event.GetId();
 
-    switch(id)
+    switch (id)
     {
         case SLIDER_VOLA_ID:
         case SLIDER_VOLB_ID:
@@ -625,32 +564,31 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
             double vol_int = event.GetPosition();
             double vol = CalculateVolume(vol_int);
 
-            if(btnLink->GetValue())
+            if (btnLink->GetValue())
             {
-                if(player)
+                if (currentSong && currentSong->info)
                 {
-                    player->SetVolume(0, vol);
-                    player->SetVolume(1, vol);
-                    player->SetVolume(2, vol);
+                    ay_setvolume(currentSong->info, 0, vol);
+                    ay_setvolume(currentSong->info, 1, vol);
+                    ay_setvolume(currentSong->info, 2, vol);
                 }
 
                 slidera->SetValue(vol_int);
-
                 sliderb->SetValue(vol_int);
                 sliderc->SetValue(vol_int);
             }
-            else if(player)
+            else if (currentSong && currentSong->info)
             {
-                switch(id)
+                switch (id)
                 {
                     case SLIDER_VOLA_ID:
-                        player->SetVolume(0, vol);
+                        ay_setvolume(currentSong->info, 0, vol);
                         break;
                     case SLIDER_VOLB_ID:
-                        player->SetVolume(1, vol);
+                        ay_setvolume(currentSong->info, 1, vol);
                         break;
                     case SLIDER_VOLC_ID:
-                        player->SetVolume(2, vol);
+                        ay_setvolume(currentSong->info, 2, vol);
                         break;
                     default:
                         break;
@@ -671,27 +609,29 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
             break;
         case wxID_POSSLIDER:
         {
-            if(event.GetEventType() == wxEVT_SCROLL_THUMBTRACK)
+            if (event.GetEventType() == wxEVT_SCROLL_THUMBTRACK)
             {
                 bTracking = true;
             }
             else
             {
-                if(!currentSong)
+                if (!currentSong)
+                    break;
+                if (!currentSong->info)
                     break;
 
-                bool started = player->Started();
+                bool started = ay_songstarted(currentSong->info);
 
-                if(started)
+                if (started)
                 {
                     wxCommandEvent evt;
                     OnPlay(evt);
                 }
 
                 unsigned long pos = event.GetPosition();
-                ay_sys_rewindsong(*currentSong, pos);
+                ay_rewindsong(currentSong->info, pos);
 
-                if(started)
+                if (started)
                 {
                     wxCommandEvent evt;
                     OnPlay(evt);
@@ -711,16 +651,13 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
 
 void AyflyFrame::OnSelectSong(wxListEvent &event)
 {
+    if(currentSong && currentSong->info)
+        ay_closesong((void **)&currentSong->info);
     currentIndex = event.GetIndex();
-    currentSong = (AYSongInfo *)playListView->GetItemData(currentIndex);
-
-    if(currentSong && (!currentSong->FilePath.empty()))
+    if (OpenFile())
     {
-        if(OpenFile())
-        {
-            wxCommandEvent evt;
-            OnPlay(evt);
-        }
+        wxCommandEvent evt;
+        OnPlay(evt);
     }
 }
 
@@ -728,20 +665,20 @@ void AyflyFrame::OnListKeyDown(wxListEvent &event)
 {
     int key = event.GetKeyCode();
 
-    if(key == WXK_DELETE)
+    if (key == WXK_DELETE)
     {
         long cnt_sel = playListView->GetSelectedItemCount();
 
-        if(cnt_sel > 0)
+        if (cnt_sel > 0)
         {
             long index = playListView->GetFirstSelected();
 
-            while(index != -1)
+            while (index != -1)
             {
-                AYSongInfo *deletedSong = (AYSongInfo *)playListView->GetItemData(index);
+                CurrentSong *deletedSong = (CurrentSong *) playListView->GetItemData(index);
                 wxString filePath = deletedSong->FilePath;
 
-                if(deletedSong == currentSong)
+                if (deletedSong == currentSong)
                 {
                     wxCommandEvent evt;
                     OnStop(evt);
@@ -750,11 +687,13 @@ void AyflyFrame::OnListKeyDown(wxListEvent &event)
                     currentSong = 0;
                 }
 
+                if (deletedSong->info)
+                    ay_closesong((void **) &deletedSong->info);
                 delete deletedSong;
                 playListView->DeleteItem(index);
                 index--;
 
-                if(index == -1)
+                if (index == -1)
                     index = playListView->GetFirstSelected();
                 else
                     index = playListView->GetNextSelected(index);
@@ -766,7 +705,7 @@ void AyflyFrame::OnListKeyDown(wxListEvent &event)
 
 void AyflyFrame::OnSelectAll(wxCommandEvent &event)
 {
-    for(int i = 0; i < playListView->GetItemCount(); i++)
+    for (int i = 0; i < playListView->GetItemCount(); i++)
     {
         playListView->Select(i, true);
     }
@@ -774,7 +713,7 @@ void AyflyFrame::OnSelectAll(wxCommandEvent &event)
 
 void AyflyFrame::OnSetRepeat(wxCommandEvent &event)
 {
-    if(toolBar)
+    if (toolBar)
         toolBar->ToggleTool(wxID_REPEAT, (1 - toolBar->GetToolState(wxID_REPEAT)) ? true : false);
 }
 
@@ -789,12 +728,12 @@ void AyflyFrame::RecreateToolbar()
 {
     //SetToolBar(NULL);
     bool bCreate = toolBar != 0 ? false : true;
-    bool a_muted = player ? player->ChnlMuted(0) : true;
-    bool b_muted = player ? player->ChnlMuted(1) : true;
-    bool c_muted = player ? player->ChnlMuted(2) : true;
-    bool started = player ? player->Started() : false;
+    bool a_on = true;
+    bool b_on = true;
+    bool c_on = true;
+    bool started = currentSong && currentSong->info ? ay_songstarted(currentSong->info) : false;
 
-    if(toolBar == 0)
+    if (toolBar == 0)
     {
         toolBar = CreateToolBar(wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT);
         toolBar->SetToolBitmapSize(wxSize(40, 32));
@@ -805,7 +744,7 @@ void AyflyFrame::RecreateToolbar()
         toolBar->AddTool(wxID_OPEN, bmpOpen, wxT("Open"));
         toolBar->AddSeparator();
 
-        if(started)
+        if (started)
         {
             wxBitmap bmpPlay(Pause_xpm);
             toolBar->AddTool(wxID_PLAY, wxT("Play"), bmpPlay, wxT("Pause song"), wxITEM_CHECK);
@@ -835,9 +774,9 @@ void AyflyFrame::RecreateToolbar()
         wxBitmap bmpB(B_xpm);
         wxBitmap bmpC(C_xpm);
 
-        toolBar->AddTool(wxID_AMUTE, wxT("Mute A"), bmpA, a_muted ? wxT("Enable A channel") : wxT("Mute A channel"), wxITEM_CHECK);
-        toolBar->AddTool(wxID_BMUTE, wxT("Mute B"), bmpB, b_muted ? wxT("Enable B channel") : wxT("Mute B channel"), wxITEM_CHECK);
-        toolBar->AddTool(wxID_CMUTE, wxT("Mute C"), bmpC, c_muted ? wxT("Enable C channel") : wxT("Mute C channel"), wxITEM_CHECK);
+        toolBar->AddTool(wxID_AMUTE, wxT("Mute A"), bmpA, a_on ? wxT("Enable A channel") : wxT("Mute A channel"), wxITEM_CHECK);
+        toolBar->AddTool(wxID_BMUTE, wxT("Mute B"), bmpB, b_on ? wxT("Enable B channel") : wxT("Mute B channel"), wxITEM_CHECK);
+        toolBar->AddTool(wxID_CMUTE, wxT("Mute C"), bmpC, c_on ? wxT("Enable C channel") : wxT("Mute C channel"), wxITEM_CHECK);
 
         toolBar->AddSeparator();
 
@@ -876,8 +815,11 @@ void AyflyFrame::RecreateToolbar()
     }
     else
     {
+        a_on = toolBar->GetToolState(wxID_AMUTE);
+        b_on = toolBar->GetToolState(wxID_BMUTE);
+        c_on = toolBar->GetToolState(wxID_CMUTE);
 
-        if(started)
+        if (started)
         {
             wxBitmap bmpPlay(Pause_xpm);
             toolBar->SetToolNormalBitmap(wxID_PLAY, bmpPlay);
@@ -894,15 +836,15 @@ void AyflyFrame::RecreateToolbar()
 
     }
 
-    toolBar->SetToolShortHelp(wxID_AMUTE, a_muted ? wxT("Enable A") : wxT("Mute A"));
+    toolBar->SetToolShortHelp(wxID_AMUTE, a_on ? wxT("Enable A") : wxT("Mute A"));
 
-    toolBar->SetToolLongHelp(wxID_AMUTE, a_muted ? wxT("Enable A channel") : wxT("Mute A channel"));
+    toolBar->SetToolLongHelp(wxID_AMUTE, a_on ? wxT("Enable A channel") : wxT("Mute A channel"));
 
-    toolBar->SetToolShortHelp(wxID_BMUTE, b_muted ? wxT("Enable B") : wxT("Mute B"));
-    toolBar->SetToolLongHelp(wxID_BMUTE, b_muted ? wxT("Enable B channel") : wxT("Mute B channel"));
+    toolBar->SetToolShortHelp(wxID_BMUTE, b_on ? wxT("Enable B") : wxT("Mute B"));
+    toolBar->SetToolLongHelp(wxID_BMUTE, b_on ? wxT("Enable B channel") : wxT("Mute B channel"));
 
-    toolBar->SetToolShortHelp(wxID_CMUTE, b_muted ? wxT("Enable C") : wxT("Mute C"));
-    toolBar->SetToolLongHelp(wxID_CMUTE, c_muted ? wxT("Enable C channel") : wxT("Mute C channel"));
+    toolBar->SetToolShortHelp(wxID_CMUTE, b_on ? wxT("Enable C") : wxT("Mute C"));
+    toolBar->SetToolLongHelp(wxID_CMUTE, c_on ? wxT("Enable C channel") : wxT("Mute C channel"));
 
     toolBar->EnableTool(wxID_PLAY, (playListView->GetItemCount()) ? true : false);
     toolBar->EnableTool(wxID_REWIND, (playListView->GetItemCount()) ? true : false);
@@ -916,11 +858,11 @@ void AyflyFrame::RecreateToolbar()
     toolBar->EnableTool(wxID_BMUTE, true);
     toolBar->EnableTool(wxID_CMUTE, true);
 
-    toolBar->ToggleTool(wxID_AMUTE, !a_muted);
-    toolBar->ToggleTool(wxID_BMUTE, !b_muted);
-    toolBar->ToggleTool(wxID_CMUTE, !c_muted);
+    toolBar->ToggleTool(wxID_AMUTE, a_on);
+    toolBar->ToggleTool(wxID_BMUTE, b_on);
+    toolBar->ToggleTool(wxID_CMUTE, c_on);
 
-    if(bCreate)
+    if (bCreate)
     {
         toolBar->Realize();
         SetToolBar(toolBar);
@@ -934,39 +876,24 @@ double AyflyFrame::CalculateVolume(double volume_int)
 
 bool AyflyFrame::OpenFile()
 {
-    if(player && currentSong)
+    currentSong = (CurrentSong *) playListView->GetItemData(currentIndex);
+    if (currentSong && (currentSong->FilePath != wxEmptyString))
     {
-        fileOpened = false;
-
-        if(timer.IsRunning())
+        if (timer.IsRunning())
             timer.Stop();
+        if (currentSong->info)
+            ay_stopsong(currentSong->info);
 
-        player->Stop();
+        currentPath = currentSong->FilePath;
 
-        timeElapsed = 0;
-
-        maxElapsed = 4 * 60 * 50;
-
-        if(currentSong)
-            if(currentSong->Length)
-                maxElapsed = currentSong->Length;
-
-        posslider->SetRange(0, maxElapsed);
-
-        ay_sys_shutdownz80();
-
-        ay_sys_initz80();
-
-        currentPath = wxString(currentSong->FilePath.c_str());
-
-        if(ay_sys_readfromfile(*currentSong))
+        if (currentSong->info = (AYSongInfo *) ay_initsong(currentPath.wc_str(), 44100))
         {
-            fileOpened = true;
             wxString fileName;
             wxString fileExt;
             wxSplitPath(currentPath, NULL, &fileName, &fileExt);
             wxString frameTitle = wxString(wxT(WINDOW_TEXT)) + wxString(wxT(" - ")) + fileName + wxT(".") + fileExt;
             SetTitle(frameTitle.c_str());
+            posslider->SetRange(0, ay_getsonglength(currentSong->info));
             RecreateToolbar();
             return true;
         }
@@ -981,12 +908,13 @@ bool AyflyFrame::AddFile(const wxString &filePath)
     wxString fileExt;
     wxSplitPath(filePath, NULL, &fileName, &fileExt);
     wxString buf = fileName + wxT(".") + fileExt;
-    AYSongInfo *info = new AYSongInfo;
-    info->FilePath = filePath;
-    ay_sys_getsonginfo(*info);
+    AYSongInfo *info = (AYSongInfo *) ay_getsonginfo(filePath);
+    if (!info)
+        return false;
 
-    if(info->Length == 0)
+    if (info->Length == 0)
     {
+        ay_closesong((void **) &info);
         return false;
     }
 
@@ -994,13 +922,17 @@ bool AyflyFrame::AddFile(const wxString &filePath)
 
     playListView->InsertItem(index, buf);
     float seconds_f = info->Length / INTR_FREQ;
+    ay_closesong((void **) &info);
     unsigned long seconds = seconds_f;
-    if((float)seconds != seconds_f)
+    if ((float) seconds != seconds_f)
         seconds++;
     unsigned long minutes = seconds / 60;
     seconds = seconds % 60;
     buf.Printf(wxT("00:%.2lu:%.2lu"), minutes, seconds);
-    playListView->SetItemData(index, (long)info);
+    CurrentSong *song = new CurrentSong;
+    song->FilePath = filePath;
+    song->info = 0;
+    playListView->SetItemData(index, (long) song);
     playListView->SetItem(index, 1, buf);
     toolBar->EnableTool(wxID_PLAY, true);
     toolBar->EnableTool(wxID_REWIND, true);

@@ -23,6 +23,12 @@
 
 #define WINDOW_TEXT "Ayfly AY891x player v." AYFLY_VERSION_TEXT
 
+struct CurrentSong
+{
+    wxString FilePath;
+    AYSongInfo *info;
+};
+
 class AyflyFrame : public wxFrame
 {
 public:
@@ -35,8 +41,6 @@ public:
     static void ElapsedCallback(void *arg);
 
 private:
-    AbstractAudio *player;
-    bool fileOpened;
     wxString defaultDir;
     wxString defaultFileName;
     wxString path;
@@ -57,13 +61,13 @@ private:
     wxSlider* posslider;
     wxListCtrl* playListCtrl;
 
-    AYSongInfo *currentSong;
+    CurrentSong *currentSong;
 
     bool bTracking;
 
     long currentIndex;
     wxString currentPath;
-
+    bool songEnd;
 
     void RecreateToolbar();
     double CalculateVolume(double volume_int);

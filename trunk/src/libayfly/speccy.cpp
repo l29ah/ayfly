@@ -86,11 +86,11 @@ void ay_sys_shutdownz80(AYSongInfo &info)
     memset(info.z80IO, 0, 65536);
 }
 
-void ay_z80exec(AYSongInfo &info)
+void ay_sys_z80exec(AYSongInfo &info)
 {
-    if(info.soft_play_proc)
+    if(info.play_proc)
     {
-        info.soft_play_proc(info);
+        info.play_proc(info);
         return;
     }
     do
