@@ -43,14 +43,14 @@ struct ASC_SongInfo
     ASC_Channel_Parameters ASC_A, ASC_B, ASC_C;
 };
 
-#define ASC_A(x) ((ASC_SongInfo *)x.data)->ASC_A
-#define ASC_B(x) ((ASC_SongInfo *)x.data)->ASC_B
-#define ASC_C(x) ((ASC_SongInfo *)x.data)->ASC_C
-#define ASC(x) ((ASC_SongInfo *)x.data)->ASC
+#define ASC_A ((ASC_SongInfo *)info.data)->ASC_A
+#define ASC_B ((ASC_SongInfo *)info.data)->ASC_B
+#define ASC_C ((ASC_SongInfo *)info.data)->ASC_C
+#define ASC ((ASC_SongInfo *)info.data)->ASC
 
 void ASC_Init(AYSongInfo &info)
 {
-    unsigned char *module = info.file_data;
+    unsigned char *module = info.module;
     ASC1_File *header = (ASC1_File *)module;
     AbstractAudio *player = info.player;
     unsigned short ascPatPt = header->ASC1_PatternsPointers;
@@ -62,15 +62,15 @@ void ASC_Init(AYSongInfo &info)
     info.data = (void *)new ASC_SongInfo;
     if(!info.data)
         return;
-    memset(&ASC_A(info), 0, sizeof(ASC_Channel_Parameters));
-    memset(&ASC_B(info), 0, sizeof(ASC_Channel_Parameters));
-    memset(&ASC_C(info), 0, sizeof(ASC_Channel_Parameters));
-    ASC(info).CurrentPosition = 0;
-    ASC(info).DelayCounter = 1;
-    ASC(info).Delay = header->ASC1_Delay;
-    ASC_A(info).Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[9]]) + ascPatPt;
-    ASC_B(info).Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[9] + 2]) + ascPatPt;
-    ASC_C(info).Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[9] + 4]) + ascPatPt;
+    memset(&ASC_A, 0, sizeof(ASC_Channel_Parameters));
+    memset(&ASC_B, 0, sizeof(ASC_Channel_Parameters));
+    memset(&ASC_C, 0, sizeof(ASC_Channel_Parameters));
+    ASC.CurrentPosition = 0;
+    ASC.DelayCounter = 1;
+    ASC.Delay = header->ASC1_Delay;
+    ASC_A.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[9]]) + ascPatPt;
+    ASC_B.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[9] + 2]) + ascPatPt;
+    ASC_C.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[9] + 4]) + ascPatPt;
     player->ResetAy();
 
 }
@@ -178,7 +178,7 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
         else if(val == 0xf4)
         {
             chan.Address_In_Pattern++;
-            ASC(info).Delay = module[chan.Address_In_Pattern];
+            ASC.Delay = module[chan.Address_In_Pattern];
         }
         else if(val == 0xf5)
         {
@@ -366,50 +366,50 @@ void ASC_Play(AYSongInfo &info)
             info.callback(info.callback_arg);
     }
 
-    if(--ASC(info).DelayCounter <= 0)
+    if(--ASC.DelayCounter <= 0)
     {
-        if(--ASC_A(info).Note_Skip_Counter < 0)
+        if(--ASC_A.Note_Skip_Counter < 0)
         {
-            if(module[ASC_A(info).Address_In_Pattern] == 255)
+            if(module[ASC_A.Address_In_Pattern] == 255)
             {
-                if(++ASC(info).CurrentPosition >= header->ASC1_Number_Of_Positions)
-                    ASC(info).CurrentPosition = header->ASC1_LoopingPosition;
+                if(++ASC.CurrentPosition >= header->ASC1_Number_Of_Positions)
+                    ASC.CurrentPosition = header->ASC1_LoopingPosition;
                 unsigned short ascPatPt = header->ASC1_PatternsPointers;
-                ASC_A(info).Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[ASC(info).CurrentPosition + 9]]) + ascPatPt;
-                ASC_B(info).Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[ASC(info).CurrentPosition + 9] + 2]) + ascPatPt;
-                ASC_C(info).Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[ASC(info).CurrentPosition + 9] + 4]) + ascPatPt;
-                ASC_A(info).Initial_Noise = 0;
-                ASC_B(info).Initial_Noise = 0;
-                ASC_C(info).Initial_Noise = 0;
+                ASC_A.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[ASC.CurrentPosition + 9]]) + ascPatPt;
+                ASC_B.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[ASC.CurrentPosition + 9] + 2]) + ascPatPt;
+                ASC_C.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[ASC.CurrentPosition + 9] + 4]) + ascPatPt;
+                ASC_A.Initial_Noise = 0;
+                ASC_B.Initial_Noise = 0;
+                ASC_C.Initial_Noise = 0;
             }
-            ASC_PatternInterpreter(info, ASC_A(info));
+            ASC_PatternInterpreter(info, ASC_A);
         }
-        if(--ASC_B(info).Note_Skip_Counter < 0)
+        if(--ASC_B.Note_Skip_Counter < 0)
         {
-            ASC_PatternInterpreter(info, ASC_B(info));
+            ASC_PatternInterpreter(info, ASC_B);
         }
-        if(--ASC_C(info).Note_Skip_Counter < 0)
+        if(--ASC_C.Note_Skip_Counter < 0)
         {
-            ASC_PatternInterpreter(info, ASC_C(info));
+            ASC_PatternInterpreter(info, ASC_C);
         }
-        ASC(info).DelayCounter = ASC(info).Delay;
+        ASC.DelayCounter = ASC.Delay;
     }
 
     TempMixer = 0;
-    ASC_GetRegisters(info, ASC_A(info), TempMixer);
-    ASC_GetRegisters(info, ASC_B(info), TempMixer);
-    ASC_GetRegisters(info, ASC_C(info), TempMixer);
+    ASC_GetRegisters(info, ASC_A, TempMixer);
+    ASC_GetRegisters(info, ASC_B, TempMixer);
+    ASC_GetRegisters(info, ASC_C, TempMixer);
 
     player->WriteAy(AY_MIXER, TempMixer);
-    player->WriteAy(AY_CHNL_A_FINE, ASC_A(info).Ton & 0xff);
-    player->WriteAy(AY_CHNL_A_COARSE, (ASC_A(info).Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_B_FINE, ASC_B(info).Ton & 0xff);
-    player->WriteAy(AY_CHNL_B_COARSE, (ASC_B(info).Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_C_FINE, ASC_C(info).Ton & 0xff);
-    player->WriteAy(AY_CHNL_C_COARSE, (ASC_C(info).Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_A_VOL, ASC_A(info).Amplitude);
-    player->WriteAy(AY_CHNL_B_VOL, ASC_B(info).Amplitude);
-    player->WriteAy(AY_CHNL_C_VOL, ASC_C(info).Amplitude);
+    player->WriteAy(AY_CHNL_A_FINE, ASC_A.Ton & 0xff);
+    player->WriteAy(AY_CHNL_A_COARSE, (ASC_A.Ton >> 8) & 0xf);
+    player->WriteAy(AY_CHNL_B_FINE, ASC_B.Ton & 0xff);
+    player->WriteAy(AY_CHNL_B_COARSE, (ASC_B.Ton >> 8) & 0xf);
+    player->WriteAy(AY_CHNL_C_FINE, ASC_C.Ton & 0xff);
+    player->WriteAy(AY_CHNL_C_COARSE, (ASC_C.Ton >> 8) & 0xf);
+    player->WriteAy(AY_CHNL_A_VOL, ASC_A.Amplitude);
+    player->WriteAy(AY_CHNL_B_VOL, ASC_B.Amplitude);
+    player->WriteAy(AY_CHNL_C_VOL, ASC_C.Amplitude);
 
     info.timeElapsed++;
 }
