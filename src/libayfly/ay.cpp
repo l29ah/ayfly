@@ -261,7 +261,7 @@ void ay::updateEnvelope()
     }
 }
 
-void ay::ayProcess(unsigned char *stream, int len)
+void ay::ayProcess(unsigned char *stream, unsigned long len)
 {
     unsigned long work_len = (len >> 2);
     float s0, s1, s2;
