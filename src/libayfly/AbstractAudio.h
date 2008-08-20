@@ -18,8 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-
-
 #ifndef AUDIO_H_
 #define AUDIO_H_
 
@@ -43,10 +41,12 @@ public:
     void ResetAy()
     {
         ay8910->ayReset();
-    };
+    }
+    ;
     inline virtual bool ChnlMute(unsigned long chnl, bool mute)
     {
-        if(ay8910) ay8910->chnlMute(chnl, mute);
+        if (ay8910)
+            ay8910->chnlMute(chnl, mute);
     }
     ;
     inline virtual bool ChnlMuted(unsigned long chnl)
@@ -70,6 +70,11 @@ public:
         {
             ay8910->SetVolume(chnl, new_volume);
         }
+    }
+    ;
+    inline const unsigned char *GetAYRegs(unsigned long chip_num)
+    {
+        return ay8910 ? ay8910->GetRegs() : 0;
     }
     ;
 protected:

@@ -165,6 +165,7 @@ void ay_startsong(void *info);
 void ay_stopsong(void *info);
 unsigned long ay_getsonglength(void *info);
 unsigned long ay_getelapsedtime(void *info);
+const unsigned char *ay_getregs(void *info, unsigned long chip_num);
 
 
 #    define AYFLY_VERSION_MAJOR 0

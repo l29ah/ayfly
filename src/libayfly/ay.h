@@ -70,6 +70,10 @@ public:
         volume[chnl] = new_volume;
     }
     ;
+    inline const unsigned char *GetRegs()
+    {
+        return regs;
+    };
 
     void SetBufferSize(int _buf_sz);
 private:

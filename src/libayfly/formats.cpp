@@ -23,12 +23,12 @@
 #pragma pack(1)
 #endif
 #include "players/ASCPlay.h"
-//#include "players/PSCPlay.h"
-//#include "players/PT2Play.h"
-//#include "players/PT3Play.h"
-//#include "players/STPPlay.h"
-//#include "players/STCPlay.h"
-//#include "players/SQTPlay.h"
+#include "players/PT2Play.h"
+#include "players/PT3Play.h"
+#include "players/STPPlay.h"
+#include "players/STCPlay.h"
+#include "players/PSCPlay.h"
+#include "players/SQTPlay.h"
 
 typedef void (*GETINFO_CALLBACK)(AYSongInfo &info);
 
@@ -59,12 +59,13 @@ struct _Players
 _Players Players[] =
 {
 { TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASC_Cleanup, ASC_GetInfo },
-/*{ TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0, 0xc006, 0, PT2_GetInfo },
- { TXT(".pt3"), PT3Play_data, 0xc000, sizeof(PT3Play_data), 0x0000, 0xc000, 0, 0xc005, 0, PT3_GetInfo },
- { TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STP_GetInfo },
- { TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_GetInfo },
- { TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, STC_GetInfo },
- { TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_GetInfo }*/};
+{ TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, PT2_GetInfo },
+{ TXT(".pt3"), PT3Play_data, 0xc000, sizeof(PT3Play_data), 0x0000, 0xc000, 0, 0xc005, 0, 0, PT3_GetInfo },
+{ TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, STC_GetInfo },
+{ TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, STP_GetInfo },
+{ TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_Cleanup, PSC_GetInfo },
+{ TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_Cleanup, SQT_GetInfo }
+};
 
 /*
  * parts of ay read code and memory init are from aylet player:
@@ -433,6 +434,7 @@ bool ay_sys_getsonginfo(AYSongInfo &info)
     }
     memset(info.file_data, 0, 65536);
     memcpy(info.file_data, fileData, data_len);
+    info.file_len = data_len;
 
 #undef GET_WORD
 #define GET_WORD(x) {(x) = (*ptr++) << 8; (x) |= *ptr++;}

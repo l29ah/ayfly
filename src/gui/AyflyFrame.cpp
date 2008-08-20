@@ -295,10 +295,8 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
 {
     playListView->Select(currentIndex);
     playListView->EnsureVisible(currentIndex);
-    if(!currentSong)
-        return;
 
-    if (currentSong->info)
+    if (currentSong && currentSong->info)
     {
         posslider->SetRange(0, ay_getsonglength(currentSong->info));
         if (ay_songstarted(currentSong->info))
@@ -338,7 +336,7 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
         }
     }
 
-    if (currentSong->info)
+    if (currentSong && currentSong->info)
     {
         posslider->SetValue(ay_getelapsedtime(currentSong->info));
         ay_setcallback(currentSong->info, AyflyFrame::ElapsedCallback, this);
@@ -836,15 +834,15 @@ void AyflyFrame::RecreateToolbar()
 
     }
 
-    toolBar->SetToolShortHelp(wxID_AMUTE, a_on ? wxT("Enable A") : wxT("Mute A"));
+    toolBar->SetToolShortHelp(wxID_AMUTE, !a_on ? wxT("Enable A") : wxT("Mute A"));
 
-    toolBar->SetToolLongHelp(wxID_AMUTE, a_on ? wxT("Enable A channel") : wxT("Mute A channel"));
+    toolBar->SetToolLongHelp(wxID_AMUTE, !a_on ? wxT("Enable A channel") : wxT("Mute A channel"));
 
-    toolBar->SetToolShortHelp(wxID_BMUTE, b_on ? wxT("Enable B") : wxT("Mute B"));
-    toolBar->SetToolLongHelp(wxID_BMUTE, b_on ? wxT("Enable B channel") : wxT("Mute B channel"));
+    toolBar->SetToolShortHelp(wxID_BMUTE, !b_on ? wxT("Enable B") : wxT("Mute B"));
+    toolBar->SetToolLongHelp(wxID_BMUTE, !b_on ? wxT("Enable B channel") : wxT("Mute B channel"));
 
-    toolBar->SetToolShortHelp(wxID_CMUTE, b_on ? wxT("Enable C") : wxT("Mute C"));
-    toolBar->SetToolLongHelp(wxID_CMUTE, c_on ? wxT("Enable C channel") : wxT("Mute C channel"));
+    toolBar->SetToolShortHelp(wxID_CMUTE, !b_on ? wxT("Enable C") : wxT("Mute C"));
+    toolBar->SetToolLongHelp(wxID_CMUTE, !c_on ? wxT("Enable C channel") : wxT("Mute C channel"));
 
     toolBar->EnableTool(wxID_PLAY, (playListView->GetItemCount()) ? true : false);
     toolBar->EnableTool(wxID_REWIND, (playListView->GetItemCount()) ? true : false);
