@@ -43,7 +43,6 @@ Cayfly_s60Audio* Cayfly_s60Audio::NewL(AYSongInfo *info)
 Cayfly_s60Audio::Cayfly_s60Audio(AYSongInfo *info) :
     AbstractAudio(AUDIO_FREQ, info), iDesc1(0, 0, 0), iDesc2(0, 0, 0)
 {
-    songinfo = info;
     iVolume = 7;
 
 }
@@ -404,6 +403,7 @@ TInt serverthreadfunction(TAny *aThis)
 void Cayfly_s60Audio::ConstructL()
 {
     iVolume = 7;
+    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 1!"));
     ay8910 = new ay(songinfo); // 16 bit, 2 ch.
 
     iBuffer1 = new (ELeave) unsigned char[MIX_BUFFER_LENGTH];
