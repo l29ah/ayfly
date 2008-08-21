@@ -47,6 +47,7 @@
 
 #    include <stdio.h>
 #    include <stdlib.h>
+#    include <string.h>
 #    include <math.h>
 
 
@@ -133,10 +134,14 @@ struct AYSongInfo
 };
 
 
+#ifndef __SYMBIAN32__
 #ifndef WINDOWS
 #include "unix/SDLAudio.h"
 #else
 #include "windows/DXAudio.h"
+#endif
+#else
+#include "s60/ayfly_s60Audio.h"
 #endif
 
 

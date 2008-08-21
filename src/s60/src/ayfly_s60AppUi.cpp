@@ -108,10 +108,6 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		    {
 		        CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Can't open file!"));
 		    }
-		    else
-		    {
-		        ay_setsongplayer(currentSong, new Cayfly_s60Audio((AYSongInfo *)currentSong));
-		    }
 		}
 	}
 		break;

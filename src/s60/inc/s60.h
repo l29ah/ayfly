@@ -51,7 +51,6 @@
 
 #include "ayfly_s60.hrh"
 #include "ayfly_s60.pan"
-#include "ayfly_s60Audio.h"
 #include "ayfly_s60Document.h"
 #include "ayfly_s60Application.h"
 #include "ayfly_s60AppUi.h"

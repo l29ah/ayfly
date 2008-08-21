@@ -96,13 +96,16 @@ void *ay_initsong(TFileName FilePath, unsigned long sr)
         }
     }
 
-#ifndef __SYMBIAN32__
     if(info)
     {
+#ifndef __SYMBIAN32__
 #ifdef WINDOWS
         info->player = new DXAudio(sr, info);
 #else
         info->player = new SDLAudio(sr, info);
+#endif
+#else
+        info->player = new Cayfly_s60Audio(info);
 #endif
         if(!info->player)
         {
@@ -110,7 +113,6 @@ void *ay_initsong(TFileName FilePath, unsigned long sr)
             return 0;
         }
     }
-#endif
 
     return info;
 }
@@ -153,13 +155,16 @@ void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName typ
 #endif
         }
     }
-#ifndef __SYMBIAN32__
     if(info)
     {
+#ifndef __SYMBIAN32__
 #ifdef WINDOWS
         info->player = new DXAudio(sr, info);
 #else
         info->player = new SDLAudio(sr, info);
+#endif
+#else
+        info->player = new Cayfly_s60Audio(info);
 #endif
         if(!info->player)
         {
@@ -167,7 +172,6 @@ void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName typ
             return 0;
         }
     }
-#endif
     return info;
 }
 
