@@ -59,7 +59,7 @@ LIBRARY        aknnotify.lib
 LIBRARY        hlplch.lib
 LIBRARY        commondialogs.lib
 LIBRARY        platformenv.lib
-/*LIBRARY        mediaclientaudiostream.lib*/
+LIBRARY        mediaclientaudiostream.lib
  
 
 LANG SC
