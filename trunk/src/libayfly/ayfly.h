@@ -131,6 +131,7 @@ struct AYSongInfo
     unsigned long ay_freq; /* AY chip frequency */
     unsigned long int_freq; /* interrupts frequency */
     unsigned long sr; /* sample rate */
+    ~AYSongInfo();
 };
 
 

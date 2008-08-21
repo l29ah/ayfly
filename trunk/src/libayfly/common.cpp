@@ -41,7 +41,11 @@ AYSongInfo *ay_sys_getnewinfo()
     info->z80_freq = Z80_FREQ;
     info->ay_freq = info->z80_freq / 2;
     info->int_freq = INT_FREQ;
+#ifndef __SYMBIAN32__
     info->sr = 44100;
+#else
+    info->sr = 32000;
+#endif
     info->player = 0;
     memset(info->module, 0, 65536);
     memset(info->file_data, 0, 65536);
@@ -58,6 +62,20 @@ void *ay_initsong(TFileName FilePath, unsigned long sr)
     AYSongInfo *info = ay_sys_getnewinfo();
     if(!info)
         return 0;
+#ifndef __SYMBIAN32__
+#ifdef WINDOWS
+    info->player = new DXAudio(sr, info);
+#else
+    info->player = new SDLAudio(sr, info);
+#endif
+#else
+    info->player = new Cayfly_s60Audio(info);
+#endif
+    if(!info->player)
+    {
+        delete info;
+        return 0;
+    }
     info->FilePath = FilePath;
     info->sr = sr;
 
@@ -96,24 +114,6 @@ void *ay_initsong(TFileName FilePath, unsigned long sr)
         }
     }
 
-    if(info)
-    {
-#ifndef __SYMBIAN32__
-#ifdef WINDOWS
-        info->player = new DXAudio(sr, info);
-#else
-        info->player = new SDLAudio(sr, info);
-#endif
-#else
-        info->player = new Cayfly_s60Audio(info);
-#endif
-        if(!info->player)
-        {
-            delete info;
-            return 0;
-        }
-    }
-
     return info;
 }
 
@@ -130,6 +130,20 @@ void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName typ
     info->file_len = size;
     memcpy(info->file_data, module, size);
     info->sr = sr;
+#ifndef __SYMBIAN32__
+#ifdef WINDOWS
+    info->player = new DXAudio(sr, info);
+#else
+    info->player = new SDLAudio(sr, info);
+#endif
+#else
+    info->player = new Cayfly_s60Audio(info);
+#endif
+    if(!info->player)
+    {
+        delete info;
+        return 0;
+    }
     if(!ay_sys_initsong(*info))
     {
         delete info;
@@ -155,23 +169,7 @@ void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName typ
 #endif
         }
     }
-    if(info)
-    {
-#ifndef __SYMBIAN32__
-#ifdef WINDOWS
-        info->player = new DXAudio(sr, info);
-#else
-        info->player = new SDLAudio(sr, info);
-#endif
-#else
-        info->player = new Cayfly_s60Audio(info);
-#endif
-        if(!info->player)
-        {
-            delete info;
-            return 0;
-        }
-    }
+
     return info;
 }
 
@@ -418,3 +416,11 @@ void ay_z80xec(void *info)
     return ay_sys_z80exec(*(AYSongInfo *) info);
 }
 
+AYSongInfo::~AYSongInfo()
+{
+    if(player)
+    {
+        delete player;
+        player = 0;
+    }
+}
