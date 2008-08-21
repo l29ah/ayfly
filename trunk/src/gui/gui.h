@@ -59,6 +59,8 @@
 #        include "wx/tglbtn.h"
 #        include "wx/listctrl.h"
 #        include "wx/dialog.h"
+#        include "wx/filename.h"
+#        include "wx/dir.h"
 
 struct bindings
 {

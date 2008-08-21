@@ -58,6 +58,9 @@ IMPLEMENT_APP(AyflyApp)
 
 #define wxID_POSSLIDER 1030
 
+#define wxID_AYFREQSLIDER 1050
+#define wxID_INTFREQSLIDER 1051
+
 #define wxID_SELECTALL 1100
 #define wxID_SETREPEAT 1101
 
@@ -87,6 +90,8 @@ EVT_TIMER(TIMER_ID, AyflyFrame::OnTimer)
 EVT_COMMAND_SCROLL(SLIDER_VOLA_ID, AyflyFrame::OnScroll)
 EVT_COMMAND_SCROLL(SLIDER_VOLB_ID, AyflyFrame::OnScroll)
 EVT_COMMAND_SCROLL(SLIDER_VOLC_ID, AyflyFrame::OnScroll)
+EVT_COMMAND_SCROLL(wxID_AYFREQSLIDER, AyflyFrame::OnScroll)
+EVT_COMMAND_SCROLL(wxID_INTFREQSLIDER, AyflyFrame::OnScroll)
 EVT_COMMAND_SCROLL_THUMBTRACK(wxID_POSSLIDER, AyflyFrame::OnScroll)
 EVT_COMMAND_SCROLL_THUMBRELEASE(wxID_POSSLIDER, AyflyFrame::OnScroll)
 EVT_LIST_ITEM_ACTIVATED(PLAYLIST_ID, AyflyFrame::OnSelectSong)
@@ -209,6 +214,30 @@ AyflyFrame::AyflyFrame(const wxString &title) :
 
     allSizer->Add(volumeAllSizer, 0, wxEXPAND, 5);
 
+    wxBoxSizer* ayfreqSizer;
+    ayfreqSizer = new wxBoxSizer(wxHORIZONTAL);
+
+    ayfreqSlider = new wxSlider(this, wxID_AYFREQSLIDER, Z80_FREQ / 2, Z80_FREQ / 4, Z80_FREQ, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+    ayfreqSizer->Add(ayfreqSlider, 1, wxALL | wxEXPAND, 5);
+
+    txtayfreq = new wxStaticText(this, wxID_ANY, wxT("AY freq = 0"), wxDefaultPosition, wxDefaultSize, 0);
+    txtayfreq->Wrap(-1);
+    ayfreqSizer->Add(txtayfreq, 0, wxALL, 5);
+
+    allSizer->Add(ayfreqSizer, 0, wxEXPAND, 5);
+
+    wxBoxSizer* intfreqSizer;
+    intfreqSizer = new wxBoxSizer(wxHORIZONTAL);
+
+    intfreqSlider = new wxSlider(this, wxID_INTFREQSLIDER, 50, 10, 150, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+    intfreqSizer->Add(intfreqSlider, 1, wxALL | wxEXPAND, 5);
+
+    txtintfreq = new wxStaticText(this, wxID_ANY, wxT("INT freq = 0"), wxDefaultPosition, wxDefaultSize, 0);
+    txtintfreq->Wrap(-1);
+    intfreqSizer->Add(txtintfreq, 0, wxALL, 5);
+
+    allSizer->Add(intfreqSizer, 0, wxEXPAND, 5);
+
     wxBoxSizer* PosSizer;
     PosSizer = new wxBoxSizer(wxVERTICAL);
 
@@ -237,6 +266,13 @@ AyflyFrame::AyflyFrame(const wxString &title) :
     itemCol.SetAlign(wxLIST_FORMAT_RIGHT);
     playListView->InsertColumn(1, itemCol);
     playListView->SetColumnWidth(1, sz.GetWidth() - col0_width);
+
+    wxString freq_str;
+    freq_str.Printf(wxT("AY freq = %u"), ayfreqSlider->GetValue());
+    txtayfreq->SetLabel(freq_str);
+
+    freq_str.Printf(wxT("INT freq = %u"), intfreqSlider->GetValue());
+    txtintfreq->SetLabel(freq_str);
 
     RecreateToolbar();
 
@@ -322,6 +358,8 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
         ay_chnlmute(currentSong->info, 0, toolBar->GetToolState(wxID_AMUTE));
         ay_chnlmute(currentSong->info, 1, toolBar->GetToolState(wxID_BMUTE));
         ay_chnlmute(currentSong->info, 2, toolBar->GetToolState(wxID_CMUTE));
+        ay_setayfreq(currentSong->info, ayfreqSlider->GetValue());
+        ay_setintfreq(currentSong->info, intfreqSlider->GetValue());
     }
     else
     {
@@ -391,8 +429,8 @@ void AyflyFrame::OnPrev(wxCommandEvent &event)
         return;
     }
 
-    bool started = ay_songstarted(currentSong);
-    ay_closesong((void **)&currentSong->info);
+    bool started = ay_songstarted(currentSong->info);
+    ay_closesong((void **) &currentSong->info);
 
     wxListEvent evt;
     playListView->Select(currentIndex);
@@ -428,7 +466,7 @@ void AyflyFrame::OnNext(wxCommandEvent &event)
     }
 
     bool started = ay_songstarted(currentSong->info);
-    ay_closesong((void **)&currentSong->info);
+    ay_closesong((void **) &currentSong->info);
 
     if (event.GetId() == wxID_CALLBACK)
         started = true;
@@ -464,7 +502,7 @@ void AyflyFrame::OnStop(wxCommandEvent &event)
         if (timer.IsRunning())
             timer.Stop();
 
-        ay_closesong((void **)&currentSong->info);
+        ay_closesong((void **) &currentSong->info);
         RecreateToolbar();
     }
 }
@@ -603,7 +641,30 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
             txtc->SetLabel(vol_str);
 
         }
-
+            break;
+        case wxID_AYFREQSLIDER:
+        {
+            unsigned long freq = event.GetPosition();
+            wxString freq_str;
+            freq_str.Printf(wxT("AY freq = %u"), freq);
+            txtayfreq->SetLabel(freq_str);
+            if (currentSong && currentSong->info)
+            {
+                ay_setayfreq(currentSong->info, freq);
+            }
+        }
+            break;
+        case wxID_INTFREQSLIDER:
+        {
+            unsigned long freq = event.GetPosition();
+            wxString freq_str;
+            freq_str.Printf(wxT("INT freq = %u"), freq);
+            txtintfreq->SetLabel(freq_str);
+            if (currentSong && currentSong->info)
+            {
+                ay_setintfreq(currentSong->info, freq);
+            }
+        }
             break;
         case wxID_POSSLIDER:
         {
@@ -627,7 +688,7 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
                 }
 
                 unsigned long pos = event.GetPosition();
-                ay_rewindsong(currentSong->info, pos);
+                ay_seeksong(currentSong->info, pos);
 
                 if (started)
                 {
@@ -649,8 +710,8 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
 
 void AyflyFrame::OnSelectSong(wxListEvent &event)
 {
-    if(currentSong && currentSong->info)
-        ay_closesong((void **)&currentSong->info);
+    if (currentSong && currentSong->info)
+        ay_closesong((void **) &currentSong->info);
     currentIndex = event.GetIndex();
     if (OpenFile())
     {
@@ -919,7 +980,7 @@ bool AyflyFrame::AddFile(const wxString &filePath)
     long index = playListView->GetItemCount();
 
     playListView->InsertItem(index, buf);
-    float seconds_f = info->Length / INTR_FREQ;
+    float seconds_f = info->Length / info->int_freq;
     ay_closesong((void **) &info);
     unsigned long seconds = seconds_f;
     if ((float) seconds != seconds_f)

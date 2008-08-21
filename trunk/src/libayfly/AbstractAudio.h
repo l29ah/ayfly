@@ -82,6 +82,11 @@ public:
         ay8910->ayProcess(buffer, buffer_length);
     }
     ;
+    inline void SetAYParameters()
+    {
+        ay8910->SetParameters();
+    }
+    ;
 protected:
     unsigned long sr;
     ay *ay8910;
