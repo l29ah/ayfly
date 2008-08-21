@@ -24,7 +24,7 @@ SDLAudio::SDLAudio(unsigned long _sr, AYSongInfo *info) :
     AbstractAudio(_sr, info)
 {
     songinfo = info;
-    ay8910 = new ay(songinfo, 1024 * 2 * 2); // 16 bit, 2 ch.
+    ay8910 = new ay(songinfo); // 16 bit, 2 ch.
 
 }
 
@@ -56,9 +56,7 @@ bool SDLAudio::Start()
         }
 
         if(ay8910 == 0)
-            ay8910 = new ay(songinfo, fmt_out.size >> 2); // 16 bit, 2 ch.
-        else
-            ay8910->SetBufferSize(fmt_out.size >> 2);
+            ay8910 = new ay(songinfo); // 16 bit, 2 ch.
         SDL_PauseAudio(0);
         started = true;
     }

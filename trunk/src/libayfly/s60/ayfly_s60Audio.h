@@ -1,8 +1,8 @@
 #ifndef S60AUDIO_H_
 #define S60AUDIO_H_
 
-#include <Mda\Common\Audio.h>
-#include <MdaAudioOutputStream.h>
+#include <mda/common/audio.h>
+#include <mdaaudiooutputstream.h>
 #include <e32std.h>
 
 #define AYFLY_SERVER_STACKSIZE        65536
@@ -50,12 +50,26 @@ public:
     void SetDeviceVolume(TInt aVolume);
     TInt GetDeviceVolume();
 
+    virtual void MaoscOpenComplete(TInt aError);
+    virtual void MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer);
+    virtual void MaoscPlayComplete(TInt aError);
+
     bool Start();
     void Stop();
+
+    void PrivateWaitRequestOK();
+    void PrivateStart();
+    void PrivateStop();
+    TInt State();
+    unsigned char *iBuffer1;
+    unsigned char *iBuffer2;
     TPtr8 iDesc1;
     TPtr8 iDesc2;
     RThread iPlayerThread;
+    TRequestStatus *iRequestPtr;
+    TBool iKilling;
     TInt iBufferToMix;
+    TInt iMixStep;
     CIdle *iIdle;
     TBool iIdleActive;
     TBool iStartOnNext;
@@ -64,6 +78,7 @@ public:
     TInt iState;
     TInt iVolume;
     CCommandHandler *iHandler;
+    bool stereo;
 private:
     void KillSound();
 
@@ -81,7 +96,8 @@ private:
 
     void ConstructL();
     Cayfly_s60Audio(AYSongInfo *info);
-
+    AYSongInfo *songinfo;
+    static TInt MixLoop(TAny *t);
 };
 
 #endif /*S60AUDIO_H_*/
