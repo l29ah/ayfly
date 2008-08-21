@@ -22,6 +22,13 @@ class Cayfly_s60AppView;
  * Interacts with the user through the UI and request message processing
  * from the handler class
  */
+
+struct CurrentSong
+{
+    TFileName FileName;
+    AYSongInfo *song;
+};
+
 class Cayfly_s60AppUi : public CAknAppUi
 	{
 public:
@@ -74,8 +81,8 @@ private:
 	 * Owned by Cayfly_s60AppUi
 	 */
 	Cayfly_s60AppView* iAppView;
-	TFileName fileName;
-	AYSongInfo info;
+	void *currentSong;
+	Cayfly_s60Audio *player;
 	//TFileName folderName;
 
 

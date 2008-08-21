@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_H_
-#    define COMMON_H_
+#ifndef S60_H_
+#    define S60_H_
 
 #    ifndef UNICODE
 #        define UNICODE
@@ -51,11 +51,11 @@
 
 #include "ayfly_s60.hrh"
 #include "ayfly_s60.pan"
+#include "ayfly_s60Audio.h"
 #include "ayfly_s60Document.h"
 #include "ayfly_s60Application.h"
 #include "ayfly_s60AppUi.h"
 #include "ayfly_s60AppView.h"
-#include "ayfly_s60Audio.h"
 #include "ayfly_s60_0xEA0B66F6.rsg"
 
-#endif /*COMMON_H_*/
+#endif /*S60_H_*/

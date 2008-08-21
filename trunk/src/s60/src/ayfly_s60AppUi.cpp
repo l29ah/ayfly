@@ -21,8 +21,6 @@
 // INCLUDE FILES
 #include "s60.h"
 
-extern AbstractAudio *player;
-
 // ============================ MEMBER FUNCTIONS ===============================
 
 // -----------------------------------------------------------------------------
@@ -40,13 +38,8 @@ void Cayfly_s60AppUi::ConstructL()
 	//iFileData = new TUint16[512];
 	//aFileName = new TPtr16(iFileData, 512, 512);
 	//iFileData [0] = 0;
-	fileName = PathInfo::MemoryCardRootPath();
 	//folderName = PathInfo::MemoryCardRootPath();
-
-	ay_sys_initz80();
-	//readFile(TEXT("E:\\Others\\ayfly\\KSA-MTV.stc"));
-	player = new Cayfly_s60Audio();
-	setPlayer(player);
+	currentSong = 0;
 
 }
 // -----------------------------------------------------------------------------
@@ -72,11 +65,14 @@ Cayfly_s60AppUi::~Cayfly_s60AppUi()
 		iAppView = NULL;
 	}
 
-	if (player)
+	if(currentSong)
+	    ay_closesong((void **)currentSong);
+
+	/*if (player)
 	{
 		delete player;
 		player = 0;
-	}
+	}*/
 
 }
 
@@ -92,35 +88,48 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 	case EEikCmdExit:
 	case EAknSoftkeyExit:
 	{
-        ay_sys_shutdownz80();
-        delete player;
-        player = 0;
+	    if(currentSong)
+	    {
+	        ay_closesong(&currentSong);
+	    }
 		Exit();
 	}
 		break;
 	case ECommand1:
 	{
-		TBool bRet = CAknFileSelectionDialog::RunDlgLD(fileName, PathInfo::MemoryCardRootPath(), _L("Select file!"), NULL);
+	    TFileName FileName = PathInfo::MemoryCardRootPath();
+		TBool bRet = CAknFileSelectionDialog::RunDlgLD(FileName, PathInfo::MemoryCardRootPath(), _L("Select file!"), NULL);
 		if (bRet)
 		{
-			player->Stop();
-			ay_sys_shutdownz80();
-			ay_sys_initz80();
-			info.FilePath = fileName;
-			ay_sys_readfromfile(info);
-			fileName = PathInfo::MemoryCardRootPath();
+		    if(currentSong)
+		        ay_closesong(&currentSong);
+		    currentSong = ay_initsong(FileName, 32000);
+		    if(!currentSong)
+		    {
+		        CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Can't open file!"));
+		    }
+		    else
+		    {
+		        ay_setsongplayer(currentSong, new Cayfly_s60Audio((AYSongInfo *)currentSong));
+		    }
 		}
 	}
 		break;
 
 	case ECommand2:
 	{
-		player->Start();
+		if(currentSong)
+		{
+		    ay_startsong(currentSong);
+		}
 	}
 		break;
 	case ECommand3:
 	{
-		player->Stop();
+	    if(currentSong)
+	    {
+	        ay_stopsong(currentSong);
+	    }
 	}
 		break;
 	case EHelp:
@@ -163,13 +172,19 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
     {
         if(aKeyEvent.iCode == EKeyUpArrow)
         {
-            Cayfly_s60Audio *_player = (Cayfly_s60Audio *)player;
-            _player->SetDeviceVolume(_player->GetDeviceVolume() + 1);
+            if(currentSong)
+            {
+                Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
+                _player->SetDeviceVolume(_player->GetDeviceVolume() + 1);
+            }
         }
         else if(aKeyEvent.iCode == EKeyDownArrow)
         {
-            Cayfly_s60Audio *_player = (Cayfly_s60Audio *)player;
-            _player->SetDeviceVolume(_player->GetDeviceVolume() - 1);
+            if(currentSong)
+            {
+                Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
+                _player->SetDeviceVolume(_player->GetDeviceVolume() - 1);
+            }
         }
         return EKeyWasConsumed;
     }

@@ -46,13 +46,13 @@ void PSC_Init(AYSongInfo &info)
     unsigned char *module = info.module;
     PSC_File *header = (PSC_File *) module;
     AbstractAudio *player = info.player;
-    if (info.data)
+    if(info.data)
     {
         delete (ASC_SongInfo *) info.data;
         info.data = 0;
     }
     info.data = (void *) new PSC_SongInfo;
-    if (!info.data)
+    if(!info.data)
         return;
 
     PSC.DelayCounter = 1;
@@ -111,63 +111,63 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
     do
     {
         unsigned char val = module[chan.Address_In_Pattern];
-        if (val >= 0xc0)
+        if(val >= 0xc0)
         {
             chan.Note_Skip_Counter = val - 0xbf;
             quit = true;
         }
-        else if (val >= 0xa0 && val <= 0xbf)
+        else if(val >= 0xa0 && val <= 0xbf)
         {
             chan.OrnamentPointer = (*(unsigned short *) &module[header->PSC_OrnamentsPointer + (val - 0xa0) * 2]) + header->PSC_OrnamentsPointer;
         }
-        else if (val >= 0x7e && val <= 0x9f)
+        else if(val >= 0x7e && val <= 0x9f)
         {
-            if (val >= 0x80)
+            if(val >= 0x80)
                 chan.SamplePointer = header->PSC_SamplesPointers[val - 0x80] + 0x4c;
         }
-        else if (val == 0x6b)
+        else if(val == 0x6b)
         {
             chan.Address_In_Pattern++;
             chan.Addition_To_Ton = module[chan.Address_In_Pattern];
             b5b = true;
         }
-        else if (val == 0x6c)
+        else if(val == 0x6c)
         {
             chan.Address_In_Pattern++;
             chan.Addition_To_Ton = -(signed char) (module[chan.Address_In_Pattern]);
             b5b = true;
         }
-        else if (val == 0x6d)
+        else if(val == 0x6d)
         {
             b4b = true;
             chan.Address_In_Pattern++;
             chan.Addition_To_Ton = module[chan.Address_In_Pattern];
         }
-        else if (val == 0x6e)
+        else if(val == 0x6e)
         {
             chan.Address_In_Pattern++;
             PSC.Delay = module[chan.Address_In_Pattern];
         }
-        else if (val == 0x6f)
+        else if(val == 0x6f)
         {
             b1b = true;
             chan.Address_In_Pattern++;
         }
-        else if (val == 0x70)
+        else if(val == 0x70)
         {
             b3b = true;
             chan.Address_In_Pattern++;
             chan.Volume_Counter1 = module[chan.Address_In_Pattern];
         }
-        else if (val == 0x71)
+        else if(val == 0x71)
         {
             chan.Break_Ornament_Loop = true;
             chan.Address_In_Pattern++;
         }
-        else if (val == 0x7a)
+        else if(val == 0x7a)
         {
             chan.Address_In_Pattern++;
-            if (chan.num == 1)
+            if(chan.num == 1)
             {
                 player->WriteAy(AY_ENV_SHAPE, module[chan.Address_In_Pattern] & 15);
                 player->WriteAy(AY_ENV_FINE, module[chan.Address_In_Pattern + 1]);
@@ -175,34 +175,34 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
                 chan.Address_In_Pattern += 2;
             }
         }
-        else if (val == 0x7b)
+        else if(val == 0x7b)
         {
             chan.Address_In_Pattern++;
-            if (chan.num == 1)
+            if(chan.num == 1)
                 PSC.Noise_Base = module[chan.Address_In_Pattern];
         }
-        else if (val == 0x7c)
+        else if(val == 0x7c)
         {
             b1b = b3b = b4b = b5b = b6b = b7b = false;
             b2b = true;
         }
-        else if (val == 0x7d)
+        else if(val == 0x7d)
         {
             chan.Break_Sample_Loop = true;
         }
-        else if (val >= 0x58 && val <= 0x66)
+        else if(val >= 0x58 && val <= 0x66)
         {
             chan.Initial_Volume = val - 0x57;
             chan.Envelope_Enabled = false;
             b6b = true;
         }
-        else if (val == 0x57)
+        else if(val == 0x57)
         {
             chan.Initial_Volume = 0xf;
             chan.Envelope_Enabled = true;
             b6b = true;
         }
-        else if (val <= 0x56)
+        else if(val <= 0x56)
         {
             chan.Note = val;
             b6b = true;
@@ -211,9 +211,9 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
         else
             chan.Address_In_Pattern++;
         chan.Address_In_Pattern++;
-    } while (!quit);
+    } while(!quit);
 
-    if (b7b)
+    if(b7b)
     {
         chan.Break_Ornament_Loop = false;
         chan.Ornament_Enabled = true;
@@ -227,33 +227,33 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
         chan.Position_In_Sample = 0;
         chan.Position_In_Ornament = 0;
     }
-    if (b6b)
+    if(b6b)
         chan.Volume = chan.Initial_Volume;
-    if (b5b)
+    if(b5b)
     {
         chan.Gliss = false;
         chan.Ton_Slide_Enabled = true;
     }
-    if (b4b)
+    if(b4b)
     {
         chan.Current_Ton_Sliding = chan.Ton - ASM_Table[chan.Note];
         chan.Gliss = true;
-        if (chan.Current_Ton_Sliding >= 0)
+        if(chan.Current_Ton_Sliding >= 0)
             chan.Addition_To_Ton = -chan.Addition_To_Ton;
         chan.Ton_Slide_Enabled = true;
     }
-    if (b3b)
+    if(b3b)
     {
         chan.Volume_Counter = chan.Volume_Counter1;
         chan.Volume_Inc = true;
-        if ((chan.Volume_Counter & 0x40) != 0)
+        if((chan.Volume_Counter & 0x40) != 0)
         {
             chan.Volume_Counter = -(signed char) (chan.Volume_Counter | 128);
             chan.Volume_Inc = false;
         }
         chan.Volume_Counter_Init = chan.Volume_Counter;
     }
-    if (b2b)
+    if(b2b)
     {
         chan.Break_Ornament_Loop = false;
         chan.Ornament_Enabled = false;
@@ -261,7 +261,7 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
         chan.Break_Sample_Loop = false;
         chan.Ton_Slide_Enabled = false;
     }
-    if (b1b)
+    if(b1b)
         chan.Ornament_Enabled = false;
 }
 
@@ -270,37 +270,37 @@ void PSC_GetRegisters(AYSongInfo &info, PSC_Channel_Parameters &chan, unsigned c
     unsigned char *module = info.module;
     AbstractAudio *player = info.player;
     unsigned char j, b;
-    if (chan.Enabled)
+    if(chan.Enabled)
     {
         j = chan.Note;
-        if (chan.Ornament_Enabled)
+        if(chan.Ornament_Enabled)
         {
             b = module[chan.OrnamentPointer + chan.Position_In_Ornament * 2];
             chan.Noise_Accumulator += b;
             j += module[chan.OrnamentPointer + chan.Position_In_Ornament * 2 + 1];
-            if ((signed char) j < 0)
+            if((signed char) j < 0)
                 j += 0x56;
-            if (j > 0x55)
+            if(j > 0x55)
                 j -= 0x56;
-            if (j > 0x55)
+            if(j > 0x55)
                 j = 0x55;
-            if ((b & 128) == 0)
+            if((b & 128) == 0)
                 chan.Loop_Ornament_Position = chan.Position_In_Ornament;
-            if ((b & 64) == 0)
+            if((b & 64) == 0)
             {
-                if (!chan.Break_Ornament_Loop)
+                if(!chan.Break_Ornament_Loop)
                     chan.Position_In_Ornament = chan.Loop_Ornament_Position;
                 else
                 {
                     chan.Break_Ornament_Loop = false;
-                    if ((b & 32) == 0)
+                    if((b & 32) == 0)
                         chan.Ornament_Enabled = false;
                     chan.Position_In_Ornament++;
                 }
             }
             else
             {
-                if ((b & 32) == 0)
+                if((b & 32) == 0)
                     chan.Ornament_Enabled = false;
                 chan.Position_In_Ornament++;
             }
@@ -309,10 +309,10 @@ void PSC_GetRegisters(AYSongInfo &info, PSC_Channel_Parameters &chan, unsigned c
         chan.Ton = *(unsigned short *) &module[chan.SamplePointer + chan.Position_In_Sample * 6];
         chan.Ton_Accumulator += chan.Ton;
         chan.Ton = ASM_Table[j] + chan.Ton_Accumulator;
-        if (chan.Ton_Slide_Enabled)
+        if(chan.Ton_Slide_Enabled)
         {
             chan.Current_Ton_Sliding += chan.Addition_To_Ton;
-            if (chan.Gliss && (((chan.Current_Ton_Sliding < 0) && (chan.Addition_To_Ton <= 0)) || ((chan.Current_Ton_Sliding >= 0) && (chan.Addition_To_Ton >= 0))))
+            if(chan.Gliss && (((chan.Current_Ton_Sliding < 0) && (chan.Addition_To_Ton <= 0)) || ((chan.Current_Ton_Sliding >= 0) && (chan.Addition_To_Ton >= 0))))
                 chan.Ton_Slide_Enabled = false;
             chan.Ton += chan.Current_Ton_Sliding;
         }
@@ -320,16 +320,16 @@ void PSC_GetRegisters(AYSongInfo &info, PSC_Channel_Parameters &chan, unsigned c
         b = module[chan.SamplePointer + chan.Position_In_Sample * 6 + 4];
         TempMixer = TempMixer | ((b & 9) << 3);
         j = 0;
-        if ((b & 2) != 0)
+        if((b & 2) != 0)
             j++;
-        if ((b & 4) != 0)
+        if((b & 4) != 0)
             j--;
-        if (chan.Volume_Counter > 0)
+        if(chan.Volume_Counter > 0)
         {
             chan.Volume_Counter--;
-            if (chan.Volume_Counter == 0)
+            if(chan.Volume_Counter == 0)
             {
-                if (chan.Volume_Inc)
+                if(chan.Volume_Inc)
                     j++;
                 else
                     j--;
@@ -337,14 +337,14 @@ void PSC_GetRegisters(AYSongInfo &info, PSC_Channel_Parameters &chan, unsigned c
             }
         }
         chan.Volume += j;
-        if ((signed char) chan.Volume < 0)
+        if((signed char) chan.Volume < 0)
             chan.Volume = 0;
-        else if (chan.Volume > 15)
+        else if(chan.Volume > 15)
             chan.Volume = 15;
         chan.Amplitude = ((chan.Volume + 1) * (module[chan.SamplePointer + chan.Position_In_Sample * 6 + 3] & 15)) >> 4;
-        if (chan.Envelope_Enabled && ((b & 16) == 0))
+        if(chan.Envelope_Enabled && ((b & 16) == 0))
             chan.Amplitude = chan.Amplitude | 16;
-        if (((chan.Amplitude & 16) != 0) & ((b & 8) != 0))
+        if(((chan.Amplitude & 16) != 0) & ((b & 8) != 0))
         {
             unsigned short env = player->ReadAy(AY_ENV_FINE) | (player->ReadAy(AY_ENV_COARSE) << 8);
             env += (signed char) (module[chan.SamplePointer + chan.Position_In_Sample * 6 + 2]);
@@ -354,26 +354,26 @@ void PSC_GetRegisters(AYSongInfo &info, PSC_Channel_Parameters &chan, unsigned c
         else
         {
             chan.Noise_Accumulator += module[chan.SamplePointer + chan.Position_In_Sample * 6 + 2];
-            if ((b & 8) == 0)
+            if((b & 8) == 0)
                 player->WriteAy(AY_NOISE_PERIOD, chan.Noise_Accumulator & 31);
         }
-        if ((b & 128) == 0)
+        if((b & 128) == 0)
             chan.Loop_Sample_Position = chan.Position_In_Sample;
-        if ((b & 64) == 0)
+        if((b & 64) == 0)
         {
-            if (!chan.Break_Sample_Loop)
+            if(!chan.Break_Sample_Loop)
                 chan.Position_In_Sample = chan.Loop_Sample_Position;
             else
             {
                 chan.Break_Sample_Loop = false;
-                if ((b & 32) == 0)
+                if((b & 32) == 0)
                     chan.Enabled = false;
                 chan.Position_In_Sample++;
             }
         }
         else
         {
-            if ((b & 32) == 0)
+            if((b & 32) == 0)
                 chan.Enabled = false;
             chan.Position_In_Sample++;
         }
@@ -388,18 +388,18 @@ void PSC_Play(AYSongInfo &info)
     unsigned char *module = info.module;
     AbstractAudio *player = info.player;
     unsigned char TempMixer;
-    if (info.timeElapsed >= info.Length)
+    if(info.timeElapsed >= info.Length)
     {
         info.timeElapsed = info.Loop;
-        if (info.callback)
+        if(info.callback)
             info.callback(info.callback_arg);
     }
 
-    if (--PSC.DelayCounter <= 0)
+    if(--PSC.DelayCounter <= 0)
     {
-        if (--PSC.Lines_Counter <= 0)
+        if(--PSC.Lines_Counter <= 0)
         {
-            if (module[PSC.Positions_Pointer + 1] == 255)
+            if(module[PSC.Positions_Pointer + 1] == 255)
                 PSC.Positions_Pointer = *(unsigned short *) &module[PSC.Positions_Pointer + 2];
             PSC.Lines_Counter = module[PSC.Positions_Pointer + 1];
             PSC_A.Address_In_Pattern = *(unsigned short *) &module[PSC.Positions_Pointer + 2];
@@ -410,11 +410,11 @@ void PSC_Play(AYSongInfo &info)
             PSC_B.Note_Skip_Counter = 1;
             PSC_C.Note_Skip_Counter = 1;
         }
-        if (--PSC_A.Note_Skip_Counter == 0)
+        if(--PSC_A.Note_Skip_Counter == 0)
             PSC_PatternInterpreter(info, PSC_A);
-        if (--PSC_B.Note_Skip_Counter == 0)
+        if(--PSC_B.Note_Skip_Counter == 0)
             PSC_PatternInterpreter(info, PSC_B);
-        if (--PSC_C.Note_Skip_Counter == 0)
+        if(--PSC_C.Note_Skip_Counter == 0)
             PSC_PatternInterpreter(info, PSC_C);
         PSC_A.Noise_Accumulator += PSC.Noise_Base;
         PSC_B.Noise_Accumulator += PSC.Noise_Base;
@@ -458,16 +458,16 @@ void PSC_GetInfo(AYSongInfo &info)
     b = header->PSC_Delay;
     pptr = header->PSC_PatternsPointer;
     pptr++;
-    while (module[pptr] != 255)
+    while(module[pptr] != 255)
     {
         pptr += 8;
-        if (pptr >= 65536)
+        if(pptr >= 65536)
         {
             info.Length = 0;
             return;
         }
     }
-    if (pptr >= 65546 - 2)
+    if(pptr >= 65546 - 2)
     {
         info.Length = 0;
     }
@@ -475,11 +475,11 @@ void PSC_GetInfo(AYSongInfo &info)
     cptr++;
     pptr = header->PSC_PatternsPointer;
     pptr++;
-    while (module[pptr] != 255)
+    while(module[pptr] != 255)
     {
-        if (pptr == cptr)
+        if(pptr == cptr)
             info.Loop = tm;
-        if (pptr >= 65536 - 6)
+        if(pptr >= 65536 - 6)
         {
             info.Length = 0;
             return;
@@ -488,31 +488,31 @@ void PSC_GetInfo(AYSongInfo &info)
         j2 = *(unsigned short *) &module[pptr + 3];
         j3 = *(unsigned short *) &module[pptr + 5];
         pptr += 8;
-        if (pptr >= 65536)
+        if(pptr >= 65536)
         {
             info.Length = 0;
             return;
         }
         a1 = a2 = a3 = 1;
-        for (i = 0; i < module[pptr - 8]; i++)
+        for(i = 0; i < module[pptr - 8]; i++)
         {
             a1--;
-            if (a1 == 0)
+            if(a1 == 0)
             {
-                while (true)
+                while(true)
                 {
                     unsigned char val = module[j1];
-                    if (val >= 0xc0)
+                    if(val >= 0xc0)
                     {
                         a1 = val - 0xbf;
                         j1++;
                         break;
                     }
-                    else if ((val >= 0x67 && val <= 0x6d) || (val >= 0x6f && val <= 0x7b))
+                    else if((val >= 0x67 && val <= 0x6d) || (val >= 0x6f && val <= 0x7b))
                     {
                         j1++;
                     }
-                    else if (val == 0x6e)
+                    else if(val == 0x6e)
                     {
                         j1++;
                         b = module[j1];
@@ -523,22 +523,22 @@ void PSC_GetInfo(AYSongInfo &info)
             }
 
             a2--;
-            if (a2 == 0)
+            if(a2 == 0)
             {
-                while (true)
+                while(true)
                 {
                     unsigned char val = module[j2];
-                    if (val >= 0xc0)
+                    if(val >= 0xc0)
                     {
                         a2 = val - 0xbf;
                         j2++;
                         break;
                     }
-                    else if ((val >= 0x67 && val <= 0x6d) || (val >= 0x6f && val <= 0x7b))
+                    else if((val >= 0x67 && val <= 0x6d) || (val >= 0x6f && val <= 0x7b))
                     {
                         j2++;
                     }
-                    else if (val == 0x6e)
+                    else if(val == 0x6e)
                     {
                         j2++;
                         b = module[j2];
@@ -548,22 +548,22 @@ void PSC_GetInfo(AYSongInfo &info)
             }
 
             a3--;
-            if (a3 == 0)
+            if(a3 == 0)
             {
-                while (true)
+                while(true)
                 {
                     unsigned char val = module[j3];
-                    if (val >= 0xc0)
+                    if(val >= 0xc0)
                     {
                         a3 = val - 0xbf;
                         j3++;
                         break;
                     }
-                    else if ((val >= 0x67 && val <= 0x6d) || (val >= 0x6f && val <= 0x7b))
+                    else if((val >= 0x67 && val <= 0x6d) || (val >= 0x6f && val <= 0x7b))
                     {
                         j3++;
                     }
-                    else if (val == 0x6e)
+                    else if(val == 0x6e)
                     {
                         j3++;
                         b = module[j3];
@@ -579,7 +579,7 @@ void PSC_GetInfo(AYSongInfo &info)
 
 void PSC_Cleanup(AYSongInfo &info)
 {
-    if (info.data)
+    if(info.data)
     {
         delete (PSC_SongInfo *) info.data;
         info.data = 0;

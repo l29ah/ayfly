@@ -25,11 +25,11 @@
 #include <f32file.h>
 #include <eikenv.h>
 
-Cayfly_s60Audio::Cayfly_s60Audio() :
-    AbstractAudio(AUDIO_FREQ), iDevSound(0), iVolume(7)
+Cayfly_s60Audio::Cayfly_s60Audio(AYSongInfo *info) :
+    AbstractAudio(AUDIO_FREQ, info), iDevSound(0), iVolume(7)
 {
     iCodecType = KMMFFourCCCodePCM16;
-    ay8910 = new ay(sr, Z80_FREQ / 2, MAXBUFFERSIZE >> 2); // 16 bit, 2 ch.
+    ay8910 = new ay(info, MAXBUFFERSIZE >> 2); // 16 bit, 2 ch.
     iSoundData = new TUint8[MAXBUFFERSIZE];
 }
 
@@ -105,11 +105,13 @@ void Cayfly_s60Audio::StartPlay()
     iDevSound->SetConfigL(conf);
 
     iDevSound->PlayInitL();
+    started = true;
 }
 
 void Cayfly_s60Audio::StopPlay()
 {
     KillSound();
+    started = false;
 }
 
 void Cayfly_s60Audio::SetDeviceVolume(TInt aVolume)
