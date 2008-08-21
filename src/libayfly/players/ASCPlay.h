@@ -418,7 +418,6 @@ void ASC_GetInfo(AYSongInfo &info)
 {
     unsigned char *module = info.file_data;
     ASC1_File *header = (ASC1_File *)module;
-    AbstractAudio *player = info.player;
     short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
     bool env1, env2, env3;

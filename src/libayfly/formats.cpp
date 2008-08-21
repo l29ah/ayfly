@@ -18,10 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "ayfly.h"
 #ifdef __SYMBIAN32__
 #pragma pack(1)
 #endif
+//#include "ayfly.h"
+#include "s60.h"
 #include "players/ASCPlay.h"
 #include "players/PT2Play.h"
 #include "players/PT3Play.h"
@@ -42,7 +43,7 @@ struct _Players
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE ext;
 #else
-    TDesC ext;
+    TFileName ext;
 #endif
     const unsigned char *player;
     unsigned long player_base;
@@ -117,7 +118,7 @@ void ay_sys_initayfmt(AYSongInfo &info, unsigned char track);
 #ifndef __SYMBIAN32__
 unsigned char *osRead(AY_TXT_TYPE filePath, unsigned long *data_len)
 #else
-unsigned char *osRead(const TFileName &filePath, unsigned long *data_len)
+unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
 #endif
 {
     unsigned char *fileData = new unsigned char[*data_len];
@@ -162,11 +163,10 @@ unsigned char *osRead(const TFileName &filePath, unsigned long *data_len)
     RFileReadStream readStream;
     TEntry entry;
     TInt err = readStream.Open(fsSession, filePath, EFileRead);
-
     if (err == KErrNone)
     {
         fsSession.Entry(filePath, entry);
-        *data_len = (TUint)entry.iSize;
+        *data_len = (TUint)entry.iSize > 65536 ? 65536 : (TUint)entry.iSize;
         readStream.ReadL((TUint8 *)fileData, *data_len);
         readStream.Close();
     }
@@ -174,6 +174,7 @@ unsigned char *osRead(const TFileName &filePath, unsigned long *data_len)
     {
         *data_len = 0;
     }
+
 #endif
     if(!*data_len)
     {
@@ -185,15 +186,15 @@ unsigned char *osRead(const TFileName &filePath, unsigned long *data_len)
 
 bool ay_sys_initsong(AYSongInfo &info)
 {
+    _FileTypes fileType = FILE_TYPE_TRACKER;
+    unsigned long player = 0;
+    unsigned char *fileData = info.file_data;
+    unsigned long fileLength = info.file_len;
 #define GET_WORD(x) {(x) = (*ptr++) << 8; (x) |= *ptr++;}
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE cfp = info.FilePath;
     std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int)) std::tolower);
-    _FileTypes fileType = FILE_TYPE_TRACKER;
-    unsigned char *fileData = info.file_data;
-    unsigned long fileLength = info.file_len;
-    unsigned long player = 0;
     if(cfp.rfind(TXT(".ay")) != std::string::npos)
     {
         fileType = FILE_TYPE_AY;
@@ -222,7 +223,7 @@ bool ay_sys_initsong(AYSongInfo &info)
         for (player = 0; player < sizeof_array(Players); player++)
         {
             TPtrC ext = parse.Ext();
-            TPtrC ext_cur = Players [i].ext;
+            TPtrC ext_cur = Players [player].ext;
             if (ext.Compare(ext_cur) == 0)
             {
                 break;
@@ -230,6 +231,9 @@ bool ay_sys_initsong(AYSongInfo &info)
         }
     }
 #endif
+    if((fileType == FILE_TYPE_TRACKER) && (player == sizeof_array(Players)))
+        return false;
+
     if(fileType == FILE_TYPE_AY)
     {
         unsigned char *ptr = (unsigned char *) fileData;
@@ -331,6 +335,7 @@ bool ay_sys_readfromfile(AYSongInfo &info)
     fileData = osRead(info.FilePath, &data_len);
     if(!fileData)
         return false;
+
     memset(info.file_data, 0, 65536);
     memcpy(info.file_data, fileData, data_len);
     info.file_len = data_len;

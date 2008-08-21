@@ -48,7 +48,6 @@ struct SQT_SongInfo
 bool SQT_PreInit(AYSongInfo &info)
 {
     unsigned char *module = info.module;
-    AbstractAudio *player = info.player;
     SQT_File *header = (SQT_File *) module;
     int i, i1, i2;
     unsigned long j2;
@@ -279,7 +278,6 @@ void SQT_Call_LC191(AYSongInfo &info, SQT_Channel_Parameters &chan, unsigned sho
 void SQT_PatternInterpreter(AYSongInfo &info, SQT_Channel_Parameters &chan)
 {
     unsigned char *module = info.module;
-    AbstractAudio *player = info.player;
     unsigned short Ptr = 0;
     if (chan.ix21 != 0)
     {
@@ -550,7 +548,6 @@ void SQT_Play(AYSongInfo &info)
 void SQT_GetChannelInfo(AYSongInfo &info, unsigned char &b, unsigned long &tm, char &a1, unsigned long &j1, unsigned long &pptr, unsigned long &cptr, bool &f71, bool &f61, bool &f41, unsigned short &j11, unsigned char chnl_num)
 {
     unsigned char *module = info.file_data;
-    AbstractAudio *player = info.player;
     if (a1 != 0)
     {
         a1--;
@@ -884,7 +881,6 @@ void SQT_GetInfo(AYSongInfo &info)
 {
     memcpy(info.module, info.file_data, info.file_len);
     unsigned char *module = info.module;
-    AbstractAudio *player = info.player;
     if (!SQT_PreInit(info))
     {
         info.Length = 0;

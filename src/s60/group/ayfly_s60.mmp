@@ -18,10 +18,9 @@ SOURCE			ayfly_s60Application.cpp
 SOURCE			ayfly_s60AppView.cpp
 SOURCE			ayfly_s60AppUi.cpp
 SOURCE			ayfly_s60Document.cpp
-/*SOURCE			ay_s60.cpp*/
 SOURCE          ayfly_s60Audio.cpp
-SOURCEPATH 	    ..\..
-SOURCE          ay.cpp speccy.cpp formats.cpp AbstractAudio.cpp z80ex\z80ex.c
+SOURCEPATH 	    ..\..\libayfly
+SOURCE          ay.cpp speccy.cpp formats.cpp AbstractAudio.cpp common.cpp z80ex\z80ex.c
 
 SOURCEPATH		..\data
 
@@ -38,7 +37,7 @@ END //RESOURCE
 
 
 
-USERINCLUDE	   ..\inc ..\..\z80ex ..\..\z80ex\include  ..\..
+USERINCLUDE	   ..\inc ..\..\libayfly
 USERINCLUDE    ..\help
 
 SYSTEMINCLUDE	 \epoc32\include \epoc32\include\libc

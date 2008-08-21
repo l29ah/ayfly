@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef COMMON_H_
-#    define COMMON_H_
+#ifndef AYFLY_H_
+#    define AYFLY_H_
 
 #    ifndef UNICODE
 #        define UNICODE
@@ -57,6 +57,12 @@
 #    include <string>
 #    include <fstream>
 #    include <iostream>
+#    else
+#    include "f32file.h"
+#    include "s32std.h"
+#    include "s32file.h"
+#    include "e32cmn.h"
+#    include "coemain.h"
 #    endif
 
 
@@ -151,12 +157,36 @@ void *ay_initsong(const wchar_t *FilePath, unsigned long sr);
 #else
 void *ay_initsong(TFileName FilePath, unsigned long sr);
 #endif
+#ifndef __SYMBIAN32__
 void *ay_initsongindirect(unsigned char *module, unsigned long sr, wchar_t *type, unsigned long size);
+#else
+void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size);
+#endif
+#ifndef __SYMBIAN32__
 void *ay_getsonginfo(const wchar_t *FilePath);
+#else
+void *ay_getsonginfo(TFileName FilePath);
+#endif
+#ifndef __SYMBIAN32__
 void *ay_getsonginfoindirect(unsigned char *module, wchar_t *type, unsigned long size);
+#else
+void *ay_getsonginfoindirect(unsigned char *module, TFileName type, unsigned long size);
+#endif
+#ifndef __SYMBIAN32__
 const wchar_t *ay_getsongname(void *info);
+#else
+TFileName ay_getsongname(void *info);
+#endif
+#ifndef __SYMBIAN32__
 const wchar_t *ay_getsongauthor(void *info);
+#else
+TFileName ay_getsongauthor(void *info);
+#endif
+#ifndef __SYMBIAN32__
 const wchar_t *ay_getsongpath(void *info);
+#else
+TFileName ay_getsongpath(void *info);
+#endif
 void ay_z80xec(void *info);
 void ay_seeksong(void *info, long new_position);
 void ay_resetsong(void *info);
@@ -181,6 +211,7 @@ void ay_setayfreq(void *info, unsigned long ay_freq);
 unsigned long ay_getintfreq(void *info);
 void ay_setintfreq(void *info, unsigned long int_freq);
 void ay_setsongplayer(void *info, void * /* class AbstractAudio */ player);
+void *ay_getsongplayer(void *info);
 
 
 #    define AYFLY_VERSION_MAJOR 0
@@ -193,4 +224,4 @@ void ay_setsongplayer(void *info, void * /* class AbstractAudio */ player);
 #    define str(s) TXT(#s)
 #    define AYFLY_VERSION_TEXT xstr(AYFLY_VERSION)
 
-#endif /*COMMON_H_*/
+#endif /*AYFLY_H_*/

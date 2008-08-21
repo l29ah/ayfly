@@ -7,7 +7,7 @@
 class Cayfly_s60Audio : public AbstractAudio, MDevSoundObserver
 {
 public:
-    Cayfly_s60Audio();
+    Cayfly_s60Audio(AYSongInfo *info);
     virtual ~Cayfly_s60Audio();
 
     void StartPlay();

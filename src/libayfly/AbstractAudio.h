@@ -43,7 +43,7 @@ public:
         ay8910->ayReset();
     }
     ;
-    inline virtual bool ChnlMute(unsigned long chnl, bool mute)
+    inline virtual void ChnlMute(unsigned long chnl, bool mute)
     {
         if (ay8910)
             ay8910->chnlMute(chnl, mute);

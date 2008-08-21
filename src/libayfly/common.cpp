@@ -18,7 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "ayfly.h"
+//#include "ayfly.h"
+#include "s60.h"
 
 AYSongInfo *ay_sys_getnewinfo()
 {
@@ -60,22 +61,9 @@ void *ay_initsong(TFileName FilePath, unsigned long sr)
         return 0;
     info->FilePath = FilePath;
     info->sr = sr;
-#ifndef __SYMBIAN32__
-#ifdef WINDOWS
-    info->player = new DXAudio(sr, info);
-#else
-    info->player = new SDLAudio(sr, info);
-#endif
-#endif
-    if(!info->player)
-    {
-        delete info;
-        return 0;
-    }
+
     if(!ay_sys_initz80(*info))
     {
-        delete info->player;
-        info->player = 0;
         delete info;
         info = 0;
     }
@@ -83,8 +71,6 @@ void *ay_initsong(TFileName FilePath, unsigned long sr)
     {
         if(!ay_sys_readfromfile(*info))
         {
-            delete info->player;
-            info->player = 0;
             delete info;
             info = 0;
         }
@@ -92,8 +78,6 @@ void *ay_initsong(TFileName FilePath, unsigned long sr)
         {
             if(!ay_sys_initsong(*info))
             {
-                delete info->player;
-                info->player = 0;
                 delete info;
                 info = 0;
             }
@@ -113,10 +97,30 @@ void *ay_initsong(TFileName FilePath, unsigned long sr)
         }
     }
 
+#ifndef __SYMBIAN32__
+    if(info)
+    {
+#ifdef WINDOWS
+        info->player = new DXAudio(sr, info);
+#else
+        info->player = new SDLAudio(sr, info);
+#endif
+        if(!info->player)
+        {
+            delete info;
+            return 0;
+        }
+    }
+#endif
+
     return info;
 }
 
+#ifndef __SYMBIAN32__
 void *ay_initsongindirect(unsigned char *module, unsigned long sr, wchar_t *type, unsigned long size)
+#else
+void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size)
+#endif
 {
     AYSongInfo *info = ay_sys_getnewinfo();
     if(!info)
@@ -125,17 +129,8 @@ void *ay_initsongindirect(unsigned char *module, unsigned long sr, wchar_t *type
     info->file_len = size;
     memcpy(info->file_data, module, size);
     info->sr = sr;
-#ifndef __SYMBIAN32__
-#ifdef WINDOWS
-    info->player = new DXAudio(sr, info);
-#else
-    info->player = new SDLAudio(sr, info);
-#endif
-#endif
     if(!ay_sys_initsong(*info))
     {
-        delete info->player;
-        info->player = 0;
         delete info;
         info = 0;
     }
@@ -159,10 +154,29 @@ void *ay_initsongindirect(unsigned char *module, unsigned long sr, wchar_t *type
 #endif
         }
     }
+#ifndef __SYMBIAN32__
+    if(info)
+    {
+#ifdef WINDOWS
+        info->player = new DXAudio(sr, info);
+#else
+        info->player = new SDLAudio(sr, info);
+#endif
+        if(!info->player)
+        {
+            delete info;
+            return 0;
+        }
+    }
+#endif
     return info;
 }
 
+#ifndef __SYMBIAN32__
 void *ay_getsonginfo(const wchar_t *FilePath)
+#else
+void *ay_getsonginfo(TFileName FilePath)
+#endif
 {
     AYSongInfo *info = ay_sys_getnewinfo();
     if(!info)
@@ -177,7 +191,11 @@ void *ay_getsonginfo(const wchar_t *FilePath)
     return info;
 }
 
+#ifndef __SYMBIAN32__
 void *ay_getsonginfoindirect(unsigned char *module, wchar_t *type, unsigned long size)
+#else
+void *ay_getsonginfoindirect(unsigned char *module, TFileName type, unsigned long size)
+#endif
 {
     AYSongInfo *info = ay_sys_getnewinfo();
     if(!info)
@@ -192,19 +210,41 @@ void *ay_getsonginfoindirect(unsigned char *module, wchar_t *type, unsigned long
     return info;
 }
 
+#ifndef __SYMBIAN32__
 const wchar_t *ay_getsongname(void *info)
 {
     return ((AYSongInfo *) info)->Name.c_str();
 }
+#else
+TFileName ay_getsongname(void *info)
+{
+    return ((AYSongInfo *) info)->Name;
+}
+#endif
 
+#ifndef __SYMBIAN32__
 const wchar_t *ay_getsongauthor(void *info)
 {
     return ((AYSongInfo *) info)->Author.c_str();
 }
+#else
+TFileName ay_getsongauthor(void *info)
+{
+    return ((AYSongInfo *) info)->Author;
+}
+#endif
+
+#ifndef __SYMBIAN32__
 const wchar_t *ay_getsongpath(void *info)
 {
     return ((AYSongInfo *) info)->FilePath.c_str();
 }
+#else
+TFileName ay_getsongpath(void *info)
+{
+    return ((AYSongInfo *) info)->FilePath;
+}
+#endif
 
 void ay_seeksong(void *info, long new_position)
 {
@@ -354,7 +394,7 @@ void ay_setintfreq(void *info, unsigned long int_freq)
     ((AYSongInfo *) info)->player->SetAYParameters();
 }
 
-void ay_setsongplayer(void *info, void * /* class AbstractAudio */ player)
+void ay_setsongplayer(void *info, void * /* class AbstractAudio */player)
 {
     if(((AYSongInfo *) info)->player)
     {
@@ -362,7 +402,12 @@ void ay_setsongplayer(void *info, void * /* class AbstractAudio */ player)
         delete ((AYSongInfo *) info)->player;
         ((AYSongInfo *) info)->player = 0;
     }
-    ((AYSongInfo *) info)->player = (AbstractAudio *)player;
+    ((AYSongInfo *) info)->player = (AbstractAudio *) player;
+}
+
+void *ay_getsongplayer(void *info)
+{
+    return ((AYSongInfo *) info)->player;
 }
 
 void ay_z80xec(void *info)
