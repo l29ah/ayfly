@@ -23,13 +23,13 @@ class Cayfly_s60Audio;
 class CCommandHandler: public CActive
 {
 public:
-    static CCommandHandler* NewL();
-    ~CCommandHandler();
+    IMPORT_C static CCommandHandler* NewL();
+    IMPORT_C ~CCommandHandler();
     void Start(Cayfly_s60Audio *aSound);
     void DoCancel();
 
-    CCommandHandler();
-    void RunL();
+    IMPORT_C CCommandHandler();
+    IMPORT_C void RunL();
 private:
     Cayfly_s60Audio *iSound;
 };
