@@ -44,12 +44,13 @@ enum
 class ay
 {
 public:
-    ay(AYSongInfo *info, int _buf_sz);
+    ay(AYSongInfo *info);
     virtual ~ay();
     void ayReset();
     void ayWrite(unsigned char reg, unsigned char val);
     unsigned char ayRead(unsigned char reg);
     void ayProcess(unsigned char *stream, unsigned long len);
+    void ayProcessMono(unsigned char *stream, unsigned long len);
     inline void chnlMute(unsigned long chnl, bool mute)
     {
         chnl_mute[chnl] = !mute;
@@ -75,7 +76,6 @@ public:
         return regs;
     };
 
-    void SetBufferSize(int _buf_sz);
     void SetParameters();
 private:
     static float init_levels[16];
@@ -86,7 +86,6 @@ private:
     float chnl_vol[3];
     bool chnl_enable[3];
     long tone_period_init[3];
-    long chnl_dc [3];
     long noise_period_init;
     long chnl_trigger[3];
     bool noise_enable[3];
@@ -98,20 +97,11 @@ private:
     unsigned long env_tick;
     unsigned long env_vol;
     long env_trigger;
-    float *buffer[3];
-    float *buffer_tail[3];
-    unsigned long tail_len;
     bool chnl_mute[3];
-    unsigned long q_len;
-    FILE *fd;
-    int buf_sz;
-    unsigned long tails_len;
     unsigned long ay_tacts;
     void setEnvelope();
     void updateEnvelope();
     float volume[3];
-    ELAPSED_CALLBACK elapsedCallback;
-    void *elapsedCallbackArg;
     unsigned long int_counter;
     unsigned long int_limit;
     AYSongInfo *songinfo;
