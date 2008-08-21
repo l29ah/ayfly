@@ -44,7 +44,7 @@ enum
 class ay
 {
 public:
-    ay(long _sr, long _ay_freq, int _buf_sz, AYSongInfo *info);
+    ay(AYSongInfo *info, int _buf_sz);
     virtual ~ay();
     void ayReset();
     void ayWrite(unsigned char reg, unsigned char val);
@@ -76,12 +76,10 @@ public:
     };
 
     void SetBufferSize(int _buf_sz);
+    void SetParameters();
 private:
     static float init_levels[16];
     float levels[16];
-    long ay_freq;
-    float ay_tone_freq;
-    float ay_env_freq;
     unsigned char regs[16];
     long noise_period;
     long chnl_period[3];
@@ -107,7 +105,6 @@ private:
     unsigned long q_len;
     FILE *fd;
     int buf_sz;
-    long sr;
     unsigned long tails_len;
     unsigned long ay_tacts;
     void setEnvelope();

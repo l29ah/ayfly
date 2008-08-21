@@ -100,6 +100,7 @@ void ay_sys_z80exec(AYSongInfo &info)
     while (z80ex_get_reg(info.z80ctx, regPC) != 8);
     if (++info.timeElapsed >= info.Length)
     {
+        info.timeElapsed = info.Loop;
         if (info.callback)
             info.callback(info.callback_arg);
     }

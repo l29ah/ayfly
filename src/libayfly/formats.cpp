@@ -64,8 +64,7 @@ _Players Players[] =
 { TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, STC_GetInfo },
 { TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, STP_GetInfo },
 { TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_Cleanup, PSC_GetInfo },
-{ TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_Cleanup, SQT_GetInfo }
-};
+{ TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_Cleanup, SQT_GetInfo } };
 
 /*
  * parts of ay read code and memory init are from aylet player:
@@ -122,14 +121,14 @@ unsigned char *osRead(const TFileName &filePath, unsigned long *data_len)
 #endif
 {
     unsigned char *fileData = new unsigned char[*data_len];
-    if (!fileData)
+    if(!fileData)
         return 0;
 #ifndef __SYMBIAN32__
     std::ifstream f;
 #ifndef WINDOWS
     size_t len = filePath.length() * 6;
     char *mb_str = new char[len + 1];
-    if (!mb_str)
+    if(!mb_str)
     {
         *data_len = 0;
         delete[] fileData;
@@ -145,13 +144,13 @@ unsigned char *osRead(const TFileName &filePath, unsigned long *data_len)
 #else
     f.open(filePath.c_str(), std::ios_base::in | std::ios_base::binary);
 #endif
-    if (f)
+    if(f)
     {
         f.seekg(0, std::ios::end);
         *data_len = f.tellg();
         f.seekg(0, std::ios::beg);
         f.read((char *) fileData, *data_len);
-        if (f.bad())
+        if(f.bad())
             *data_len = 0;
         f.close();
     }
@@ -176,7 +175,7 @@ unsigned char *osRead(const TFileName &filePath, unsigned long *data_len)
         *data_len = 0;
     }
 #endif
-    if (!*data_len)
+    if(!*data_len)
     {
         delete[] fileData;
         fileData = 0;
@@ -195,15 +194,15 @@ bool ay_sys_initsong(AYSongInfo &info)
     unsigned char *fileData = info.file_data;
     unsigned long fileLength = info.file_len;
     unsigned long player = 0;
-    if (cfp.rfind(TXT(".ay")) != std::string::npos)
+    if(cfp.rfind(TXT(".ay")) != std::string::npos)
     {
         fileType = FILE_TYPE_AY;
     }
     else
     {
-        for (player = 0; player < sizeof_array(Players); player++)
+        for(player = 0; player < sizeof_array(Players); player++)
         {
-            if (cfp.rfind(Players[player].ext) != std::string::npos)
+            if(cfp.rfind(Players[player].ext) != std::string::npos)
             {
                 break;
             }
@@ -231,11 +230,11 @@ bool ay_sys_initsong(AYSongInfo &info)
         }
     }
 #endif
-    if (fileType == FILE_TYPE_AY)
+    if(fileType == FILE_TYPE_AY)
     {
         unsigned char *ptr = (unsigned char *) fileData;
         unsigned char *ptr2;
-        if (!memcmp(ptr, "ZXAYEMUL", 8))
+        if(!memcmp(ptr, "ZXAYEMUL", 8))
         {
             ptr += 8;
             aydata.filever = *ptr++;
@@ -247,14 +246,14 @@ bool ay_sys_initsong(AYSongInfo &info)
             aydata.first_track = *ptr++;
             GET_PTR(ptr2);
             ptr = ptr2;
-            if(aydata.tracks = new ayTrack [aydata.num_tracks])
+            if(aydata.tracks = new ayTrack[aydata.num_tracks])
             {
-                for (unsigned long i = 0; i < aydata.num_tracks; i++)
+                for(unsigned long i = 0; i < aydata.num_tracks; i++)
                 {
                     GET_PTR(aydata.tracks [i].name);
                     GET_PTR(aydata.tracks [i].data);
                 }
-                for (unsigned long i = 0; i < aydata.num_tracks; i++)
+                for(unsigned long i = 0; i < aydata.num_tracks; i++)
                 {
                     ptr = aydata.tracks[i].data + 10;
                     GET_PTR(aydata.tracks [i].data_points);
@@ -267,16 +266,16 @@ bool ay_sys_initsong(AYSongInfo &info)
                 aydata.filelen = fileLength;
                 aydata.filedata = fileData;
                 ay_sys_initayfmt(info, 0);
-                delete [] aydata.tracks;
+                delete[] aydata.tracks;
                 aydata.tracks = 0;
                 return true;
             }
         }
 
     }
-    else if (fileType == FILE_TYPE_TRACKER)
+    else if(fileType == FILE_TYPE_TRACKER)
     {
-        if (Players[player].player == 0) //soft player
+        if(Players[player].player == 0) //soft player
         {
             memset(info.module, 0, 65536);
             memcpy(info.module, fileData, fileLength);
@@ -295,7 +294,7 @@ bool ay_sys_initsong(AYSongInfo &info)
         //copy player to 0xc000 of z80 memory
         memcpy(info.module + Players[player].player_base, Players[player].player, Players[player].length);
 
-        if (Players[player].module_base)
+        if(Players[player].module_base)
         {
             //copy module at given address
             memcpy(info.module + Players[player].module_base, fileData, fileLength);
@@ -330,13 +329,13 @@ bool ay_sys_readfromfile(AYSongInfo &info)
     bool bRet = false;
     unsigned char *fileData = 0;
     fileData = osRead(info.FilePath, &data_len);
-    if (!fileData)
+    if(!fileData)
         return false;
     memset(info.file_data, 0, 65536);
     memcpy(info.file_data, fileData, data_len);
     info.file_len = data_len;
 
-    if (fileData)
+    if(fileData)
         delete[] fileData;
     return true;
 }
@@ -363,7 +362,7 @@ void ay_sys_initayfmt(AYSongInfo &info, unsigned char track)
     /* call first AY block if no init */
     ourinit = (init ? init : ay_1st_block);
 
-    if (!interrupt)
+    if(!interrupt)
         memcpy(info.module, intz, sizeof(intz));
     else
     {
@@ -377,24 +376,24 @@ void ay_sys_initayfmt(AYSongInfo &info, unsigned char track)
 
     /* now put the memory blocks in place */
     ptr = aydata.tracks[track].data_memblocks;
-    while ((addr = GET_WORD(ptr)) != 0)
+    while((addr = GET_WORD(ptr)) != 0)
     {
         len = GET_WORD(ptr + 2);
         ofs = GET_WORD(ptr + 4);
-        if (ofs >= 0x8000)
+        if(ofs >= 0x8000)
             ofs = -0x10000 + ofs;
 
         /* range check */
-        if (ptr - 4 - aydata.filedata + ofs >= aydata.filelen || ptr - 4 - aydata.filedata + ofs < 0)
+        if(ptr - 4 - aydata.filedata + ofs >= aydata.filelen || ptr - 4 - aydata.filedata + ofs < 0)
         {
             ptr += 6;
             continue;
         }
 
         /* fix any broken length */
-        if (ptr + 4 + ofs + len >= aydata.filedata + aydata.filelen)
+        if(ptr + 4 + ofs + len >= aydata.filedata + aydata.filelen)
             len = aydata.filedata + aydata.filelen - (ptr + 4 + ofs);
-        if (addr + len > 0x10000)
+        if(addr + len > 0x10000)
             len = 0x10000 - addr;
 
         memcpy(info.module + addr, ptr + 4 + ofs, len);
@@ -419,30 +418,21 @@ void ay_sys_initayfmt(AYSongInfo &info, unsigned char track)
 
 }
 
-bool ay_sys_getsonginfo(AYSongInfo &info)
+bool ay_sys_getsonginfoindirect(AYSongInfo &info)
 {
     ayData aydata_loc;
     info.Length = 0;
     info.Loop = 0;
     info.Name = TXT("");
     info.Author = TXT("");
-    unsigned long data_len = 65536;
-    unsigned char *fileData = osRead(info.FilePath, &data_len);
-    if (!fileData)
-    {
-        return false;
-    }
-    memset(info.file_data, 0, 65536);
-    memcpy(info.file_data, fileData, data_len);
-    info.file_len = data_len;
-
 #undef GET_WORD
 #define GET_WORD(x) {(x) = (*ptr++) << 8; (x) |= *ptr++;}
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
+    bool bRet = false;
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE cfp = info.FilePath;
     std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int)) std::tolower);
-    if (cfp.rfind(TXT(".ay")) != std::string::npos)
+    if(cfp.rfind(TXT(".ay")) != std::string::npos)
 #else
     TFileName cfp = info.FilePath;
     cfp.LowerCase();
@@ -455,7 +445,7 @@ bool ay_sys_getsonginfo(AYSongInfo &info)
 
         unsigned char *ptr = info.file_data;
         unsigned char *ptr2;
-        if (!memcmp(ptr, "ZXAYEMUL", 8))
+        if(!memcmp(ptr, "ZXAYEMUL", 8))
         {
             ptr += 8;
             aydata_loc.filever = *ptr++;
@@ -467,14 +457,14 @@ bool ay_sys_getsonginfo(AYSongInfo &info)
             aydata_loc.first_track = *ptr++;
             GET_PTR(ptr2);
             ptr = ptr2;
-            if ((aydata_loc.tracks = (ayTrack *) malloc(aydata_loc.num_tracks * sizeof(ayTrack))))
+            if((aydata_loc.tracks = (ayTrack *) malloc(aydata_loc.num_tracks * sizeof(ayTrack))))
             {
-                for (unsigned long i = 0; i < aydata_loc.num_tracks; i++)
+                for(unsigned long i = 0; i < aydata_loc.num_tracks; i++)
                 {
                     GET_PTR(aydata_loc.tracks [i].name);
                     GET_PTR(aydata_loc.tracks [i].data);
                 }
-                for (unsigned long i = 0; i < aydata_loc.num_tracks; i++)
+                for(unsigned long i = 0; i < aydata_loc.num_tracks; i++)
                 {
                     ptr = aydata_loc.tracks[i].data + 10;
                     GET_PTR(aydata_loc.tracks [i].data_points);
@@ -484,12 +474,13 @@ bool ay_sys_getsonginfo(AYSongInfo &info)
                     GET_WORD(aydata_loc.tracks [i].fadestart);
                     GET_WORD(aydata_loc.tracks [i].fadelen);
                 }
-                if (aydata_loc.num_tracks)
+                if(aydata_loc.num_tracks)
                 {
                     info.Length = aydata_loc.tracks[0].fadestart;
                 }
 
                 free(aydata_loc.tracks);
+                bRet = true;
             }
 
         }
@@ -497,36 +488,52 @@ bool ay_sys_getsonginfo(AYSongInfo &info)
     }
     else
     {
-        for (unsigned int i = 0; i < sizeof_array(Players); i++)
+        for(unsigned int i = 0; i < sizeof_array(Players); i++)
         {
 #ifndef __SYMBIAN32__
-            if (cfp.rfind(Players[i].ext) != std::string::npos)
+            if(cfp.rfind(Players[i].ext) != std::string::npos)
 #else
             TPtrC ext = parse.Ext();
             TPtrC ext_cur = Players [i].ext;
             if (ext.Compare(ext_cur) == 0)
 #endif
             {
-                if (Players[i].getInfo)
+                if(Players[i].getInfo)
                     Players[i].getInfo(info);
+                bRet = true;
                 break;
             }
         }
 
     }
+    return bRet;
+}
+
+bool ay_sys_getsonginfo(AYSongInfo &info)
+{
+    unsigned long data_len = 65536;
+    unsigned char *fileData = osRead(info.FilePath, &data_len);
+    if(!fileData)
+    {
+        return false;
+    }
+    memset(info.file_data, 0, 65536);
+    memcpy(info.file_data, fileData, data_len);
+    info.file_len = data_len;
     delete[] fileData;
-    return true;
+
+    return ay_sys_getsonginfoindirect(info);
 }
 
 void ay_sys_rewindsong(AYSongInfo &info, long new_position)
 {
-    if (info.player && info.player->Started())
+    if(info.player && info.player->Started())
         info.player->Stop();
 
     unsigned long timeCurrent = info.timeElapsed;
     info.timeElapsed = new_position;
 
-    if (info.timeElapsed < timeCurrent)
+    if(info.timeElapsed < timeCurrent)
     {
         timeCurrent = 0;
         /*if (!ay_sys_readfromfile(info))
@@ -535,19 +542,19 @@ void ay_sys_rewindsong(AYSongInfo &info, long new_position)
     }
 
     info.timeElapsed = timeCurrent;
-    if (info.bEmul)
+    if(info.bEmul)
     {
-        while (info.timeElapsed != new_position)
+        while(info.timeElapsed != new_position)
         {
             z80ex_step(info.z80ctx);
-            if (z80ex_get_reg(info.z80ctx, regPC) == 8)
+            if(z80ex_get_reg(info.z80ctx, regPC) == 8)
                 info.timeElapsed++;
         }
 
     }
-    else if (info.play_proc)
+    else if(info.play_proc)
     {
-        while (info.timeElapsed != new_position)
+        while(info.timeElapsed != new_position)
         {
             info.play_proc(info);
         }
