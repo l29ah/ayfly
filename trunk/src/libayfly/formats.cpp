@@ -21,8 +21,7 @@
 #ifdef __SYMBIAN32__
 #pragma pack(1)
 #endif
-//#include "ayfly.h"
-#include "s60.h"
+#include "ayfly.h"
 #include "players/ASCPlay.h"
 #include "players/PT2Play.h"
 #include "players/PT3Play.h"
