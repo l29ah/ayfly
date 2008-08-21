@@ -69,7 +69,7 @@ void *ay_initsong(TFileName FilePath, unsigned long sr)
     info->player = new SDLAudio(sr, info);
 #endif
 #else
-    info->player = Cayfly_s60Audio::NewL(info);
+    //info->player = Cayfly_s60Audio::NewL(info);
 #endif
     if(!info->player)
     {
@@ -137,7 +137,7 @@ void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName typ
     info->player = new SDLAudio(sr, info);
 #endif
 #else
-    info->player = Cayfly_s60Audio::NewL(info);
+    //info->player = Cayfly_s60Audio::NewL(info);
 #endif
     if(!info->player)
     {
