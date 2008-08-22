@@ -11,9 +11,7 @@
 TARGET			ayfly_s60_0xEA0B66F6.exe
 TARGETTYPE		exe
 UID		  0x100039CE 0xEA0B66F6
-VENDORID	  	  0
-SECUREID		  0xEA0B66F6
-CAPABILITY	  	  NONE
+
 
 //OPTION GCCE   -O3 --fast-math
 
@@ -28,39 +26,38 @@ SOURCE			ayfly_s60Application.cpp
 SOURCE			ayfly_s60AppView.cpp
 SOURCE			ayfly_s60AppUi.cpp
 SOURCE			ayfly_s60Document.cpp
-SOURCEPATH 	    ..\..\libayfly
-SOURCE          ay.cpp speccy.cpp formats.cpp AbstractAudio.cpp common.cpp z80ex\z80ex.cpp s60\ayfly_s60Audio.cpp
+//SOURCE          ay.cpp speccy.cpp formats.cpp AbstractAudio.cpp common.cpp z80ex\z80ex.cpp s60\ayfly_s60Audio.cpp
 
 SOURCEPATH		..\data
 
-START RESOURCE	ayfly_s60.rss
-HEADER
-TARGET ayfly_s60_0xEA0B66F6
-TARGETPATH resource\apps
-END //RESOURCE
+START RESOURCE ayfly_s60.rss
+	HEADER
+	TARGET ayfly_s60_0xEA0B66F6
+	TARGETPATH resource\apps
+	LANG 01
+END
 
-START RESOURCE	ayfly_s60_reg.rss
-TARGET ayfly_s60_0xEA0B66F6_reg
-TARGETPATH 	  \private\10003a3f\apps
-END //RESOURCE
+START RESOURCE ayfly_s60_reg.rss
+	TARGET ayfly_s60_0xEA0B66F6_reg
+	TARGETPATH \private\10003a3f\apps
+	LANG 01
+END
 
 
 
 USERINCLUDE	   ..\inc ..\..\libayfly
 USERINCLUDE    ..\help
 
-SYSTEMINCLUDE	 \epoc32\include \epoc32\include\libc
+SYSTEMINCLUDE	 \epoc32\include
 
-LIBRARY		   euser.lib
-LIBRARY		   apparc.lib
-LIBRARY		   cone.lib
-LIBRARY		   eikcore.lib
-LIBRARY		   avkon.lib
-LIBRARY		   commonengine.lib
-LIBRARY		   efsrv.lib 
-LIBRARY		   estor.lib
-LIBRARY        aknnotify.lib
+LIBRARY		   euser.lib apparc.lib cone.lib eikcore.lib eikcoctl.lib
+LIBRARY        avkon.lib fbscli.lib eikdlg.lib efsrv.lib estor.lib
 LIBRARY        commondialogs.lib
-LIBRARY        mediaclientaudiostream.lib
- 
+
+LANG SC
+
+VENDORID	  	  0
+SECUREID		  0xEA0B66F6
+CAPABILITY	  	  ReadUserData
 // End of File
+SRCDBG

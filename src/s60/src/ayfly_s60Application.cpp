@@ -24,6 +24,7 @@
 
 Cayfly_s60Application::Cayfly_s60Application()
 {
+	
 }
 
 Cayfly_s60Application::~Cayfly_s60Application()
@@ -39,7 +40,7 @@ Cayfly_s60Application::~Cayfly_s60Application()
 //
 CApaDocument* Cayfly_s60Application::CreateDocumentL()
 	{
-	// Create an ayfly_s60 document, and return a pointer to it
+	// Create an ayfly_s60 document, and return a pointer to it	
 	return Cayfly_s60Document::NewL(*this);
 	}
 
