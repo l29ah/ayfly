@@ -19,7 +19,7 @@ class Cayfly_s60Audio;
 class CCommandHandler: public CActive
 {
 public:
-    IMPORT_C static CCommandHandler* NewL();
+    IMPORT_C CCommandHandler* NewL();
     IMPORT_C ~CCommandHandler();
     void Start(Cayfly_s60Audio *aSound);
     void DoCancel();
