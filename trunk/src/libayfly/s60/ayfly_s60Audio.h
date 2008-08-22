@@ -1,10 +1,6 @@
 #ifndef S60AUDIO_H_
 #define S60AUDIO_H_
 
-#include <mda/common/audio.h>
-#include <mdaaudiooutputstream.h>
-#include <e32std.h>
-
 #define AYFLY_SERVER_STACKSIZE        65536
 
 #define AYFLY_COMMAND_NONE            0
