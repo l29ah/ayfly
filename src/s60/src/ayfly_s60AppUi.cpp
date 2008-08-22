@@ -131,8 +131,6 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 	case EHelp:
 	{
 
-		CArrayFix<TCoeHelpContext>* buf = CCoeAppUi::AppHelpContextL();
-		HlpLauncher::LaunchHelpApplicationL(iEikonEnv->WsSession(), buf);
 	}
 		break;
 	case EAbout:

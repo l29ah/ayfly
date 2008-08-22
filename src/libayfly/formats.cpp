@@ -165,7 +165,7 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
     if (err == KErrNone)
     {
         fsSession.Entry(filePath, entry);
-        *data_len = (TUint)entry.iSize > 65536 ? 65536 : (TUint)entry.iSize;
+        *data_len = (TUint)entry.iSize> 65536 ? 65536 : (TUint)entry.iSize;
         readStream.ReadL((TUint8 *)fileData, *data_len);
         readStream.Close();
     }
@@ -237,7 +237,7 @@ bool ay_sys_initsong(AYSongInfo &info)
     {
         unsigned char *ptr = (unsigned char *) fileData;
         unsigned char *ptr2;
-        if(!memcmp(ptr, "ZXAYEMUL", 8))
+        if(*ptr == 'Z' && *(ptr + 1) == 'X' && *(ptr + 2) == 'A' && *(ptr + 3) == 'Y' && *(ptr + 4) == 'E' && *(ptr + 5) == 'M' && *(ptr + 6) == 'U' && *(ptr + 7) == 'L')
         {
             ptr += 8;
             aydata.filever = *ptr++;
@@ -329,7 +329,6 @@ bool ay_sys_readfromfile(AYSongInfo &info)
     info.bEmul = true;
     info.init_proc = 0;
     info.play_proc = 0;
-    bool bRet = false;
     unsigned char *fileData = 0;
     fileData = osRead(info.FilePath, &data_len);
     if(!fileData)
@@ -449,7 +448,7 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
 
         unsigned char *ptr = info.file_data;
         unsigned char *ptr2;
-        if(!memcmp(ptr, "ZXAYEMUL", 8))
+        if(*ptr == 'Z' && *(ptr + 1) == 'X' && *(ptr + 2) == 'A' && *(ptr + 3) == 'Y' && *(ptr + 4) == 'E' && *(ptr + 5) == 'M' && *(ptr + 6) == 'U' && *(ptr + 7) == 'L')
         {
             ptr += 8;
             aydata_loc.filever = *ptr++;
@@ -461,7 +460,7 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
             aydata_loc.first_track = *ptr++;
             GET_PTR(ptr2);
             ptr = ptr2;
-            if((aydata_loc.tracks = (ayTrack *) malloc(aydata_loc.num_tracks * sizeof(ayTrack))))
+            if(aydata_loc.tracks = new ayTrack[aydata.num_tracks])
             {
                 for(unsigned long i = 0; i < aydata_loc.num_tracks; i++)
                 {
@@ -483,7 +482,7 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
                     info.Length = aydata_loc.tracks[0].fadestart;
                 }
 
-                free(aydata_loc.tracks);
+                delete[] aydata_loc.tracks;
                 bRet = true;
             }
 
