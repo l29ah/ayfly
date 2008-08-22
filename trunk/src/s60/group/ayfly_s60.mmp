@@ -60,7 +60,6 @@ LIBRARY		   commonengine.lib
 LIBRARY		   efsrv.lib 
 LIBRARY		   estor.lib
 LIBRARY        aknnotify.lib
-LIBRARY        hlplch.lib
 LIBRARY        commondialogs.lib
 LIBRARY        mediaclientaudiostream.lib
  
