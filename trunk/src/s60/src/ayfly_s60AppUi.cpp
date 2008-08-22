@@ -97,8 +97,8 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		break;
 	case ECommand1:
 	{
-	    TFileName FileName = PathInfo::MemoryCardRootPath();
-		TBool bRet = CAknFileSelectionDialog::RunDlgLD(FileName, PathInfo::MemoryCardRootPath(), _L("Select file!"), NULL);
+	    TFileName FileName = _L("E:");
+		TBool bRet = CAknFileSelectionDialog::RunDlgLD(FileName, _L("E:"), _L("Select file!"), NULL);
 		if (bRet)
 		{
 		    if(currentSong)
