@@ -89,9 +89,9 @@ public:
     ;
 protected:
     unsigned long sr;
-    ay *ay8910;
     bool started;
     AYSongInfo *songinfo;
+    ay *ay8910;
 };
 
 #endif /*AUDIO_H_*/

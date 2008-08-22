@@ -45,11 +45,11 @@
 #        include <tchar.h>
 #    endif
 
-
-#    ifndef __SYMBIAN32__
 #    include <stdio.h>
 #    include <stdlib.h>
 #    include <string.h>
+
+#    ifndef __SYMBIAN32__
 #    include <algorithm>
 #    include <cctype>
 #    include <wchar.h>

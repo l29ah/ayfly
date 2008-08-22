@@ -65,8 +65,8 @@ Cayfly_s60AppUi::~Cayfly_s60AppUi()
 		iAppView = NULL;
 	}
 
-	/*if(currentSong)
-	    ay_closesong((void **)currentSong);*/
+	if(currentSong)
+	    ay_closesong((void **)currentSong);
 
 }
 
@@ -84,7 +84,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 	{
 	    if(currentSong)
 	    {
-	        //ay_closesong(&currentSong);
+	        ay_closesong(&currentSong);
 	    }
 		Exit();
 	}
@@ -95,9 +95,9 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		TBool bRet = CAknFileSelectionDialog::RunDlgLD(FileName, _L("E:"), _L("Select file!"), NULL);
 		if (bRet)
 		{
-		    /*if(currentSong)
+		    if(currentSong)
 		        ay_closesong(&currentSong);
-		    currentSong = ay_initsong(FileName, 32000);*/
+		    currentSong = ay_initsong(FileName, 32000);
 		    if(!currentSong)
 		    {
 		        CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Can't open file!"));
@@ -110,7 +110,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 	{
 		if(currentSong)
 		{
-		    //ay_startsong(currentSong);
+		    ay_startsong(currentSong);
 		}
 	}
 		break;
@@ -118,7 +118,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 	{
 	    if(currentSong)
 	    {
-	        //ay_stopsong(currentSong);
+	        ay_stopsong(currentSong);
 	    }
 	}
 		break;
@@ -158,7 +158,7 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
     }
     else
     {
-        /*if(aKeyEvent.iCode == EKeyUpArrow)
+        if(aKeyEvent.iCode == EKeyUpArrow)
         {
             if(currentSong)
             {
@@ -173,7 +173,7 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
                 Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
                 _player->SetDeviceVolume(_player->GetDeviceVolume() - 1);
             }
-        }*/
+        }
         return EKeyWasConsumed;
     }
 
