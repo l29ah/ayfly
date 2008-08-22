@@ -48,7 +48,6 @@
 #    include <stdio.h>
 #    include <stdlib.h>
 #    include <string.h>
-#    include <math.h>
 
 
 #    ifndef __SYMBIAN32__
@@ -59,11 +58,13 @@
 #    include <fstream>
 #    include <iostream>
 #    else
-#    include "f32file.h"
-#    include "s32std.h"
-#    include "s32file.h"
-#    include "e32cmn.h"
-#    include "coemain.h"
+#    include <f32file.h>
+#    include <s32std.h>
+#    include <s32file.h>
+#    include <e32cmn.h>
+#    include <coemain.h>
+#    include <mda/common/audio.h>
+#    include <mdaaudiooutputstream.h>
 #    endif
 
 
