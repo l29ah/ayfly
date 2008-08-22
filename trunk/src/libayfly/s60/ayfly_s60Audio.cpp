@@ -41,6 +41,7 @@ Cayfly_s60Audio* Cayfly_s60Audio::NewL(AYSongInfo *info)
 Cayfly_s60Audio::Cayfly_s60Audio(AYSongInfo *info) :
     AbstractAudio(AUDIO_FREQ, info), iDesc1(0, 0, 0), iDesc2(0, 0, 0)
 {
+	songinfo = info;
     iVolume = 7;
 
 }
