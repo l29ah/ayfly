@@ -24,8 +24,6 @@
 
 #include "ayfly.h"
 
-#include <f32file.h>
-#include <eikenv.h>
 
 _LIT(KThreadName, "ayflyplaybackthread");
 
