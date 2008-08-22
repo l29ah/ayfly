@@ -47,10 +47,6 @@ typedef Z80EX_BYTE (*z80ex_intread_cb)(Z80EX_CONTEXT *cpu, void *user_data);
 
 #ifndef __Z80EX_SELF_INCLUDE
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*create and initialize CPU*/
 extern Z80EX_CONTEXT *z80ex_create(z80ex_mread_cb mrcb_fn, void *mrcb_data,
 	z80ex_mwrite_cb mwcb_fn, void *mwcb_data,
@@ -105,10 +101,6 @@ the first T-state, at which RD/WR goes active).
 for use in I/O callbacks*/
 extern void z80ex_next_t_state(Z80EX_CONTEXT *cpu);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
 

@@ -68,10 +68,7 @@
 #    endif
 
 
-extern "C"
-{
 #    include "z80ex/include/z80ex.h"
-}
 #    ifdef _MSC_VER
 #        pragma warning(disable:4309)
 #    endif

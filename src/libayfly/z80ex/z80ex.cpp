@@ -44,14 +44,14 @@ static Z80EX_BYTE sz53_table[0x100]; /* The S, Z, 5 and 3 bits of the index */
 static Z80EX_BYTE parity_table[0x100]; /* The parity of the lookup value */
 static Z80EX_BYTE sz53p_table[0x100]; /* OR the above two tables together */
 
-#include "z80ex/daa_table.c"
-#include "z80ex/opcodes/opcodes_base.c"
-#include "z80ex/opcodes/opcodes_dd.c"
-#include "z80ex/opcodes/opcodes_fd.c"
-#include "z80ex/opcodes/opcodes_cb.c"
-#include "z80ex/opcodes/opcodes_ed.c"
-#include "z80ex/opcodes/opcodes_ddcb.c"
-#include "z80ex/opcodes/opcodes_fdcb.c"
+#include "z80ex/daa_table.cpp"
+#include "z80ex/opcodes/opcodes_base.cpp"
+#include "z80ex/opcodes/opcodes_dd.cpp"
+#include "z80ex/opcodes/opcodes_fd.cpp"
+#include "z80ex/opcodes/opcodes_cb.cpp"
+#include "z80ex/opcodes/opcodes_ed.cpp"
+#include "z80ex/opcodes/opcodes_ddcb.cpp"
+#include "z80ex/opcodes/opcodes_fdcb.cpp"
 
 /* Initalise the tables used to set flags */
 static void init_tables(void)
@@ -178,7 +178,7 @@ LIB_EXPORT Z80EX_CONTEXT *z80ex_create(
 		init_tables();
 	}
 
-	if((cpu=(Z80EX_CONTEXT *)malloc(sizeof(Z80EX_CONTEXT))) == NULL) return(NULL);
+	if((cpu=new Z80EX_CONTEXT) == NULL) return(NULL);
 	memset(cpu,0x00,sizeof(Z80EX_CONTEXT));
 
 	z80ex_reset(cpu);
@@ -199,7 +199,7 @@ LIB_EXPORT Z80EX_CONTEXT *z80ex_create(
 
 LIB_EXPORT void z80ex_destroy(Z80EX_CONTEXT *cpu)
 {
-	free(cpu);
+	delete cpu;
 }
 
 LIB_EXPORT void z80ex_set_tstate_callback(Z80EX_CONTEXT *cpu, z80ex_tstate_cb cb_fn, void *user_data)
