@@ -26,6 +26,9 @@ SOURCE			ayfly_s60Application.cpp
 SOURCE			ayfly_s60AppView.cpp
 SOURCE			ayfly_s60AppUi.cpp
 SOURCE			ayfly_s60Document.cpp
+
+SOURCEPATH		..\..\libayfly
+SOURCE			z80ex\z80ex.cpp speccy.cpp formats.cpp ay.cpp common.cpp AbstractAudio.cpp s60\ayfly_s60Audio.cpp
 //SOURCE          ay.cpp speccy.cpp formats.cpp AbstractAudio.cpp common.cpp z80ex\z80ex.cpp s60\ayfly_s60Audio.cpp
 
 SOURCEPATH		..\data
@@ -48,11 +51,11 @@ END
 USERINCLUDE	   ..\inc ..\..\libayfly
 USERINCLUDE    ..\help
 
-SYSTEMINCLUDE	 \epoc32\include
+SYSTEMINCLUDE	 \epoc32\include \epoc32\include\libc
 
 LIBRARY		   euser.lib apparc.lib cone.lib eikcore.lib eikcoctl.lib
 LIBRARY        avkon.lib fbscli.lib eikdlg.lib efsrv.lib estor.lib
-LIBRARY        commondialogs.lib
+LIBRARY        commondialogs.lib mediaclientaudiostream.lib
 
 LANG SC
 
@@ -60,4 +63,4 @@ VENDORID	  	  0
 SECUREID		  0xEA0B66F6
 CAPABILITY	  	  ReadUserData
 // End of File
-SRCDBG
+

@@ -23,14 +23,13 @@ public:
     IMPORT_C ~CCommandHandler();
     void Start(Cayfly_s60Audio *aSound);
     void DoCancel();
-
     IMPORT_C CCommandHandler();
     IMPORT_C void RunL();
 private:
     Cayfly_s60Audio *iSound;
 };
 
-class Cayfly_s60Audio: public AbstractAudio, CBase, MMdaAudioOutputStreamCallback
+class Cayfly_s60Audio: public AbstractAudio, MMdaAudioOutputStreamCallback
 {
 public:
     enum
