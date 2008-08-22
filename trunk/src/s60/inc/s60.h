@@ -33,7 +33,7 @@
 #    define sizeof_array(x) sizeof(x) / sizeof(x [0])
 #endif
 
-#include "ayfly.h"
+//#include "ayfly.h"
 
 #include "eikstart.h"
 #include "f32file.h"

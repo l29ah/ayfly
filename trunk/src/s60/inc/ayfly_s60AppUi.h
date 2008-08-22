@@ -26,7 +26,7 @@ class Cayfly_s60AppView;
 struct CurrentSong
 {
     TFileName FileName;
-    AYSongInfo *song;
+    //AYSongInfo *song;
 };
 
 class Cayfly_s60AppUi : public CAknAppUi
@@ -82,7 +82,7 @@ private:
 	 */
 	Cayfly_s60AppView* iAppView;
 	void *currentSong;
-	Cayfly_s60Audio *player;
+	//Cayfly_s60Audio *player;
 	//TFileName folderName;
 
 

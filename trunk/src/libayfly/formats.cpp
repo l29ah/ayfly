@@ -56,7 +56,7 @@ struct _Players
     GETINFO_CALLBACK getInfo;
 };
 
-_Players Players[] =
+static _Players Players[] =
 {
 { TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASC_Cleanup, ASC_GetInfo },
 { TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, PT2_GetInfo },

@@ -27,8 +27,7 @@ LOCAL_C CApaApplication* NewApplication()
 }
 
 GLDEF_C TInt E32Main()
-{
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("!!!"));
+{    
 	return EikStart::RunApplication( NewApplication );
 }
 
