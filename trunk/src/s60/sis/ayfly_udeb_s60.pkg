@@ -1,0 +1,37 @@
+; Installation file for ayfly_s60 application
+;
+; This is an auto-generated PKG file by Carbide.
+; This file uses variables specific to Carbide builds that will not work
+; on command-line builds. If you want to use this generated PKG file from the
+; command-line tools you will need to modify the variables with the appropriate
+; values: $(EPOCROOT), $(PLATFORM), $(TARGET)
+;
+;Language - standard language definitions
+&EN
+
+; standard SIS file header
+#{"ayfly_s60"},(0xEA0B66F6),0,0,15
+
+;Localised Vendor name
+%{"Vendor-EN"}
+
+;Unique Vendor name
+:"Andrew Deryabin"
+
+;Supports Series 60 v 3.0
+[0x101F7961], 0, 0, 0, {"Series60ProductID"}
+
+;Files to install
+;You should change the source paths to match that of your environment
+;<source> <destination>
+"..\..\..\..\..\S60\devices\S60_3rd_FP2_SDK\epoc32\release\gcce\udeb\ayfly_s60_0xEA0B66F6.exe"		-"!:\sys\bin\ayfly_s60_0xEA0B66F6.exe"
+"..\..\..\..\..\S60\devices\S60_3rd_FP2_SDK\epoc32\data\z\resource\apps\ayfly_s60_0xEA0B66F6.rsc"		-"!:\resource\apps\ayfly_s60_0xEA0B66F6.rsc"
+"..\..\..\..\..\S60\devices\S60_3rd_FP2_SDK\epoc32\data\z\private\10003a3f\apps\ayfly_s60_0xEA0B66F6_reg.rsc"	-"!:\private\10003a3f\import\apps\ayfly_s60_0xEA0B66F6_reg.rsc"
+;"..\..\..\..\..\S60\devices\S60_3rd_FP2_SDK\epoc32\data\z\resource\apps\ayfly_s60_0xEA0B66F6.mif" -"!:\resource\apps\ayfly_s60_0xEA0B66F6.mif"
+;"..\help\ayfly_s60_0xEA0B66F6.hlp"							 -"!:\resource\help\ayfly_s60_0xEA0B66F6.hlp"
+
+; Add any installation notes if applicable
+;"ayfly_s60.txt"		-"!:\private\EA0B66F6\ayfly_s60.txt"
+
+;required for application to be covered by backup/restore facility 
+"..\sis\backup_registration.xml"		-"!:\private\EA0B66F6\backup_registration.xml"
