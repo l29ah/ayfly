@@ -42,7 +42,7 @@ struct _Players
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE ext;
 #else
-    TFileName ext;
+    const TFileName ext;
 #endif
     const unsigned char *player;
     unsigned long player_base;
