@@ -97,7 +97,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		{
 		    if(currentSong)
 		        ay_closesong(&currentSong);
-		    currentSong = ay_initsong(FileName, 32000);
+		    currentSong = ay_initsong(FileName, 44100);
 		    if(!currentSong)
 		    {
 		        CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Can't open file!"));
