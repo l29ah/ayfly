@@ -96,6 +96,7 @@ struct ayTrack
     unsigned char *name, *data;
     unsigned char *data_points, *data_memblocks;
     unsigned long fadestart, fadelen;
+    ~ayTrack() {};
 };
 
 struct ayData
@@ -108,6 +109,7 @@ struct ayData
     unsigned char *author, *misc;
     unsigned long num_tracks;
     unsigned long first_track;
+    ~ayData() {};
 };
 
 static ayData aydata;
@@ -460,7 +462,8 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
             aydata_loc.first_track = *ptr++;
             GET_PTR(ptr2);
             ptr = ptr2;
-            if(aydata_loc.tracks = new ayTrack[aydata.num_tracks])
+            aydata_loc.tracks = new ayTrack[aydata.num_tracks];
+            if(aydata_loc.tracks)
             {
                 for(unsigned long i = 0; i < aydata_loc.num_tracks; i++)
                 {

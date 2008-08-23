@@ -286,6 +286,18 @@ TInt Cayfly_s60Sound::State()
     return iState;
 }
 
+
+void Cayfly_s60Sound::Exit()
+{
+    TRequestStatus  req = KRequestPending;
+
+    iPlayerThread.Logon(req);
+    iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_EXIT);
+
+    User::WaitForRequest(req);
+    // thread died ok, we can go out now
+}
+
 void Cayfly_s60Sound::PrivateWaitRequestOK()
 {
     /* Dummy loop.. but works :-) */
@@ -396,7 +408,7 @@ TInt serverthreadfunction(TAny *aThis)
 void Cayfly_s60Sound::ConstructL()
 {
     iVolume = 7;
-    
+
     iBuffer1 = new (ELeave) unsigned char[MIX_BUFFER_LENGTH];
     iDesc1.Set(iBuffer1, MIX_BUFFER_LENGTH, MIX_BUFFER_LENGTH);
     iBuffer2 = new (ELeave) unsigned char[MIX_BUFFER_LENGTH];
@@ -436,6 +448,7 @@ Cayfly_s60Audio::~Cayfly_s60Audio()
 {
     if(sound)
     {
+        sound->Exit();
         delete sound;
         sound = 0;
     }
