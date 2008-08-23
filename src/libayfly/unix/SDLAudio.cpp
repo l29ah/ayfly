@@ -24,18 +24,11 @@ SDLAudio::SDLAudio(unsigned long _sr, AYSongInfo *info) :
     AbstractAudio(_sr, info)
 {
     songinfo = info;
-    ay8910 = new ay(songinfo); // 16 bit, 2 ch.
-
 }
 
 SDLAudio::~SDLAudio()
 {
     Stop();
-    if(ay8910)
-    {
-        delete ay8910;
-        ay8910 = 0;
-    }
 }
 
 bool SDLAudio::Start()

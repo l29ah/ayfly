@@ -45,7 +45,7 @@ public:
     ;
     inline virtual void ChnlMute(unsigned long chnl, bool mute)
     {
-        if (ay8910)
+        if(ay8910)
             ay8910->chnlMute(chnl, mute);
     }
     ;
@@ -66,20 +66,25 @@ public:
     ;
     inline void SetVolume(unsigned long chnl, double new_volume)
     {
-        if (ay8910)
+        if(ay8910)
         {
             ay8910->SetVolume(chnl, new_volume);
         }
     }
     ;
-    inline const unsigned char *GetAYRegs(unsigned long chip_num)
+    inline const unsigned char *GetAYRegs(unsigned long chip_num = 0)
     {
         return ay8910 ? ay8910->GetRegs() : 0;
     }
     ;
-    inline void GetAYBuffer(unsigned char *buffer, unsigned long buffer_length, unsigned long chip_num)
+    inline void GetAYBuffer(unsigned char *buffer, unsigned long buffer_length, unsigned long chip_num = 0)
     {
         ay8910->ayProcess(buffer, buffer_length);
+    }
+    ;
+    inline void GetAYBufferMono(unsigned char *buffer, unsigned long buffer_length, unsigned long chip_num = 0)
+    {
+        ay8910->ayProcessMono(buffer, buffer_length);
     }
     ;
     inline void SetAYParameters()
