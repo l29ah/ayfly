@@ -45,7 +45,7 @@ class ay
 {
 public:
     ay(AYSongInfo *info);
-    virtual ~ay();
+    ~ay();
     void ayReset();
     void ayWrite(unsigned char reg, unsigned char val);
     unsigned char ayRead(unsigned char reg);

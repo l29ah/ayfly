@@ -48,9 +48,8 @@ Cayfly_s60Sound::Cayfly_s60Sound(AYSongInfo *info) :
 Cayfly_s60Sound::~Cayfly_s60Sound()
 {
 
-    delete iBuffer1;
-    delete iBuffer2;
-
+	delete [] iBuffer1;
+	delete [] iBuffer2;
 }
 
 void Cayfly_s60Sound::MaoscOpenComplete(TInt aError)
@@ -397,8 +396,7 @@ TInt serverthreadfunction(TAny *aThis)
 void Cayfly_s60Sound::ConstructL()
 {
     iVolume = 7;
-    //CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 1!"));
-
+    
     iBuffer1 = new (ELeave) unsigned char[MIX_BUFFER_LENGTH];
     iDesc1.Set(iBuffer1, MIX_BUFFER_LENGTH, MIX_BUFFER_LENGTH);
     iBuffer2 = new (ELeave) unsigned char[MIX_BUFFER_LENGTH];
