@@ -56,6 +56,7 @@ public:
     void PrivateStart();
     void PrivateStop();
     TInt State();
+    void Exit();
     unsigned char *iBuffer1;
     unsigned char *iBuffer2;
     TPtr8 iDesc1;
