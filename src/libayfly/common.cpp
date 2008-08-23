@@ -278,14 +278,7 @@ void ay_resetsong(void *info)
 void ay_closesong(void **info)
 {
     AYSongInfo *song = (AYSongInfo *) *info;
-    AYSongInfo **ppsong = (AYSongInfo **) info;
-    if(song->player)
-    {
-        if(song->player->Started())
-            song->player->Stop();
-        delete song->player;
-        song->player = 0;
-    }
+    AYSongInfo **ppsong = (AYSongInfo **) info;    
     if(song->cleanup_proc)
     {
         song->cleanup_proc(*song);
@@ -420,6 +413,8 @@ AYSongInfo::~AYSongInfo()
 {
     if(player)
     {
+    	if(player->Started())
+    		player->Stop();
         delete player;
         player = 0;
     }
