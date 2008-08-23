@@ -22,13 +22,18 @@
 
 AbstractAudio::AbstractAudio(unsigned long _sr, AYSongInfo *info)
 {
-	sr = _sr;
-	songinfo = info;
-	started = false;
-	ay8910 = 0;
+    sr = _sr;
+    songinfo = info;
+    songinfo->sr = _sr;
+    started = false;
+    ay8910 = new ay(songinfo);
 }
 
 AbstractAudio::~AbstractAudio()
 {
-
+    if(ay8910)
+    {
+        delete ay8910;
+        ay8910 = 0;
+    }
 }

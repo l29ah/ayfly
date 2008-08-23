@@ -24,43 +24,36 @@
 
 #include "ayfly.h"
 
-
 _LIT(KThreadName, "ayflyplaybackthread");
 
 /* preferred order of sample rate selection */
 static const TInt sampleRateConversionTable[] =
 { 44100, TMdaAudioDataSettings::ESampleRate44100Hz, 32000, TMdaAudioDataSettings::ESampleRate32000Hz, 22050, TMdaAudioDataSettings::ESampleRate22050Hz, 16000, TMdaAudioDataSettings::ESampleRate16000Hz, 11025, TMdaAudioDataSettings::ESampleRate11025Hz, 48000, TMdaAudioDataSettings::ESampleRate48000Hz, 8000, TMdaAudioDataSettings::ESampleRate8000Hz };
 
-Cayfly_s60Audio* Cayfly_s60Audio::NewL(AYSongInfo *info)
+Cayfly_s60Sound* Cayfly_s60Sound::NewL(AYSongInfo *info)
 {
-    Cayfly_s60Audio* a = new (ELeave) Cayfly_s60Audio(info);
+    Cayfly_s60Sound* a = new (ELeave) Cayfly_s60Sound(info);
     a->ConstructL();
     return a;
 }
 
-Cayfly_s60Audio::Cayfly_s60Audio(AYSongInfo *info) :
-    AbstractAudio(AUDIO_FREQ, info), iDesc1(0, 0, 0), iDesc2(0, 0, 0)
+Cayfly_s60Sound::Cayfly_s60Sound(AYSongInfo *info) :
+    iDesc1(0, 0, 0), iDesc2(0, 0, 0)
 {
-	songinfo = info;
+    songinfo = info;
     iVolume = 7;
 
 }
 
-Cayfly_s60Audio::~Cayfly_s60Audio()
+Cayfly_s60Sound::~Cayfly_s60Sound()
 {
-
-    if(ay8910)
-    {
-        delete ay8910;
-        ay8910 = 0;
-    }
 
     delete iBuffer1;
     delete iBuffer2;
 
 }
 
-void Cayfly_s60Audio::MaoscOpenComplete(TInt aError)
+void Cayfly_s60Sound::MaoscOpenComplete(TInt aError)
 {
     if(aError != KErrNone)
     {
@@ -98,18 +91,21 @@ void Cayfly_s60Audio::MaoscOpenComplete(TInt aError)
         }
     }
 
+    songinfo->sr = mix_freq;
+    songinfo->player->SetAYParameters();
+
     iState = EPlaying;
 
     // Mix 2 buffers ready
     if(stereo)
     {
-        ay8910->ayProcess(iBuffer1, MIX_BUFFER_LENGTH);
-        ay8910->ayProcess(iBuffer2, MIX_BUFFER_LENGTH);
+        songinfo->player->GetAYBuffer(iBuffer1, MIX_BUFFER_LENGTH);
+        songinfo->player->GetAYBuffer(iBuffer2, MIX_BUFFER_LENGTH);
     }
     else
     {
-        ay8910->ayProcessMono(iBuffer1, MIX_BUFFER_LENGTH);
-        ay8910->ayProcessMono(iBuffer2, MIX_BUFFER_LENGTH);
+        songinfo->player->GetAYBufferMono(iBuffer1, MIX_BUFFER_LENGTH);
+        songinfo->player->GetAYBufferMono(iBuffer2, MIX_BUFFER_LENGTH);
     }
 
     iStream->SetVolume(iVolume);
@@ -123,13 +119,13 @@ void Cayfly_s60Audio::MaoscOpenComplete(TInt aError)
     iIdleActive = EFalse;
 }
 
-TInt Cayfly_s60Audio::MixLoop(TAny *t)
+TInt Cayfly_s60Sound::MixLoop(TAny *t)
 {
-    Cayfly_s60Audio *s = (Cayfly_s60Audio*)t;
+    Cayfly_s60Sound *s = (Cayfly_s60Sound*)t;
     TInt samplesLeft = ((MIX_BUFFER_TIMES - s->iMixStep) * (MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES));
 
     /* If we are stopping or already stopped, exit idle loop */
-    if(s->State() != Cayfly_s60Audio::EPlaying)
+    if(s->State() != Cayfly_s60Sound::EPlaying)
         return EFalse;
 
     if(s->iStartOnNext)
@@ -138,16 +134,16 @@ TInt Cayfly_s60Audio::MixLoop(TAny *t)
         if(s->iBufferToMix == 0)
         {
             if(s->stereo)
-                s->ay8910->ayProcess((unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
+                s->songinfo->player->GetAYBuffer((unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
             else
-                s->ay8910->ayProcessMono((unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
+                s->songinfo->player->GetAYBufferMono((unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
         }
         else
         {
             if(s->stereo)
-                s->ay8910->ayProcess((unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
+                s->songinfo->player->GetAYBuffer((unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
             else
-                s->ay8910->ayProcessMono((unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
+                s->songinfo->player->GetAYBufferMono((unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
         }
 
         /* Initialize mixing on the other buffer */
@@ -169,9 +165,9 @@ TInt Cayfly_s60Audio::MixLoop(TAny *t)
         }
 
         if(s->stereo)
-            s->ay8910->ayProcess((unsigned char*)(mix_buffer + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES);
+            s->songinfo->player->GetAYBuffer((unsigned char*)(mix_buffer + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES);
         else
-            s->ay8910->ayProcessMono((unsigned char*)(mix_buffer + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES);
+            s->songinfo->player->GetAYBufferMono((unsigned char*)(mix_buffer + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES);
 
         s->iMixStep++;
 
@@ -192,7 +188,7 @@ TInt Cayfly_s60Audio::MixLoop(TAny *t)
     return ETrue;
 }
 
-void Cayfly_s60Audio::MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer)
+void Cayfly_s60Sound::MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer)
 {
     if(aError != KErrNone)
     {
@@ -227,15 +223,15 @@ void Cayfly_s60Audio::MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer)
     }
 }
 
-void Cayfly_s60Audio::MaoscPlayComplete(TInt aError)
+void Cayfly_s60Sound::MaoscPlayComplete(TInt aError)
 {
-    if( aError == KErrCancel )
+    if(aError == KErrCancel)
     {
         iState = EStopped;
     }
 }
 
-void Cayfly_s60Audio::SetDeviceVolume(TInt aVolume)
+void Cayfly_s60Sound::SetDeviceVolume(TInt aVolume)
 {
     if(aVolume > 50)
         aVolume = 50;
@@ -246,30 +242,29 @@ void Cayfly_s60Audio::SetDeviceVolume(TInt aVolume)
         iStream->SetVolume(iVolume);
 }
 
-TInt Cayfly_s60Audio::GetDeviceVolume()
+TInt Cayfly_s60Sound::GetDeviceVolume()
 {
     return iVolume;
 }
 
-bool Cayfly_s60Audio::Start()
+bool Cayfly_s60Sound::StartL()
 {
     PrivateWaitRequestOK();
     iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_START_PLAYBACK);
-    started = true;
     return true;
 }
 
-void Cayfly_s60Audio::Stop()
+void Cayfly_s60Sound::StopL()
 {
     PrivateWaitRequestOK();
     iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_STOP_PLAYBACK);
-    started = false;
 }
 
-void Cayfly_s60Audio::PrivateStart()
+void Cayfly_s60Sound::PrivateStart()
 {
     /* StartL should not be called unless playback is stopped */
-    if(iState != EStopped) return;
+    if(iState != EStopped)
+        return;
 
     delete iStream;
 
@@ -278,7 +273,7 @@ void Cayfly_s60Audio::PrivateStart()
     iStream->Open(&iSettings);
 }
 
-void Cayfly_s60Audio::PrivateStop()
+void Cayfly_s60Sound::PrivateStop()
 {
     if(iState == EPlaying)
     {
@@ -287,12 +282,12 @@ void Cayfly_s60Audio::PrivateStop()
     }
 }
 
-TInt Cayfly_s60Audio::State()
+TInt Cayfly_s60Sound::State()
 {
     return iState;
 }
 
-void Cayfly_s60Audio::PrivateWaitRequestOK()
+void Cayfly_s60Sound::PrivateWaitRequestOK()
 {
     /* Dummy loop.. but works :-) */
     while((iRequestPtr == NULL) || (*iRequestPtr != KRequestPending))
@@ -320,7 +315,7 @@ CCommandHandler* CCommandHandler::NewL()
     return a;
 }
 
-void CCommandHandler::Start(Cayfly_s60Audio *aSound)
+void CCommandHandler::Start(Cayfly_s60Sound *aSound)
 {
     iSound = aSound;
     iSound->iRequestPtr = &iStatus;
@@ -350,7 +345,7 @@ void CCommandHandler::RunL(void)
             iSound->iKilling = ETrue;
             break;
         case AYFLY_COMMAND_WAIT_KILL:
-            if(iSound->State() == Cayfly_s60Audio::EStopped)
+            if(iSound->State() == Cayfly_s60Sound::EStopped)
             {
                 Deque();
                 CActiveScheduler::Stop();
@@ -378,7 +373,7 @@ void CCommandHandler::RunL(void)
 
 TInt serverthreadfunction(TAny *aThis)
 {
-    Cayfly_s60Audio *a = (Cayfly_s60Audio*)aThis;
+    Cayfly_s60Sound *a = (Cayfly_s60Sound*)aThis;
 
     CTrapCleanup *ctrap = CTrapCleanup::New();
 
@@ -399,11 +394,10 @@ TInt serverthreadfunction(TAny *aThis)
     return 0;
 }
 
-void Cayfly_s60Audio::ConstructL()
+void Cayfly_s60Sound::ConstructL()
 {
     iVolume = 7;
     //CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 1!"));
-    ay8910 = new ay(songinfo); // 16 bit, 2 ch.
 
     iBuffer1 = new (ELeave) unsigned char[MIX_BUFFER_LENGTH];
     iDesc1.Set(iBuffer1, MIX_BUFFER_LENGTH, MIX_BUFFER_LENGTH);
@@ -432,3 +426,33 @@ void Cayfly_s60Audio::ConstructL()
 
     iPlayerThread.Resume(); /* start the streaming thread */
 }
+
+Cayfly_s60Audio::Cayfly_s60Audio(AYSongInfo *info) :
+    AbstractAudio(AUDIO_FREQ, info)
+{
+    songinfo = info;
+    sound = Cayfly_s60Sound::NewL(songinfo);
+}
+
+Cayfly_s60Audio::~Cayfly_s60Audio()
+{
+    if(sound)
+    {
+        delete sound;
+        sound = 0;
+    }
+
+}
+
+bool Cayfly_s60Audio::Start()
+{
+    started = sound->StartL();
+    return started;
+}
+
+void Cayfly_s60Audio::Stop()
+{
+    started = false;
+    sound->StopL();
+}
+

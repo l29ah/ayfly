@@ -14,22 +14,22 @@
 #define MIX_BUFFER_SAMPLES_IN_ONE_STEP                     2048
 #define MIX_BUFFER_LENGTH               MIX_BUFFER_SAMPLES_IN_ONE_STEP*MIX_BUFFER_TIMES*4
 
-class Cayfly_s60Audio;
+class Cayfly_s60Sound;
 
 class CCommandHandler: public CActive
 {
 public:
-    IMPORT_C CCommandHandler* NewL();
+    IMPORT_C static CCommandHandler* NewL();
     IMPORT_C ~CCommandHandler();
-    void Start(Cayfly_s60Audio *aSound);
+    void Start(Cayfly_s60Sound *aSound);
     void DoCancel();
     IMPORT_C CCommandHandler();
     IMPORT_C void RunL();
 private:
-    Cayfly_s60Audio *iSound;
+    Cayfly_s60Sound *iSound;
 };
 
-class Cayfly_s60Audio: public AbstractAudio, MMdaAudioOutputStreamCallback
+class Cayfly_s60Sound: public CBase, MMdaAudioOutputStreamCallback
 {
 public:
     enum
@@ -37,8 +37,8 @@ public:
         EStopped = 0, EStarting, EPlaying, EStopping
     };
 public:
-    static Cayfly_s60Audio* NewL(AYSongInfo *info);
-    virtual ~Cayfly_s60Audio();
+    static Cayfly_s60Sound* NewL(AYSongInfo *info);
+    virtual ~Cayfly_s60Sound();
 
     void StartPlay();
     void StopPlay();
@@ -49,8 +49,8 @@ public:
     virtual void MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer);
     virtual void MaoscPlayComplete(TInt aError);
 
-    bool Start();
-    void Stop();
+    bool StartL();
+    void StopL();
 
     void PrivateWaitRequestOK();
     void PrivateStart();
@@ -76,9 +76,21 @@ public:
     bool stereo;
 private:
     void ConstructL();
-    Cayfly_s60Audio(AYSongInfo *info);
+    Cayfly_s60Sound(AYSongInfo *info);
     AYSongInfo *songinfo;
     static TInt MixLoop(TAny *t);
+};
+
+//control class
+class Cayfly_s60Audio : public AbstractAudio
+{
+public:
+    Cayfly_s60Audio(AYSongInfo *info);
+    virtual ~Cayfly_s60Audio();
+    virtual bool Start();
+    virtual void Stop();
+private:
+    Cayfly_s60Sound *sound;
 };
 
 #endif /*S60AUDIO_H_*/
