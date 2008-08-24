@@ -232,10 +232,6 @@ void Cayfly_s60Sound::MaoscPlayComplete(TInt aError)
 
 void Cayfly_s60Sound::SetDeviceVolume(TInt aVolume)
 {
-    if(aVolume > 100)
-        aVolume = 100;
-    if(aVolume < 0)
-        aVolume = 0;
     iVolume = aVolume;
     PrivateWaitRequestOK();
     iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_SET_VOLUME);
@@ -243,6 +239,7 @@ void Cayfly_s60Sound::SetDeviceVolume(TInt aVolume)
 
 TInt Cayfly_s60Sound::GetDeviceVolume()
 {
+    User::After(50000);
     return iVolume;
 }
 
@@ -257,7 +254,7 @@ void Cayfly_s60Sound::StopL()
 {
     PrivateWaitRequestOK();
     iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_STOP_PLAYBACK);
-    User::After(100);
+    User::After(100000);
 }
 
 void Cayfly_s60Sound::PrivateStart()
@@ -304,7 +301,11 @@ void Cayfly_s60Sound::PrivateSetVolume()
 {
     if(iState == EPlaying)
     {
-        iStream->SetVolume((iStream->MaxVolume() * iVolume) / 100);
+        if(iVolume < 0)
+            iVolume = 0;
+        if(iVolume > iStream->MaxVolume())
+            iVolume = iStream->MaxVolume();
+        iStream->SetVolume(iVolume);
     }
 }
 
@@ -439,7 +440,12 @@ void Cayfly_s60Sound::ConstructL()
     RThread curthread;
 
     /* Spawn new thread for actual playback and command control, shares the heap with main thread */
-    iPlayerThread.Create(KThreadName, serverthreadfunction, AYFLY_SERVER_STACKSIZE, NULL, (TAny*)this);
+    TInt err = KErrAlreadyExists;
+    while(err == KErrAlreadyExists)
+    {
+        User::After(100000);
+        err = iPlayerThread.Create(KThreadName, serverthreadfunction, AYFLY_SERVER_STACKSIZE, NULL, (TAny*)this);
+    }
     iPlayerThread.SetProcessPriority(EPriorityHigh);
     iPlayerThread.SetPriority(EPriorityRealTime);
     curthread.SetPriority(EPriorityLess);

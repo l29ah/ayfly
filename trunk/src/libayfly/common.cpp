@@ -17,7 +17,6 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "s60.h"
 #include "ayfly.h"
 
 AYSongInfo *ay_sys_getnewinfo()
@@ -62,7 +61,6 @@ void *ay_initsong(TFileName FilePath, unsigned long sr)
     AYSongInfo *info = ay_sys_getnewinfo();
     if(!info)
         return 0;
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 1!"));
 #ifndef __SYMBIAN32__
 #ifdef WINDOWS
     info->player = new DXAudio(sr, info);
@@ -411,7 +409,6 @@ AYSongInfo::~AYSongInfo()
     {
         player->Stop();
     }
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 2!"));
     if(cleanup_proc)
     {
         cleanup_proc(*this);
