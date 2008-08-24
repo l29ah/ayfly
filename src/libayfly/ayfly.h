@@ -82,11 +82,11 @@
 #           ifndef AYFLY_STATIC
 #               define AYFLY_API __declspec(dllimport)
 #           else
-#               define AYFLY_API 
+#               define AYFLY_API
 #           endif
 #        endif
 #    else
-#        define AYFLY_API 
+#        define AYFLY_API
 #    endif
 #    ifndef __SYMBIAN32__
 #        define AUDIO_FREQ 44100
@@ -131,8 +131,8 @@ struct AYSongInfo
     PLAYER_PLAY_PROC play_proc; /* play for soft player */
     PLAYER_CLEANUP_PROC cleanup_proc; /* play for soft player */
     void *data; /* used for players */
-    unsigned char module [65536]; /* z80 memory or raw song data */
-    unsigned char file_data [65536]; /* z80 memory or raw song data */
+    unsigned char *module; /* z80 memory or raw song data */
+    unsigned char *file_data; /* z80 memory or raw song data */
     unsigned char z80IO [65536]; /* z80 ports */
     unsigned long file_len; /* file length */
     AbstractAudio *player; /* player for this song */

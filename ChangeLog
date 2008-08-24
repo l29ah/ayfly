@@ -1,6 +1,7 @@
 Changelog:
 
 24.08.2008 - 0.0.16
+Added support for PSG format
 Some optimizations in AY emulator
 Symbian player rewritten to be more stable. Now using CMdaOutputStream interface
 Added library - libayfly with clean interface :)
