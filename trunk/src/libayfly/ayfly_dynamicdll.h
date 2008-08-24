@@ -92,15 +92,4 @@ typedef void * (*ay_getsongplayer)(void *info);
 typedef void  (*ay_sethwnd)(void *info, HWND hWnd);
 
 
-
-#    define AYFLY_VERSION_MAJOR 0
-#    define AYFLY_VERSION_MINOR 0
-#    define AYFLY_VERSION_PATCH 16
-
-#    define AYFLY_MAKE_VERSION ((AYFLY_VERSION_MAJOR << 16) | (AYFLY_VERSION_MINOR << 8) | AYFLY_VERSION_PATCH)
-#    define AYFLY_VERSION AYFLY_VERSION_MAJOR.AYFLY_VERSION_MINOR.AYFLY_VERSION_PATCH
-#    define xstr(s) str(s)
-#    define str(s) TXT(#s)
-#    define AYFLY_VERSION_TEXT xstr(AYFLY_VERSION)
-
 #endif /*AYFLY_H_*/

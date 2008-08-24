@@ -302,7 +302,7 @@ bool ay_sys_initsong(AYSongInfo &info)
     {
         if(Players[player].player == 0) //soft player
         {
-            memset(info.module, 0, 65536);
+            memset(info.module, 0, info.file_len);
             memcpy(info.module, fileData, fileLength);
             info.init_proc = Players[player].soft_init_proc;
             info.play_proc = Players[player].soft_play_proc;
@@ -367,14 +367,15 @@ bool ay_sys_readfromfile(AYSongInfo &info)
 
     info.file_len = data_len;
 
-    info.module = new unsigned char[info.file_len];
+    unsigned long to_allocate = info.file_len < 65536 ? 65536 : info.file_len;
+    info.module = new unsigned char[to_allocate];
     if(!info.module)
     {
         delete[] info.file_data;
         info.file_data = 0;
         return false;
     }
-    memset(info.module, 0, info.file_len);
+    memset(info.module, 0, to_allocate);
 
     return true;
 }
