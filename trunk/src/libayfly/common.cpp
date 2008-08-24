@@ -171,7 +171,7 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFi
             else if(info->init_proc)
                 info->init_proc(*info);
 #ifndef __SYMBIAN32__
-            ay_sys_getsonginfo(*info);
+            ay_sys_getsonginfoindirect(*info);
 #else
             info->Length = -1;
 #endif
