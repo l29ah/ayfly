@@ -140,7 +140,7 @@ void PSG_Cleanup(AYSongInfo &info)
 {
     if(info.data)
     {
-        delete (VTX_SongInfo *)info.data;
+        delete (PSG_SongInfo *)info.data;
         info.data = 0;
     }
 }

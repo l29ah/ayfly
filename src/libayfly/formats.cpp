@@ -29,6 +29,7 @@
 #include "players/STCPlay.h"
 #include "players/PSCPlay.h"
 #include "players/SQTPlay.h"
+#include "players/PSGPlay.h"
 
 typedef void (*GETINFO_CALLBACK)(AYSongInfo &info);
 
@@ -65,7 +66,7 @@ static _Players Players[] =
 { TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, STP_GetInfo },
 { TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_Cleanup, PSC_GetInfo },
 { TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_Cleanup, SQT_GetInfo },
-{ TXT(".psg"), 0, 0, 0, 0, 0, PSG_Init, 0, PSG_Play, PSG_Cleanup, PSG_GetInfo }};
+{ TXT(".psg"), 0, 0, 0, 0, 0, PSG_Init, 0, PSG_Play, PSG_Cleanup, PSG_GetInfo } };
 
 /*
  * parts of ay read code and memory init are from aylet player:
@@ -97,7 +98,6 @@ struct ayTrack
     unsigned char *name, *data;
     unsigned char *data_points, *data_memblocks;
     unsigned long fadestart, fadelen;
-    ~ayTrack() {};
 };
 
 struct ayData
@@ -110,7 +110,10 @@ struct ayData
     unsigned char *author, *misc;
     unsigned long num_tracks;
     unsigned long first_track;
-    ~ayData() {};
+    ~ayData()
+    {
+    }
+    ;
 };
 
 static ayData aydata;
@@ -123,9 +126,7 @@ unsigned char *osRead(AY_TXT_TYPE filePath, unsigned long *data_len)
 unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
 #endif
 {
-    unsigned char *fileData = new unsigned char[*data_len];
-    if(!fileData)
-        return 0;
+    unsigned char *fileData = 0;
 #ifndef __SYMBIAN32__
     std::ifstream f;
 #ifndef WINDOWS
@@ -138,7 +139,7 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
         return 0;
     }
     mbstate_t mbstate;
-    ::memset((void*) &mbstate, 0, sizeof(mbstate));
+    ::memset((void*)&mbstate, 0, sizeof(mbstate));
     const wchar_t *wc_str = filePath.c_str();
     size_t cnt_conv = wcsrtombs(mb_str, &wc_str, len, &mbstate);
     mb_str[cnt_conv] = 0;
@@ -152,7 +153,16 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
         f.seekg(0, std::ios::end);
         *data_len = f.tellg();
         f.seekg(0, std::ios::beg);
-        f.read((char *) fileData, *data_len);
+
+        unsigned long to_allocate = *data_len < 65536 ? 65536 : *data_len;
+        fileData = new unsigned char[to_allocate];
+        if(!fileData)
+        {
+            f.close();
+            return 0;
+        }
+        memset(fileData, 0, to_allocate);
+        f.read((char *)fileData, *data_len);
         if(f.bad())
             *data_len = 0;
         f.close();
@@ -168,7 +178,15 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
     if (err == KErrNone)
     {
         fsSession.Entry(filePath, entry);
-        *data_len = (TUint)entry.iSize> 65536 ? 65536 : (TUint)entry.iSize;
+        *data_len = (TUint)entry.iSize;
+        unsigned long to_allocate = *data_len < 65536 ? 65536 : *data_len;
+        fileData = new unsigned char[to_allocate];
+        if(!fileData)
+        {
+            readStream.Close();
+            return 0;
+        }
+        memset(fileData, 0, to_allocate);
         readStream.ReadL((TUint8 *)fileData, *data_len);
         readStream.Close();
     }
@@ -180,7 +198,8 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
 #endif
     if(!*data_len)
     {
-        delete[] fileData;
+        if(fileData)
+            delete[] fileData;
         fileData = 0;
     }
     return fileData;
@@ -196,7 +215,7 @@ bool ay_sys_initsong(AYSongInfo &info)
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE cfp = info.FilePath;
-    std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int)) std::tolower);
+    std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int))std::tolower);
     if(cfp.rfind(TXT(".ay")) != std::string::npos)
     {
         fileType = FILE_TYPE_AY;
@@ -238,7 +257,7 @@ bool ay_sys_initsong(AYSongInfo &info)
 
     if(fileType == FILE_TYPE_AY)
     {
-        unsigned char *ptr = (unsigned char *) fileData;
+        unsigned char *ptr = (unsigned char *)fileData;
         unsigned char *ptr2;
         if(*ptr == 'Z' && *(ptr + 1) == 'X' && *(ptr + 2) == 'A' && *(ptr + 3) == 'Y' && *(ptr + 4) == 'E' && *(ptr + 5) == 'M' && *(ptr + 6) == 'U' && *(ptr + 7) == 'L')
         {
@@ -332,17 +351,31 @@ bool ay_sys_readfromfile(AYSongInfo &info)
     info.bEmul = true;
     info.init_proc = 0;
     info.play_proc = 0;
-    unsigned char *fileData = 0;
-    fileData = osRead(info.FilePath, &data_len);
-    if(!fileData)
+    if(info.file_data)
+    {
+        delete[] info.file_data;
+        info.file_data = 0;
+    }
+    if(info.module)
+    {
+        delete[] info.module;
+        info.module = 0;
+    }
+    info.file_data = osRead(info.FilePath, &data_len);
+    if(!info.file_data)
         return false;
 
-    memset(info.file_data, 0, 65536);
-    memcpy(info.file_data, fileData, data_len);
     info.file_len = data_len;
 
-    if(fileData)
-        delete[] fileData;
+    info.module = new unsigned char[info.file_len];
+    if(!info.module)
+    {
+        delete[] info.file_data;
+        info.file_data = 0;
+        return false;
+    }
+    memset(info.module, 0, info.file_len);
+
     return true;
 }
 
@@ -437,7 +470,7 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
     bool bRet = false;
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE cfp = info.FilePath;
-    std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int)) std::tolower);
+    std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int))std::tolower);
     if(cfp.rfind(TXT(".ay")) != std::string::npos)
 #else
     TFileName cfp = info.FilePath;
@@ -517,17 +550,8 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
 
 bool ay_sys_getsonginfo(AYSongInfo &info)
 {
-    unsigned long data_len = 65536;
-    unsigned char *fileData = osRead(info.FilePath, &data_len);
-    if(!fileData)
-    {
+    if(!ay_sys_readfromfile(info))
         return false;
-    }
-    memset(info.file_data, 0, 65536);
-    memcpy(info.file_data, fileData, data_len);
-    info.file_len = data_len;
-    delete[] fileData;
-
     return ay_sys_getsonginfoindirect(info);
 }
 

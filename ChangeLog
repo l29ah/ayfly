@@ -1,9 +1,21 @@
 Changelog:
 
+24.08.2008 - 0.0.16
+Some optimizations in AY emulator
+Symbian player rewritten to be more stable. Now using CMdaOutputStream interface
+Added library - libayfly with clean interface :)
+Added library usage example for Windows - ayfly_cmdline
+DLL ayfly.dll is ready to be used in 3rd party applications
+Added ability to add folders in playlist
+Added sliders in ayfly application to change interrupts and AY frequency
+A lot of bugs fixed
+All functions rewritten to use c++ standard library
+
+
 06.08.2008 - 0.0.15
 New formats supported: SQT and PSC
 Fixed bugs in AY emulator
-AY emulator code is now he same on PC and Symbian builds
+AY emulator code is now the same on PC and Symbian builds
 
 01.08.2008 - 0.0.14
 Added filters for synth signal in symbian build
