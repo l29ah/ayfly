@@ -35,10 +35,7 @@ void Cayfly_s60AppUi::ConstructL()
 
 	// Create view object
 	iAppView = Cayfly_s60AppView::NewL(ClientRect() );
-	//iFileData = new TUint16[512];
-	//aFileName = new TPtr16(iFileData, 512, 512);
-	//iFileData [0] = 0;
-	//folderName = PathInfo::MemoryCardRootPath();
+	iVolume = 5;
 	currentSong = 0;
 
 }
@@ -111,6 +108,9 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		if(currentSong)
 		{
 		    ay_startsong(currentSong);
+		    Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
+		    _player->SetDeviceVolume(iVolume);
+		    iVolume = _player->GetDeviceVolume();
 		}
 	}
 		break;
@@ -163,7 +163,9 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
             if(currentSong)
             {
                 Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
-                _player->SetDeviceVolume(_player->GetDeviceVolume() + 1);
+                iVolume++;
+                _player->SetDeviceVolume(iVolume);
+                iVolume = _player->GetDeviceVolume();
             }
         }
         else if(aKeyEvent.iCode == EKeyDownArrow)
@@ -171,7 +173,9 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
             if(currentSong)
             {
                 Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
+                iVolume--;
                 _player->SetDeviceVolume(_player->GetDeviceVolume() - 1);
+                iVolume = _player->GetDeviceVolume();
             }
         }
         return EKeyWasConsumed;

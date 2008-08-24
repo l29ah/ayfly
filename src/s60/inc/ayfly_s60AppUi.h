@@ -82,6 +82,7 @@ private:
 	 */
 	Cayfly_s60AppView* iAppView;
 	void *currentSong;
+	TInt iVolume;
 	//Cayfly_s60Audio *player;
 	//TFileName folderName;
 
