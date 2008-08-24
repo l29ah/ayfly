@@ -48,8 +48,8 @@ Cayfly_s60Sound::Cayfly_s60Sound(AYSongInfo *info) :
 Cayfly_s60Sound::~Cayfly_s60Sound()
 {
 
-	delete [] iBuffer1;
-	delete [] iBuffer2;
+    delete[] iBuffer1;
+    delete[] iBuffer2;
 }
 
 void Cayfly_s60Sound::MaoscOpenComplete(TInt aError)
@@ -232,13 +232,13 @@ void Cayfly_s60Sound::MaoscPlayComplete(TInt aError)
 
 void Cayfly_s60Sound::SetDeviceVolume(TInt aVolume)
 {
-    if(aVolume > iStream->MaxVolume())
-        aVolume = iStream->MaxVolume();
+    if(aVolume > 100)
+        aVolume = 100;
     if(aVolume < 0)
         aVolume = 0;
     iVolume = aVolume;
-    if(iStream)
-        iStream->SetVolume(iVolume);
+    PrivateWaitRequestOK();
+    iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_SET_VOLUME);
 }
 
 TInt Cayfly_s60Sound::GetDeviceVolume()
@@ -257,10 +257,7 @@ void Cayfly_s60Sound::StopL()
 {
     PrivateWaitRequestOK();
     iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_STOP_PLAYBACK);
-    /*while(iState != EStopped)
-    {
-        User::After(10000);
-    }*/        
+    User::After(100);
 }
 
 void Cayfly_s60Sound::PrivateStart()
@@ -290,18 +287,25 @@ TInt Cayfly_s60Sound::State()
     return iState;
 }
 
-
 void Cayfly_s60Sound::Exit()
 {
-    TRequestStatus  req = KRequestPending;
+    TRequestStatus req = KRequestPending;
 
     iPlayerThread.Logon(req);
     iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_EXIT);
 
-    User::WaitForRequest(req); 
+    User::WaitForRequest(req);
     iPlayerThread.Close();
-    
+
     // thread died ok, we can go out now
+}
+
+void Cayfly_s60Sound::PrivateSetVolume()
+{
+    if(iState == EPlaying)
+    {
+        iStream->SetVolume((iStream->MaxVolume() * iVolume) / 100);
+    }
 }
 
 void Cayfly_s60Sound::PrivateWaitRequestOK()
@@ -355,7 +359,7 @@ void CCommandHandler::RunL(void)
             iSound->PrivateStop();
             break;
         case AYFLY_COMMAND_SET_VOLUME:
-            //iSound->PrivateSetVolume();
+            iSound->PrivateSetVolume();
             break;
         case AYFLY_COMMAND_EXIT:
             iSound->PrivateStop();
@@ -407,7 +411,7 @@ TInt serverthreadfunction(TAny *aThis)
     delete a->iHandler;
     delete scheduler;
     delete ctrap;
-    
+
     return 0;
 }
 
@@ -433,7 +437,7 @@ void Cayfly_s60Sound::ConstructL()
      *********************************************************************************/
 
     RThread curthread;
-    
+
     /* Spawn new thread for actual playback and command control, shares the heap with main thread */
     iPlayerThread.Create(KThreadName, serverthreadfunction, AYFLY_SERVER_STACKSIZE, NULL, (TAny*)this);
     iPlayerThread.SetProcessPriority(EPriorityHigh);
@@ -447,7 +451,7 @@ Cayfly_s60Audio::Cayfly_s60Audio(AYSongInfo *info) :
     AbstractAudio(AUDIO_FREQ, info)
 {
     songinfo = info;
-    sound = Cayfly_s60Sound::NewL(songinfo);    
+    sound = Cayfly_s60Sound::NewL(songinfo);
 }
 
 Cayfly_s60Audio::~Cayfly_s60Audio()
@@ -471,5 +475,21 @@ void Cayfly_s60Audio::Stop()
 {
     started = false;
     sound->StopL();
+}
+
+void Cayfly_s60Audio::SetDeviceVolume(TInt aVolume)
+{
+    if(sound)
+    {
+        sound->SetDeviceVolume(aVolume);
+    }
+}
+TInt Cayfly_s60Audio::GetDeviceVolume()
+{
+    if(sound)
+    {
+        return sound->GetDeviceVolume();
+    }
+    return 0;
 }
 

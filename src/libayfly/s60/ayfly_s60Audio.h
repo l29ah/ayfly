@@ -55,6 +55,7 @@ public:
     void PrivateWaitRequestOK();
     void PrivateStart();
     void PrivateStop();
+    void PrivateSetVolume();
     TInt State();
     void Exit();
     unsigned char *iBuffer1;
@@ -90,6 +91,8 @@ public:
     virtual ~Cayfly_s60Audio();
     virtual bool Start();
     virtual void Stop();
+    void SetDeviceVolume(TInt aVolume);
+    TInt GetDeviceVolume();
 private:
     Cayfly_s60Sound *sound;
 };
