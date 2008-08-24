@@ -545,7 +545,7 @@ void SQT_Play(AYSongInfo &info)
 
 }
 
-void SQT_GetChannelInfo(AYSongInfo &info, unsigned char &b, unsigned long &tm, char &a1, unsigned long &j1, unsigned long &pptr, unsigned long &cptr, bool &f71, bool &f61, bool &f41, unsigned short &j11, unsigned char chnl_num)
+void SQT_GetChannelInfo(AYSongInfo &info, unsigned char &b, unsigned long &tm, char &a1, unsigned short &j1, unsigned short &pptr, unsigned short &cptr, bool &f71, bool &f61, bool &f41, unsigned short &j11, unsigned char chnl_num)
 {
     unsigned char *module = info.file_data;
     if (a1 != 0)
@@ -891,8 +891,8 @@ void SQT_GetInfo(AYSongInfo &info)
     unsigned long tm = 0;
     int i;
     char a1, a2, a3;
-    unsigned long j1, j2, j3;
-    unsigned long pptr, cptr;
+    unsigned short j1, j2, j3;
+    unsigned short pptr, cptr;
     bool f71, f72, f73, f61, f62, f63, f41, f42, f43, flg;
     unsigned short j11, j22, j33;
     f71 = f72 = f73 = f61 = f62 = f63 = f41 = f42 = f43 = flg = false;

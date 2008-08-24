@@ -31,7 +31,8 @@ DXAudio::DXAudio(unsigned long _sr, AYSongInfo *info) :
 	hNotifyEvent2 = CreateEvent(NULL, FALSE, FALSE, NULL);
 	hSyncEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 	pDsb8 = 0;
-	lpds = 0;
+	lpds = 0;    
+    OleInitialize(0);
 }
 
 DXAudio::~DXAudio()
@@ -40,12 +41,12 @@ DXAudio::~DXAudio()
 	CloseHandle(hNotifyEvent1);
 	CloseHandle(hNotifyEvent2);
 	CloseHandle(hSyncEvent);
-
+    OleUninitialize();
 }
 
 bool DXAudio::Start()
 {
-    dx_created = false;
+    dx_created = false;    
 	if(SUCCEEDED(CoCreateInstance(CLSID_DirectSound8, NULL, CLSCTX_INPROC_SERVER, IID_IDirectSound8, (LPVOID *)&lpds)))
 		if(SUCCEEDED(lpds->Initialize(NULL)))
 			if(SUCCEEDED(lpds->SetCooperativeLevel(hWndMain, DSSCL_PRIORITY)))

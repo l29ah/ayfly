@@ -74,7 +74,7 @@ private:
     bool songEnd;
 
     void RecreateToolbar();
-    double CalculateVolume(double volume_int);
+    float CalculateVolume(float volume_int);
     bool OpenFile();
 
     void OnQuit(wxCommandEvent &event);

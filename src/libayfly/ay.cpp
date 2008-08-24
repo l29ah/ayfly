@@ -99,7 +99,7 @@ ay::ay(AYSongInfo *info)
     songinfo = info;
     int_limit = songinfo->sr / info->int_freq;
 
-    float ay_tacts_f = (double)songinfo->ay_freq / (double)songinfo->sr / (double)8;
+    float ay_tacts_f = (float)songinfo->ay_freq / (float)songinfo->sr / (float)8;
     ay_tacts = ay_tacts_f;
     if((ay_tacts_f - ay_tacts) >= 0.5)
         ay_tacts++;
@@ -118,7 +118,7 @@ ay::~ay()
 
 void ay::SetParameters()
 {
-    double ay_tacts_f = (double)songinfo->ay_freq / (double)songinfo->sr / (double)8;
+    float ay_tacts_f = (float)songinfo->ay_freq / (float)songinfo->sr / (float)8;
     ay_tacts = ay_tacts_f;
     if((ay_tacts_f - ay_tacts) >= 0.5)
         ay_tacts++;

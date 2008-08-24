@@ -53,9 +53,9 @@ AYSongInfo *ay_sys_getnewinfo()
 }
 
 #ifndef __SYMBIAN32__
-void *ay_initsong(const wchar_t *FilePath, unsigned long sr)
+AYFLY_API void *ay_initsong(const wchar_t *FilePath, unsigned long sr)
 #else
-void *ay_initsong(TFileName FilePath, unsigned long sr)
+AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
 #endif
 {
     AYSongInfo *info = ay_sys_getnewinfo();
@@ -117,9 +117,9 @@ void *ay_initsong(TFileName FilePath, unsigned long sr)
 }
 
 #ifndef __SYMBIAN32__
-void *ay_initsongindirect(unsigned char *module, unsigned long sr, wchar_t *type, unsigned long size)
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, wchar_t *type, unsigned long size)
 #else
-void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size)
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size)
 #endif
 {
     AYSongInfo *info = ay_sys_getnewinfo();
@@ -173,9 +173,9 @@ void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName typ
 }
 
 #ifndef __SYMBIAN32__
-void *ay_getsonginfo(const wchar_t *FilePath)
+AYFLY_API void *ay_getsonginfo(const wchar_t *FilePath)
 #else
-void *ay_getsonginfo(TFileName FilePath)
+AYFLY_API void *ay_getsonginfo(TFileName FilePath)
 #endif
 {
     AYSongInfo *info = ay_sys_getnewinfo();
@@ -192,9 +192,9 @@ void *ay_getsonginfo(TFileName FilePath)
 }
 
 #ifndef __SYMBIAN32__
-void *ay_getsonginfoindirect(unsigned char *module, wchar_t *type, unsigned long size)
+AYFLY_API void *ay_getsonginfoindirect(unsigned char *module, wchar_t *type, unsigned long size)
 #else
-void *ay_getsonginfoindirect(unsigned char *module, TFileName type, unsigned long size)
+AYFLY_API void *ay_getsonginfoindirect(unsigned char *module, TFileName type, unsigned long size)
 #endif
 {
     AYSongInfo *info = ay_sys_getnewinfo();
@@ -211,47 +211,47 @@ void *ay_getsonginfoindirect(unsigned char *module, TFileName type, unsigned lon
 }
 
 #ifndef __SYMBIAN32__
-const wchar_t *ay_getsongname(void *info)
+AYFLY_API const wchar_t *ay_getsongname(void *info)
 {
     return ((AYSongInfo *)info)->Name.c_str();
 }
 #else
-TFileName ay_getsongname(void *info)
+AYFLY_API TFileName ay_getsongname(void *info)
 {
     return ((AYSongInfo *) info)->Name;
 }
 #endif
 
 #ifndef __SYMBIAN32__
-const wchar_t *ay_getsongauthor(void *info)
+AYFLY_API const wchar_t *ay_getsongauthor(void *info)
 {
     return ((AYSongInfo *)info)->Author.c_str();
 }
 #else
-TFileName ay_getsongauthor(void *info)
+AYFLY_API TFileName ay_getsongauthor(void *info)
 {
     return ((AYSongInfo *) info)->Author;
 }
 #endif
 
 #ifndef __SYMBIAN32__
-const wchar_t *ay_getsongpath(void *info)
+AYFLY_API const wchar_t *ay_getsongpath(void *info)
 {
     return ((AYSongInfo *)info)->FilePath.c_str();
 }
 #else
-TFileName ay_getsongpath(void *info)
+AYFLY_API TFileName ay_getsongpath(void *info)
 {
     return ((AYSongInfo *) info)->FilePath;
 }
 #endif
 
-void ay_seeksong(void *info, long new_position)
+AYFLY_API void ay_seeksong(void *info, long new_position)
 {
     ay_sys_rewindsong(*(AYSongInfo *)info, new_position);
 }
 
-void ay_resetsong(void *info)
+AYFLY_API void ay_resetsong(void *info)
 {
     AYSongInfo *song = (AYSongInfo *)info;
     if(!song->player)
@@ -274,7 +274,7 @@ void ay_resetsong(void *info)
         song->player->Start();
 }
 
-void ay_closesong(void **info)
+AYFLY_API void ay_closesong(void **info)
 {
     AYSongInfo *song = (AYSongInfo *)*info;
     AYSongInfo **ppsong = (AYSongInfo **)info;
@@ -282,44 +282,44 @@ void ay_closesong(void **info)
     *ppsong = 0;
 }
 
-void ay_setvolume(void *info, unsigned long chnl, double volume)
+AYFLY_API void ay_setvolume(void *info, unsigned long chnl, float volume)
 {
     ((AYSongInfo *)info)->player->SetVolume(chnl, volume);
 
 }
-double ay_getvolume(void *info, unsigned long chnl)
+AYFLY_API float ay_getvolume(void *info, unsigned long chnl)
 {
     return ((AYSongInfo *)info)->player->GetVolume(chnl);
 }
 
-void ay_chnlmute(void *info, unsigned long chnl, bool mute)
+AYFLY_API void ay_chnlmute(void *info, unsigned long chnl, bool mute)
 {
     ((AYSongInfo *)info)->player->ChnlMute(chnl, mute);
 }
 
-double ay_chnlmuted(void *info, unsigned long chnl)
+AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl)
 {
     return ((AYSongInfo *)info)->player->ChnlMuted(chnl);
 }
 
-void ay_setcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg)
+AYFLY_API void ay_setcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg)
 {
     ((AYSongInfo *)info)->callback = callback;
     ((AYSongInfo *)info)->callback_arg = callback_arg;
 }
 
-bool ay_songstarted(void *info)
+AYFLY_API bool ay_songstarted(void *info)
 {
     return ((AYSongInfo *)info)->player->Started();
 }
 
-void ay_startsong(void *info)
+AYFLY_API void ay_startsong(void *info)
 {
     if(!ay_songstarted(info))
         ((AYSongInfo *)info)->player->Start();
 }
 
-void ay_stopsong(void *info)
+AYFLY_API void ay_stopsong(void *info)
 {
     if(ay_songstarted(info))
     {
@@ -327,62 +327,62 @@ void ay_stopsong(void *info)
     }
 }
 
-unsigned long ay_getsonglength(void *info)
+AYFLY_API unsigned long ay_getsonglength(void *info)
 {
     return ((AYSongInfo *)info)->Length;
 }
 
-unsigned long ay_getelapsedtime(void *info)
+AYFLY_API unsigned long ay_getelapsedtime(void *info)
 {
     return ((AYSongInfo *)info)->timeElapsed;
 }
 
-unsigned long ay_getsongloop(void *info)
+AYFLY_API unsigned long ay_getsongloop(void *info)
 {
     return ((AYSongInfo *)info)->Loop;
 }
 
-const unsigned char *ay_getregs(void *info, unsigned long chip_num)
+AYFLY_API const unsigned char *ay_getregs(void *info, unsigned long chip_num)
 {
     return ((AYSongInfo *)info)->player->GetAYRegs(chip_num);
 }
 
-void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned long chip_num)
+AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned long chip_num)
 {
     ay_stopsong(info);
     ((AYSongInfo *)info)->player->GetAYBuffer(buffer, buffer_length, chip_num);
 }
 
-unsigned long ay_getz80freq(void *info)
+AYFLY_API unsigned long ay_getz80freq(void *info)
 {
     return ((AYSongInfo *)info)->z80_freq;
 }
-void ay_setz80freq(void *info, unsigned long z80_freq)
+AYFLY_API void ay_setz80freq(void *info, unsigned long z80_freq)
 {
     ((AYSongInfo *)info)->z80_freq = z80_freq;
     ((AYSongInfo *)info)->player->SetAYParameters();
 }
-unsigned long ay_getayfreq(void *info)
+AYFLY_API unsigned long ay_getayfreq(void *info)
 {
     return ((AYSongInfo *)info)->ay_freq;
 }
-void ay_setayfreq(void *info, unsigned long ay_freq)
+AYFLY_API void ay_setayfreq(void *info, unsigned long ay_freq)
 {
     ((AYSongInfo *)info)->ay_freq = ay_freq;
     ((AYSongInfo *)info)->player->SetAYParameters();
 }
-unsigned long ay_getintfreq(void *info)
+AYFLY_API unsigned long ay_getintfreq(void *info)
 {
     return ((AYSongInfo *)info)->int_freq;
 }
 
-void ay_setintfreq(void *info, unsigned long int_freq)
+AYFLY_API void ay_setintfreq(void *info, unsigned long int_freq)
 {
     ((AYSongInfo *)info)->int_freq = int_freq;
     ((AYSongInfo *)info)->player->SetAYParameters();
 }
 
-void ay_setsongplayer(void *info, void * /* class AbstractAudio */player)
+AYFLY_API void ay_setsongplayer(void *info, void * /* class AbstractAudio */player)
 {
     if(((AYSongInfo *)info)->player)
     {
@@ -393,12 +393,12 @@ void ay_setsongplayer(void *info, void * /* class AbstractAudio */player)
     ((AYSongInfo *)info)->player = (AbstractAudio *)player;
 }
 
-void *ay_getsongplayer(void *info)
+AYFLY_API void *ay_getsongplayer(void *info)
 {
     return ((AYSongInfo *)info)->player;
 }
 
-void ay_z80xec(void *info)
+AYFLY_API void ay_z80xec(void *info)
 {
     return ay_sys_z80exec(*(AYSongInfo *)info);
 }
@@ -419,3 +419,10 @@ AYSongInfo::~AYSongInfo()
         player = 0;
     }
 }
+
+#ifdef WINDOWS
+AYFLY_API void ay_sethwnd(void *info, HWND hWnd)
+{
+    ((DXAudio *)((AYSongInfo *)info)->player)->SetHWND(hWnd);
+}
+#endif

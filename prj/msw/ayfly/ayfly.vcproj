@@ -41,11 +41,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\src;..\..\..\src\z80ex;..\..\..\src\z80ex\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				AdditionalIncludeDirectories="..\..\..\src\libayfly"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;AYFLY_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="0"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib dsound.lib dxguid.lib"
+				AdditionalDependencies="comctl32.lib dsound.lib dxguid.lib Rpcrt4.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -116,8 +116,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\src;..\..\..\src\z80ex;..\..\..\src\z80ex\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				AdditionalIncludeDirectories="..\..\..\src\libayfly"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;AYFLY_STATIC"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -174,29 +174,45 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath="..\..\..\src\AbstractAudio.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\ay.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\formats.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\speccy.cpp"
-				>
-			</File>
 			<Filter
-				Name="z80ex"
+				Name="libayfly"
 				>
 				<File
-					RelativePath="..\..\..\src\z80ex\z80ex.c"
+					RelativePath="..\..\..\src\libayfly\AbstractAudio.cpp"
 					>
 				</File>
+				<File
+					RelativePath="..\..\..\src\libayfly\ay.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\src\libayfly\common.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\src\libayfly\formats.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\src\libayfly\speccy.cpp"
+					>
+				</File>
+				<Filter
+					Name="windows"
+					>
+					<File
+						RelativePath="..\..\..\src\libayfly\windows\DXAudio.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="z80ex"
+					>
+					<File
+						RelativePath="..\..\..\src\libayfly\z80ex\z80ex.cpp"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="gui"
@@ -218,59 +234,31 @@
 					>
 				</File>
 			</Filter>
-			<Filter
-				Name="windows"
-				>
-				<File
-					RelativePath="..\..\..\src\windows\DXAudio.cpp"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\..\..\src\AbstractAudio.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\ay.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\common.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\src\Filter3.h"
-				>
-			</File>
 			<Filter
-				Name="z80ex"
+				Name="libayfly"
 				>
 				<File
-					RelativePath="..\..\..\src\z80ex\macros.h"
+					RelativePath="..\..\..\src\libayfly\AbstractAudio.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\src\z80ex\typedefs.h"
+					RelativePath="..\..\..\src\libayfly\ay.h"
 					>
 				</File>
-				<Filter
-					Name="include"
+				<File
+					RelativePath="..\..\..\src\libayfly\ayfly.h"
 					>
-					<File
-						RelativePath="..\..\..\src\z80ex\include\z80ex.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\src\z80ex\include\z80ex_common.h"
-						>
-					</File>
-				</Filter>
+				</File>
+				<File
+					RelativePath="..\..\..\src\libayfly\ayfly_dynamicdll.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="gui"
@@ -296,9 +284,25 @@
 				Name="windows"
 				>
 				<File
-					RelativePath="..\..\..\src\windows\DXAudio.h"
+					RelativePath="..\..\..\src\libayfly\windows\DXAudio.h"
 					>
 				</File>
+			</Filter>
+			<Filter
+				Name="z80ex"
+				>
+				<Filter
+					Name="include"
+					>
+					<File
+						RelativePath="..\..\..\src\libayfly\z80ex\include\z80ex.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\libayfly\z80ex\include\z80ex_common.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
