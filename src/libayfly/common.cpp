@@ -100,7 +100,7 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
                         info->init_proc(*info);
                 }
 #ifndef __SYMBIAN32__
-                ay_sys_getsonginfo(*info);
+                ay_sys_getsonginfoindirect(*info);
 #else
                 info->Length = -1;
 #endif

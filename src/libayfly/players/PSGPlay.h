@@ -8,7 +8,7 @@
 struct PSG_SongInfo
 {
     unsigned short PSG_Skip;
-    unsigned short file_pointer;
+    unsigned long file_pointer;
 };
 
 void PSG_Init(AYSongInfo &info)
@@ -114,7 +114,7 @@ void PSG_Play(AYSongInfo &info)
 void PSG_GetInfo(AYSongInfo &info)
 {
     unsigned char *module = info.file_data;
-    unsigned short file_pointer = 16;
+    unsigned long file_pointer = 16;
     unsigned char b, b1;
     unsigned long tm = 0;
 
