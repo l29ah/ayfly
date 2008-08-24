@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
+#include "s60.h"
 #include "ayfly.h"
 
 AYSongInfo *ay_sys_getnewinfo()
@@ -62,6 +62,7 @@ void *ay_initsong(TFileName FilePath, unsigned long sr)
     AYSongInfo *info = ay_sys_getnewinfo();
     if(!info)
         return 0;
+    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 1!"));
 #ifndef __SYMBIAN32__
 #ifdef WINDOWS
     info->player = new DXAudio(sr, info);
@@ -214,7 +215,7 @@ void *ay_getsonginfoindirect(unsigned char *module, TFileName type, unsigned lon
 #ifndef __SYMBIAN32__
 const wchar_t *ay_getsongname(void *info)
 {
-    return ((AYSongInfo *) info)->Name.c_str();
+    return ((AYSongInfo *)info)->Name.c_str();
 }
 #else
 TFileName ay_getsongname(void *info)
@@ -226,7 +227,7 @@ TFileName ay_getsongname(void *info)
 #ifndef __SYMBIAN32__
 const wchar_t *ay_getsongauthor(void *info)
 {
-    return ((AYSongInfo *) info)->Author.c_str();
+    return ((AYSongInfo *)info)->Author.c_str();
 }
 #else
 TFileName ay_getsongauthor(void *info)
@@ -238,7 +239,7 @@ TFileName ay_getsongauthor(void *info)
 #ifndef __SYMBIAN32__
 const wchar_t *ay_getsongpath(void *info)
 {
-    return ((AYSongInfo *) info)->FilePath.c_str();
+    return ((AYSongInfo *)info)->FilePath.c_str();
 }
 #else
 TFileName ay_getsongpath(void *info)
@@ -249,12 +250,12 @@ TFileName ay_getsongpath(void *info)
 
 void ay_seeksong(void *info, long new_position)
 {
-    ay_sys_rewindsong(*(AYSongInfo *) info, new_position);
+    ay_sys_rewindsong(*(AYSongInfo *)info, new_position);
 }
 
 void ay_resetsong(void *info)
 {
-    AYSongInfo *song = (AYSongInfo *) info;
+    AYSongInfo *song = (AYSongInfo *)info;
     if(!song->player)
         return;
     bool started = song->player->Started();
@@ -277,144 +278,146 @@ void ay_resetsong(void *info)
 
 void ay_closesong(void **info)
 {
-    AYSongInfo *song = (AYSongInfo *) *info;
-    AYSongInfo **ppsong = (AYSongInfo **) info;    
-    if(song->cleanup_proc)
-    {
-        song->cleanup_proc(*song);
-    }
-
+    AYSongInfo *song = (AYSongInfo *)*info;
+    AYSongInfo **ppsong = (AYSongInfo **)info;
     delete song;
     *ppsong = 0;
 }
 
 void ay_setvolume(void *info, unsigned long chnl, double volume)
 {
-    ((AYSongInfo *) info)->player->SetVolume(chnl, volume);
+    ((AYSongInfo *)info)->player->SetVolume(chnl, volume);
 
 }
 double ay_getvolume(void *info, unsigned long chnl)
 {
-    return ((AYSongInfo *) info)->player->GetVolume(chnl);
+    return ((AYSongInfo *)info)->player->GetVolume(chnl);
 }
 
 void ay_chnlmute(void *info, unsigned long chnl, bool mute)
 {
-    ((AYSongInfo *) info)->player->ChnlMute(chnl, mute);
+    ((AYSongInfo *)info)->player->ChnlMute(chnl, mute);
 }
 
 double ay_chnlmuted(void *info, unsigned long chnl)
 {
-    return ((AYSongInfo *) info)->player->ChnlMuted(chnl);
+    return ((AYSongInfo *)info)->player->ChnlMuted(chnl);
 }
 
 void ay_setcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg)
 {
-    ((AYSongInfo *) info)->callback = callback;
-    ((AYSongInfo *) info)->callback_arg = callback_arg;
+    ((AYSongInfo *)info)->callback = callback;
+    ((AYSongInfo *)info)->callback_arg = callback_arg;
 }
 
 bool ay_songstarted(void *info)
 {
-    return ((AYSongInfo *) info)->player->Started();
+    return ((AYSongInfo *)info)->player->Started();
 }
 
 void ay_startsong(void *info)
 {
     if(!ay_songstarted(info))
-        ((AYSongInfo *) info)->player->Start();
+        ((AYSongInfo *)info)->player->Start();
 }
 
 void ay_stopsong(void *info)
 {
     if(ay_songstarted(info))
     {
-        ((AYSongInfo *) info)->player->Stop();
+        ((AYSongInfo *)info)->player->Stop();
     }
 }
 
 unsigned long ay_getsonglength(void *info)
 {
-    return ((AYSongInfo *) info)->Length;
+    return ((AYSongInfo *)info)->Length;
 }
 
 unsigned long ay_getelapsedtime(void *info)
 {
-    return ((AYSongInfo *) info)->timeElapsed;
+    return ((AYSongInfo *)info)->timeElapsed;
 }
 
 unsigned long ay_getsongloop(void *info)
 {
-    return ((AYSongInfo *) info)->Loop;
+    return ((AYSongInfo *)info)->Loop;
 }
 
 const unsigned char *ay_getregs(void *info, unsigned long chip_num)
 {
-    return ((AYSongInfo *) info)->player->GetAYRegs(chip_num);
+    return ((AYSongInfo *)info)->player->GetAYRegs(chip_num);
 }
 
 void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned long chip_num)
 {
     ay_stopsong(info);
-    ((AYSongInfo *) info)->player->GetAYBuffer(buffer, buffer_length, chip_num);
+    ((AYSongInfo *)info)->player->GetAYBuffer(buffer, buffer_length, chip_num);
 }
 
 unsigned long ay_getz80freq(void *info)
 {
-    return ((AYSongInfo *) info)->z80_freq;
+    return ((AYSongInfo *)info)->z80_freq;
 }
 void ay_setz80freq(void *info, unsigned long z80_freq)
 {
-    ((AYSongInfo *) info)->z80_freq = z80_freq;
-    ((AYSongInfo *) info)->player->SetAYParameters();
+    ((AYSongInfo *)info)->z80_freq = z80_freq;
+    ((AYSongInfo *)info)->player->SetAYParameters();
 }
 unsigned long ay_getayfreq(void *info)
 {
-    return ((AYSongInfo *) info)->ay_freq;
+    return ((AYSongInfo *)info)->ay_freq;
 }
 void ay_setayfreq(void *info, unsigned long ay_freq)
 {
-    ((AYSongInfo *) info)->ay_freq = ay_freq;
-    ((AYSongInfo *) info)->player->SetAYParameters();
+    ((AYSongInfo *)info)->ay_freq = ay_freq;
+    ((AYSongInfo *)info)->player->SetAYParameters();
 }
 unsigned long ay_getintfreq(void *info)
 {
-    return ((AYSongInfo *) info)->int_freq;
+    return ((AYSongInfo *)info)->int_freq;
 }
 
 void ay_setintfreq(void *info, unsigned long int_freq)
 {
-    ((AYSongInfo *) info)->int_freq = int_freq;
-    ((AYSongInfo *) info)->player->SetAYParameters();
+    ((AYSongInfo *)info)->int_freq = int_freq;
+    ((AYSongInfo *)info)->player->SetAYParameters();
 }
 
 void ay_setsongplayer(void *info, void * /* class AbstractAudio */player)
 {
-    if(((AYSongInfo *) info)->player)
+    if(((AYSongInfo *)info)->player)
     {
         ay_stopsong(info);
-        delete ((AYSongInfo *) info)->player;
-        ((AYSongInfo *) info)->player = 0;
+        delete ((AYSongInfo *)info)->player;
+        ((AYSongInfo *)info)->player = 0;
     }
-    ((AYSongInfo *) info)->player = (AbstractAudio *) player;
+    ((AYSongInfo *)info)->player = (AbstractAudio *)player;
 }
 
 void *ay_getsongplayer(void *info)
 {
-    return ((AYSongInfo *) info)->player;
+    return ((AYSongInfo *)info)->player;
 }
 
 void ay_z80xec(void *info)
 {
-    return ay_sys_z80exec(*(AYSongInfo *) info);
+    return ay_sys_z80exec(*(AYSongInfo *)info);
 }
 
 AYSongInfo::~AYSongInfo()
 {
     if(player)
     {
-    	if(player->Started())
-    		player->Stop();
+        player->Stop();
+    }
+    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 2!"));
+    if(cleanup_proc)
+    {
+        cleanup_proc(*this);
+    }
+    if(player)
+    {
         delete player;
         player = 0;
     }

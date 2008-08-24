@@ -162,16 +162,16 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
         {
             if(currentSong)
             {
-                //Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
-                //_player->SetDeviceVolume(_player->GetDeviceVolume() + 1);
+                Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
+                _player->SetDeviceVolume(_player->GetDeviceVolume() + 1);
             }
         }
         else if(aKeyEvent.iCode == EKeyDownArrow)
         {
             if(currentSong)
             {
-                //Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
-                //_player->SetDeviceVolume(_player->GetDeviceVolume() - 1);
+                Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
+                _player->SetDeviceVolume(_player->GetDeviceVolume() - 1);
             }
         }
         return EKeyWasConsumed;
