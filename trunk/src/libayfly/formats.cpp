@@ -462,8 +462,7 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
             aydata_loc.first_track = *ptr++;
             GET_PTR(ptr2);
             ptr = ptr2;
-            aydata_loc.tracks = new ayTrack[aydata.num_tracks];
-            if(aydata_loc.tracks)
+            if(aydata_loc.tracks = new ayTrack[aydata_loc.num_tracks])
             {
                 for(unsigned long i = 0; i < aydata_loc.num_tracks; i++)
                 {
