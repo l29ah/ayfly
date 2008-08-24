@@ -64,7 +64,8 @@ static _Players Players[] =
 { TXT(".stc"), STCPlay_data, 0xc000, sizeof(STCPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, STC_GetInfo },
 { TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, STP_GetInfo },
 { TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_Cleanup, PSC_GetInfo },
-{ TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_Cleanup, SQT_GetInfo } };
+{ TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_Cleanup, SQT_GetInfo },
+{ TXT(".psg"), 0, 0, 0, 0, 0, PSG_Init, 0, PSG_Play, PSG_Cleanup, PSG_GetInfo }};
 
 /*
  * parts of ay read code and memory init are from aylet player:
