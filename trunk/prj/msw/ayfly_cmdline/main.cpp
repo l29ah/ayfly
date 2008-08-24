@@ -18,6 +18,7 @@ ay_getelapsedtime pay_getelapsedtime;
 ay_stopsong pay_stopsong;
 ay_sethwnd pay_sethwnd;
 ay_songstarted pay_songstarted;
+ay_getsonglength pay_getsonglength;
 
 int _tmain(int argc, wchar_t **argv)
 {
@@ -43,6 +44,7 @@ int _tmain(int argc, wchar_t **argv)
     pay_stopsong = (ay_stopsong)GetProcAddress(hDll, "ay_stopsong");
     pay_sethwnd = (ay_sethwnd)GetProcAddress(hDll, "ay_sethwnd");
     pay_songstarted = (ay_songstarted)GetProcAddress(hDll, "ay_songstarted");
+    pay_getsonglength = (ay_getsonglength)GetProcAddress(hDll, "ay_getsonglength");
 
     for(int i = 1; i < argc; i++)
     {
@@ -55,6 +57,7 @@ int _tmain(int argc, wchar_t **argv)
             continue;
         }
         wcout << L"Playing song " << filename << ".." << endl;
+        wcout << L"Song length = " << (pay_getsonglength(songinfo) / 50) << " seconds.." << endl;
         end = false;
         pay_setcallback(songinfo, song_end, songinfo);
         //important!! our window handle must be set BEFORE playback start!
@@ -65,8 +68,8 @@ int _tmain(int argc, wchar_t **argv)
         while(!end)
         {
             Sleep(10);
-            unsigned long elapsed = pay_getelapsedtime(songinfo);
-            printf("Elapsed tacts: %lu\r", elapsed);
+            unsigned long elapsed = pay_getelapsedtime(songinfo) / 50;
+            printf("Elapsed time: %lu seconds\r", elapsed);
         }        
         pay_stopsong(songinfo);
         wcout << endl;
@@ -80,6 +83,6 @@ int _tmain(int argc, wchar_t **argv)
 
 void song_end(void *songinfo)
 {
-    //just stop song now..
+    //just mark the end of song now..
     end = true;
 }
