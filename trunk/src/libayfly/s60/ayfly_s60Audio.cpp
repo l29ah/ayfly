@@ -224,7 +224,7 @@ void Cayfly_s60Sound::MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer)
 
 void Cayfly_s60Sound::MaoscPlayComplete(TInt aError)
 {
-    if(aError == KErrCancel)
+    if(aError != KErrNone)
     {
         iState = EStopped;
     }
@@ -490,6 +490,7 @@ void Cayfly_s60Audio::SetDeviceVolume(TInt aVolume)
         sound->SetDeviceVolume(aVolume);
     }
 }
+
 TInt Cayfly_s60Audio::GetDeviceVolume()
 {
     if(sound)
