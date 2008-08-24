@@ -40,14 +40,9 @@ AYSongInfo *ay_sys_getnewinfo()
     info->z80_freq = Z80_FREQ;
     info->ay_freq = info->z80_freq / 2;
     info->int_freq = INT_FREQ;
-#ifndef __SYMBIAN32__
+    info->file_data = info->module = 0;
     info->sr = 44100;
-#else
-    info->sr = 32000;
-#endif
     info->player = 0;
-    memset(info->module, 0, 65536);
-    memset(info->file_data, 0, 65536);
     memset(info->z80IO, 0, 65536);
     return info;
 }
@@ -127,7 +122,21 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFi
         return 0;
     info->FilePath = type;
     info->file_len = size;
+    unsigned long to_allocate = size < 65536 ? 65536 : size;
+    info->file_data = new unsigned char[to_allocate];
+    if(!info->file_data)
+    {
+        delete info;
+        return 0;
+    }
+    memset(info->file_data, 0, to_allocate);
     memcpy(info->file_data, module, size);
+    info->module = new unsigned char[to_allocate];
+    if(!info->module)
+    {
+        delete info;
+        return 0;
+    }
     info->sr = sr;
 #ifndef __SYMBIAN32__
 #ifdef WINDOWS
@@ -201,6 +210,21 @@ AYFLY_API void *ay_getsonginfoindirect(unsigned char *module, TFileName type, un
     if(!info)
         return 0;
     info->FilePath = type;
+    unsigned long to_allocate = size < 65536 ? 65536 : size;
+    info->file_data = new unsigned char[to_allocate];
+    if(!info->file_data)
+    {
+        delete info;
+        return 0;
+    }
+    memset(info->file_data, 0, to_allocate);
+    memcpy(info->file_data, module, size);
+    info->module = new unsigned char[to_allocate];
+    if(!info->module)
+    {
+        delete info;
+        return 0;
+    }
     memcpy(info->file_data, module, size);
     if(!ay_sys_getsonginfoindirect(*info))
     {
@@ -418,6 +442,17 @@ AYSongInfo::~AYSongInfo()
         delete player;
         player = 0;
     }
+    if(module)
+    {
+        delete[] module;
+        module = 0;
+    }
+    if(file_data)
+    {
+        delete[] file_data;
+        file_data = 0;
+    }
+
 }
 
 #ifdef WINDOWS
