@@ -3,6 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ayfly", "ayfly.vcproj", "{956BBC46-5A45-4000-99CB-3422CCE20278}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dlltest", "..\..\..\..\..\Documents and Settings\Andrew\Мои документы\Visual Studio 2008\Projects\dlltest\dlltest.vcproj", "{4A874F46-6365-4996-B839-558C29CDEB1B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ayfly_dll", "..\ayfly_dll\ayfly_dll.vcproj", "{F7D5E4D1-DAC2-435D-803F-0C47E66FE6AF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ayfly_cmdline", "..\ayfly_cmdline\ayfly_cmdline.vcproj", "{B9741492-C4B9-4081-90CE-F47F50E9A462}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +19,18 @@ Global
 		{956BBC46-5A45-4000-99CB-3422CCE20278}.Debug|Win32.Build.0 = Debug|Win32
 		{956BBC46-5A45-4000-99CB-3422CCE20278}.Release|Win32.ActiveCfg = Release|Win32
 		{956BBC46-5A45-4000-99CB-3422CCE20278}.Release|Win32.Build.0 = Release|Win32
+		{4A874F46-6365-4996-B839-558C29CDEB1B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4A874F46-6365-4996-B839-558C29CDEB1B}.Debug|Win32.Build.0 = Debug|Win32
+		{4A874F46-6365-4996-B839-558C29CDEB1B}.Release|Win32.ActiveCfg = Release|Win32
+		{4A874F46-6365-4996-B839-558C29CDEB1B}.Release|Win32.Build.0 = Release|Win32
+		{F7D5E4D1-DAC2-435D-803F-0C47E66FE6AF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F7D5E4D1-DAC2-435D-803F-0C47E66FE6AF}.Debug|Win32.Build.0 = Debug|Win32
+		{F7D5E4D1-DAC2-435D-803F-0C47E66FE6AF}.Release|Win32.ActiveCfg = Release|Win32
+		{F7D5E4D1-DAC2-435D-803F-0C47E66FE6AF}.Release|Win32.Build.0 = Release|Win32
+		{B9741492-C4B9-4081-90CE-F47F50E9A462}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B9741492-C4B9-4081-90CE-F47F50E9A462}.Debug|Win32.Build.0 = Debug|Win32
+		{B9741492-C4B9-4081-90CE-F47F50E9A462}.Release|Win32.ActiveCfg = Release|Win32
+		{B9741492-C4B9-4081-90CE-F47F50E9A462}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

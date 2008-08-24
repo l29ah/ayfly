@@ -605,8 +605,8 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
         case SLIDER_VOLB_ID:
         case SLIDER_VOLC_ID:
         {
-            double vol_int = event.GetPosition();
-            double vol = CalculateVolume(vol_int);
+            float vol_int = event.GetPosition();
+            float vol = CalculateVolume(vol_int);
 
             if(btnLink->GetValue())
             {
@@ -936,7 +936,7 @@ void AyflyFrame::RecreateToolbar()
     }
 }
 
-double AyflyFrame::CalculateVolume(double volume_int)
+float AyflyFrame::CalculateVolume(float volume_int)
 {
     return pow(10, volume_int / 20);
 }
@@ -962,6 +962,9 @@ bool AyflyFrame::OpenFile()
             SetTitle(frameTitle.c_str());
             posslider->SetRange(0, ay_getsonglength(currentSong->info));
             RecreateToolbar();
+#ifdef WINDOWS
+            ay_sethwnd(currentSong->info, (HWND)GetHWND());
+#endif
             return true;
         }
     }

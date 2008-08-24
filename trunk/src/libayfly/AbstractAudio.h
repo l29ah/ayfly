@@ -59,12 +59,12 @@ public:
         return started;
     }
     ;
-    inline double GetVolume(unsigned long chnl)
+    inline float GetVolume(unsigned long chnl)
     {
         return ay8910 ? ay8910->GetVolume(chnl) : 0;
     }
     ;
-    inline void SetVolume(unsigned long chnl, double new_volume)
+    inline void SetVolume(unsigned long chnl, float new_volume)
     {
         if(ay8910)
         {

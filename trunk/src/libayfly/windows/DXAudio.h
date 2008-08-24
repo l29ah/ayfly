@@ -38,6 +38,7 @@ public:
     virtual ~DXAudio();
     virtual bool Start(void);
     virtual void Stop();
+    void SetHWND(HWND hWnd) {hWndMain = hWnd;};
 private:
     LPDIRECTSOUND8 lpds;
     LPDIRECTSOUNDBUFFER8 pDsb8;
@@ -54,6 +55,7 @@ private:
     void ClearBuffer();
     DWORD DXProcess();
     AYSongInfo *songinfo;
+    HWND hWndMain;
 
 };
 

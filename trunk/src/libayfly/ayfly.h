@@ -29,6 +29,12 @@
 #        define _UNICODE
 #    endif
 
+#    ifdef WIN32
+#		ifndef _WINDOWS
+#			define _WINDOWS
+#       endif
+#    endif
+
 #    ifdef _WINDOWS
 #		ifndef WINDOWS
 #			define WINDOWS
@@ -70,6 +76,17 @@
 #    include "z80ex/include/z80ex.h"
 #    ifdef _MSC_VER
 #        pragma warning(disable:4309)
+#        ifdef AYFLY_EXPORTS
+#           define AYFLY_API __declspec(dllexport)
+#        else
+#           ifndef AYFLY_STATIC
+#               define AYFLY_API __declspec(dllimport)
+#           else
+#               define AYFLY_API 
+#           endif
+#        endif
+#    else
+#        define AYFLY_API 
 #    endif
 #    ifndef __SYMBIAN32__
 #        define AUDIO_FREQ 44100
@@ -154,72 +171,82 @@ void ay_sys_resetz80(AYSongInfo &info);
 void ay_sys_shutdownz80(AYSongInfo &info);
 bool ay_sys_initsong(AYSongInfo &info);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 //common functions
 #ifndef __SYMBIAN32__
-void *ay_initsong(const wchar_t *FilePath, unsigned long sr);
+AYFLY_API void *ay_initsong(const wchar_t *FilePath, unsigned long sr);
 #else
-void *ay_initsong(TFileName FilePath, unsigned long sr);
+AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr);
 #endif
 #ifndef __SYMBIAN32__
-void *ay_initsongindirect(unsigned char *module, unsigned long sr, wchar_t *type, unsigned long size);
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, wchar_t *type, unsigned long size);
 #else
-void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size);
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size);
 #endif
 #ifndef __SYMBIAN32__
-void *ay_getsonginfo(const wchar_t *FilePath);
+AYFLY_API void *ay_getsonginfo(const wchar_t *FilePath);
 #else
-void *ay_getsonginfo(TFileName FilePath);
+AYFLY_API void *ay_getsonginfo(TFileName FilePath);
 #endif
 #ifndef __SYMBIAN32__
-void *ay_getsonginfoindirect(unsigned char *module, wchar_t *type, unsigned long size);
+AYFLY_API void *ay_getsonginfoindirect(unsigned char *module, wchar_t *type, unsigned long size);
 #else
-void *ay_getsonginfoindirect(unsigned char *module, TFileName type, unsigned long size);
+AYFLY_API void *ay_getsonginfoindirect(unsigned char *module, TFileName type, unsigned long size);
 #endif
 #ifndef __SYMBIAN32__
-const wchar_t *ay_getsongname(void *info);
+AYFLY_API const wchar_t *ay_getsongname(void *info);
 #else
-TFileName ay_getsongname(void *info);
+AYFLY_API TFileName ay_getsongname(void *info);
 #endif
 #ifndef __SYMBIAN32__
-const wchar_t *ay_getsongauthor(void *info);
+AYFLY_API const wchar_t *ay_getsongauthor(void *info);
 #else
-TFileName ay_getsongauthor(void *info);
+AYFLY_API TFileName ay_getsongauthor(void *info);
 #endif
 #ifndef __SYMBIAN32__
-const wchar_t *ay_getsongpath(void *info);
+AYFLY_API const wchar_t *ay_getsongpath(void *info);
 #else
-TFileName ay_getsongpath(void *info);
+AYFLY_API TFileName ay_getsongpath(void *info);
 #endif
-void ay_z80xec(void *info);
-void ay_seeksong(void *info, long new_position);
-void ay_resetsong(void *info);
-void ay_closesong(void **info);
-bool ay_songstarted(void *info);
-void ay_startsong(void *info);
-void ay_stopsong(void *info);
-void ay_setvolume(void *info, unsigned long chnl, double volume);
-double ay_getvolume(void *info, unsigned long chnl);
-void ay_chnlmute(void *info, unsigned long chnl, bool mute);
-double ay_chnlmuted(void *info, unsigned long chnl);
-void ay_setcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg);
-unsigned long ay_getsonglength(void *info);
-unsigned long ay_getelapsedtime(void *info);
-unsigned long ay_getsongloop(void *info);
-const unsigned char *ay_getregs(void *info, unsigned long chip_num);
-void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned long chip_num);
-unsigned long ay_getz80freq(void *info);
-void ay_setz80freq(void *info, unsigned long z80_freq);
-unsigned long ay_getayfreq(void *info);
-void ay_setayfreq(void *info, unsigned long ay_freq);
-unsigned long ay_getintfreq(void *info);
-void ay_setintfreq(void *info, unsigned long int_freq);
-void ay_setsongplayer(void *info, void * /* class AbstractAudio */ player);
-void *ay_getsongplayer(void *info);
+AYFLY_API void ay_z80xec(void *info);
+AYFLY_API void ay_seeksong(void *info, long new_position);
+AYFLY_API void ay_resetsong(void *info);
+AYFLY_API void ay_closesong(void **info);
+AYFLY_API bool ay_songstarted(void *info);
+AYFLY_API void ay_startsong(void *info);
+AYFLY_API void ay_stopsong(void *info);
+AYFLY_API void ay_setvolume(void *info, unsigned long chnl, float volume);
+AYFLY_API float ay_getvolume(void *info, unsigned long chnl);
+AYFLY_API void ay_chnlmute(void *info, unsigned long chnl, bool mute);
+AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl);
+AYFLY_API void ay_setcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg);
+AYFLY_API unsigned long ay_getsonglength(void *info);
+AYFLY_API unsigned long ay_getelapsedtime(void *info);
+AYFLY_API unsigned long ay_getsongloop(void *info);
+AYFLY_API const unsigned char *ay_getregs(void *info, unsigned long chip_num);
+AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned long chip_num);
+AYFLY_API unsigned long ay_getz80freq(void *info);
+AYFLY_API void ay_setz80freq(void *info, unsigned long z80_freq);
+AYFLY_API unsigned long ay_getayfreq(void *info);
+AYFLY_API void ay_setayfreq(void *info, unsigned long ay_freq);
+AYFLY_API unsigned long ay_getintfreq(void *info);
+AYFLY_API void ay_setintfreq(void *info, unsigned long int_freq);
+AYFLY_API void ay_setsongplayer(void *info, void * /* class AbstractAudio */ player);
+AYFLY_API void *ay_getsongplayer(void *info);
+#ifdef WINDOWS
+AYFLY_API void ay_sethwnd(void *info, HWND hWnd);
+#endif
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #    define AYFLY_VERSION_MAJOR 0
 #    define AYFLY_VERSION_MINOR 0
-#    define AYFLY_VERSION_PATCH 15
+#    define AYFLY_VERSION_PATCH 16
 
 #    define AYFLY_MAKE_VERSION ((AYFLY_VERSION_MAJOR << 16) | (AYFLY_VERSION_MINOR << 8) | AYFLY_VERSION_PATCH)
 #    define AYFLY_VERSION AYFLY_VERSION_MAJOR.AYFLY_VERSION_MINOR.AYFLY_VERSION_PATCH

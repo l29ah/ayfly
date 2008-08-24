@@ -10,11 +10,16 @@
 #ifndef _Z80EX_COMMON_H_INCLUDED
 #define _Z80EX_COMMON_H_INCLUDED
 
+//exports disabled by Deryabin Andrew
+/*
 #ifdef _MSC_VER
 #define LIB_EXPORT __declspec(dllexport)
 #else
 #define LIB_EXPORT
 #endif
+*/
+
+#define LIB_EXPORT 
 
 #ifndef __SYMBIAN32__
 #ifdef __GNUC__
