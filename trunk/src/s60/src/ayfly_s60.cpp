@@ -18,16 +18,26 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-// INCLUDE FILES
 #include "s60.h"
-
+#ifdef EKA2
+// INCLUDE FILES
 LOCAL_C CApaApplication* NewApplication()
 {
 	return new Cayfly_s60Application;
 }
 
 GLDEF_C TInt E32Main()
-{    
+{
 	return EikStart::RunApplication( NewApplication );
 }
+#else
+EXPORT_C CApaApplication* NewApplication()
+{
+    return new Cayfly_s60Application;
+}
 
+GLDEF_C TInt E32Dll(TDllReason)
+{
+    return KErrNone;
+}
+#endif

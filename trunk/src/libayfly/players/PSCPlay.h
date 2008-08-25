@@ -5,7 +5,7 @@
  (c)1999-2004 S.V.Bulba
  */
 
-struct PSC_File
+const struct PSC_File
 {
     signed char PSC_MusicName[69];
     unsigned char PSC_UnknownPointer0, PSC_UnknownPointer1;

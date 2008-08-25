@@ -63,10 +63,12 @@
 #    include <fstream>
 #    include <iostream>
 #    else
+#ifdef EKA2
+#    include <e32cmn.h>
+#endif
 #    include <f32file.h>
 #    include <s32std.h>
 #    include <s32file.h>
-#    include <e32cmn.h>
 #    include <coemain.h>
 #    include <mda/common/audio.h>
 #    include <mdaaudiooutputstream.h>
