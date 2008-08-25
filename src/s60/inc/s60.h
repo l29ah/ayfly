@@ -35,19 +35,21 @@
 
 #include "ayfly.h"
 
-#include "eikstart.h"
-#include "f32file.h"
-#include "s32std.h"
-#include "s32file.h"
-#include "e32cmn.h"
-#include "avkon.hrh"
-#include "coemain.h"
-#include "aknmessagequerydialog.h"
-#include "aknnotewrappers.h"
-#include "stringloader.h"
-#include "hlplch.h"
-#include "caknfileselectiondialog.h"
-#include "pathinfo.h"
+#ifdef EKA2
+#include <e32cmn.h>
+#include <eikstart.h>
+#endif
+#include <f32file.h>
+#include <s32std.h>
+#include <s32file.h>
+#include <avkon.hrh>
+#include <coemain.h>
+#include <aknmessagequerydialog.h>
+#include <aknnotewrappers.h>
+#include <stringloader.h>
+#include <hlplch.h>
+#include <caknfileselectiondialog.h>
+#include <pathinfo.h>
 
 #include "ayfly_s60.hrh"
 #include "ayfly_s60.pan"
@@ -55,6 +57,8 @@
 #include "ayfly_s60Application.h"
 #include "ayfly_s60AppUi.h"
 #include "ayfly_s60AppView.h"
+#ifdef EKA2
 #include "ayfly_s60_0xEA0B66F6.rsg"
+#endif
 
 #endif /*S60_H_*/

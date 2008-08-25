@@ -54,7 +54,7 @@ struct _Players
     GETINFO_CALLBACK getInfo;
 };
 
-static _Players Players[] =
+const _Players Players[] =
 {
 { TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASC_Cleanup, ASC_GetInfo },
 { TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, PT2_GetInfo },
@@ -109,7 +109,7 @@ struct ayData
     unsigned long first_track;
 };
 
-static ayData aydata;
+//static ayData aydata;
 
 void ay_sys_initayfmt(AYSongInfo &info, unsigned char track);
 
@@ -200,6 +200,7 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
 
 bool ay_sys_initsong(AYSongInfo &info)
 {
+    ayData aydata;
     _FileTypes fileType = FILE_TYPE_TRACKER;
     unsigned long player = 0;
     unsigned char *fileData = info.file_data;
@@ -375,7 +376,7 @@ bool ay_sys_readfromfile(AYSongInfo &info)
 
 void ay_sys_initayfmt(AYSongInfo &info, unsigned char track)
 {
-
+    ayData aydata;
     unsigned long init, ay_1st_block, ourinit, interrupt;
     unsigned char *ptr;
     unsigned long addr, len, ofs;

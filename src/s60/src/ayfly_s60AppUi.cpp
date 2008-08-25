@@ -127,6 +127,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 
 	}
 		break;
+#ifdef EKA2
 	case EAbout:
 	{
 
@@ -141,6 +142,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		dlg->RunLD();
 	}
 		break;
+#endif
 	default:
 	{
 	    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("!!!"));

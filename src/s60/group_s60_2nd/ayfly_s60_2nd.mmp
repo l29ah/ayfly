@@ -1,0 +1,52 @@
+/*
+============================================================================
+ Name		: ayfly_s60.mmp
+ Author	  : Andrew Deryabin
+ Copyright   : Andrew Deryabin (c) 2008
+ Description : This is the project specification file for ayfly_s60.
+============================================================================
+*/
+
+
+TARGET			ayfly_s60.app
+TARGETTYPE		app
+UID		  0x100039CE 0xEA0B66F6
+TARGETPATH \system\apps\ayfly_s60
+
+
+OPTION GCC    -save-temps
+
+//COMPRESSTARGET
+
+//EPOCHEAPSIZE  100000 5000000
+//EPOCSTACKSIZE 65536
+
+SOURCEPATH		..\src
+SOURCE			ayfly_s60.cpp
+SOURCE			ayfly_s60Application.cpp
+SOURCE			ayfly_s60AppView.cpp
+SOURCE			ayfly_s60AppUi.cpp
+SOURCE			ayfly_s60Document.cpp
+
+SOURCEPATH		..\..\libayfly
+SOURCE			/*z80ex\z80ex.cpp*/ speccy.cpp formats.cpp ay.cpp common.cpp AbstractAudio.cpp s60\ayfly_s60Audio.cpp
+
+SOURCEPATH		..\data
+
+resource helloworld.rss
+
+
+
+USERINCLUDE	   ..\inc ..\..\libayfly
+USERINCLUDE    ..\help
+
+SYSTEMINCLUDE	 \epoc32\include \epoc32\include\libc
+
+LIBRARY		   euser.lib apparc.lib cone.lib eikcore.lib eikcoctl.lib
+LIBRARY        avkon.lib fbscli.lib eikdlg.lib efsrv.lib estor.lib
+LIBRARY        commondialogs.lib mediaclientaudiostream.lib
+
+
+VENDORID	  	  0
+// End of File
+

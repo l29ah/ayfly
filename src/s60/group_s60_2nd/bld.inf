@@ -1,0 +1,21 @@
+/*
+============================================================================
+ Name		: bld.inf
+ Author	  : Andrew Deryabin
+ Copyright   : Andrew Deryabin (c) 2008
+ Description : This file provides the information required for building the
+				whole of a ayfly_s60.
+============================================================================
+*/
+
+
+PRJ_MMPFILES
+
+
+//gnumakefile icons_scalable_dc.mk
+
+//gnumakefile ..\help\build_help.mk
+
+
+ayfly_s60_2nd.mmp
+
