@@ -11,11 +11,11 @@
 
 PRJ_MMPFILES
 
-/*
+
 gnumakefile icons_scalable_dc.mk
 
-gnumakefile ..\help\build_help.mk
-*/
+//gnumakefile ..\help\build_help.mk
+
 
 ayfly_s60_3rd.mmp
 
