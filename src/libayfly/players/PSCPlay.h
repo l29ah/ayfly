@@ -5,9 +5,6 @@
  (c)1999-2004 S.V.Bulba
  */
 
-#ifndef __SYMBIAN32__
-#pragma pack(push, 1)
-#endif
 struct PSC_File
 {
     signed char PSC_MusicName[69];
@@ -21,9 +18,6 @@ struct PSC_File
 #define PSC_PatternsPointer (header->PSC_PatternsPointer0 | (header->PSC_PatternsPointer1 << 8))
 #define PSC_OrnamentsPointer (header->PSC_OrnamentsPointer0 | (header->PSC_OrnamentsPointer1 << 8))
 #define PSC_SamplesPointers(x) (header->PSC_SamplesPointers0 [(x) * 2] | ((header->PSC_SamplesPointers0 [((x) * 2) + 1]) << 8))
-#ifndef __SYMBIAN32__
-#pragma pack(pop)
-#endif
 
 struct PSC_Channel_Parameters
 {
