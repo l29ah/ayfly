@@ -13,10 +13,18 @@ unsigned short ASM_Table[] =
 struct ASC1_File
 {
     unsigned char ASC1_Delay, ASC1_LoopingPosition;
-    unsigned short ASC1_PatternsPointers, ASC1_SamplesPointers, ASC1_OrnamentsPointers;
+    unsigned char ASC1_PatternsPointers0, ASC1_PatternsPointers1;
+    unsigned char ASC1_SamplesPointers0, ASC1_SamplesPointers1;
+    unsigned char ASC1_OrnamentsPointers0, ASC1_OrnamentsPointers1;
     unsigned char ASC1_Number_Of_Positions;
     unsigned char ASC1_Positions[65535 - 8];
 };
+#define ASC1_PatternsPointers (header->ASC1_PatternsPointers0 | (header->ASC1_PatternsPointers1 << 8))
+#define ASC1_SamplesPointers (header->ASC1_SamplesPointers0 | (header->ASC1_SamplesPointers1 << 8))
+#define ASC1_OrnamentsPointers (header->ASC1_OrnamentsPointers0 | (header->ASC1_OrnamentsPointers1 << 8))
+
+
+
 #ifndef __SYMBIAN32__
 #pragma pack(pop)
 #endif
@@ -53,7 +61,7 @@ void ASC_Init(AYSongInfo &info)
     unsigned char *module = info.module;
     ASC1_File *header = (ASC1_File *)module;
     AbstractAudio *player = info.player;
-    unsigned short ascPatPt = header->ASC1_PatternsPointers;
+    unsigned short ascPatPt = ASC1_PatternsPointers;
     if(info.data)
     {
         delete (ASC_SongInfo *)info.data;
@@ -141,11 +149,11 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
         }
         else if((val >= 0xa0) && (val <= 0xbf))
         {
-            chan.Initial_Point_In_Sample = (*(unsigned short *)&module[(module[chan.Address_In_Pattern] - 0xa0) * 2 + header->ASC1_SamplesPointers]) + header->ASC1_SamplesPointers;
+            chan.Initial_Point_In_Sample = (*(unsigned short *)&module[(module[chan.Address_In_Pattern] - 0xa0) * 2 + ASC1_SamplesPointers]) + ASC1_SamplesPointers;
         }
         else if((val >= 0xc0) && (val <= 0xdf))
         {
-            chan.Initial_Point_In_Ornament = (*(unsigned short *)&module[(module[chan.Address_In_Pattern] - 0xc0) * 2 + header->ASC1_OrnamentsPointers]) + header->ASC1_OrnamentsPointers;
+            chan.Initial_Point_In_Ornament = (*(unsigned short *)&module[(module[chan.Address_In_Pattern] - 0xc0) * 2 + ASC1_OrnamentsPointers]) + ASC1_OrnamentsPointers;
         }
         else if(val == 0xe0)
         {
@@ -374,7 +382,7 @@ void ASC_Play(AYSongInfo &info)
             {
                 if(++ASC.CurrentPosition >= header->ASC1_Number_Of_Positions)
                     ASC.CurrentPosition = header->ASC1_LoopingPosition;
-                unsigned short ascPatPt = header->ASC1_PatternsPointers;
+                unsigned short ascPatPt = ASC1_PatternsPointers;
                 ASC_A.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[ASC.CurrentPosition + 9]]) + ascPatPt;
                 ASC_B.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[ASC.CurrentPosition + 9] + 2]) + ascPatPt;
                 ASC_C.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[ASC.CurrentPosition + 9] + 4]) + ascPatPt;
@@ -426,7 +434,7 @@ void ASC_GetInfo(AYSongInfo &info)
 
     unsigned char ascDelay = header->ASC1_Delay;
     unsigned short ascLoopPos = header->ASC1_LoopingPosition;
-    unsigned short ascPatPt = header->ASC1_PatternsPointers;
+    unsigned short ascPatPt = ASC1_PatternsPointers;
     unsigned char ascNumPos = header->ASC1_Number_Of_Positions;
 
     b = ascDelay;

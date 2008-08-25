@@ -1,15 +1,26 @@
+/* This player module was ported from:
+ AY-3-8910/12 Emulator
+ Version 3.0 for Windows 95
+ Author Sergey Vladimirovich Bulba
+ (c)1999-2004 S.V.Bulba
+ */
+
 #ifndef __SYMBIAN32__
 #pragma pack(push, 1)
 #endif
 struct PSC_File
 {
     signed char PSC_MusicName[69];
-    unsigned short PSC_UnknownPointer;
-    unsigned short PSC_PatternsPointer;
+    unsigned char PSC_UnknownPointer0, PSC_UnknownPointer1;
+    unsigned char PSC_PatternsPointer0, PSC_PatternsPointer1;
     unsigned char PSC_Delay;
-    unsigned short PSC_OrnamentsPointer;
-    unsigned short PSC_SamplesPointers[32];
+    unsigned char PSC_OrnamentsPointer0, PSC_OrnamentsPointer1;
+    unsigned char PSC_SamplesPointers0[64];
 };
+#define PSC_UnknownPointer (header->PSC_UnknownPointer0 | (header->PSC_UnknownPointer1 << 8))
+#define PSC_PatternsPointer (header->PSC_PatternsPointer0 | (header->PSC_PatternsPointer1 << 8))
+#define PSC_OrnamentsPointer (header->PSC_OrnamentsPointer0 | (header->PSC_OrnamentsPointer1 << 8))
+#define PSC_SamplesPointers(x) (header->PSC_SamplesPointers0 [(x) * 2] | ((header->PSC_SamplesPointers0 [((x) * 2) + 1]) << 8))
 #ifndef __SYMBIAN32__
 #pragma pack(pop)
 #endif
@@ -57,7 +68,7 @@ void PSC_Init(AYSongInfo &info)
 
     PSC.DelayCounter = 1;
     PSC.Delay = header->PSC_Delay;
-    PSC.Positions_Pointer = header->PSC_PatternsPointer;
+    PSC.Positions_Pointer = PSC_PatternsPointer;
     PSC.Lines_Counter = 1;
     PSC.Noise_Base = 0;
 
@@ -65,10 +76,10 @@ void PSC_Init(AYSongInfo &info)
     PSC_B.num = 1;
     PSC_C.num = 2;
 
-    PSC_A.SamplePointer = header->PSC_SamplesPointers[0] + 0x4c;
+    PSC_A.SamplePointer = PSC_SamplesPointers(0) + 0x4c;
     PSC_B.SamplePointer = PSC_A.SamplePointer;
     PSC_C.SamplePointer = PSC_A.SamplePointer;
-    PSC_A.OrnamentPointer = (*(unsigned short *) &module[header->PSC_OrnamentsPointer]) + header->PSC_OrnamentsPointer;
+    PSC_A.OrnamentPointer = (*(unsigned short *) &module[PSC_OrnamentsPointer]) + PSC_OrnamentsPointer;
     PSC_B.OrnamentPointer = PSC_A.OrnamentPointer;
     PSC_C.OrnamentPointer = PSC_A.OrnamentPointer;
 
@@ -118,12 +129,12 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
         }
         else if(val >= 0xa0 && val <= 0xbf)
         {
-            chan.OrnamentPointer = (*(unsigned short *) &module[header->PSC_OrnamentsPointer + (val - 0xa0) * 2]) + header->PSC_OrnamentsPointer;
+            chan.OrnamentPointer = (*(unsigned short *) &module[PSC_OrnamentsPointer + (val - 0xa0) * 2]) +PSC_OrnamentsPointer;
         }
         else if(val >= 0x7e && val <= 0x9f)
         {
             if(val >= 0x80)
-                chan.SamplePointer = header->PSC_SamplesPointers[val - 0x80] + 0x4c;
+                chan.SamplePointer = PSC_SamplesPointers(val - 0x80) + 0x4c;
         }
         else if(val == 0x6b)
         {
@@ -456,7 +467,7 @@ void PSC_GetInfo(AYSongInfo &info)
     j11 = j22 = j33 = 0;
 
     b = header->PSC_Delay;
-    pptr = header->PSC_PatternsPointer;
+    pptr = PSC_PatternsPointer;
     pptr++;
     while(module[pptr] != 255)
     {
@@ -473,7 +484,7 @@ void PSC_GetInfo(AYSongInfo &info)
     }
     cptr = *(unsigned short *) &module[pptr + 1];
     cptr++;
-    pptr = header->PSC_PatternsPointer;
+    pptr = PSC_PatternsPointer;
     pptr++;
     while(module[pptr] != 255)
     {
