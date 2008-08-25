@@ -1,8 +1,7 @@
 #/bin/sh
-cd ../group
+cd ../group_s60_3rd
 bldmake bldfiles
 abld build gcce urel
 cd ../sis
-makesis ayfly_s60.pkg
-signsis ayfly_s60.sis ayfly_s60_0.0.16.sisx gencert.cert genkey.key
-
+makesis ayfly_s60_3rd.pkg
+signsis ayfly_s60_3rd.sis ayfly_s60_3rd_0.0.16.sisx gencert.cert genkey.key

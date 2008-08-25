@@ -117,6 +117,7 @@ void PSG_GetInfo(AYSongInfo &info)
     unsigned long file_pointer = 16;
     unsigned char b, b1;
     unsigned long tm = 0;
+    b = 255;
 
     while(file_pointer < info.file_len)
     {
