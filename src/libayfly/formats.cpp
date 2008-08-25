@@ -110,10 +110,6 @@ struct ayData
     unsigned char *author, *misc;
     unsigned long num_tracks;
     unsigned long first_track;
-    ~ayData()
-    {
-    }
-    ;
 };
 
 static ayData aydata;
