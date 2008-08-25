@@ -57,7 +57,7 @@ struct ASC_SongInfo
 #define ASC ((ASC_SongInfo *)info.data)->ASC
 
 void ASC_Init(AYSongInfo &info)
-{
+{	
     unsigned char *module = info.module;
     ASC1_File *header = (ASC1_File *)module;
     AbstractAudio *player = info.player;
