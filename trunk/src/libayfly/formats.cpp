@@ -18,9 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifdef __SYMBIAN32__
-#pragma pack(1)
-#endif
 #include "ayfly.h"
 #include "players/ASCPlay.h"
 #include "players/PT2Play.h"
