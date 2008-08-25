@@ -94,7 +94,6 @@
 #        define AY_TXT_TYPE std::wstring
 #    else
 #        define TXT(x) _L(x)
-#        pragma pack(1)
 #        define AUDIO_FREQ 32000
 #    endif
 #    define Z80_FREQ 3546900
