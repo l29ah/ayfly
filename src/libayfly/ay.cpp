@@ -151,6 +151,7 @@ void ay::ayReset()
     noise_period = 0;
 
     volume[0] = volume[1] = volume[2] = 1;
+    env_type_old = 0;
 
     setEnvelope();
 }
@@ -207,8 +208,6 @@ unsigned char ay::ayRead(unsigned char reg)
 
 void ay::setEnvelope()
 {
-    static unsigned long env_type_old = 0;
-
     env_type = regs[AY_ENV_SHAPE];
     if(env_type != env_type_old)
     {

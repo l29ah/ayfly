@@ -13,7 +13,6 @@ struct PSG_SongInfo
 
 void PSG_Init(AYSongInfo &info)
 {
-    unsigned char *module = info.module;
     AbstractAudio *player = info.player;
     if(info.data)
     {

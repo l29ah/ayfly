@@ -193,8 +193,8 @@ extern "C" {
 
 
 /*
- * Initializes song width given file path (wchar_t *FilePath)
- * and sample rate (sr). Example:
+ * Initializes song with given file path @FilePath
+ * and sample rate @sr. Example:
  *
  * int _tmain(int argc, wchar_t **argv)
  * {
@@ -214,63 +214,298 @@ AYFLY_API void *ay_initsong(const wchar_t *FilePath, unsigned long sr);
 #else
 AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr);
 #endif
+
+/*
+ * Initializes song from memory ares pointed by @module of size @size,
+ * with given sample rate @sr, given type @type. Example:
+ *
+ * usigng namespace std;
+ * int _tmain(int argc, wchar_t **argv)
+ * {
+ *      ifstream f;
+ *      f.open("E:\\Authors\\Ksa\\E-MEGAMIX.stc", ios_base::in | ios_base::binary);
+ *      f.seekg(0, std::ios::end);
+ *      size_t size = f.tellg();
+ *      f.seekg(0, std::ios::beg);
+ *      char *buffer = new char [size];
+ *      void *songinfo = ay_initsongindirect(buffer, 44100, L".stc", size);
+ *      if(songinfo == 0)
+ *      {
+ *          printf("Can't open song!\n");
+ *          exit(1);
+ *      }
+ *      ay_closesong(&songinfo);
+ *      return 0;
+ * }
+ */
+
 #ifndef __SYMBIAN32__
 AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, wchar_t *type, unsigned long size);
 #else
 AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size);
 #endif
+
+/*
+ * Returns pointer to songinfo system structure for song in @FilePath
+ * for further manipulation. Example:
+ *
+ * void *songinfo = ay_getsonginfo(L"E:\\Authors\\Ksa\\E-MEGAMIX.stc");
+ * wchar_t *songname = ay_getsongname(songinfo);
+ * unsigned long songlength = ay_getsonglength(songinfo);
+ * wprintf("song name = %s, length = %lu\n", songname, songlength);
+ * ay_closesong(&songinfo);
+ *
+ */
 #ifndef __SYMBIAN32__
 AYFLY_API void *ay_getsonginfo(const wchar_t *FilePath);
 #else
 AYFLY_API void *ay_getsonginfo(TFileName FilePath);
 #endif
+/*
+ * Returns pointer to songinfo system structure for song in memory area @module
+ * of size @size for further manipulation. Example:
+ * ifstream f;
+ * f.open("E:\\Authors\\Ksa\\E-MEGAMIX.stc", ios_base::in | ios_base::binary);
+ * f.seekg(0, std::ios::end);
+ * size_t size = f.tellg();
+ * f.seekg(0, std::ios::beg);
+ * char *buffer = new char [size];
+ * void *songinfo = ay_getsonginfoindirect(buffer, L".stc", size);
+ * wchar_t *songname = ay_getsongname(songinfo);
+ * unsigned long songlength = ay_getsonglength(songinfo);
+ * wprintf("song name = %s, length = %lu\n", songname, songlength);
+ * ay_closesong(&songinfo);
+ *
+ */
 #ifndef __SYMBIAN32__
 AYFLY_API void *ay_getsonginfoindirect(unsigned char *module, wchar_t *type, unsigned long size);
 #else
 AYFLY_API void *ay_getsonginfoindirect(unsigned char *module, TFileName type, unsigned long size);
 #endif
+
+/*
+ * Gets song name from initialized songinfo @info pointer.
+ * Example:
+ *
+ * void *songinfo = ay_initsong("D:/123.ay", 32000);
+ * wchar_t *songname = ay_getsongname(songinfo);
+ * wprintf("song name = %s", songname);
+ */
+
 #ifndef __SYMBIAN32__
 AYFLY_API const wchar_t *ay_getsongname(void *info);
 #else
 AYFLY_API TFileName ay_getsongname(void *info);
 #endif
+
+/*
+ * Gets song author from initialized songinfo @info pointer.
+ * Example:
+ *
+ * void *songinfo = ay_initsong("D:/123.ay", 32000);
+ * wchar_t *songauthor = ay_getsongauthor(songinfo);
+ * wprintf("song author = %s", songauthor);
+ */
+
 #ifndef __SYMBIAN32__
 AYFLY_API const wchar_t *ay_getsongauthor(void *info);
 #else
 AYFLY_API TFileName ay_getsongauthor(void *info);
 #endif
+
+/*
+ * Gets song file path from initialized songinfo @info pointer.
+ * Example:
+ *
+ * void *songpath = ay_initsong("D:/123.ay", 32000);
+ * wchar_t *songpath = ay_getsongpath(songinfo);
+ * wprintf("song path = %s", songauthor); // = "D:/123.ay";
+ */
+
 #ifndef __SYMBIAN32__
 AYFLY_API const wchar_t *ay_getsongpath(void *info);
 #else
 AYFLY_API TFileName ay_getsongpath(void *info);
 #endif
+/*
+ * execute one quant of z80 code, or soft player code.
+ * Used only in ay emulator and song positioning
+ */
+
 AYFLY_API void ay_z80xec(void *info);
+
+/*
+ * Set song pointer to new position @new_position
+ * @new_position is a ralative offset from
+ * elapsed song time. To get relative position from absolute value,
+ * do following:
+ * unsigned long absolute_pos = 1000; in 1/50 second
+ * unsigned long current_pos = ay_getelapsedtime(songinfo);
+ * unsigned long relative_pos = absolute_pos - current_pos;
+ * ay_seksong(songinfo, relative_pos);
+ */
+
 AYFLY_API void ay_seeksong(void *info, long new_position);
+
+/*
+ * Resets song to zero position and clears AY registers
+ */
+
 AYFLY_API void ay_resetsong(void *info);
+
+/*
+ * Closes song and frees resources
+ */
+
 AYFLY_API void ay_closesong(void **info);
+
+/*
+ * Returns true, if song is playing.
+ */
+
 AYFLY_API bool ay_songstarted(void *info);
+
+/*
+ * Starts song
+ */
+
 AYFLY_API void ay_startsong(void *info);
+
+/*
+ * Stops song
+ */
+
 AYFLY_API void ay_stopsong(void *info);
-AYFLY_API void ay_setvolume(void *info, unsigned long chnl, float volume);
-AYFLY_API float ay_getvolume(void *info, unsigned long chnl);
-AYFLY_API void ay_chnlmute(void *info, unsigned long chnl, bool mute);
-AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl);
+
+/*
+ * Sets AY chip @chip_num volume of channel @chnl to volume @volume.
+ * @volume must be in range from 0 to 1.
+ */
+
+AYFLY_API void ay_setvolume(void *info, unsigned long chnl, float volume, unsigned long chip_num = 0);
+
+/*
+ * Returns AY chip @chip_num volume of channel @chnl in range from 0 to 1
+ */
+
+AYFLY_API float ay_getvolume(void *info, unsigned long chnl, unsigned long chip_num = 0);
+/*
+ * Mutes or enables AY chip @chip channel @chnl. If @mute is true - channel muted.
+ */
+AYFLY_API void ay_chnlmute(void *info, unsigned long chnl, bool mute, unsigned long chip_num = 0);
+
+/*
+ * Returns true if channel @chnl of AY chip @chip_num is muted
+ */
+
+AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl, unsigned long chip_num = 0);
+
+/*
+ * Sets callback function for song described by @info to function pointed by
+ * @callback. When the function called, @callback_arg is passed as the only argument.
+ * Function called when song @info ended, or reverted to the loop position
+ */
+
 AYFLY_API void ay_setcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg);
+
+/*
+ * Gets song length in 1/50 second
+ */
+
 AYFLY_API unsigned long ay_getsonglength(void *info);
+
+/*
+ * Gets song elapsed time in 1/50 second
+ */
+
 AYFLY_API unsigned long ay_getelapsedtime(void *info);
+
+/*
+ * Gets song loop position in 1/50 second
+ */
+
 AYFLY_API unsigned long ay_getsongloop(void *info);
-AYFLY_API const unsigned char *ay_getregs(void *info, unsigned long chip_num);
+
+/*
+ * Gets pointer to array of 15 bytes - AY register buffer.
+ * Buffer is only for reading
+ */
+
+AYFLY_API const unsigned char *ay_getregs(void *info, unsigned long chip_num = 0);
+
+/*
+ * User For render song AY chip @chip_num into buffer pointed by @buffer
+ * with size @buffer_length bytes
+ */
+
 AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned long chip_num);
+
+/*
+ * Returns z80 frequency
+ */
+
 AYFLY_API unsigned long ay_getz80freq(void *info);
+
+/*
+ * Sets z80 frequency
+ */
+
+
 AYFLY_API void ay_setz80freq(void *info, unsigned long z80_freq);
+
+/*
+ * Gets AY frequency
+ */
+
 AYFLY_API unsigned long ay_getayfreq(void *info);
+
+/*
+ * Sets AY frequency to @ay_freq
+ */
+
 AYFLY_API void ay_setayfreq(void *info, unsigned long ay_freq);
+
+/*
+ * Gets Z80 interrupt frequency
+ */
+
 AYFLY_API unsigned long ay_getintfreq(void *info);
+
+/*
+ * Sets Z80 interrupt frequency to @int_freq
+ */
+
 AYFLY_API void ay_setintfreq(void *info, unsigned long int_freq);
+
+/*
+ * Gets song sample rate
+ */
+
 AYFLY_API unsigned long ay_getsamplerate(void *info);
+
+/*
+ * Sets song sample rate to @sr
+ */
+
 AYFLY_API void ay_setsamplerate(void *info, unsigned long sr);
+
+/*
+ * Sets song player. @player must point to class, derived from
+ * class AbstractAudio
+ */
+
 AYFLY_API void ay_setsongplayer(void *info, void * /* class AbstractAudio */ player);
+
+/*
+ * Gets pointer to current song player
+ */
+
 AYFLY_API void *ay_getsongplayer(void *info);
+
+/*
+ * Sets window handle, used for directx init procedure
+ */
+
 #ifdef WINDOWS
 AYFLY_API void ay_sethwnd(void *info, HWND hWnd);
 #endif

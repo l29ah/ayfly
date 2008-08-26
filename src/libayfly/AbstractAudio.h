@@ -43,13 +43,13 @@ public:
         ay8910->ayReset();
     }
     ;
-    inline virtual void ChnlMute(unsigned long chnl, bool mute)
+    inline virtual void ChnlMute(unsigned long chnl, bool mute, unsigned long chip_num)
     {
         if(ay8910)
             ay8910->chnlMute(chnl, mute);
     }
     ;
-    inline virtual bool ChnlMuted(unsigned long chnl)
+    inline virtual bool ChnlMuted(unsigned long chnl, unsigned long chip_num)
     {
         return ay8910 ? ay8910->chnlMuted(chnl) : true;
     }
@@ -59,12 +59,12 @@ public:
         return started;
     }
     ;
-    inline float GetVolume(unsigned long chnl)
+    inline float GetVolume(unsigned long chnl, unsigned long chip_num)
     {
         return ay8910 ? ay8910->GetVolume(chnl) : 0;
     }
     ;
-    inline void SetVolume(unsigned long chnl, float new_volume)
+    inline void SetVolume(unsigned long chnl, float new_volume, unsigned long chip_num)
     {
         if(ay8910)
         {

@@ -76,7 +76,7 @@ void ASC_Init(AYSongInfo &info)
 
 void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
 {
-    unsigned char *module = info.file_data;
+    unsigned char *module = info.module;
     ASC1_File *header = (ASC1_File *)module;
     AbstractAudio *player = info.player;
     short delta_ton;
@@ -256,7 +256,7 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
 
 void ASC_GetRegisters(AYSongInfo &info, ASC_Channel_Parameters &chan, unsigned char &TempMixer)
 {
-    unsigned char *module = info.file_data;
+    unsigned char *module = info.module;
     AbstractAudio *player = info.player;
     signed char j;
     bool Sample_Says_OK_for_Envelope;
@@ -353,7 +353,7 @@ void ASC_GetRegisters(AYSongInfo &info, ASC_Channel_Parameters &chan, unsigned c
 
 void ASC_Play(AYSongInfo &info)
 {
-    unsigned char *module = info.file_data;
+    unsigned char *module = info.module;
     ASC1_File *header = (ASC1_File *)module;
     AbstractAudio *player = info.player;
     unsigned char TempMixer;

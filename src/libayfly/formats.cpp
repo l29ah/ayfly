@@ -54,7 +54,7 @@ struct _Players
     GETINFO_CALLBACK getInfo;
 };
 
-const _Players Players[] =
+static const _Players Players[] =
 {
 { TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASC_Cleanup, ASC_GetInfo },
 { TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, PT2_GetInfo },
@@ -70,7 +70,7 @@ const _Players Players[] =
  * Copyright (C) 2001-2005 Russell Marks and Ian Collier.
  */
 
-static unsigned char intz[] =
+static const unsigned char intz[] =
 { 0xf3, /* di */
 0xcd, 0, 0, /* call init */
 0xed, 0x5e, /* loop: im 2 */
@@ -79,7 +79,7 @@ static unsigned char intz[] =
 0x18, 0xfa /* jr loop */
 };
 
-static unsigned char intnz[] =
+static const unsigned char intnz[] =
 { 0xf3, /* di */
 0xcd, 0, 0, /* call init */
 0x0, 0x0, /* loop: im 1 */
