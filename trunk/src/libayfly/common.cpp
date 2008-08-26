@@ -406,6 +406,17 @@ AYFLY_API void ay_setintfreq(void *info, unsigned long int_freq)
     ((AYSongInfo *)info)->player->SetAYParameters();
 }
 
+AYFLY_API unsigned long ay_getsamplerate(void *info)
+{
+    return ((AYSongInfo *)info)->sr;
+}
+
+AYFLY_API void ay_setsamplerate(void *info, unsigned long sr)
+{
+    ((AYSongInfo *)info)->sr = sr;
+    ((AYSongInfo *)info)->player->SetAYParameters();
+}
+
 AYFLY_API void ay_setsongplayer(void *info, void * /* class AbstractAudio */player)
 {
     if(((AYSongInfo *)info)->player)

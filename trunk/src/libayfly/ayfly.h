@@ -106,13 +106,26 @@
 
 struct AYSongInfo;
 
+/*
+ * Prototype for callback function, called when
+ * song end reached. Example code:
+ * void callback(void *songinfo)
+ * {
+ *      ay_stopsong(songinfo);
+ *      wprintf("Song %s ended!\n", ay_getsongname(songinfo));
+ *      exit(0);
+ * }
+ */
 typedef void (*ELAPSED_CALLBACK)(void *arg);
+
+/* System callback prototypes */
 typedef void (*PLAYER_INIT_PROC)(AYSongInfo &info);
 typedef void (*PLAYER_PLAY_PROC)(AYSongInfo &info);
 typedef void (*PLAYER_CLEANUP_PROC)(AYSongInfo &info);
 
 #include "ay.h"
 #include "AbstractAudio.h"
+
 
 struct AYSongInfo
 {
@@ -175,7 +188,27 @@ bool ay_sys_initsong(AYSongInfo &info);
 #ifdef __cplusplus
 extern "C" {
 #endif
-//common functions
+
+/* common functions */
+
+
+/*
+ * Initializes song width given file path (wchar_t *FilePath)
+ * and sample rate (sr). Example:
+ *
+ * int _tmain(int argc, wchar_t **argv)
+ * {
+ *      void *songinfo = ay_initsong(L"E:\\Authors\\Ksa\\E-MEGAMIX.stc", 44100);
+ *      if(songinfo == 0)
+ *      {
+ *          printf("Can't open song!\n");
+ *          exit(1);
+ *      }
+ *      ay_closesong(&songinfo);
+ *      return 0;
+ * }
+ */
+
 #ifndef __SYMBIAN32__
 AYFLY_API void *ay_initsong(const wchar_t *FilePath, unsigned long sr);
 #else
@@ -234,6 +267,8 @@ AYFLY_API unsigned long ay_getayfreq(void *info);
 AYFLY_API void ay_setayfreq(void *info, unsigned long ay_freq);
 AYFLY_API unsigned long ay_getintfreq(void *info);
 AYFLY_API void ay_setintfreq(void *info, unsigned long int_freq);
+AYFLY_API unsigned long ay_getsamplerate(void *info);
+AYFLY_API void ay_setsamplerate(void *info, unsigned long sr);
 AYFLY_API void ay_setsongplayer(void *info, void * /* class AbstractAudio */ player);
 AYFLY_API void *ay_getsongplayer(void *info);
 #ifdef WINDOWS
