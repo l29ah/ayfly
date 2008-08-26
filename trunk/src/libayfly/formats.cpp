@@ -111,7 +111,7 @@ struct ayData
 
 //static ayData aydata;
 
-void ay_sys_initayfmt(AYSongInfo &info, unsigned char track);
+void ay_sys_initayfmt(AYSongInfo &info, ayData &aydata, unsigned char track);
 
 #ifndef __SYMBIAN32__
 unsigned char *osRead(AY_TXT_TYPE filePath, unsigned long *data_len)
@@ -284,7 +284,7 @@ bool ay_sys_initsong(AYSongInfo &info)
                 }
                 aydata.filelen = fileLength;
                 aydata.filedata = fileData;
-                ay_sys_initayfmt(info, 0);
+                ay_sys_initayfmt(info, aydata, 0);
                 delete[] aydata.tracks;
                 aydata.tracks = 0;
                 return true;
@@ -374,9 +374,8 @@ bool ay_sys_readfromfile(AYSongInfo &info)
     return true;
 }
 
-void ay_sys_initayfmt(AYSongInfo &info, unsigned char track)
+void ay_sys_initayfmt(AYSongInfo &info, ayData &aydata, unsigned char track)
 {
-    ayData aydata;
     unsigned long init, ay_1st_block, ourinit, interrupt;
     unsigned char *ptr;
     unsigned long addr, len, ofs;
