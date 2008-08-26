@@ -803,7 +803,7 @@ static void op_FD_0xf9(Z80EX_CONTEXT *cpu)
 
 
 /**/
-static z80ex_opcode_fn opcodes_fd[0x100] = {
+static const z80ex_opcode_fn opcodes_fd[0x100] = {
  NULL          , NULL          , NULL          , NULL          ,
  NULL          , NULL          , NULL          , NULL          ,
  NULL          , op_FD_0x09    , NULL          , NULL          ,
@@ -867,5 +867,5 @@ static z80ex_opcode_fn opcodes_fd[0x100] = {
  NULL          , NULL          , NULL          , NULL          ,
  NULL          , NULL          , NULL          , NULL          ,
  NULL          , op_FD_0xf9    , NULL          , NULL          ,
- NULL          , NULL          , NULL          , NULL          
+ NULL          , NULL          , NULL          , NULL
 };

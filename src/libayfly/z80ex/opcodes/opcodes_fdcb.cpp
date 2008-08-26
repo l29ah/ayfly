@@ -2363,7 +2363,7 @@ static void op_FDCB_0xff(Z80EX_CONTEXT *cpu)
 
 
 /**/
-static z80ex_opcode_fn opcodes_fdcb[0x100] = {
+static const z80ex_opcode_fn opcodes_fdcb[0x100] = {
  op_FDCB_0x00  , op_FDCB_0x01  , op_FDCB_0x02  , op_FDCB_0x03  ,
  op_FDCB_0x04  , op_FDCB_0x05  , op_FDCB_0x06  , op_FDCB_0x07  ,
  op_FDCB_0x08  , op_FDCB_0x09  , op_FDCB_0x0a  , op_FDCB_0x0b  ,
@@ -2427,5 +2427,5 @@ static z80ex_opcode_fn opcodes_fdcb[0x100] = {
  op_FDCB_0xf0  , op_FDCB_0xf1  , op_FDCB_0xf2  , op_FDCB_0xf3  ,
  op_FDCB_0xf4  , op_FDCB_0xf5  , op_FDCB_0xf6  , op_FDCB_0xf7  ,
  op_FDCB_0xf8  , op_FDCB_0xf9  , op_FDCB_0xfa  , op_FDCB_0xfb  ,
- op_FDCB_0xfc  , op_FDCB_0xfd  , op_FDCB_0xfe  , op_FDCB_0xff  
+ op_FDCB_0xfc  , op_FDCB_0xfd  , op_FDCB_0xfe  , op_FDCB_0xff
 };

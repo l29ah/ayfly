@@ -2248,7 +2248,7 @@ static void op_0xff(Z80EX_CONTEXT *cpu)
 
 
 /**/
-static z80ex_opcode_fn opcodes_base[0x100] = {
+static const z80ex_opcode_fn opcodes_base[0x100] = {
  op_0x00       , op_0x01       , op_0x02       , op_0x03       ,
  op_0x04       , op_0x05       , op_0x06       , op_0x07       ,
  op_0x08       , op_0x09       , op_0x0a       , op_0x0b       ,
@@ -2312,5 +2312,5 @@ static z80ex_opcode_fn opcodes_base[0x100] = {
  op_0xf0       , op_0xf1       , op_0xf2       , op_0xf3       ,
  op_0xf4       , op_0xf5       , op_0xf6       , op_0xf7       ,
  op_0xf8       , op_0xf9       , op_0xfa       , op_0xfb       ,
- op_0xfc       , op_p_FD       , op_0xfe       , op_0xff       
+ op_0xfc       , op_p_FD       , op_0xfe       , op_0xff
 };
