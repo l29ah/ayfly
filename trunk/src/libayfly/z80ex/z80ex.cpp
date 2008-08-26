@@ -21,8 +21,6 @@
 #define temp_addr cpu->tmpaddr
 #define temp_word cpu->tmpword
 
-static int initialized=0;
-
 /* Whether a half carry occured or not can be determined by looking at
 the 3rd bit of the two arguments and the result; these are hashed
 into this table in the form r12, where r is the 3rd bit of the
@@ -40,14 +38,15 @@ static const Z80EX_BYTE overflow_add_table[] = { 0, 0, 0, FLAG_V, FLAG_V, 0, 0, 
 static const Z80EX_BYTE overflow_sub_table[] = { 0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0 };
 
 /*flag tables*/
-/*Remake by Deryabin Andrew
-//static const Z80EX_BYTE sz53_table[0x100]; /* The S, Z, 5 and 3 bits of the index */
-//static const Z80EX_BYTE parity_table[0x100]; /* The parity of the lookup value */
-//static const Z80EX_BYTE sz53p_table[0x100]; /* OR the above two tables together */
+/* Remake by Deryabin Andrew */
+/*static const Z80EX_BYTE sz53_table[0x100];  The S, Z, 5 and 3 bits of the index
+static const Z80EX_BYTE parity_table[0x100];  The parity of the lookup value
+static const Z80EX_BYTE sz53p_table[0x100];  OR the above two tables together
+*/
 
-#define sz53_table ctx->sz53_table
-#define parity_table ctx->parity_table
-#define sz53p_table ctx->sz53p_table
+#define sz53_table cpu->sz53_table
+#define parity_table cpu->parity_table
+#define sz53p_table cpu->sz53p_table
 
 #include "z80ex/daa_table.cpp"
 #include "z80ex/opcodes/opcodes_base.cpp"
@@ -177,14 +176,13 @@ LIB_EXPORT Z80EX_CONTEXT *z80ex_create(
 {
 	Z80EX_CONTEXT *cpu;
 
-	if(!initialized)
-	{
-		initialized=1;
-		init_tables();
-	}
+
+	/* Code modified by Deryabin Andrew */
 
 	if((cpu=new Z80EX_CONTEXT) == NULL) return(NULL);
 	memset(cpu,0x00,sizeof(Z80EX_CONTEXT));
+
+	init_tables(cpu);
 
 	z80ex_reset(cpu);
 

@@ -40,7 +40,7 @@ struct _Players
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE ext;
 #else
-    const TFileName ext;
+    TFileName ext;
 #endif
     const unsigned char *player;
     unsigned long player_base;
@@ -108,8 +108,6 @@ struct ayData
     unsigned long num_tracks;
     unsigned long first_track;
 };
-
-//static ayData aydata;
 
 void ay_sys_initayfmt(AYSongInfo &info, ayData &aydata, unsigned char track);
 

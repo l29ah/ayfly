@@ -2363,7 +2363,7 @@ static void op_DDCB_0xff(Z80EX_CONTEXT *cpu)
 
 
 /**/
-static z80ex_opcode_fn opcodes_ddcb[0x100] = {
+static const z80ex_opcode_fn opcodes_ddcb[0x100] = {
  op_DDCB_0x00  , op_DDCB_0x01  , op_DDCB_0x02  , op_DDCB_0x03  ,
  op_DDCB_0x04  , op_DDCB_0x05  , op_DDCB_0x06  , op_DDCB_0x07  ,
  op_DDCB_0x08  , op_DDCB_0x09  , op_DDCB_0x0a  , op_DDCB_0x0b  ,
@@ -2427,5 +2427,5 @@ static z80ex_opcode_fn opcodes_ddcb[0x100] = {
  op_DDCB_0xf0  , op_DDCB_0xf1  , op_DDCB_0xf2  , op_DDCB_0xf3  ,
  op_DDCB_0xf4  , op_DDCB_0xf5  , op_DDCB_0xf6  , op_DDCB_0xf7  ,
  op_DDCB_0xf8  , op_DDCB_0xf9  , op_DDCB_0xfa  , op_DDCB_0xfb  ,
- op_DDCB_0xfc  , op_DDCB_0xfd  , op_DDCB_0xfe  , op_DDCB_0xff  
+ op_DDCB_0xfc  , op_DDCB_0xfd  , op_DDCB_0xfe  , op_DDCB_0xff
 };

@@ -2107,7 +2107,7 @@ static void op_CB_0xff(Z80EX_CONTEXT *cpu)
 
 
 /**/
-static z80ex_opcode_fn opcodes_cb[0x100] = {
+static const z80ex_opcode_fn opcodes_cb[0x100] = {
  op_CB_0x00    , op_CB_0x01    , op_CB_0x02    , op_CB_0x03    ,
  op_CB_0x04    , op_CB_0x05    , op_CB_0x06    , op_CB_0x07    ,
  op_CB_0x08    , op_CB_0x09    , op_CB_0x0a    , op_CB_0x0b    ,
@@ -2171,5 +2171,5 @@ static z80ex_opcode_fn opcodes_cb[0x100] = {
  op_CB_0xf0    , op_CB_0xf1    , op_CB_0xf2    , op_CB_0xf3    ,
  op_CB_0xf4    , op_CB_0xf5    , op_CB_0xf6    , op_CB_0xf7    ,
  op_CB_0xf8    , op_CB_0xf9    , op_CB_0xfa    , op_CB_0xfb    ,
- op_CB_0xfc    , op_CB_0xfd    , op_CB_0xfe    , op_CB_0xff    
+ op_CB_0xfc    , op_CB_0xfd    , op_CB_0xfe    , op_CB_0xff
 };

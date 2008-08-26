@@ -651,7 +651,7 @@ static void op_ED_0xbb(Z80EX_CONTEXT *cpu)
 
 
 /**/
-static z80ex_opcode_fn opcodes_ed[0x100] = {
+static const z80ex_opcode_fn opcodes_ed[0x100] = {
  NULL          , NULL          , NULL          , NULL          ,
  NULL          , NULL          , NULL          , NULL          ,
  NULL          , NULL          , NULL          , NULL          ,
@@ -715,5 +715,5 @@ static z80ex_opcode_fn opcodes_ed[0x100] = {
  NULL          , NULL          , NULL          , NULL          ,
  NULL          , NULL          , NULL          , NULL          ,
  NULL          , NULL          , NULL          , NULL          ,
- NULL          , NULL          , NULL          , NULL          
+ NULL          , NULL          , NULL          , NULL
 };
