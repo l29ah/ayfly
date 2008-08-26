@@ -94,6 +94,7 @@ private:
     long env_period_init;
     long env_period;
     unsigned long env_type;
+    unsigned long env_type_old;
     unsigned long env_tick;
     unsigned long env_vol;
     long env_trigger;

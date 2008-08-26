@@ -40,9 +40,14 @@ static const Z80EX_BYTE overflow_add_table[] = { 0, 0, 0, FLAG_V, FLAG_V, 0, 0, 
 static const Z80EX_BYTE overflow_sub_table[] = { 0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0 };
 
 /*flag tables*/
-static Z80EX_BYTE sz53_table[0x100]; /* The S, Z, 5 and 3 bits of the index */
-static Z80EX_BYTE parity_table[0x100]; /* The parity of the lookup value */
-static Z80EX_BYTE sz53p_table[0x100]; /* OR the above two tables together */
+/*Remake by Deryabin Andrew
+//static const Z80EX_BYTE sz53_table[0x100]; /* The S, Z, 5 and 3 bits of the index */
+//static const Z80EX_BYTE parity_table[0x100]; /* The parity of the lookup value */
+//static const Z80EX_BYTE sz53p_table[0x100]; /* OR the above two tables together */
+
+#define sz53_table ctx->sz53_table
+#define parity_table ctx->parity_table
+#define sz53p_table ctx->sz53p_table
 
 #include "z80ex/daa_table.cpp"
 #include "z80ex/opcodes/opcodes_base.cpp"
@@ -54,7 +59,7 @@ static Z80EX_BYTE sz53p_table[0x100]; /* OR the above two tables together */
 #include "z80ex/opcodes/opcodes_fdcb.cpp"
 
 /* Initalise the tables used to set flags */
-static void init_tables(void)
+static void init_tables(Z80EX_CONTEXT *cpu)
 {
 	int i,j,k;
 	Z80EX_BYTE parity;

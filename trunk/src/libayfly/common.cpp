@@ -306,24 +306,24 @@ AYFLY_API void ay_closesong(void **info)
     *ppsong = 0;
 }
 
-AYFLY_API void ay_setvolume(void *info, unsigned long chnl, float volume)
+AYFLY_API void ay_setvolume(void *info, unsigned long chnl, float volume, unsigned long chip_num)
 {
-    ((AYSongInfo *)info)->player->SetVolume(chnl, volume);
+    ((AYSongInfo *)info)->player->SetVolume(chnl, volume, chip_num);
 
 }
-AYFLY_API float ay_getvolume(void *info, unsigned long chnl)
+AYFLY_API float ay_getvolume(void *info, unsigned long chnl, unsigned long chip_num)
 {
-    return ((AYSongInfo *)info)->player->GetVolume(chnl);
+    return ((AYSongInfo *)info)->player->GetVolume(chnl, chip_num);
 }
 
-AYFLY_API void ay_chnlmute(void *info, unsigned long chnl, bool mute)
+AYFLY_API void ay_chnlmute(void *info, unsigned long chnl, bool mute, unsigned long chip_num)
 {
-    ((AYSongInfo *)info)->player->ChnlMute(chnl, mute);
+    ((AYSongInfo *)info)->player->ChnlMute(chnl, mute, chip_num);
 }
 
-AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl)
+AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl, unsigned long chip_num)
 {
-    return ((AYSongInfo *)info)->player->ChnlMuted(chnl);
+    return ((AYSongInfo *)info)->player->ChnlMuted(chnl, chip_num);
 }
 
 AYFLY_API void ay_setcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg)
@@ -386,7 +386,7 @@ AYFLY_API void ay_setz80freq(void *info, unsigned long z80_freq)
     ((AYSongInfo *)info)->z80_freq = z80_freq;
     ((AYSongInfo *)info)->player->SetAYParameters();
 }
-AYFLY_API unsigned long ay_getayfreq(void *info)
+AYFLY_API unsigned long ay_getayfreq(void *info, unsigned long chip_num)
 {
     return ((AYSongInfo *)info)->ay_freq;
 }

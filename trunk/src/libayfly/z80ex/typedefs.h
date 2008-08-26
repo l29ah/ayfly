@@ -69,6 +69,11 @@ struct _z80_cpu_context {
 	regpair tmpaddr;
 	Z80EX_BYTE tmpbyte;
 	Z80EX_SIGNED_BYTE tmpbyte_s;
+
+	/* Added by Deryabin Andrew */
+	Z80EX_BYTE sz53_table[0x100]; /* The S, Z, 5 and 3 bits of the index */
+	Z80EX_BYTE parity_table[0x100]; /* The parity of the lookup value */
+	Z80EX_BYTE sz53p_table[0x100]; /* OR the above two tables together */
 };
 
 typedef void (*z80ex_opcode_fn) (Z80EX_CONTEXT *cpu);
