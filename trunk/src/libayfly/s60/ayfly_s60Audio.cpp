@@ -254,7 +254,10 @@ void Cayfly_s60Sound::StopL()
 {
     PrivateWaitRequestOK();
     iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_STOP_PLAYBACK);
-    User::After(100000);
+    while(iStream != NULL)
+    {
+        User::After(10000);
+    }
 }
 
 void Cayfly_s60Sound::PrivateStart()
@@ -263,7 +266,8 @@ void Cayfly_s60Sound::PrivateStart()
     if(iState != EStopped)
         return;
 
-    delete iStream;
+    if(iStream)
+        delete iStream;
 
     iState = EStarting;
     iStream = CMdaAudioOutputStream::NewL(*this);
@@ -367,16 +371,17 @@ void CCommandHandler::RunL(void)
             iSound->iKilling = ETrue;
             break;
         case AYFLY_COMMAND_WAIT_KILL:
-            if(iSound->State() == Cayfly_s60Sound::EStopped)
+            while(iSound->State() != Cayfly_s60Sound::EStopped)
             {
-                Deque();
-                CActiveScheduler::Stop();
-
-                delete iSound->iStream;
-                iSound->iStream = NULL;
-
-                return;
+                User::After(10000);
             }
+            Deque();
+            CActiveScheduler::Stop();
+
+            delete iSound->iStream;
+            iSound->iStream = NULL;
+
+            return;
         default:
             break;
     }
