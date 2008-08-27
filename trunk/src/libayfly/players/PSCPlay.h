@@ -73,7 +73,8 @@ void PSC_Init(AYSongInfo &info)
     PSC_A.SamplePointer = PSC_SamplesPointers(0) + 0x4c;
     PSC_B.SamplePointer = PSC_A.SamplePointer;
     PSC_C.SamplePointer = PSC_A.SamplePointer;
-    PSC_A.OrnamentPointer = (*(unsigned short *) &module[PSC_OrnamentsPointer]) + PSC_OrnamentsPointer;
+    //PSC_A.OrnamentPointer = (*(unsigned short *) &module[PSC_OrnamentsPointer]) + PSC_OrnamentsPointer;
+    PSC_A.OrnamentPointer = ay_sys_getword(&module[PSC_OrnamentsPointer]) + PSC_OrnamentsPointer;
     PSC_B.OrnamentPointer = PSC_A.OrnamentPointer;
     PSC_C.OrnamentPointer = PSC_A.OrnamentPointer;
 
@@ -123,7 +124,8 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
         }
         else if(val >= 0xa0 && val <= 0xbf)
         {
-            chan.OrnamentPointer = (*(unsigned short *) &module[PSC_OrnamentsPointer + (val - 0xa0) * 2]) +PSC_OrnamentsPointer;
+            //chan.OrnamentPointer = (*(unsigned short *) &module[PSC_OrnamentsPointer + (val - 0xa0) * 2]) +PSC_OrnamentsPointer;
+            chan.OrnamentPointer = ay_sys_getword(&module[PSC_OrnamentsPointer + (val - 0xa0) * 2]) +PSC_OrnamentsPointer;
         }
         else if(val >= 0x7e && val <= 0x9f)
         {
@@ -311,7 +313,8 @@ void PSC_GetRegisters(AYSongInfo &info, PSC_Channel_Parameters &chan, unsigned c
             }
         }
         chan.Note = j;
-        chan.Ton = *(unsigned short *) &module[chan.SamplePointer + chan.Position_In_Sample * 6];
+        //chan.Ton = *(unsigned short *) &module[chan.SamplePointer + chan.Position_In_Sample * 6];
+        chan.Ton = ay_sys_getword(&module[chan.SamplePointer + chan.Position_In_Sample * 6]);
         chan.Ton_Accumulator += chan.Ton;
         chan.Ton = ASM_Table[j] + chan.Ton_Accumulator;
         if(chan.Ton_Slide_Enabled)
@@ -405,11 +408,17 @@ void PSC_Play(AYSongInfo &info)
         if(--PSC.Lines_Counter <= 0)
         {
             if(module[PSC.Positions_Pointer + 1] == 255)
-                PSC.Positions_Pointer = *(unsigned short *) &module[PSC.Positions_Pointer + 2];
+            {
+                //PSC.Positions_Pointer = *(unsigned short *) &module[PSC.Positions_Pointer + 2];
+                PSC.Positions_Pointer = ay_sys_getword(&module[PSC.Positions_Pointer + 2]);
+            }
             PSC.Lines_Counter = module[PSC.Positions_Pointer + 1];
-            PSC_A.Address_In_Pattern = *(unsigned short *) &module[PSC.Positions_Pointer + 2];
-            PSC_B.Address_In_Pattern = *(unsigned short *) &module[PSC.Positions_Pointer + 4];
-            PSC_C.Address_In_Pattern = *(unsigned short *) &module[PSC.Positions_Pointer + 6];
+            //PSC_A.Address_In_Pattern = *(unsigned short *) &module[PSC.Positions_Pointer + 2];
+            //PSC_B.Address_In_Pattern = *(unsigned short *) &module[PSC.Positions_Pointer + 4];
+            //PSC_C.Address_In_Pattern = *(unsigned short *) &module[PSC.Positions_Pointer + 6];
+            PSC_A.Address_In_Pattern = ay_sys_getword(&module[PSC.Positions_Pointer + 2]);
+            PSC_B.Address_In_Pattern = ay_sys_getword(&module[PSC.Positions_Pointer + 4]);
+            PSC_C.Address_In_Pattern = ay_sys_getword(&module[PSC.Positions_Pointer + 6]);
             PSC.Positions_Pointer += 8;
             PSC_A.Note_Skip_Counter = 1;
             PSC_B.Note_Skip_Counter = 1;
@@ -476,7 +485,8 @@ void PSC_GetInfo(AYSongInfo &info)
     {
         info.Length = 0;
     }
-    cptr = *(unsigned short *) &module[pptr + 1];
+    //cptr = *(unsigned short *) &module[pptr + 1];
+    cptr = ay_sys_getword(&module[pptr + 1]);
     cptr++;
     pptr = PSC_PatternsPointer;
     pptr++;
@@ -489,9 +499,12 @@ void PSC_GetInfo(AYSongInfo &info)
             info.Length = 0;
             return;
         }
-        j1 = *(unsigned short *) &module[pptr + 1];
-        j2 = *(unsigned short *) &module[pptr + 3];
-        j3 = *(unsigned short *) &module[pptr + 5];
+        //j1 = *(unsigned short *) &module[pptr + 1];
+        //j2 = *(unsigned short *) &module[pptr + 3];
+        //j3 = *(unsigned short *) &module[pptr + 5];
+        j1 = ay_sys_getword(&module[pptr + 1]);
+        j2 = ay_sys_getword(&module[pptr + 3]);
+        j3 = ay_sys_getword(&module[pptr + 5]);
         pptr += 8;
         if(pptr >= 65536)
         {

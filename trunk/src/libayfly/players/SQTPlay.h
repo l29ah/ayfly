@@ -222,7 +222,7 @@ void SQT_Call_LC2A8(AYSongInfo &info, SQT_Channel_Parameters &chan, unsigned cha
     chan.Ornament_Enabled = false;
     chan.Gliss = false;
     chan.Enabled = true;
-    chan.SamplePointer = *(unsigned short *) &module[a * 2 + SQT_SamplesPointer];
+    chan.SamplePointer = ay_sys_getword(&module[a * 2 + SQT_SamplesPointer]);
     chan.Point_In_Sample = chan.SamplePointer + 2;
     chan.Sample_Tik_Counter = 32;
     chan.MixNoise = true;
@@ -233,7 +233,7 @@ void SQT_Call_LC2D9(AYSongInfo &info, SQT_Channel_Parameters &chan, unsigned cha
 {
     unsigned char *module = info.module;
     SQT_File *header = (SQT_File *) module;
-    chan.OrnamentPointer = *(unsigned short *) &module[a * 2 + SQT_OrnamentsPointer];
+    chan.OrnamentPointer = ay_sys_getword(&module[a * 2 + SQT_OrnamentsPointer]);
     chan.Point_In_Ornament = chan.OrnamentPointer + 2;
     chan.Ornament_Tik_Counter = 32;
     chan.Ornament_Enabled = true;
@@ -464,7 +464,7 @@ void SQT_Play(AYSongInfo &info)
                 SQT_C.b4ix0 = true;
             else
                 SQT_C.b4ix0 = false;
-            SQT_C.Address_In_Pattern = *(unsigned short *) &module[(unsigned char) (module[SQT.Positions_Pointer] * 2) + SQT_PatternsPointer];
+            SQT_C.Address_In_Pattern = ay_sys_getword(&module[(unsigned char) (module[SQT.Positions_Pointer] * 2) + SQT_PatternsPointer]);
             SQT.Lines_Counter = module[SQT_C.Address_In_Pattern];
             SQT_C.Address_In_Pattern++;
             SQT.Positions_Pointer++;
@@ -482,7 +482,7 @@ void SQT_Play(AYSongInfo &info)
                 SQT_B.b4ix0 = true;
             else
                 SQT_B.b4ix0 = false;
-            SQT_B.Address_In_Pattern = (*(unsigned short *) &module[(unsigned char) (module[SQT.Positions_Pointer] * 2) + SQT_PatternsPointer]) + 1;
+            SQT_B.Address_In_Pattern = ay_sys_getword(&module[(unsigned char) (module[SQT.Positions_Pointer] * 2) + SQT_PatternsPointer]) + 1;
             SQT.Positions_Pointer++;
             SQT_B.Volume = module[SQT.Positions_Pointer] & 15;
             if ((module[SQT.Positions_Pointer] >> 4) < 9)
@@ -498,7 +498,7 @@ void SQT_Play(AYSongInfo &info)
                 SQT_A.b4ix0 = true;
             else
                 SQT_A.b4ix0 = false;
-            SQT_A.Address_In_Pattern = (*(unsigned short *) &module[(unsigned char) (module[SQT.Positions_Pointer] * 2) + SQT_PatternsPointer]) + 1;
+            SQT_A.Address_In_Pattern = ay_sys_getword(&module[(unsigned char) (module[SQT.Positions_Pointer] * 2) + SQT_PatternsPointer]) + 1;
             SQT.Positions_Pointer++;
             SQT_A.Volume = module[SQT.Positions_Pointer] & 15;
             if ((module[SQT.Positions_Pointer] >> 4) < 9)
@@ -912,15 +912,15 @@ void SQT_GetInfo(AYSongInfo &info)
         if (pptr == SQT_LoopPointer)
             info.Loop = tm;
         f41 = (module[pptr] & 128) ? true : false;
-        j1 = (*(unsigned short *) &module[(unsigned char) (module[pptr] * 2) + SQT_PatternsPointer]);
+        j1 = ay_sys_getword(&module[(unsigned char) (module[pptr] * 2) + SQT_PatternsPointer]);
         j1++;
         pptr += 2;
         f42 = (module[pptr] & 128) ? true : false;
-        j2 = (*(unsigned short *) &module[(unsigned char) (module[pptr] * 2) + SQT_PatternsPointer]);
+        j2 = ay_sys_getword(&module[(unsigned char) (module[pptr] * 2) + SQT_PatternsPointer]);
         j2++;
         pptr += 2;
         f43 = (module[pptr] & 128) ? true : false;
-        j3 = (*(unsigned short *) &module[(unsigned char) (module[pptr] * 2) + SQT_PatternsPointer]);
+        j3 = ay_sys_getword(&module[(unsigned char) (module[pptr] * 2) + SQT_PatternsPointer]);
         j3++;
         pptr += 2;
         b = module[pptr];
