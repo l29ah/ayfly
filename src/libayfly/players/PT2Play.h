@@ -175,7 +175,7 @@ void PT2_GetInfo(AYSongInfo &info)
     unsigned char ptDelay = module[0];
     unsigned char ptNumPos = module[1];
     unsigned short ptLoopPos = module[2];
-    unsigned short ptPatPt = *(unsigned short *)&module[99];
+    unsigned short ptPatPt = ay_sys_getword(&module[99]);
     const unsigned char *ptPosList = (unsigned char *)&module[131];
 
     b = ptDelay;
@@ -186,9 +186,9 @@ void PT2_GetInfo(AYSongInfo &info)
         {
             info.Loop = tm;
         }
-        j1 = *(unsigned short *)&module[ptPatPt + ptPosList[i] * 6];
-        j2 = *(unsigned short *)&module[ptPatPt + ptPosList[i] * 6 + 2];
-        j3 = *(unsigned short *)&module[ptPatPt + ptPosList[i] * 6 + 4];
+        j1 = ay_sys_getword(&module[ptPatPt + ptPosList[i] * 6]);
+        j2 = ay_sys_getword(&module[ptPatPt + ptPosList[i] * 6 + 2]);
+        j3 = ay_sys_getword(&module[ptPatPt + ptPosList[i] * 6 + 4]);
         do
         {
             a1--;

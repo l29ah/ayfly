@@ -19,6 +19,12 @@
  ***************************************************************************/
 
 #include "ayfly.h"
+
+unsigned short ay_sys_getword(unsigned char *p)
+{
+    return *p | ((*(p + 1)) << 8);
+}
+
 #include "players/ASCPlay.h"
 #include "players/PT2Play.h"
 #include "players/PT3Play.h"

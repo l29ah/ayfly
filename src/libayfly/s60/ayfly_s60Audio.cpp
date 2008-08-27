@@ -434,15 +434,15 @@ void Cayfly_s60Sound::ConstructL()
      3) set playback thread to be RealTime
      *********************************************************************************/
 
-    RThread curthread;
+    //RThread curthread;
 
     /* Spawn new thread for actual playback and command control, shares the heap with main thread */
-    iPlayerThread.Create(KThreadName, serverthreadfunction, AYFLY_SERVER_STACKSIZE, NULL, (TAny*)this);
-    iPlayerThread.SetProcessPriority(EPriorityHigh);
-    iPlayerThread.SetPriority(EPriorityRealTime);
-    curthread.SetPriority(EPriorityLess);
+    //iPlayerThread.Create(KThreadName, serverthreadfunction, AYFLY_SERVER_STACKSIZE, NULL, (TAny*)this);
+    //iPlayerThread.SetProcessPriority(EPriorityHigh);
+    //iPlayerThread.SetPriority(EPriorityRealTime);
+    //curthread.SetPriority(EPriorityLess);
 
-    iPlayerThread.Resume(); /* start the streaming thread */
+    //iPlayerThread.Resume(); /* start the streaming thread */
 }
 
 Cayfly_s60Audio::Cayfly_s60Audio(AYSongInfo *info) :
@@ -456,7 +456,13 @@ Cayfly_s60Audio::~Cayfly_s60Audio()
 {
     if(sound)
     {
-        sound->Exit();
+        Stop();
+        while(sound->State() != Cayfly_s60Sound::EStopped)
+        {
+            User::After(10000);
+        }
+        delete sound->iStream;
+        sound->iStream = NULL;
         delete sound;
         sound = 0;
     }
@@ -465,30 +471,30 @@ Cayfly_s60Audio::~Cayfly_s60Audio()
 
 bool Cayfly_s60Audio::Start()
 {
-    started = sound->StartL();
-    return started;
+    sound->PrivateStart();
+    return true;
 }
 
 void Cayfly_s60Audio::Stop()
 {
     started = false;
-    sound->StopL();
+    sound->PrivateStop();
 }
 
 void Cayfly_s60Audio::SetDeviceVolume(TInt aVolume)
 {
-    if(sound)
+    /*if(sound)
     {
         sound->SetDeviceVolume(aVolume);
-    }
+    }*/
 }
 
 TInt Cayfly_s60Audio::GetDeviceVolume()
 {
-    if(sound)
+    /*if(sound)
     {
         return sound->GetDeviceVolume();
-    }
+    }*/
     return 0;
 }
 
