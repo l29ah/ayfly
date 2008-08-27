@@ -290,6 +290,21 @@ PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
     unsigned char *module = info.module;
     PT3_File *header = (PT3_File *) module;
     AbstractAudio *player = info.player;
+    bool quit;
+    unsigned char flag9, flag8, flag5, flag4, flag3, flag2, flag1;
+    unsigned char counter, b;
+    int prnote, prsliding;
+    prnote = chan.note;
+    prsliding = chan.Current_Ton_Sliding;
+    quit = false;
+    counter = 0;
+    flag9 = flag8 = flag5 = flag4 = flag3 = flag2 = flag1 = 0;
+    unsigned char val = module [chan.Address_In_Pattern];
+    if(val >= 0xf0)
+    {
+        chan.OrnamentPointer = PT3_OrnamentsPointers(val - 0xf0);
+        chan.Loop_Ornament_Position = module [chan.OrnamentPointer];
+    }
 }
 
 void PT3_Play(AYSongInfo &info)
