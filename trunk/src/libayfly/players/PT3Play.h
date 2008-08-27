@@ -75,10 +75,10 @@ unsigned char PT3VolumeTable_35[16][16] =
 struct PT3_File
 {
     signed char PT3_MusicName[0x63];
-    signed char PT3_TonTableId;
-    signed char PT3_Delay;
-    signed char PT3_NumberOfPositions;
-    signed char PT3_LoopPosition;
+    unsigned char PT3_TonTableId;
+    unsigned char PT3_Delay;
+    unsigned char PT3_NumberOfPositions;
+    unsigned char PT3_LoopPosition;
     unsigned char PT3_PatternsPointer0, PT3_PatternsPointer1;
     unsigned char PT3_SamplesPointers0[64];
     unsigned char PT3_OrnamentsPointers0[32];
@@ -131,12 +131,10 @@ void PT3_Init(AYSongInfo &info)
         delete (PT3_SongInfo *)info.data;
         info.data = 0;
     }
-    info.data = (void *)new ASC_SongInfo;
+    info.data = (void *)new PT3_SongInfo;
     if(!info.data)
         return;
-    memset(&PT3_A, 0, sizeof(PT3_Channel_Parameters));
-    memset(&PT3_B, 0, sizeof(PT3_Channel_Parameters));
-    memset(&PT3_C, 0, sizeof(PT3_Channel_Parameters));
+    memset(info.data, 0, sizeof(PT3_SongInfo));
     PT3.DelayCounter = 1;
     PT3.Delay = header->PT3_Delay;
     i = header->PT3_PositionList[0];
@@ -295,7 +293,7 @@ void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
             chan.Address_In_Pattern++;
             chan.Number_Of_Notes_To_Skip = module[chan.Address_In_Pattern];
         }
-        else if(val = 0xb0)
+        else if(val == 0xb0)
         {
             chan.Envelope_Enabled = false;
             chan.Position_In_Ornament = 0;
@@ -315,7 +313,7 @@ void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
             chan.Enabled = true;
             quit = true;
         }
-        else if(val >= 0x40 & val <= 0x4f)
+        else if(val >= 0x40 && val <= 0x4f)
         {
             chan.OrnamentPointer = PT3_OrnamentsPointers((val - 0x40));
             chan.Loop_Ornament_Position = module[chan.OrnamentPointer];
@@ -429,7 +427,7 @@ void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
             chan.Position_In_Ornament = module[chan.Address_In_Pattern];
             chan.Address_In_Pattern++;
         }
-        else if(counter = flag5)
+        else if(counter == flag5)
         {
             chan.OnOff_Delay = module[chan.Address_In_Pattern];
             chan.Address_In_Pattern++;
