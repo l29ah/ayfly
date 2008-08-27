@@ -21,10 +21,6 @@
 #ifndef GUI_H_
 #    define GUI_H_
 
-#    ifndef UNICODE
-#        define UNICODE
-#    endif
-
 #    ifndef _UNICODE
 #        define _UNICODE
 #    endif
