@@ -21,13 +21,15 @@
 #ifndef AYFLY_H_
 #    define AYFLY_H_
 
-#    ifndef UNICODE
-#        define UNICODE
-#    endif
-
-#    ifndef _UNICODE
-#        define _UNICODE
-#    endif
+#ifdef _UNICODE
+#   ifndef UNICODE
+#       define UNICODE
+#   endif
+#   define AY_CHAR wchar_t
+#else
+#   define ANSI
+#   define AY_CHAR char
+#endif
 
 #    ifdef WIN32
 #		ifndef _WINDOWS
@@ -92,10 +94,15 @@
 #    endif
 #    ifndef __SYMBIAN32__
 #        define AUDIO_FREQ 44100
+#        ifdef UNICODE
 #        define TXT(x) L##x
-#        define AY_TXT_TYPE std::wstring
+#           define AY_TXT_TYPE std::wstring
+#        else
+#        define TXT(x) x
+#           define AY_TXT_TYPE std::string
+#        endif
 #    else
-#        define TXT(x) _L(x)
+#        define TXT(x) _S(x)
 #        define AUDIO_FREQ 32000
 #    endif
 #    define Z80_FREQ 3546900
@@ -210,7 +217,7 @@ extern "C" {
  */
 
 #ifndef __SYMBIAN32__
-AYFLY_API void *ay_initsong(const wchar_t *FilePath, unsigned long sr);
+AYFLY_API void *ay_initsong(const AY_CHAR *FilePath, unsigned long sr);
 #else
 AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr);
 #endif
@@ -240,7 +247,7 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr);
  */
 
 #ifndef __SYMBIAN32__
-AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, wchar_t *type, unsigned long size);
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, AY_CHAR *type, unsigned long size);
 #else
 AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size);
 #endif
@@ -257,7 +264,7 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFi
  *
  */
 #ifndef __SYMBIAN32__
-AYFLY_API void *ay_getsonginfo(const wchar_t *FilePath);
+AYFLY_API void *ay_getsonginfo(const AY_CHAR *FilePath);
 #else
 AYFLY_API void *ay_getsonginfo(TFileName FilePath);
 #endif
@@ -278,7 +285,7 @@ AYFLY_API void *ay_getsonginfo(TFileName FilePath);
  *
  */
 #ifndef __SYMBIAN32__
-AYFLY_API void *ay_getsonginfoindirect(unsigned char *module, wchar_t *type, unsigned long size);
+AYFLY_API void *ay_getsonginfoindirect(unsigned char *module, AY_CHAR *type, unsigned long size);
 #else
 AYFLY_API void *ay_getsonginfoindirect(unsigned char *module, TFileName type, unsigned long size);
 #endif
@@ -293,7 +300,7 @@ AYFLY_API void *ay_getsonginfoindirect(unsigned char *module, TFileName type, un
  */
 
 #ifndef __SYMBIAN32__
-AYFLY_API const wchar_t *ay_getsongname(void *info);
+AYFLY_API const AY_CHAR *ay_getsongname(void *info);
 #else
 AYFLY_API TFileName ay_getsongname(void *info);
 #endif
@@ -308,7 +315,7 @@ AYFLY_API TFileName ay_getsongname(void *info);
  */
 
 #ifndef __SYMBIAN32__
-AYFLY_API const wchar_t *ay_getsongauthor(void *info);
+AYFLY_API const AY_CHAR *ay_getsongauthor(void *info);
 #else
 AYFLY_API TFileName ay_getsongauthor(void *info);
 #endif
@@ -323,7 +330,7 @@ AYFLY_API TFileName ay_getsongauthor(void *info);
  */
 
 #ifndef __SYMBIAN32__
-AYFLY_API const wchar_t *ay_getsongpath(void *info);
+AYFLY_API const AY_CHAR *ay_getsongpath(void *info);
 #else
 AYFLY_API TFileName ay_getsongpath(void *info);
 #endif
