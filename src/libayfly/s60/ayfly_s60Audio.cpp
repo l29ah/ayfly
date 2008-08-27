@@ -23,7 +23,6 @@
  */
 
 #include "ayfly.h"
-#include "s60.h"
 
 _LIT(KThreadName, "ayflyplaybackthread");
 
@@ -225,10 +224,7 @@ void Cayfly_s60Sound::MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer)
 
 void Cayfly_s60Sound::MaoscPlayComplete(TInt aError)
 {
-    if(aError != KErrNone)
-    {
-        iState = EStopped;
-    }
+    iState = EStopped;
 }
 
 void Cayfly_s60Sound::SetDeviceVolume(TInt aVolume)
@@ -255,12 +251,6 @@ void Cayfly_s60Sound::StopL()
 {
     PrivateWaitRequestOK();
     iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_STOP_PLAYBACK);
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 5!"));
-    while(iState != EStopped)
-    {
-        User::After(10000);
-    }
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 6!"));
 }
 
 void Cayfly_s60Sound::PrivateStart()
@@ -293,7 +283,6 @@ TInt Cayfly_s60Sound::State()
 
 void Cayfly_s60Sound::Exit()
 {
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 9!"));
     TRequestStatus req = KRequestPending;
 
     iPlayerThread.Logon(req);
@@ -301,7 +290,6 @@ void Cayfly_s60Sound::Exit()
 
     User::WaitForRequest(req);
     iPlayerThread.Close();
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 10!"));
 
     // thread died ok, we can go out now
 }
@@ -321,12 +309,10 @@ void Cayfly_s60Sound::PrivateSetVolume()
 void Cayfly_s60Sound::PrivateWaitRequestOK()
 {
     /* Dummy loop.. but works :-) */
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 7!"));
     while((iRequestPtr == NULL) || (*iRequestPtr != KRequestPending))
     {
         User::After(10000);
     }
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 8!"));
 }
 
 CCommandHandler::~CCommandHandler()
@@ -353,10 +339,10 @@ void CCommandHandler::Start(Cayfly_s60Sound *aSound)
     iSound = aSound;
     iSound->iRequestPtr = &iStatus;
 
+    iSound->iKilling = EFalse;
+
     iStatus = KRequestPending;
     SetActive();
-
-    iSound->iKilling = EFalse;
 }
 
 void CCommandHandler::RunL(void)
@@ -378,19 +364,16 @@ void CCommandHandler::RunL(void)
             iSound->iKilling = ETrue;
             break;
         case AYFLY_COMMAND_WAIT_KILL:
-            CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 4!"));
-            while(iSound->State() != Cayfly_s60Sound::EStopped)
+            if(iSound->State() == Cayfly_s60Sound::EStopped)
             {
-                User::After(10000);
+                Deque();
+                CActiveScheduler::Stop();
+
+                if(iSound->iStream != NULL)
+                    delete iSound->iStream;
+                iSound->iStream = NULL;
+                return;
             }
-            CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 5!"));
-            Deque();
-            CActiveScheduler::Stop();
-
-            delete iSound->iStream;
-            iSound->iStream = NULL;
-
-            return;
         default:
             break;
     }
@@ -454,19 +437,10 @@ void Cayfly_s60Sound::ConstructL()
     RThread curthread;
 
     /* Spawn new thread for actual playback and command control, shares the heap with main thread */
-    TInt err = KErrAlreadyExists;
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 1!"));
-    while(err == KErrAlreadyExists)
-    {
-        User::After(100000);
-        err = iPlayerThread.Create(KThreadName, serverthreadfunction, AYFLY_SERVER_STACKSIZE, NULL, (TAny*)this);
-    }
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 2!"));
+    iPlayerThread.Create(KThreadName, serverthreadfunction, AYFLY_SERVER_STACKSIZE, NULL, (TAny*)this);
     iPlayerThread.SetProcessPriority(EPriorityHigh);
     iPlayerThread.SetPriority(EPriorityRealTime);
     curthread.SetPriority(EPriorityLess);
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Hello 3!"));
-
 
     iPlayerThread.Resume(); /* start the streaming thread */
 }
