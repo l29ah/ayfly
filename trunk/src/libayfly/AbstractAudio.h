@@ -54,7 +54,7 @@ public:
         return ay8910 ? ay8910->chnlMuted(chnl) : true;
     }
     ;
-    bool Started()
+    virtual bool Started()
     {
         return started;
     }

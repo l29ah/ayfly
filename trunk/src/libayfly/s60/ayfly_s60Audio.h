@@ -93,6 +93,7 @@ public:
     virtual void Stop();
     void SetDeviceVolume(TInt aVolume);
     TInt GetDeviceVolume();
+    bool Started() {return sound->State() == Cayfly_s60Sound::EPlaying ? true : false;};
 private:
     Cayfly_s60Sound *sound;
 };

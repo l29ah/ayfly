@@ -383,7 +383,6 @@ void ASC_Play(AYSongInfo &info)
                 //ASC_A.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[ASC.CurrentPosition + 9]]) + ascPatPt;
                 //ASC_B.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[ASC.CurrentPosition + 9] + 2]) + ascPatPt;
                 //ASC_C.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[ASC.CurrentPosition + 9] + 4]) + ascPatPt;
-                unsigned char CurrentPosition = ASC.CurrentPosition;
                 ASC_A.Address_In_Pattern = ay_sys_getword(&module[ascPatPt + 6 * module[ASC.CurrentPosition + 9]]) + ascPatPt;
                 ASC_B.Address_In_Pattern = ay_sys_getword(&module[ascPatPt + 6 * module[ASC.CurrentPosition + 9] + 2]) + ascPatPt;
                 ASC_C.Address_In_Pattern = ay_sys_getword(&module[ascPatPt + 6 * module[ASC.CurrentPosition + 9] + 4]) + ascPatPt;
