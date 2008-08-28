@@ -78,8 +78,11 @@ public:
 
     void SetParameters();
 private:
-    static const float init_levels[16];
-    float levels[16];
+    static const float init_levels_ay[32];
+    static const float init_levels_ym[32];
+    float levels_ay[32];
+    float levels_ym[32];
+    float *levels;
     unsigned char regs[16];
     long noise_period;
     long chnl_period[3];

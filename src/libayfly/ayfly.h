@@ -133,7 +133,6 @@ typedef void (*PLAYER_CLEANUP_PROC)(AYSongInfo &info);
 #include "ay.h"
 #include "AbstractAudio.h"
 
-
 struct AYSongInfo
 {
 #ifndef __SYMBIAN32__
@@ -166,6 +165,7 @@ struct AYSongInfo
     unsigned long ay_freq; /* AY chip frequency */
     unsigned long int_freq; /* interrupts frequency */
     unsigned long sr; /* sample rate */
+    unsigned char chip_type; /* chip type: AY = 0 or YM = 1 */
     ~AYSongInfo();
 };
 
@@ -508,6 +508,18 @@ AYFLY_API void ay_setsongplayer(void *info, void * /* class AbstractAudio */ pla
  */
 
 AYFLY_API void *ay_getsongplayer(void *info);
+
+/*
+ * Sets chip type. 0 = AY, 1 = YM
+ */
+
+AYFLY_API void ay_setchiptype(void *info, unsigned char chip_type);
+
+/*
+ * Gets chip type. 0 = AY, 1 = YM
+ */
+
+AYFLY_API unsigned char ay_getchiptype(void *info);
 
 /*
  * Sets window handle, used for directx init procedure

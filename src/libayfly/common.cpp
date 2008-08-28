@@ -43,6 +43,7 @@ AYSongInfo *ay_sys_getnewinfo()
     info->file_data = info->module = 0;
     info->sr = 44100;
     info->player = 0;
+    info->chip_type = 0;
     memset(info->z80IO, 0, 65536);
     return info;
 }
@@ -431,6 +432,17 @@ AYFLY_API void ay_setsongplayer(void *info, void * /* class AbstractAudio */play
 AYFLY_API void *ay_getsongplayer(void *info)
 {
     return ((AYSongInfo *)info)->player;
+}
+
+AYFLY_API void ay_setchiptype(void *info, unsigned char chip_type)
+{
+    ((AYSongInfo *)info)->chip_type = chip_type;
+    ((AYSongInfo *)info)->player->SetAYParameters();
+}
+
+AYFLY_API unsigned char ay_getchiptype(void *info)
+{
+    return ((AYSongInfo *)info)->chip_type;
 }
 
 AYFLY_API void ay_z80xec(void *info)

@@ -60,6 +60,7 @@ IMPLEMENT_APP(AyflyApp)
 
 #define wxID_AYFREQSLIDER 1050
 #define wxID_INTFREQSLIDER 1051
+#define wxID_CHIPTYPE 1052
 
 #define wxID_SELECTALL 1100
 #define wxID_SETREPEAT 1101
@@ -96,6 +97,7 @@ EVT_COMMAND_SCROLL_THUMBTRACK(wxID_POSSLIDER, AyflyFrame::OnScroll)
 EVT_COMMAND_SCROLL_THUMBRELEASE(wxID_POSSLIDER, AyflyFrame::OnScroll)
 EVT_LIST_ITEM_ACTIVATED(PLAYLIST_ID, AyflyFrame::OnSelectSong)
 EVT_LIST_KEY_DOWN(PLAYLIST_ID, AyflyFrame::OnListKeyDown)
+EVT_RADIOBOX(wxID_CHIPTYPE, AyflyFrame::OnChipSelect)
 END_EVENT_TABLE()
 
 #ifdef WINDOWS
@@ -138,9 +140,9 @@ AyflyFrame::AyflyFrame(const wxString &title) :
     SetDropTarget(new DnDFiles(this));
 
 #ifdef WINDOWS
-    this->SetSizeHints(620, 400);
+    this->SetSizeHints(620, 550);
 #else
-    this->SetSizeHints(700, 400);
+    this->SetSizeHints(700, 550);
 #endif
 
     wxBoxSizer* allSizer;
@@ -237,6 +239,13 @@ AyflyFrame::AyflyFrame(const wxString &title) :
     intfreqSizer->Add(txtintfreq, 0, wxALL, 5);
 
     allSizer->Add(intfreqSizer, 0, wxEXPAND, 5);
+
+    wxString chipTypeBoxChoices[] =
+    { wxT("AY-8910"), wxT("YM-2149") };
+    int chipTypeBoxNChoices = sizeof(chipTypeBoxChoices) / sizeof(wxString);
+    chipTypeBox = new wxRadioBox(this, wxID_CHIPTYPE, wxT("Chip type"), wxDefaultPosition, wxDefaultSize, chipTypeBoxNChoices, chipTypeBoxChoices, 1, 0);
+    chipTypeBox->SetSelection(0);
+    allSizer->Add(chipTypeBox, 0, wxALL | wxEXPAND, 5);
 
     wxBoxSizer* PosSizer;
     PosSizer = new wxBoxSizer(wxVERTICAL);
@@ -791,6 +800,15 @@ void AyflyFrame::OnKeyBindings(wxCommandEvent &event)
     kdlg.ShowModal();
 }
 
+void AyflyFrame::OnChipSelect(wxCommandEvent &event)
+{
+    if(currentSong && currentSong->info)
+    {
+        ay_setchiptype(currentSong->info, chipTypeBox->GetSelection());
+    }
+}
+
+
 void AyflyFrame::RecreateToolbar()
 {
     //SetToolBar(NULL);
@@ -962,6 +980,7 @@ bool AyflyFrame::OpenFile()
             SetTitle(frameTitle.c_str());
             posslider->SetRange(0, ay_getsonglength(currentSong->info));
             RecreateToolbar();
+            ay_setchiptype(currentSong->info, chipTypeBox->GetSelection());
 #ifdef WINDOWS
             ay_sethwnd(currentSong->info, (HWND)GetHWND());
 #endif
