@@ -1,22 +1,16 @@
-/*
-============================================================================
- Name		: ayfly_s60.rss
- Author	  : Andrew Deryabin
- Copyright   : Andrew Deryabin (c) 2008
- Description : This file contains all the resources for the ayfly_s60.
-============================================================================
-*/
+
 //  RESOURCE IDENTIFIER
 NAME AYFL	// 4 letter ID
 
 
 //  INCLUDES
 #include <eikon.rh>
+#include <eikcore.rsg>
 #include <avkon.rsg>
 #include <avkon.rh>
+#ifdef EKA2
 #include <appinfo.rh>
-#include <commondialogs.hrh> // Enumerations
-#include <commondialogs.rh> // Resource structures
+#endif
 #include "ayfly_s60.hrh"
 #include "ayfly_s60.rls"
 
@@ -40,7 +34,7 @@ RESOURCE RSS_SIGNATURE
 //
 RESOURCE TBUF r_default_document_name
 	{
-	buf="AYFL";
+	buf="ayfly_s60";
 	}
 
 // -----------------------------------------------------------------------------
@@ -98,11 +92,6 @@ RESOURCE MENU_PANE r_menu
                 {
                 command = ECommand3;
                 txt = qtn_command3;
-                },
-		MENU_ITEM
-				{
-				command = EHelp;
-				txt = qtn_help;
 				},
 		MENU_ITEM
 				{
@@ -117,6 +106,7 @@ RESOURCE MENU_PANE r_menu
 		};
 	}
 
+#ifdef EKA2
 // -----------------------------------------------------------------------------
 //
 // About dialog resource.
@@ -180,33 +170,5 @@ RESOURCE LOCALISABLE_APP_INFO r_localisable_app_info
 		icon_file = "\\resource\\apps\\ayfly_s60_0xEA0B66F6.mif";
 		};
 	}
-
-
-RESOURCE MEMORYSELECTIONDIALOG r_memory_selection_dialog
-{
-title = "Choose memory:";
-softkey_1 = "Accept";
-softkey_2 = "Negative";
-locations =
-     {
-          LOCATION { root_path = "C:\\"; },
-          LOCATION { root_path = "E:\\";}
-     };
-}
-
-RESOURCE FILESELECTIONDIALOG r_file_selection_dialog
-{
-title = "Select-a-file:";
-root_path = "C:\\";
-filters =
-{
-FILTER
-{
-filter_type = EAttributeFilter;
-filter_style = EExclusiveFilter;
-filter_data = { "SH"}; // Excludes system, hidden and read-only attributes
-}
-};
-}
-
+#endif
 // End of File

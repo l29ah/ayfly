@@ -33,7 +33,7 @@ SOURCE			z80ex\z80ex.cpp speccy.cpp formats.cpp ay.cpp common.cpp AbstractAudio.
 
 SOURCEPATH		..\data
 
-resource helloworld.rss
+resource ayfly_s60.rss
 
 
 
@@ -45,7 +45,6 @@ SYSTEMINCLUDE	 \epoc32\include \epoc32\include\libc
 LIBRARY		   euser.lib apparc.lib cone.lib eikcore.lib eikcoctl.lib
 LIBRARY        avkon.lib fbscli.lib eikdlg.lib efsrv.lib estor.lib
 LIBRARY        commondialogs.lib mediaclientaudiostream.lib
-
 
 VENDORID	  	  0
 // End of File

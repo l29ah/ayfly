@@ -12,7 +12,7 @@
 //  LOCALISATION STRINGS
 
 // Caption string for app.
-#define qtn_caption_string "ayfly_s60 v0.0.16"
+#define qtn_caption_string "Ayfly player"
 
 // First item in "Options" menu pane
 #define qtn_command1 "Open file"

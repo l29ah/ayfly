@@ -236,7 +236,6 @@ void Cayfly_s60Sound::SetDeviceVolume(TInt aVolume)
 
 TInt Cayfly_s60Sound::GetDeviceVolume()
 {
-    User::After(50000);
     return iVolume;
 }
 
@@ -434,15 +433,19 @@ void Cayfly_s60Sound::ConstructL()
      3) set playback thread to be RealTime
      *********************************************************************************/
 
-    //RThread curthread;
+    RThread curthread;
 
     /* Spawn new thread for actual playback and command control, shares the heap with main thread */
-    //iPlayerThread.Create(KThreadName, serverthreadfunction, AYFLY_SERVER_STACKSIZE, NULL, (TAny*)this);
-    //iPlayerThread.SetProcessPriority(EPriorityHigh);
-    //iPlayerThread.SetPriority(EPriorityRealTime);
-    //curthread.SetPriority(EPriorityLess);
 
-    //iPlayerThread.Resume(); /* start the streaming thread */
+    while(iPlayerThread.Create(KThreadName, serverthreadfunction, AYFLY_SERVER_STACKSIZE, NULL, (TAny*)this) != KErrNone)
+    {
+        User::After(10000);
+    };
+    iPlayerThread.SetProcessPriority(EPriorityHigh);
+    iPlayerThread.SetPriority(EPriorityRealTime);
+    curthread.SetPriority(EPriorityLess);
+
+    iPlayerThread.Resume(); /* start the streaming thread */
 }
 
 Cayfly_s60Audio::Cayfly_s60Audio(AYSongInfo *info) :
@@ -457,12 +460,7 @@ Cayfly_s60Audio::~Cayfly_s60Audio()
     if(sound)
     {
         Stop();
-        while(sound->State() != Cayfly_s60Sound::EStopped)
-        {
-            User::After(10000);
-        }
-        delete sound->iStream;
-        sound->iStream = NULL;
+        sound->Exit();
         delete sound;
         sound = 0;
     }
@@ -471,30 +469,31 @@ Cayfly_s60Audio::~Cayfly_s60Audio()
 
 bool Cayfly_s60Audio::Start()
 {
-    sound->PrivateStart();
-    return true;
+
+    started = sound->StartL();
+    return started;
 }
 
 void Cayfly_s60Audio::Stop()
 {
     started = false;
-    sound->PrivateStop();
+    sound->StopL();
 }
 
 void Cayfly_s60Audio::SetDeviceVolume(TInt aVolume)
 {
-    /*if(sound)
+    if(sound)
     {
         sound->SetDeviceVolume(aVolume);
-    }*/
+    }
 }
 
 TInt Cayfly_s60Audio::GetDeviceVolume()
 {
-    /*if(sound)
+    if(sound)
     {
         return sound->GetDeviceVolume();
-    }*/
+    }
     return 0;
 }
 
