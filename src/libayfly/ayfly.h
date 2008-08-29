@@ -49,6 +49,7 @@
 #		endif
 #        define WIN32_LEAN_AND_MEAN
 #        include <windows.h>
+#		 include <mmsystem.h>
 #        include <commdlg.h>
 #        include <tchar.h>
 #    endif
@@ -174,7 +175,7 @@ struct AYSongInfo
 #ifndef WINDOWS
 #include "unix/SDLAudio.h"
 #else
-#include "windows/DXAudio.h"
+#include "windows/WaveAudio.h"
 #endif
 #else
 #include "s60/ayfly_s60Audio.h"

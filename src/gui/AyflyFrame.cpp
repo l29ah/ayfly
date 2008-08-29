@@ -982,7 +982,7 @@ bool AyflyFrame::OpenFile()
             RecreateToolbar();
             ay_setchiptype(currentSong->info, chipTypeBox->GetSelection());
 #ifdef WINDOWS
-            ay_sethwnd(currentSong->info, (HWND)GetHWND());
+            //ay_sethwnd(currentSong->info, (HWND)GetHWND());
 #endif
             return true;
         }

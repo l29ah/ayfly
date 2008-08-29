@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib dsound.lib dxguid.lib Rpcrt4.lib"
+				AdditionalDependencies="comctl32.lib dsound.lib dxguid.lib Rpcrt4.lib winmm.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -201,7 +201,7 @@
 					Name="windows"
 					>
 					<File
-						RelativePath="..\..\..\src\libayfly\windows\DXAudio.cpp"
+						RelativePath="..\..\..\src\libayfly\windows\WaveAudio.cpp"
 						>
 					</File>
 				</Filter>
@@ -324,7 +324,7 @@
 				Name="windows"
 				>
 				<File
-					RelativePath="..\..\..\src\libayfly\windows\DXAudio.h"
+					RelativePath="..\..\..\src\libayfly\windows\WaveAudio.h"
 					>
 				</File>
 			</Filter>

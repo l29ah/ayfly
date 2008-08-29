@@ -26,10 +26,19 @@
 class WaveAudio : public AbstractAudio
 {
 public:
-	WaveAudio(unsigned long _sr);
+	WaveAudio(unsigned long _sr, AYSongInfo *info);
 	virtual ~WaveAudio();
 	virtual bool Start(void);
 	virtual void Stop();
+private:
+	HWAVEOUT hwo;
+	DWORD bufferSize;
+	unsigned char *buffer0, *buffer1;
+	HANDLE hEvent, hSyncEvent, hPlayingThread;
+	WAVEHDR hdr0, hdr1;
+	static void CALLBACK waveOutProc(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2);
+	static DWORD CALLBACK ThreadProc(void *arg);
+	void WaveProcess();
 };
 
 #endif /*WAVEAUDIO_H_*/
