@@ -20,21 +20,21 @@ ay_sethwnd pay_sethwnd;
 ay_songstarted pay_songstarted;
 ay_getsonglength pay_getsonglength;
 
-int _tmain(int argc, wchar_t **argv)
+int _tmain(int argc, TCHAR **argv)
 {
     if(argc < 2)
     {
-        wcout << L"At least one filename must be given!" << endl;
+        cout << "At least one filename must be given!" << endl;
         return 0;
     }
-    wcout << L"Loading ayfly.dll.." << endl;
+    cout << "Loading ayfly.dll.." << endl;
     HMODULE hDll = LoadLibraryW(L"ayfly.dll");
     if(hDll == NULL)
     {
-        wcout << L"Error loading ayfly.dll" << endl;
+        cout << "Error loading ayfly.dll" << endl;
         return 1;
     }
-    wcout << L"Dll successfully loaded." << endl;
+    cout << "Dll successfully loaded." << endl;
 
     //get pointers to functions;
     pay_initsong = (ay_initsong)GetProcAddress(hDll, "ay_initsong");
@@ -48,16 +48,16 @@ int _tmain(int argc, wchar_t **argv)
 
     for(int i = 1; i < argc; i++)
     {
-        wchar_t *filename = argv [i];
-        wcout << L"Loading song " << filename << ".." << endl;
+        TCHAR *filename = argv [i];
+        cout << "Loading song " << filename << ".." << endl;
         void *songinfo = pay_initsong(filename, 44100);
         if(songinfo == 0)
         {
-            wcout << "Error loading song. Skipping.." << endl;
+            cout << "Error loading song. Skipping.." << endl;
             continue;
         }
-        wcout << L"Playing song " << filename << ".." << endl;
-        wcout << L"Song length = " << (pay_getsonglength(songinfo) / 50) << " seconds.." << endl;
+        cout << "Playing song " << filename << ".." << endl;
+        cout << "Song length = " << (pay_getsonglength(songinfo) / 50) << " seconds.." << endl;
         end = false;
         pay_setcallback(songinfo, song_end, songinfo);
         //important!! our window handle must be set BEFORE playback start!
@@ -72,8 +72,8 @@ int _tmain(int argc, wchar_t **argv)
             printf("Elapsed time: %lu seconds\r", elapsed);
         }        
         pay_stopsong(songinfo);
-        wcout << endl;
-        wcout << L"Song " << filename << L" ended." << endl;
+        cout << endl;
+        cout << "Song " << filename << " ended." << endl;
     }
     //close library handle
     FreeLibrary(hDll);

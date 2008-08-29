@@ -24,13 +24,15 @@
 #ifndef AYFLY_DYNAMICDLL_H_
 #    define AYFLY_DYNAMICDLL_H_
 
-#    ifndef UNICODE
-#        define UNICODE
-#    endif
-
-#    ifndef _UNICODE
-#        define _UNICODE
-#    endif
+#ifdef _UNICODE
+#   ifndef UNICODE
+#       define UNICODE
+#   endif
+#   define AY_CHAR wchar_t
+#else
+#   define ANSI
+#   define AY_CHAR char
+#endif
 
 #    ifdef WIN32
 #		ifndef _WINDOWS
@@ -57,13 +59,13 @@
 typedef void (*ELAPSED_CALLBACK)(void *arg);
 
 //import functions
-typedef void * (*ay_initsong)(const wchar_t *FilePath, unsigned long sr);
-typedef void * (*ay_initsongindirect)(unsigned char *module, unsigned long sr, wchar_t *type, unsigned long size);
-typedef void * (*ay_getsonginfo)(const wchar_t *FilePath);
-typedef void * (*ay_getsonginfoindirect)(unsigned char *module, wchar_t *type, unsigned long size);
-typedef const wchar_t * (*ay_getsongname)(void *info);
-typedef const wchar_t * (*ay_getsongauthor)(void *info);
-typedef const wchar_t * (*ay_getsongpath)(void *info);
+typedef void * (*ay_initsong)(const AY_CHAR *FilePath, unsigned long sr);
+typedef void * (*ay_initsongindirect)(unsigned char *module, unsigned long sr, AY_CHAR *type, unsigned long size);
+typedef void * (*ay_getsonginfo)(const AY_CHAR *FilePath);
+typedef void * (*ay_getsonginfoindirect)(unsigned char *module, AY_CHAR *type, unsigned long size);
+typedef const AY_CHAR * (*ay_getsongname)(void *info);
+typedef const AY_CHAR * (*ay_getsongauthor)(void *info);
+typedef const AY_CHAR * (*ay_getsongpath)(void *info);
 typedef void  (*ay_z80xec)(void *info);
 typedef void  (*ay_seeksong)(void *info, long new_position);
 typedef void  (*ay_resetsong)(void *info);
@@ -71,10 +73,10 @@ typedef void  (*ay_closesong)(void **info);
 typedef bool  (*ay_songstarted)(void *info);
 typedef void  (*ay_startsong)(void *info);
 typedef void  (*ay_stopsong)(void *info);
-typedef void  (*ay_setvolume)(void *info, unsigned long chnl, float volume);
-typedef float  (*ay_getvolume)(void *info, unsigned long chnl);
-typedef void  (*ay_chnlmute)(void *info, unsigned long chnl, bool mute);
-typedef bool  (*ay_chnlmuted)(void *info, unsigned long chnl);
+typedef void  (*ay_setvolume)(void *info, unsigned long chnl, float volume, unsigned long chip_num);
+typedef float  (*ay_getvolume)(void *info, unsigned long chnl, unsigned long chip_num);
+typedef void  (*ay_chnlmute)(void *info, unsigned long chnl, bool mute, unsigned long chip_num);
+typedef bool  (*ay_chnlmuted)(void *info, unsigned long chnl, unsigned long chip_num);
 typedef void  (*ay_setcallback)(void *info, ELAPSED_CALLBACK callback, void *callback_arg);
 typedef unsigned long  (*ay_getsonglength)(void *info);
 typedef unsigned long  (*ay_getelapsedtime)(void *info);
