@@ -9,18 +9,25 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ayfly_cmdline", "..\ayfly_c
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		ANSI Release|Win32 = ANSI Release|Win32
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{956BBC46-5A45-4000-99CB-3422CCE20278}.ANSI Release|Win32.ActiveCfg = Release|Win32
+		{956BBC46-5A45-4000-99CB-3422CCE20278}.ANSI Release|Win32.Build.0 = Release|Win32
 		{956BBC46-5A45-4000-99CB-3422CCE20278}.Debug|Win32.ActiveCfg = Debug|Win32
 		{956BBC46-5A45-4000-99CB-3422CCE20278}.Debug|Win32.Build.0 = Debug|Win32
 		{956BBC46-5A45-4000-99CB-3422CCE20278}.Release|Win32.ActiveCfg = Release|Win32
 		{956BBC46-5A45-4000-99CB-3422CCE20278}.Release|Win32.Build.0 = Release|Win32
+		{F7D5E4D1-DAC2-435D-803F-0C47E66FE6AF}.ANSI Release|Win32.ActiveCfg = ANSI Release|Win32
+		{F7D5E4D1-DAC2-435D-803F-0C47E66FE6AF}.ANSI Release|Win32.Build.0 = ANSI Release|Win32
 		{F7D5E4D1-DAC2-435D-803F-0C47E66FE6AF}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F7D5E4D1-DAC2-435D-803F-0C47E66FE6AF}.Debug|Win32.Build.0 = Debug|Win32
 		{F7D5E4D1-DAC2-435D-803F-0C47E66FE6AF}.Release|Win32.ActiveCfg = Release|Win32
 		{F7D5E4D1-DAC2-435D-803F-0C47E66FE6AF}.Release|Win32.Build.0 = Release|Win32
+		{B9741492-C4B9-4081-90CE-F47F50E9A462}.ANSI Release|Win32.ActiveCfg = ANSI Release|Win32
+		{B9741492-C4B9-4081-90CE-F47F50E9A462}.ANSI Release|Win32.Build.0 = ANSI Release|Win32
 		{B9741492-C4B9-4081-90CE-F47F50E9A462}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B9741492-C4B9-4081-90CE-F47F50E9A462}.Debug|Win32.Build.0 = Debug|Win32
 		{B9741492-C4B9-4081-90CE-F47F50E9A462}.Release|Win32.ActiveCfg = Release|Win32
