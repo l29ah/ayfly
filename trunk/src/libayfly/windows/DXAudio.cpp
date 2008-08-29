@@ -114,8 +114,7 @@ HRESULT DXAudio::CreateBasicBuffer()
 
 	memset(&dsbdesc, 0, sizeof(DSBUFFERDESC));
 	dsbdesc.dwSize = sizeof(DSBUFFERDESC);
-	dsbdesc.dwFlags = DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLPOSITIONNOTIFY
-		| DSBCAPS_GETCURRENTPOSITION2;
+	dsbdesc.dwFlags = DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLPOSITIONNOTIFY;
 	dsbdesc.dwBufferBytes = wfx.nAvgBytesPerSec;
 	dsbdesc.lpwfxFormat = &wfx;
 

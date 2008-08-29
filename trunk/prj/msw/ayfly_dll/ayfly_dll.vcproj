@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dsound.lib dxguid.lib"
+				AdditionalDependencies="winmm.lib"
 				OutputFile="$(OutDir)\ayfly.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -213,7 +213,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dsound.lib dxguid.lib"
+				AdditionalDependencies="winmm.lib"
 				OutputFile="$(OutDir)\ayfly.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="false"
@@ -280,7 +280,7 @@
 					Name="windows"
 					>
 					<File
-						RelativePath="..\..\..\src\libayfly\windows\DXAudio.cpp"
+						RelativePath="..\..\..\src\libayfly\windows\WaveAudio.cpp"
 						>
 					</File>
 				</Filter>
@@ -342,7 +342,7 @@
 					Name="windows"
 					>
 					<File
-						RelativePath="..\..\..\src\libayfly\windows\DXAudio.h"
+						RelativePath="..\..\..\src\libayfly\windows\WaveAudio.h"
 						>
 					</File>
 				</Filter>
