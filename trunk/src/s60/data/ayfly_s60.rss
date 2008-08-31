@@ -1,4 +1,3 @@
-
 //  RESOURCE IDENTIFIER
 NAME AYFL	// 4 letter ID
 
@@ -104,8 +103,7 @@ RESOURCE MENU_PANE r_menu
 				txt = qtn_exit;
 				}
 		};
-	}
-
+}
 #ifdef EKA2
 // -----------------------------------------------------------------------------
 //
