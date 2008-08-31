@@ -24,7 +24,7 @@
 
 Cayfly_s60Application::Cayfly_s60Application()
 {
-	
+    	
 }
 
 Cayfly_s60Application::~Cayfly_s60Application()
