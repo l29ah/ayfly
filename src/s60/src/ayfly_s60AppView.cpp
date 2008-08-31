@@ -30,7 +30,7 @@
 Cayfly_s60AppView* Cayfly_s60AppView::NewL(const TRect& aRect)
 	{
 	Cayfly_s60AppView* self = Cayfly_s60AppView::NewLC(aRect);
-	CleanupStack::Pop(self);
+	CleanupStack::Pop(self);	
 	return self;
 	}
 

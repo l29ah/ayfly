@@ -32,12 +32,10 @@ void Cayfly_s60AppUi::ConstructL()
 {
 	// Initialise app UI with standard value.
 	BaseConstructL(CAknAppUi::EAknEnableSkin);
-
 	// Create view object
 	iAppView = Cayfly_s60AppView::NewL(ClientRect() );
 	iVolume = 5;
 	currentSong = 0;
-
 }
 // -----------------------------------------------------------------------------
 // Cayfly_s60AppUi::Cayfly_s60AppUi()
