@@ -1,0 +1,22 @@
+;
+; Basic install file for minimal application
+;
+
+; Languages
+; none -  English only by default
+
+; Installation header
+; Only one component name as we only support English
+; UID is the app's UID - see HelloWorld.mmp
+#{"Ayfly player"},(0x02B98336),0,0,16
+
+;Supports Series 60 v 2.0
+(0x101F7960), 0, 0, 0, {"Series60ProductID"}
+
+; HelloWorld installation with an embedded .sis file
+"..\..\..\..\..\Symbian\8.1a\S60_2nd_FP3\epoc32\release\armi\urel\ayfly_s60.app"-"!:\system\apps\ayfly_s60\ayfly_s60.app"
+"..\..\..\..\..\Symbian\8.1a\S60_2nd_FP3\epoc32\data\z\system\apps\ayfly_s60\ayfly_s60.rsc"-"!:\system\apps\ayfly_s60\ayfly_s60.rsc"
+
+
+; Required files
+; None
