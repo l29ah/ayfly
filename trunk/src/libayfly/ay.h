@@ -21,7 +21,7 @@
 #ifndef AY_H_
 #define AY_H_
 
-#define AYREG_TAIL_LEN 50
+#define AYREG_TAIL_LEN 10
 
 enum
 {
