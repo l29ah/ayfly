@@ -82,7 +82,7 @@ INCLUDES = -I$(top_srcdir)/src/libayfly $(SDL_CFLAGS) $(DX_CFLAGS) $(all_include
 
 SUBDIRS = z80ex  $(EXTRASUBDIRS)
 noinst_LIBRARIES = libayfly.a
-libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp common.cpp
+libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp lha.cpp common.cpp
 @IS_WINDOWS_TRUE@EXTRASUBDIRS =  windows
 @IS_WINDOWS_FALSE@EXTRASUBDIRS = unix
 @IS_WINDOWS_TRUE@EXTRALIBS =  $(top_builddir)/src/libayfly/windows/DXAudio.o
@@ -106,7 +106,8 @@ LIBS = @LIBS@
 @IS_WINDOWS_TRUE@libayfly_a_DEPENDENCIES =  \
 @IS_WINDOWS_TRUE@$(top_builddir)/src/libayfly/windows/DXAudio.o \
 @IS_WINDOWS_TRUE@$(top_builddir)/src/libayfly/z80ex/z80ex.o
-libayfly_a_OBJECTS =  AbstractAudio.o ay.o formats.o speccy.o common.o
+libayfly_a_OBJECTS =  AbstractAudio.o ay.o formats.o speccy.o lha.o \
+common.o
 AR = ar
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -121,7 +122,7 @@ TAR = tar
 GZIP_ENV = --best
 DIST_SUBDIRS =  z80ex windows unix
 DEP_FILES =  .deps/AbstractAudio.P .deps/ay.P .deps/common.P \
-.deps/formats.P .deps/speccy.P
+.deps/formats.P .deps/lha.P .deps/speccy.P
 SOURCES = $(libayfly_a_SOURCES)
 OBJECTS = $(libayfly_a_OBJECTS)
 

@@ -48,6 +48,8 @@ const float ay::init_levels_ym [] =
     {\
         int_counter = 0;\
         ay_z80xec(songinfo);\
+        memcpy(ayreg_tail [ayreg_writetpr], regs, 16);\
+        ayreg_writeptr = ++atreg_writeptr % AYREG_TAIL_LEN;\
     }\
 \
     s0 = s1 = s2 = 0;\
@@ -163,6 +165,14 @@ void ay::ayReset()
 
     volume[0] = volume[1] = volume[2] = 1;
     env_type_old = 0;
+    for(unsigned long i = 0; i < AYREG_TAIL_LEN; i++)
+    {
+        for(unsigned long l = 0; l < 16; l++)
+        {
+            ayreg_tail [i] [l] = 0;
+        }
+    }
+    ayreg_readtpr = ayreg_writetpr = 0;
 
     setEnvelope();
 }

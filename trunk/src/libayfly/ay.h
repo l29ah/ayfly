@@ -51,6 +51,7 @@ public:
     unsigned char ayRead(unsigned char reg);
     void ayProcess(unsigned char *stream, unsigned long len);
     void ayProcessMono(unsigned char *stream, unsigned long len);
+    inline void ayProcessStep()
     inline void chnlMute(unsigned long chnl, bool mute)
     {
         chnl_mute[chnl] = !mute;
@@ -73,7 +74,9 @@ public:
     ;
     inline const unsigned char *GetRegs()
     {
-        return regs;
+        unsigned long i = ayreg_readptr;
+        ayreg_readptr = ++ayreg_readptr % AYREG_TAIL_LEN;
+        return regs [i];
     };
 
     void SetParameters();
@@ -109,6 +112,10 @@ private:
     unsigned long int_counter;
     unsigned long int_limit;
     AYSongInfo *songinfo;
+#define AYREG_TAIL_LEN 50
+    unsigned char ayreg_tail [AYREG_TAIL_LEN] [16];
+    unsigned long ayreg_readtpr;
+    unsigned long ayreg_writetpr;
 };
 
 #endif /*AY_H_*/
