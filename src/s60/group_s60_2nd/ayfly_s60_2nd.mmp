@@ -10,7 +10,7 @@
 
 TARGET			ayfly_s60.app
 TARGETTYPE		app
-UID		  0x100039CE 0xEA0B66F6
+UID		  0x100039CE 0x02B98336
 TARGETPATH \system\apps\ayfly_s60
 
 
@@ -49,3 +49,4 @@ LIBRARY        commondialogs.lib mediaclientaudiostream.lib estlib.lib
 VENDORID	  	  0
 // End of File
 
+SOURCEPATH ..\..\libayfly
