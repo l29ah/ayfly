@@ -51,7 +51,6 @@ public:
     unsigned char ayRead(unsigned char reg);
     void ayProcess(unsigned char *stream, unsigned long len);
     void ayProcessMono(unsigned char *stream, unsigned long len);
-    inline void ayProcessStep()
     inline void chnlMute(unsigned long chnl, bool mute)
     {
         chnl_mute[chnl] = !mute;
