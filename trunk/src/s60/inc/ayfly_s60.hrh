@@ -10,7 +10,7 @@
 #ifndef __AYFLY_S60_HRH__
 #define __AYFLY_S60_HRH__
 
-#define _UID3 0xEA0B66F6
+#define _UID3 0x02B98336
 
 // ayfly_s60 enumerate command codes
 enum Tayfly_s60Ids

@@ -8,9 +8,9 @@
 */
 
 
-TARGET			ayfly_s60_0xEA0B66F6.exe
+TARGET			ayfly_s60_0x02B98336.exe
 TARGETTYPE		exe
-UID		  0x100039CE 0xEA0B66F6
+UID		  0x100039CE 0x02B98336
 
 
 OPTION GCCE   -O3 --fast-math
@@ -34,12 +34,12 @@ SOURCEPATH		..\data
 
 START RESOURCE ayfly_s60.rss
 	HEADER
-	TARGET ayfly_s60_0xEA0B66F6
+	TARGET ayfly_s60_0x02B98336
 	TARGETPATH resource\apps
 END
 
 START RESOURCE ayfly_s60_reg.rss
-	TARGET ayfly_s60_0xEA0B66F6_reg
+	TARGET ayfly_s60_0x02B98336_reg
 	TARGETPATH \private\10003a3f\apps
 END
 
@@ -57,7 +57,7 @@ LIBRARY        commondialogs.lib mediaclientaudiostream.lib
 LANG SC
 
 VENDORID	  	  0
-SECUREID		  0xEA0B66F6
+SECUREID		  0x02B98336
 CAPABILITY	  	  ReadUserData
 // End of File
 
