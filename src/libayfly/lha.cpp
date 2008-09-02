@@ -65,7 +65,7 @@ struct lha_params
 unsigned char GetC(lha_params &params)
 {
     unsigned long l;
-    if(BufPtr == 0)
+    if(params.BufPtr == 0)
     {
         unsigned long sz = (BufSize + params.file_offset) >= params.file_len ? (params.file_len - params.file_offset) : BufSize;
         memcpy(params.Buffer, params.file_data + params.file_offset, sz);
@@ -83,7 +83,7 @@ void BWrite(lha_params &params, unsigned char *P, int N)
     for(T = 1; T < N; T++)
     {
         *params.OutPtr = *Scan;
-        params.Scan++;
+        Scan++;
         params.OutPtr++;
     }
 }
@@ -97,7 +97,7 @@ void FillBuf(lha_params &params, int n)
         params.BitBuf = params.BitBuf | (params.SubBitBuf << n);
         if(params.CompSize != 0)
         {
-            Dec(CompSize);
+            params.CompSize--;
             params.SubBitBuf = GetC(params);
         }
         else
@@ -110,7 +110,7 @@ void FillBuf(lha_params &params, int n)
 
 unsigned short GetBits(lha_params &params, int n)
 {
-    unsigned short GetBits = params.BitBuf >> (params.BitBufSiz - n);
+    unsigned short GetBits = params.BitBuf >> (BitBufSiz - n);
     FillBuf(params, n);
     return GetBits;
 }
@@ -120,14 +120,14 @@ void InitGetBits(lha_params &params)
   params.BitBuf = 0;
   params.SubBitBuf = 0;
   params.BitCount = 0;
-  FillBuf (params.BitBufSiz);
+  FillBuf (params, BitBufSiz);
 }
-
+/*
 bool MakeTable (lha_params &params, int nChar, unsigned char *BitLen, int TableBits, unsigned short *Table)
 {
   unsigned short Count [16], Weight [16];
   unsigned short Start [17];
-  unsigned short *p /* XWord */;
+  unsigned short *p ;
   int i, k, Len, Ch, JutBits, Avail, NextCode, Mask;
   for(i = 0; i < 16; i++)
       Count [i] = 0;
@@ -194,3 +194,4 @@ bool MakeTable (lha_params &params, int nChar, unsigned char *BitLen, int TableB
     Start [Len] := NextCode;
   End;
 }
+*/

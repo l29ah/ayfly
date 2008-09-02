@@ -48,8 +48,8 @@ const float ay::init_levels_ym [] =
     {\
         int_counter = 0;\
         ay_z80xec(songinfo);\
-        memcpy(ayreg_tail [ayreg_writetpr], regs, 16);\
-        ayreg_writeptr = ++atreg_writeptr % AYREG_TAIL_LEN;\
+        memcpy(ayreg_tail [ayreg_writeptr], regs, 16);\
+        ayreg_writeptr = ++ayreg_writeptr % AYREG_TAIL_LEN;\
     }\
 \
     s0 = s1 = s2 = 0;\
@@ -172,7 +172,7 @@ void ay::ayReset()
             ayreg_tail [i] [l] = 0;
         }
     }
-    ayreg_readtpr = ayreg_writetpr = 0;
+    ayreg_readptr = ayreg_writeptr = 0;
 
     setEnvelope();
 }
