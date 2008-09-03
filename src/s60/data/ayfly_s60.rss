@@ -165,7 +165,7 @@ RESOURCE LOCALISABLE_APP_INFO r_localisable_app_info
 		caption = qtn_caption_string;
 
 		number_of_icons = 1;
-		icon_file = "\\Resource\\Apps\\ayfly_s60_0x02B98336.mif";
+		icon_file = "\\Resource\\Apps\\ayfly_s60.mif";
 		};
 	}
 #endif

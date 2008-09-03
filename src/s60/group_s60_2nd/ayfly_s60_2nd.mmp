@@ -7,10 +7,11 @@
 ============================================================================
 */
 
+#include "ayfly_s60.hrh"
 
 TARGET			ayfly_s60.app
 TARGETTYPE		app
-UID		  0x100039CE 0x02B98336
+UID		  0x100039CE _UID3
 TARGETPATH \system\apps\ayfly_s60
 
 
