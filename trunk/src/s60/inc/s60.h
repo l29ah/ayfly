@@ -45,6 +45,7 @@
 #include <s32std.h>
 #include <s32file.h>
 #include <coemain.h>
+#include <eikenv.h>
 #ifndef UIQ3
 #include <avkon.hrh>
 #include <aknmessagequerydialog.h>
@@ -52,6 +53,8 @@
 #include <caknfileselectiondialog.h>
 #include <pathinfo.h>
 #include <stringloader.h>
+#else
+#include <qikselectfiledlg.h>
 #endif
 
 
