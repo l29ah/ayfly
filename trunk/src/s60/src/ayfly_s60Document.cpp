@@ -31,7 +31,7 @@
 Cayfly_s60Document* Cayfly_s60Document::NewL(CEikApplication& aApp)
 	{
 	Cayfly_s60Document* self = NewLC(aApp);
-	CleanupStack::Pop(self);	
+	CleanupStack::Pop(self);
 	return self;
 	}
 
@@ -65,7 +65,11 @@ void Cayfly_s60Document::ConstructL()
 // -----------------------------------------------------------------------------
 //
 Cayfly_s60Document::Cayfly_s60Document(CEikApplication& aApp) :
+#ifdef UIQ3
+    CQikDocument(aApp)
+#else //S60
 	CAknDocument(aApp)
+#endif
 	{
 	// No implementation required
 	}

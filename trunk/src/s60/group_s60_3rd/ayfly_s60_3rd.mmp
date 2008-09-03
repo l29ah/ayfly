@@ -6,8 +6,10 @@
  Description : This is the project specification file for ayfly_s60.
 ============================================================================
 */
+#define MMP 1
+MACRO S60_3RD
 
-#include "ayfly_s60.hrh"
+#include "..\inc\ayfly_s60.hrh"
 
 TARGET			ayfly_s60.exe
 TARGETTYPE		exe

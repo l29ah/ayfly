@@ -11,7 +11,11 @@
 #define __AYFLY_S60DOCUMENT_h__
 
 // INCLUDES
+#ifdef UIQ3
+#include <qikdocument.h>
+#else //S60
 #include <akndoc.h>
+#endif
 
 // FORWARD DECLARATIONS
 class Cayfly_s60AppUi;
@@ -24,7 +28,12 @@ class CEikApplication;
  * An instance of class Cayfly_s60Document is the Document part of the
  * AVKON application framework for the ayfly_s60 example application.
  */
-class Cayfly_s60Document : public CAknDocument
+class Cayfly_s60Document :
+#ifdef UIQ3
+    public CQikDocument
+#else
+    public CAknDocument
+#endif
 	{
 public:
 	// Constructors and destructor

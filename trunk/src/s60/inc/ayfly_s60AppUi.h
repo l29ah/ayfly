@@ -11,7 +11,11 @@
 #define __AYFLY_S60APPUI_h__
 
 // INCLUDES
+#ifdef UIQ3
+#include <qikappui.h>
+#else
 #include <aknappui.h>
+#endif
 
 // FORWARD DECLARATIONS
 class Cayfly_s60AppView;
@@ -29,7 +33,12 @@ struct CurrentSong
     //AYSongInfo *song;
 };
 
-class Cayfly_s60AppUi : public CAknAppUi
+class Cayfly_s60AppUi :
+#ifdef UIQ3
+    public CQikAppUi
+#else
+    public CAknAppUi
+#endif
 	{
 public:
 	// Constructors and destructor

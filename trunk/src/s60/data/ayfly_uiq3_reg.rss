@@ -1,0 +1,27 @@
+/*
+============================================================================
+ Name		: ayfly_s60.rss
+ Author	  : Andrew Deryabin
+ Copyright   : Andrew Deryabin (c) 2008
+ Description : This file contains the application registration resource.
+============================================================================
+*/
+
+#include "ayfly_s60.hrh"
+#include "ayfly_s60.rls"
+#include <appinfo.rh>
+#include <ayfly_uiq3.rsg>
+
+UID2 KUidAppRegistrationResourceFile
+UID3 _UID3
+
+RESOURCE APP_REGISTRATION_INFO
+	{
+	app_file="ayfly_uiq3";
+	localisable_resource_file =  qtn_loc_resource_file_1;
+	localisable_resource_id = R_LOCALISABLE_APP_INFO;
+
+	embeddability=KAppNotEmbeddable;
+	newfile=KAppDoesNotSupportNewFile;
+	}
+

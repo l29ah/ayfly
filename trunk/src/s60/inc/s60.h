@@ -35,6 +35,8 @@
 
 #include "ayfly.h"
 
+#include "ayfly_s60.hrh"
+
 #ifdef EKA2
 #include <e32cmn.h>
 #include <eikstart.h>
@@ -42,21 +44,28 @@
 #include <f32file.h>
 #include <s32std.h>
 #include <s32file.h>
-#include <avkon.hrh>
 #include <coemain.h>
+#ifndef UIQ3
+#include <avkon.hrh>
 #include <aknmessagequerydialog.h>
 #include <aknnotewrappers.h>
-#include <stringloader.h>
-#include <hlplch.h>
 #include <caknfileselectiondialog.h>
 #include <pathinfo.h>
+#include <stringloader.h>
+#endif
 
-#include "ayfly_s60.hrh"
+
+
+
 #include "ayfly_s60.pan"
 #include "ayfly_s60Document.h"
 #include "ayfly_s60Application.h"
 #include "ayfly_s60AppUi.h"
 #include "ayfly_s60AppView.h"
+#ifdef UIQ3
+#include "ayfly_uiq3.rsg"
+#else
 #include "ayfly_s60.rsg"
+#endif
 
 #endif /*S60_H_*/
