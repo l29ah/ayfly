@@ -79,7 +79,9 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 	switch (aCommand)
 	{
 	case EEikCmdExit:
+#ifndef UIQ3 //S60
 	case EAknSoftkeyExit:
+#endif
 	{
 	    if(currentSong)
 	    {
@@ -91,7 +93,18 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 	case ECommand1:
 	{
 	    TFileName FileName = _L("E:");
+#ifndef UIQ3
 		TBool bRet = CAknFileSelectionDialog::RunDlgLD(FileName, _L("E:"), _L("Select file!"), NULL);
+#else //S60
+		CDesCArray* mime = new (ELeave) CDesCArrayFlat(1);
+		CleanupStack::PushL(mime);
+		CDesCArray* file = new(ELeave) CDesCArrayFlat(1);
+		CleanupStack::PushL(file);
+		TBool bRet = CQikSelectFileDlg::RunDlgLD(*mime, *file);
+		if(bRet)
+		    FileName = (*file) [0];
+		CleanupStack::PopAndDestroy(2);
+#endif
 		if (bRet)
 		{
 		    if(currentSong)

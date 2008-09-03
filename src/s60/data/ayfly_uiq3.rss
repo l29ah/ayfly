@@ -4,7 +4,7 @@ NAME AYFL	// 4 letter ID
 
 //  INCLUDES
 #include <eikon.rh>
-//#include <eikcore.rsg>
+#include <eikcore.rsg>
 #include <qikon.rh>
 #include <qikcommand.rh>
 #include "ayfly_s60.hrh"
@@ -33,6 +33,54 @@ RESOURCE RSS_SIGNATURE
 RESOURCE TBUF r_default_document_name
 	{
 	buf="ayfly_uiq3";
+	}
+	
+//----------------------------------------------------
+//-------------- CONFIGURATION FOR VIEW --------------
+//----------------------------------------------------
+// A view shall use the QIK_VIEW_CONFIGURATIONS resource struct to define which 
+// UI configurations it supports. Can also use QIK_VIEW_CONFIGURATIONS to setup 
+// the view to switch layout and command list automatically when changes of UI 
+// configuration occur. This is done with the view and command_list members of 
+// the QIK_VIEW_CONFIGURATIONS.
+// The application supports the reference UI Configurations that are supported
+// in the UIQ 3 SDK. Use the UiqEnv tool, to change the UI Configuration in the
+// emulator in order to develop and test the application with varying phone styles.
+RESOURCE QIK_VIEW_CONFIGURATIONS r_ayfly_ui_configurations
+	{
+	configurations = 
+		{
+		QIK_VIEW_CONFIGURATION
+			{
+			ui_config_mode = KQikPenStyleTouchPortrait;
+			command_list = r_menu;
+			view = r_helloworld_layout;
+			},
+		QIK_VIEW_CONFIGURATION
+			{
+			ui_config_mode = KQikPenStyleTouchLandscape;
+			command_list = r_menu;
+			view = r_helloworld_layout;
+			},
+		QIK_VIEW_CONFIGURATION
+			{
+			ui_config_mode = KQikSoftkeyStyleTouchPortrait;
+			command_list = r_menu;
+			view = r_helloworld_layout;
+			},
+		QIK_VIEW_CONFIGURATION
+			{
+			ui_config_mode = KQikSoftkeyStylePortrait;
+			command_list = r_menu;
+			view = r_helloworld_layout;
+			},
+		QIK_VIEW_CONFIGURATION
+			{
+			ui_config_mode = KQikSoftkeyStyleSmallPortrait;
+			command_list = r_menu;
+			view = r_helloworld_layout;
+			}
+		};
 	}
 
 // -----------------------------------------------------------------------------
