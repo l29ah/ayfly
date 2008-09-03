@@ -1,0 +1,14 @@
+/*
+============================================================================
+ Name		: bld.inf
+ Author	  : Andrew Deryabin
+ Copyright   : Andrew Deryabin (c) 2008
+ Description : This file provides the information required for building the
+				whole of a ayfly_uiq3.
+============================================================================
+*/
+
+
+PRJ_MMPFILES
+
+ayfly_uiq3.mmp

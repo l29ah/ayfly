@@ -1,0 +1,66 @@
+/*
+============================================================================
+ Name		: ayfly_uiq3.mmp
+ Author	  : Andrew Deryabin
+ Copyright   : Andrew Deryabin (c) 2008
+ Description : This is the project specification file for ayfly_uiq3.
+============================================================================
+*/
+
+#include "ayfly_s60.hrh"
+
+TARGET			ayfly_uiq3.exe
+TARGETTYPE		exe
+UID		  0x100039CE _UID3
+
+COMPRESSTARGET
+
+EPOCHEAPSIZE  100000 5000000
+EPOCSTACKSIZE 65536
+
+SOURCEPATH		..\src
+SOURCE			ayfly_s60.cpp
+SOURCE			ayfly_s60Application.cpp
+SOURCE			ayfly_s60AppView.cpp
+SOURCE			ayfly_s60AppUi.cpp
+SOURCE			ayfly_s60Document.cpp
+
+SOURCEPATH		..\..\libayfly
+SOURCE			z80ex\z80ex.cpp speccy.cpp formats.cpp ay.cpp common.cpp AbstractAudio.cpp s60\ayfly_s60Audio.cpp
+
+SOURCEPATH		..\data
+
+START RESOURCE ayfly_uiq3.rss
+	HEADER
+	TARGET ayfly_uiq3
+	TARGETPATH resource\apps
+END
+
+START RESOURCE ayfly_s60_reg.rss
+	TARGET ayfly_uiq3_reg
+#ifdef WINSCW
+	TARGETPATH \private\10003a3f\apps
+#else
+	TARGETPATH \private\10003a3f\import\apps
+#endif
+END
+
+
+
+USERINCLUDE	   ..\inc ..\..\libayfly
+USERINCLUDE    ..\help
+
+SYSTEMINCLUDE	 \epoc32\include \epoc32\include\libc
+
+LIBRARY		   euser.lib apparc.lib cone.lib eikcore.lib eikcoctl.lib
+LIBRARY        avkon.lib fbscli.lib eikdlg.lib efsrv.lib estor.lib
+LIBRARY        commondialogs.lib mediaclientaudiostream.lib
+
+LANG SC
+
+VENDORID	  	  0
+SECUREID		  _UID3
+CAPABILITY	  	  ReadUserData
+// End of File
+
+SRCDBG

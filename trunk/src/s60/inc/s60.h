@@ -57,10 +57,6 @@
 #include "ayfly_s60Application.h"
 #include "ayfly_s60AppUi.h"
 #include "ayfly_s60AppView.h"
-#ifdef EKA2
-#include "ayfly_s60_0x02B98336.rsg"
-#else
 #include "ayfly_s60.rsg"
-#endif
 
 #endif /*S60_H_*/

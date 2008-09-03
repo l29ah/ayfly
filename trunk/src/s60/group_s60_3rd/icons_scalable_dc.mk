@@ -8,13 +8,13 @@
 
 
 ifeq (WINS,$(findstring WINS, $(PLATFORM)))
-ZDIR=$(EPOCROOT)epoc32\release\$(PLATFORM)\$(CFG)\Z
+ZDIR=$(EPOCROOT)epoc32\release\$(PLATFORM)\$(CFG)\z
 else
 ZDIR=$(EPOCROOT)epoc32\data\z
 endif
 
 TARGETDIR=$(ZDIR)\resource\apps
-ICONTARGETFILENAME=$(TARGETDIR)\ayfly_s60_0x02B98336.mif
+ICONTARGETFILENAME=$(TARGETDIR)\ayfly_s60.mif
 
 ICONDIR=..\gfx
 

@@ -7,13 +7,14 @@
 ============================================================================
 */
 
+#include "ayfly_s60.hrh"
 
-TARGET			ayfly_s60_0x02B98336.exe
+TARGET			ayfly_s60.exe
 TARGETTYPE		exe
-UID		  0x100039CE 0x02B98336
-
+UID		  0x100039CE _UID3
 
 OPTION GCCE   -O3 --fast-math
+
 
 COMPRESSTARGET
 
@@ -34,13 +35,17 @@ SOURCEPATH		..\data
 
 START RESOURCE ayfly_s60.rss
 	HEADER
-	TARGET ayfly_s60_0x02B98336
+	TARGET ayfly_s60
 	TARGETPATH resource\apps
 END
 
 START RESOURCE ayfly_s60_reg.rss
-	TARGET ayfly_s60_0x02B98336_reg
+	TARGET ayfly_s60_reg
+#ifdef WINSCW
 	TARGETPATH \private\10003a3f\apps
+#else
+	TARGETPATH \private\10003a3f\import\apps
+#endif
 END
 
 
@@ -57,7 +62,7 @@ LIBRARY        commondialogs.lib mediaclientaudiostream.lib
 LANG SC
 
 VENDORID	  	  0
-SECUREID		  0x02B98336
+SECUREID		  _UID3
 CAPABILITY	  	  ReadUserData
 // End of File
 
