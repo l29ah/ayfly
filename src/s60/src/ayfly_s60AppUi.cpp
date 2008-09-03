@@ -31,7 +31,11 @@
 void Cayfly_s60AppUi::ConstructL()
 {
 	// Initialise app UI with standard value.
+#ifdef UIQ3
+    BaseConstructL();
+#else
 	BaseConstructL(CAknAppUi::EAknEnableSkin);
+#endif
 	// Create view object
 	iAppView = Cayfly_s60AppView::NewL(ClientRect() );
 	iVolume = 5;
@@ -126,6 +130,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 	}
 		break;
 #ifdef EKA2
+#ifndef UIQ3
 	case EAbout:
 	{
 
@@ -140,6 +145,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		dlg->RunLD();
 	}
 		break;
+#endif
 #endif
 	default:
 	{

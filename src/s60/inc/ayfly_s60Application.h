@@ -11,7 +11,11 @@
 #define __AYFLY_S60APPLICATION_H__
 
 // INCLUDES
+#ifdef UIQ3
+#include <qikapplication.h>
+#else //S60
 #include <aknapp.h>
+#endif
 #include "ayfly_s60.hrh"
 
 // UID for the application;
@@ -29,7 +33,12 @@ const TUid KUidayfly_s60App =
  * An instance of Cayfly_s60Application is the application part of the
  * AVKON application framework for the ayfly_s60 example application.
  */
-class Cayfly_s60Application : public CAknApplication
+class Cayfly_s60Application :
+#ifdef UIQ3
+    public CQikApplication
+#else //S60
+    public CAknApplication
+#endif
 	{
 public:
 	Cayfly_s60Application();

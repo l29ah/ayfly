@@ -4,10 +4,13 @@ NAME AYFL	// 4 letter ID
 
 //  INCLUDES
 #include <eikon.rh>
-#include <eikcore.rsg>
-#include <appinfo.rh>
+//#include <eikcore.rsg>
+#include <qikon.rh>
+#include <qikcommand.rh>
 #include "ayfly_s60.hrh"
 #include "ayfly_s60.rls"
+#include <appinfo.rh>
+
 
 //  RESOURCE DEFINITIONS
 // -----------------------------------------------------------------------------
@@ -34,35 +37,6 @@ RESOURCE TBUF r_default_document_name
 
 // -----------------------------------------------------------------------------
 //
-//	Define default menu and CBA key.
-//
-// -----------------------------------------------------------------------------
-//
-RESOURCE EIK_APP_INFO
-	{
-	menubar = r_menubar;
-	cba = R_AVKON_SOFTKEYS_OPTIONS_EXIT;
-	}
-
-
-// -----------------------------------------------------------------------------
-//
-//   r_menubar
-//   Main menubar
-//
-// -----------------------------------------------------------------------------
-//
-RESOURCE MENU_BAR r_menubar
-	{
-	titles =
-		{
-		MENU_TITLE { menu_pane = r_menu; }
-		};
-	}
-
-
-// -----------------------------------------------------------------------------
-//
 //   r_menu
 //   Menu for "Options"
 //
@@ -75,74 +49,41 @@ RESOURCE QIK_COMMAND_LIST r_menu
 		// added the new Options menu command here
 		QIK_COMMAND
 				{
-				command = ECommand1;
+				id = ECommand1;
 				type = EQikCommandTypeScreen;
 				text = qtn_command1;
 				shortText = qtn_command1;
 				},
 		QIK_COMMAND
 				{
-				command = ECommand2;
+				id = ECommand2;
 				type = EQikCommandTypeScreen;
 				text = qtn_command2;
 				shortText = qtn_command2;
 				},
 		QIK_COMMAND
                 {
-                command = ECommand3;
+                id = ECommand3;
                 type = EQikCommandTypeScreen;
                 text = qtn_command3;
                 shortText = qtn_command3;
 				},
 		QIK_COMMAND
 				{
-				command = EAbout;
+				id = EAbout;
 				type = EQikCommandTypeScreen;
 				text = qtn_about;
 				shortText = qtn_about;
 				},
 		QIK_COMMAND
 				{
-				command = EAknSoftkeyExit;
+				id = EEikCmdExit;
 				type = EQikCommandTypeScreen;
 				text = qtn_exit;
 				shortText = qtn_exit;
 				}
 		};
 }
-
-// -----------------------------------------------------------------------------
-//
-// About dialog resource.
-//
-// -----------------------------------------------------------------------------
-//
-RESOURCE DIALOG r_about_query_dialog
-	{
-	flags = EGeneralQueryFlags | EEikDialogFlagNoBorder | EEikDialogFlagNoShadow;
-	buttons = R_AVKON_SOFTKEYS_OK_EMPTY;
-	items=
-		{
-		DLG_LINE 
-			{
-			type = EAknCtPopupHeadingPane;
-			id = EAknMessageQueryHeaderId;
-			itemflags = EEikDlgItemNonFocusing;
-			control = AVKON_HEADING
-				{
-				};
-			},
-		DLG_LINE
-			{
-			type = EAknCtMessageQuery;
-			id = EAknMessageQueryContentId;
-			control = AVKON_MESSAGE_QUERY
-				{
-				};
-			}
-		};
-	}
-
 
 // -----------------------------------------------------------------------------
 //
@@ -170,8 +111,7 @@ RESOURCE LOCALISABLE_APP_INFO r_localisable_app_info
 		{
 		caption = qtn_caption_string;
 
-		number_of_icons = 1;
-		icon_file = "\\Resource\\Apps\\ayfly_s60.mif";
+		number_of_icons = 0;
 		};
 	}
 

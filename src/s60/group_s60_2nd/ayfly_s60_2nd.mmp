@@ -7,7 +7,10 @@
 ============================================================================
 */
 
-#include "ayfly_s60.hrh"
+#define MMP 1
+MACRO S60_2ND
+
+#include "..\inc\ayfly_s60.hrh"
 
 TARGET			ayfly_s60.app
 TARGETTYPE		app

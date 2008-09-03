@@ -16,6 +16,7 @@
 #define _UID3 0x2001D5F7
 #endif
 
+#ifndef MMP
 // ayfly_s60 enumerate command codes
 enum Tayfly_s60Ids
 	{
@@ -25,5 +26,7 @@ enum Tayfly_s60Ids
 	EHelp,
 	EAbout
 	};
+	
+#endif
 
 #endif // __AYFLY_S60_HRH__

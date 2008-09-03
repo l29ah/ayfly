@@ -7,7 +7,10 @@
 ============================================================================
 */
 
-#include "..\inc\ayfly_s60.hrh"
+#define MMP 1
+MACRO UIQ3
+
+#include "../inc/ayfly_s60.hrh"
 
 TARGET			ayfly_uiq3.exe
 TARGETTYPE		exe
@@ -36,7 +39,7 @@ START RESOURCE ayfly_uiq3.rss
 	TARGETPATH resource\apps
 END
 
-START RESOURCE ayfly_s60_reg.rss
+START RESOURCE ayfly_uiq3_reg.rss
 	TARGET ayfly_uiq3_reg
 #ifdef WINSCW
 	TARGETPATH \private\10003a3f\apps
@@ -53,7 +56,10 @@ USERINCLUDE    ..\help
 SYSTEMINCLUDE	 \epoc32\include \epoc32\include\libc
 
 LIBRARY		   euser.lib apparc.lib cone.lib eikcore.lib eikcoctl.lib
-LIBRARY        avkon.lib fbscli.lib eikdlg.lib efsrv.lib estor.lib
+LIBRARY        fbscli.lib eikdlg.lib efsrv.lib estor.lib
+LIBRARY 	   qikcore.lib
+LIBRARY        qiklbx.lib
+LIBRARY        quiconfigclient.lib
 LIBRARY        commondialogs.lib mediaclientaudiostream.lib
 
 LANG SC
