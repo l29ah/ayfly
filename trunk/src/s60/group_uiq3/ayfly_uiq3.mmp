@@ -7,7 +7,7 @@
 ============================================================================
 */
 
-#include "ayfly_s60.hrh"
+#include "..\inc\ayfly_s60.hrh"
 
 TARGET			ayfly_uiq3.exe
 TARGETTYPE		exe
