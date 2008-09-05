@@ -91,13 +91,16 @@ void ay_sys_z80exec(AYSongInfo &info)
     if(info.play_proc)
     {
         info.play_proc(info);
-        return;
     }
-    do
+    else
     {
-        z80ex_step(info.z80ctx);
+        do
+        {
+            z80ex_step(info.z80ctx);
+        }
+        while (z80ex_get_reg(info.z80ctx, regPC) != 8);
     }
-    while (z80ex_get_reg(info.z80ctx, regPC) != 8);
+    
     if (++info.timeElapsed >= info.Length)
     {
         info.timeElapsed = info.Loop;

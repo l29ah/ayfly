@@ -30,6 +30,10 @@
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/ayfly/src/libayfly/z80ex}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/ayfly/src/gui}&quot;"/>
 <listOptionValue builtIn="false" value="/usr/include/wx-2.8"/>
+<listOptionValue builtIn="false" value="/home/andrew/symbian-sdks/s60_32/epoc32/include"/>
+<listOptionValue builtIn="false" value="/home/andrew/symbian-sdks/s60_32/epoc32/include/libc"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ayfly/src/s60/inc}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/ayfly/src/s60/data}&quot;"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.890799545" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>

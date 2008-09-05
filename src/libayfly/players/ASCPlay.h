@@ -15,7 +15,7 @@ struct ASC1_File
     unsigned char ASC1_SamplesPointers0, ASC1_SamplesPointers1;
     unsigned char ASC1_OrnamentsPointers0, ASC1_OrnamentsPointers1;
     unsigned char ASC1_Number_Of_Positions;
-    unsigned char ASC1_Positions[65535 - 8];
+    unsigned char ASC1_Positions[65536 - 8];
 };
 #define ASC1_PatternsPointers (header->ASC1_PatternsPointers0 | (header->ASC1_PatternsPointers1 << 8))
 #define ASC1_SamplesPointers (header->ASC1_SamplesPointers0 | (header->ASC1_SamplesPointers1 << 8))
@@ -364,13 +364,6 @@ void ASC_Play(AYSongInfo &info)
     AbstractAudio *player = info.player;
     unsigned char TempMixer;
 
-    if(info.timeElapsed >= info.Length)
-    {
-        info.timeElapsed = info.Loop;
-        if(info.callback)
-            info.callback(info.callback_arg);
-    }
-
     if(--ASC.DelayCounter <= 0)
     {
         if(--ASC_A.Note_Skip_Counter < 0)
@@ -418,8 +411,6 @@ void ASC_Play(AYSongInfo &info)
     player->WriteAy(AY_CHNL_A_VOL, ASC_A.Amplitude);
     player->WriteAy(AY_CHNL_B_VOL, ASC_B.Amplitude);
     player->WriteAy(AY_CHNL_C_VOL, ASC_C.Amplitude);
-
-    info.timeElapsed++;
 }
 
 void ASC_GetInfo(AYSongInfo &info)

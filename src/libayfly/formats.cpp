@@ -33,6 +33,7 @@ unsigned short ay_sys_getword(unsigned char *p)
 #include "players/PSCPlay.h"
 #include "players/SQTPlay.h"
 #include "players/PSGPlay.h"
+#include "players/PT1Play.h"
 
 typedef void (*GETINFO_CALLBACK)(AYSongInfo &info);
 
@@ -69,7 +70,8 @@ static const _Players Players[] =
 { TXT(".stp"), STPPlay_data, 0xc000, sizeof(STPPlay_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, STP_GetInfo },
 { TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_Cleanup, PSC_GetInfo },
 { TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_Cleanup, SQT_GetInfo },
-{ TXT(".psg"), 0, 0, 0, 0, 0, PSG_Init, 0, PSG_Play, PSG_Cleanup, PSG_GetInfo } };
+{ TXT(".psg"), 0, 0, 0, 0, 0, PSG_Init, 0, PSG_Play, PSG_Cleanup, PSG_GetInfo },
+{ TXT(".pt1"), 0, 0, 0, 0, 0, PT1_Init, 0, PT1_Play, PT1_Cleanup, PT1_GetInfo }};
 
 /*
  * parts of ay read code and memory init are from aylet player:
