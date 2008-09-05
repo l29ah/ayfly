@@ -35,13 +35,6 @@ void PSG_Play(AYSongInfo &info)
     AbstractAudio *player = info.player;
     PSG_SongInfo *psg_info = (PSG_SongInfo *)info.data;
     unsigned char b, b2;
-    if(info.timeElapsed >= info.Length)
-    {
-        info.timeElapsed = info.Loop;
-        if(info.callback)
-            info.callback(info.callback_arg);
-    }
-    info.timeElapsed++;
     if(psg_info->PSG_Skip > 0)
     {
         psg_info->PSG_Skip--;

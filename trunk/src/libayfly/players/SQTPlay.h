@@ -446,12 +446,6 @@ void SQT_Play(AYSongInfo &info)
     AbstractAudio *player = info.player;
     SQT_File *header = (SQT_File *) module;
     unsigned char TempMixer;
-    if (info.timeElapsed >= info.Length)
-    {
-        info.timeElapsed = info.Loop;
-        if (info.callback)
-            info.callback(info.callback_arg);
-    }
 
     if (--SQT.DelayCounter == 0)
     {
@@ -548,9 +542,6 @@ void SQT_Play(AYSongInfo &info)
     player->WriteAy(AY_CHNL_A_VOL, SQT_A.Amplitude);
     player->WriteAy(AY_CHNL_B_VOL, SQT_B.Amplitude);
     player->WriteAy(AY_CHNL_C_VOL, SQT_C.Amplitude);
-
-    info.timeElapsed++;
-
 }
 
 void SQT_GetChannelInfo(AYSongInfo &info, unsigned char &b, unsigned long &tm, char &a1, unsigned short &j1, unsigned short &pptr, unsigned short &cptr, bool &f71, bool &f61, bool &f41, unsigned short &j11, unsigned char chnl_num)

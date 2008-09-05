@@ -565,13 +565,7 @@ void PT3_Play(AYSongInfo &info)
     AbstractAudio *player = info.player;
     unsigned char TempMixer;
     char AddToEnv;
-    if(info.timeElapsed >= info.Length)
-    {
-        info.timeElapsed = info.Loop;
-        if(info.callback)
-            info.callback(info.callback_arg);
-    }
-
+   
     PT3.DelayCounter--;
     if(PT3.DelayCounter == 0)
     {
@@ -631,9 +625,6 @@ void PT3_Play(AYSongInfo &info)
             PT3.Cur_Env_Slide += PT3.Env_Slide_Add;
         }
     }
-
-    info.timeElapsed++;
-
 }
 
 void PT3_GetInfo(AYSongInfo &info)

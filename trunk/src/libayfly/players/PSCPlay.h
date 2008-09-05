@@ -396,13 +396,7 @@ void PSC_Play(AYSongInfo &info)
     unsigned char *module = info.module;
     AbstractAudio *player = info.player;
     unsigned char TempMixer;
-    if(info.timeElapsed >= info.Length)
-    {
-        info.timeElapsed = info.Loop;
-        if(info.callback)
-            info.callback(info.callback_arg);
-    }
-
+  
     if(--PSC.DelayCounter <= 0)
     {
         if(--PSC.Lines_Counter <= 0)
@@ -450,8 +444,6 @@ void PSC_Play(AYSongInfo &info)
     player->WriteAy(AY_CHNL_A_VOL, PSC_A.Amplitude);
     player->WriteAy(AY_CHNL_B_VOL, PSC_B.Amplitude);
     player->WriteAy(AY_CHNL_C_VOL, PSC_C.Amplitude);
-
-    info.timeElapsed++;
 }
 
 void PSC_GetInfo(AYSongInfo &info)
