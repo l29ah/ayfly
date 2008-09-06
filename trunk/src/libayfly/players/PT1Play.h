@@ -63,9 +63,9 @@ void PT1_Init(AYSongInfo &info)
     PT1.DelayCounter = 1;
     PT1.Delay = header->PT1_Delay;
     PT1.CurrentPosition = 0;
-    memcpy(&PT1_A.Address_In_Pattern, &module[PT1_PatternsPointer + header->PT1_PositionList[0] * 6], 2);
-    memcpy(&PT1_B.Address_In_Pattern, &module[PT1_PatternsPointer + header->PT1_PositionList[0] * 6 + 2], 2);
-    memcpy(&PT1_C.Address_In_Pattern, &module[PT1_PatternsPointer + header->PT1_PositionList[0] * 6 + 4], 2);
+    PT1_A.Address_In_Pattern = ay_sys_getword(&module[PT1_PatternsPointer + header->PT1_PositionList[0] * 6]);
+    PT1_B.Address_In_Pattern = ay_sys_getword(&module[PT1_PatternsPointer + header->PT1_PositionList[0] * 6 + 2]);
+    PT1_C.Address_In_Pattern = ay_sys_getword(&module[PT1_PatternsPointer + header->PT1_PositionList[0] * 6 + 4]);
 
     PT1_A.OrnamentPointer = PT1_OrnamentsPointers(0);
     PT1_A.Envelope_Enabled = false;
@@ -121,14 +121,14 @@ void PT1_PatternInterpreter(AYSongInfo &info, PT1_Channel_Parameters &chan)
             chan.Loop_Sample_Position = module[chan.SamplePointer];
             chan.SamplePointer++;
         }
-        else if(val >= 0x80 && val <= 0x7f)
+        else if(val >= 0x70 && val <= 0x7f)
             chan.OrnamentPointer = PT1_OrnamentsPointers(val - 0x70);
         else if(val == 0x80)
         {
             chan.Enabled = false;
             quit = true;
         }
-        else if(val = 0x81)
+        else if(val == 0x81)
             chan.Envelope_Enabled = false;
         else if(val >= 0x82 && val <= 0x8f)
         {
@@ -165,20 +165,20 @@ void PT1_GetRegisters(AYSongInfo &info, PT1_Channel_Parameters &chan, unsigned c
         if(j > 95)
             j = 95;
         b = module[chan.SamplePointer + chan.Position_In_Sample * 3];
-        chan.Ton = (((unsigned short)(b) << 4) & 0xf00) + module[chan.SamplePointer + chan.Position_In_Sample * 3 + 2];
-        chan.Amplitude = round((chan.Volume * 17 + (unsigned char)(chan.Volume > 7)) * (b & 15) / 256);
+        chan.Ton = ((((unsigned short)(b)) << 4) & 0xf00) + module[chan.SamplePointer + chan.Position_In_Sample * 3 + 2];
+        chan.Amplitude = round((chan.Volume * 17 + (chan.Volume > 7 ? 1 : 0)) * (b & 15) / 256);
         b = module[chan.SamplePointer + chan.Position_In_Sample * 3 + 1];
         if((b & 32) == 0)
             chan.Ton = -chan.Ton;
-        chan.Ton = (chan.Ton + PT2_Table[j] + (unsigned short)(j == 46)) & 0xfff;
+        chan.Ton = (chan.Ton + PT2_Table[j] + (j == 46 ? 1 : 0)) & 0xfff;
         if(chan.Envelope_Enabled)
             chan.Amplitude |= 16;
         if((char)b < 0)
-            TempMixer |= 64;
+            TempMixer = TempMixer | 64;
         else
             player->WriteAy(AY_NOISE_PERIOD, b & 31);
         if((b & 64) != 0)
-            TempMixer |= 8;
+            TempMixer = TempMixer | 8;
         chan.Position_In_Sample++;
         if(chan.Position_In_Sample == chan.Sample_Length)
             chan.Position_In_Sample = chan.Loop_Sample_Position;
