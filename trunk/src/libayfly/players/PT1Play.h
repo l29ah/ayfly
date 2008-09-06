@@ -1,5 +1,3 @@
-#include <math.h>
-
 unsigned short PT2_Table[96] =
 { 0xef8, 0xe10, 0xd60, 0xc80, 0xbd8, 0xb28, 0xa88, 0x9f0, 0x960, 0x8e0, 0x858, 0x7e0, 0x77c, 0x708, 0x6b0, 0x640, 0x5ec, 0x594, 0x544, 0x4f8, 0x4b0, 0x470, 0x42c, 0x3fd, 0x3be, 0x384, 0x358, 0x320, 0x2f6, 0x2ca, 0x2a2, 0x27c, 0x258, 0x238, 0x216, 0x1f8, 0x1df, 0x1c2, 0x1ac, 0x190, 0x17b, 0x165, 0x151, 0x13e, 0x12c, 0x11c, 0x10a, 0xfc, 0xef, 0xe1, 0xd6, 0xc8, 0xbd, 0xb2, 0xa8, 0x9f, 0x96, 0x8e, 0x85, 0x7e, 0x77, 0x70, 0x6b, 0x64, 0x5e, 0x59, 0x54, 0x4f, 0x4b, 0x47, 0x42, 0x3f, 0x3b, 0x38, 0x35, 0x32, 0x2f, 0x2c, 0x2a, 0x27, 0x25, 0x23, 0x21, 0x1f, 0x1d, 0x1c, 0x1a, 0x19, 0x17, 0x16, 0x15, 0x13, 0x12, 0x11, 0x10, 0xf };
 
@@ -156,7 +154,6 @@ void PT1_PatternInterpreter(AYSongInfo &info, PT1_Channel_Parameters &chan)
 void PT1_GetRegisters(AYSongInfo &info, PT1_Channel_Parameters &chan, unsigned char &TempMixer)
 {
     unsigned char *module = info.module;
-    PT1_File *header = (PT1_File *)module;
     AbstractAudio *player = info.player;
     unsigned char j, b;
     if(chan.Enabled)
@@ -166,14 +163,14 @@ void PT1_GetRegisters(AYSongInfo &info, PT1_Channel_Parameters &chan, unsigned c
             j = 95;
         b = module[chan.SamplePointer + chan.Position_In_Sample * 3];
         chan.Ton = ((((unsigned short)(b)) << 4) & 0xf00) + module[chan.SamplePointer + chan.Position_In_Sample * 3 + 2];
-        chan.Amplitude = round((chan.Volume * 17 + (chan.Volume > 7 ? 1 : 0)) * (b & 15) / 256);
+        chan.Amplitude = (chan.Volume * 17 + (chan.Volume > 7 ? 1 : 0)) * (b & 15) / 256;
         b = module[chan.SamplePointer + chan.Position_In_Sample * 3 + 1];
         if((b & 32) == 0)
             chan.Ton = -chan.Ton;
         chan.Ton = (chan.Ton + PT2_Table[j] + (j == 46 ? 1 : 0)) & 0xfff;
         if(chan.Envelope_Enabled)
             chan.Amplitude |= 16;
-        if((char)b < 0)
+        if((signed char)b < 0)
             TempMixer = TempMixer | 64;
         else
             player->WriteAy(AY_NOISE_PERIOD, b & 31);
@@ -244,7 +241,6 @@ void PT1_GetInfo(AYSongInfo &info)
     PT1_File *header = (PT1_File *)module;
     short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
-    bool env1, env2, env3;
     long i, tm = 0;
     unsigned char b;
     b = header->PT1_Delay;
