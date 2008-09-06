@@ -1,5 +1,16 @@
 Changelog:
 
+06.09.2008 - 0.0.17
+Added support for PT1 format
+Added YM emulation
+Fixed some bugs in symbian version
+Added S60 2nd (Symbian 8) build
+Added UIQ3 build
+Changed default windows audio driver from DirectX to Wave API
+Made ANSI library version for windows
+Removed ayfly_dynamicdll.h because of inconsistency with ayfly.h
+Fixed bugs
+
 24.08.2008 - 0.0.16
 Added support for PSG format
 Some optimizations in AY emulator

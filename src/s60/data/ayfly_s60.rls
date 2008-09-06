@@ -34,6 +34,6 @@
 
 #define qtn_about_dialog_title "About"
 
-#define qtn_about_dialog_text "ayfly_s60 Version 0.0.16\n\nAuthor: Andrew Deryabin\n\nSupport: andrew@it-optima.ru\n\n(c) Andrew Deryabin (c) 2008"
+#define qtn_about_dialog_text "ayfly_s60 Version 0.0.17\n\nAuthor: Andrew Deryabin\n\nSupport: andrew@it-optima.ru\n\n(c) Andrew Deryabin (c) 2008"
 
 // End of File
