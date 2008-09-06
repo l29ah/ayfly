@@ -229,12 +229,17 @@ AyflyFrame::AyflyFrame(const wxString &title) :
 
     allSizer->Add(intfreqSizer, 0, wxEXPAND, 5);
 
+    wxBoxSizer* chipTypeSizer;
+    chipTypeSizer = new wxBoxSizer( wxVERTICAL );
+
     wxString chipTypeBoxChoices[] =
     {   wxT("AY-8910"), wxT("YM-2149")};
-    int chipTypeBoxNChoices = sizeof(chipTypeBoxChoices) / sizeof(wxString);
+    int chipTypeBoxNChoices = sizeof( chipTypeBoxChoices ) / sizeof( wxString );
     chipTypeBox = new wxRadioBox( this, wxID_CHIPTYPE, wxT("Chip type"), wxDefaultPosition, wxDefaultSize, chipTypeBoxNChoices, chipTypeBoxChoices, 1, wxRA_SPECIFY_ROWS );
     chipTypeBox->SetSelection( 0 );
-    allSizer->Add( chipTypeBox, 0, wxALL, 5 );
+    chipTypeSizer->Add( chipTypeBox, 0, wxALL, 5 );
+
+    allSizer->Add( chipTypeSizer, 0, 0, 5 );
 
     wxBoxSizer* PosSizer;
     PosSizer = new wxBoxSizer(wxVERTICAL);
