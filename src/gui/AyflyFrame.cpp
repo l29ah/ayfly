@@ -36,7 +36,6 @@
 #include "images/keys.xpm"
 
 IMPLEMENT_APP(AyflyApp)
-
 #define wxID_OPEN 1000
 #define wxID_PLAY 1001
 #define wxID_REWIND 1002
@@ -45,33 +44,23 @@ IMPLEMENT_APP(AyflyApp)
 #define wxID_STOP 1005
 #define wxID_REPEAT 1006
 #define wxID_KEYS 1007
-
 #define wxID_AMUTE 1014
 #define wxID_BMUTE 1015
 #define wxID_CMUTE 1016
-
 #define wxID_CALLBACK 2000
-
 #define SLIDER_VOLA_ID 1020
 #define SLIDER_VOLB_ID 1021
 #define SLIDER_VOLC_ID 1022
-
 #define wxID_POSSLIDER 1030
-
 #define wxID_AYFREQSLIDER 1050
 #define wxID_INTFREQSLIDER 1051
 #define wxID_CHIPTYPE 1052
-
 #define wxID_SELECTALL 1100
 #define wxID_SETREPEAT 1101
-
 #define TIMER_ID 1040
 #define TIMER_INTERVAL 200
-
 #define BUTTON_LINK_ID 1
-
 #define PLAYLIST_ID 1010
-
 BEGIN_EVENT_TABLE(AyflyFrame, wxFrame)
 EVT_MENU(wxID_ABOUT, AyflyFrame::OnAbout)
 EVT_MENU(wxID_EXIT, AyflyFrame::OnQuit)
@@ -104,20 +93,20 @@ END_EVENT_TABLE()
 HWND hWndMain;
 #endif
 
-struct bindings default_bindings [] =
+struct bindings default_bindings[] =
 {
-    {   wxT("Open song"), wxT("wxID_OPEN"), wxID_OPEN, (int)'O', wxACCEL_NORMAL},
-    {   wxT("Play/Pause"), wxT("wxID_PLAY"), wxID_PLAY, (int)'X', wxACCEL_NORMAL},
-    {   wxT("Rewind"), wxT("wxID_REWIND"), wxID_REWIND, (int)'W', wxACCEL_NORMAL},
-    {   wxT("Previous song"), wxT("wxID_PREV"), wxID_PREV, (int)'Z', wxACCEL_NORMAL},
-    {   wxT("Next song"), wxT("wxID_NEXT"), wxID_NEXT, (int)'B', wxACCEL_NORMAL},
-    {   wxT("Stop"), wxT("wxID_STOP"), wxID_STOP, (int)'V', wxACCEL_NORMAL},
-    {   wxT("Toggle Repeat mode"), wxT("wxID_SETREPEAT"), wxID_SETREPEAT, (int)'R', wxACCEL_NORMAL},
-    {   wxT("Toggle A channel"), wxT("wxID_AMUTE"), wxID_AMUTE, (int)'1', wxACCEL_NORMAL},
-    {   wxT("Toggle B channel"), wxT("wxID_BMUTE"), wxID_BMUTE, (int)'2', wxACCEL_NORMAL},
-    {   wxT("Toggle C channel"), wxT("wxID_CMUTE"), wxID_CMUTE, (int)'3', wxACCEL_NORMAL},
-    {   wxT("Select all playlist items"), wxT("wxID_SELECTALL"), wxID_SELECTALL, (int)'A', wxACCEL_CTRL},
-    {   wxT(""), wxT(""), 0, 0, 0}
+{ wxT("Open song"), wxT("wxID_OPEN"), wxID_OPEN, (int)'O', wxACCEL_NORMAL},
+{wxT("Play/Pause"), wxT("wxID_PLAY"), wxID_PLAY, (int)'X', wxACCEL_NORMAL},
+{wxT("Rewind"), wxT("wxID_REWIND"), wxID_REWIND, (int)'W', wxACCEL_NORMAL},
+{wxT("Previous song"), wxT("wxID_PREV"), wxID_PREV, (int)'Z', wxACCEL_NORMAL},
+{wxT("Next song"), wxT("wxID_NEXT"), wxID_NEXT, (int)'B', wxACCEL_NORMAL},
+{wxT("Stop"), wxT("wxID_STOP"), wxID_STOP, (int)'V', wxACCEL_NORMAL},
+{wxT("Toggle Repeat mode"), wxT("wxID_SETREPEAT"), wxID_SETREPEAT, (int)'R', wxACCEL_NORMAL},
+{wxT("Toggle A channel"), wxT("wxID_AMUTE"), wxID_AMUTE, (int)'1', wxACCEL_NORMAL},
+{wxT("Toggle B channel"), wxT("wxID_BMUTE"), wxID_BMUTE, (int)'2', wxACCEL_NORMAL},
+{wxT("Toggle C channel"), wxT("wxID_CMUTE"), wxID_CMUTE, (int)'3', wxACCEL_NORMAL},
+{wxT("Select all playlist items"), wxT("wxID_SELECTALL"), wxID_SELECTALL, (int)'A', wxACCEL_CTRL},
+{wxT(""), wxT(""), 0, 0, 0}
 };
 
 AyflyFrame::AyflyFrame(const wxString &title) :
@@ -125,7 +114,7 @@ AyflyFrame::AyflyFrame(const wxString &title) :
 {
     SetBackgroundStyle(wxBG_STYLE_COLOUR);
     SetBackgroundColour(wxColour(0xef, 0xeb, 0xe7));
-    SetIcon( wxIcon(Icon_xpm));
+    SetIcon(wxIcon(Icon_xpm));
     CreateStatusBar(2);
     SetStatusText(wxT("Welcome to Ayfly!"));
     toolBar = 0;
@@ -241,11 +230,11 @@ AyflyFrame::AyflyFrame(const wxString &title) :
     allSizer->Add(intfreqSizer, 0, wxEXPAND, 5);
 
     wxString chipTypeBoxChoices[] =
-    { wxT("AY-8910"), wxT("YM-2149") };
+    {   wxT("AY-8910"), wxT("YM-2149")};
     int chipTypeBoxNChoices = sizeof(chipTypeBoxChoices) / sizeof(wxString);
-    chipTypeBox = new wxRadioBox(this, wxID_CHIPTYPE, wxT("Chip type"), wxDefaultPosition, wxDefaultSize, chipTypeBoxNChoices, chipTypeBoxChoices, 1, 0);
-    chipTypeBox->SetSelection(0);
-    allSizer->Add(chipTypeBox, 0, wxALL | wxEXPAND, 5);
+    chipTypeBox = new wxRadioBox( this, wxID_CHIPTYPE, wxT("Chip type"), wxDefaultPosition, wxDefaultSize, chipTypeBoxNChoices, chipTypeBoxChoices, 1, wxRA_SPECIFY_ROWS );
+    chipTypeBox->SetSelection( 0 );
+    allSizer->Add( chipTypeBox, 0, wxALL, 5 );
 
     wxBoxSizer* PosSizer;
     PosSizer = new wxBoxSizer(wxVERTICAL);
@@ -374,7 +363,7 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
     {
         toolBar->ToggleTool(wxID_PLAY, false);
         if(currentIndex >= playListView->GetItemCount())
-            return;
+        return;
 
         if(OpenFile())
         {
@@ -807,7 +796,6 @@ void AyflyFrame::OnChipSelect(wxCommandEvent &event)
         ay_setchiptype(currentSong->info, chipTypeBox->GetSelection());
     }
 }
-
 
 void AyflyFrame::RecreateToolbar()
 {
