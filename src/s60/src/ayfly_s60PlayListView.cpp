@@ -32,14 +32,12 @@ Cayfly_s60PlayListView* Cayfly_s60PlayListView::NewL(const TRect& aRect)
     return (me);
 }
 
-Cayfly_s60PlayListView::Cayfly_s60PlayListView() :
-    iRoot(ETrue)
+Cayfly_s60PlayListView::Cayfly_s60PlayListView()
 {
 }
 
 Cayfly_s60PlayListView::~Cayfly_s60PlayListView()
-{
-    delete iEngine;
+{    
     iFocusPos.Close();
     delete iListBox;
 }
@@ -48,8 +46,7 @@ void Cayfly_s60PlayListView::ConstructL(const TRect& aRect)
 {
     CreateWindowL();
 
-    SetUpListBoxL();
-    ShowRootL();
+    SetUpListBoxL();    
 
     SetRect(aRect);
     ActivateL();
@@ -76,8 +73,7 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
         case EEventEnterKeyPressed:
         case EEventItemClicked:
         {// An item has been chosen and will be opened
-            NavigateL(iListBox->CurrentItemIndex());
-            OpenFolderL();
+            
         }
             break;
         default: // Nothing to do

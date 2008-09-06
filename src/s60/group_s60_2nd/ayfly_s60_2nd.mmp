@@ -53,4 +53,5 @@ LIBRARY        commondialogs.lib mediaclientaudiostream.lib estlib.lib
 VENDORID	  	  0
 // End of File
 
-SOURCEPATH ..\..\libayfly
+SOURCEPATH ..\src
+SOURCE ayfly_s60PlayListView.cpp
