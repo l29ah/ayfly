@@ -18,59 +18,36 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef S60_H_
-#    define S60_H_
+#ifndef AYFLY_S60PLAYLISTVIEW_H_
+#define AYFLY_S60PLAYLISTVIEW_H_
 
-#    ifndef UNICODE
-#        define UNICODE
-#    endif
+class Cayfly_s60PlayListView: public CCoeControl, public MEikListBoxObserver
+{
+public:
+    static Cayfly_s60PlayListView* NewL(const TRect& aRect);
+    ~Cayfly_s60PlayListView();
+public:
+    //  from CCoeControl
+    TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent, TEventCode aType);
+public:
+    // from MEikListBoxObserver 
+    void HandleListBoxEventL(CEikListBox* aListBox, TListBoxEvent aEventType);
+protected:
+    //  From CCoeControl
+    void SizeChanged();
+    TInt CountComponentControls() const;
+    CCoeControl* ComponentControl(TInt aIndex) const;
+private:
+    void SetUpListBoxL();
+private:
+    Cayfly_s60PlayListView();
+    void ConstructL(const TRect& aRect);
+private:
+    void Draw(const TRect& aRect) const;
+private:
+    CAknColumnListBox* iListBox;
+    RArray<TInt> iFocusPos; // position of focus in listbox for the folders passed, used whem going back
+private:
+};
 
-#    ifndef _UNICODE
-#        define _UNICODE
-#    endif
-
-#ifndef sizeof_array
-#    define sizeof_array(x) sizeof(x) / sizeof(x [0])
-#endif
-
-#include "ayfly.h"
-
-#include "ayfly_s60.hrh"
-
-#ifdef EKA2
-#include <e32cmn.h>
-#include <eikstart.h>
-#endif
-#include <f32file.h>
-#include <s32std.h>
-#include <s32file.h>
-#include <coemain.h>
-#include <eikenv.h>
-#ifndef UIQ3
-#include <avkon.hrh>
-#include <aknmessagequerydialog.h>
-#include <aknnotewrappers.h>
-#include <caknfileselectiondialog.h>
-#include <pathinfo.h>
-#include <stringloader.h>
-#include <aknlists.h>
-#else
-#include <qikselectfiledlg.h>
-#endif
-
-
-
-
-#include "ayfly_s60.pan"
-#include "ayfly_s60Document.h"
-#include "ayfly_s60Application.h"
-#include "ayfly_s60AppUi.h"
-#include "ayfly_s60AppView.h"
-#include "ayfly_s60PlayListView.h"
-#ifdef UIQ3
-#include "ayfly_uiq3.rsg"
-#else
-#include "ayfly_s60.rsg"
-#endif
-
-#endif /*S60_H_*/
+#endif /* AYFLY_S60PLAYLISTVIEW_H_ */
