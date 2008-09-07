@@ -10,7 +10,7 @@
 #define MMP 1
 MACRO S60_2ND
 
-#include "..\inc\ayfly_s60.hrh"
+#include "../inc/ayfly_s60.hrh"
 
 TARGET			ayfly_s60.app
 TARGETTYPE		app
@@ -31,6 +31,7 @@ SOURCE			ayfly_s60Application.cpp
 SOURCE			ayfly_s60AppView.cpp
 SOURCE			ayfly_s60AppUi.cpp
 SOURCE			ayfly_s60Document.cpp
+SOURCE          ayfly_s60PlayListView.cpp
 
 SOURCEPATH		..\..\libayfly
 SOURCE			z80ex\z80ex.cpp speccy.cpp formats.cpp ay.cpp common.cpp AbstractAudio.cpp s60\ayfly_s60Audio.cpp
@@ -53,5 +54,4 @@ LIBRARY        commondialogs.lib mediaclientaudiostream.lib estlib.lib
 VENDORID	  	  0
 // End of File
 
-SOURCEPATH ..\src
-SOURCE ayfly_s60PlayListView.cpp
+
