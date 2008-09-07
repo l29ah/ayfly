@@ -64,7 +64,8 @@ private:
     wxStaticText* txtayfreq;
     wxSlider* intfreqSlider;
     wxStaticText* txtintfreq;
-    wxRadioBox* chipTypeBox;
+    wxRadioButton* chipTypeAY;
+    wxRadioButton* chipTypeYM;
 
     CurrentSong *currentSong;
 
