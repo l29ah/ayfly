@@ -1,4 +1,5 @@
 #/bin/sh
+export EPOCROOT=/home/andrew/symbian-sdks/s60_28/
 cd ../group_s60_2nd
 bldmake bldfiles
 abld build armi urel

@@ -26,7 +26,7 @@
 ;<source> <destination>
 "..\..\..\..\..\symbian-sdks\s60_32\epoc32\release\gcce\urel\ayfly_s60.exe"		-"!:\sys\bin\ayfly_s60.exe"
 "..\..\..\..\..\symbian-sdks\s60_32\epoc32\data\z\resource\apps\ayfly_s60.rsc"		-"!:\resource\apps\ayfly_s60.rsc"
-"..\..\..\..\..\symbian-sdks\s60_32\epoc32\data\z\private\10003a3f\apps\ayfly_s60_reg.rsc"	-"!:\private\10003a3f\import\apps\ayfly_s60_reg.rsc"
+"..\..\..\..\..\symbian-sdks\s60_32\epoc32\data\z\private\10003a3f\import\apps\ayfly_s60_reg.rsc"	-"!:\private\10003a3f\import\apps\ayfly_s60_reg.rsc"
 "..\..\..\..\..\symbian-sdks\s60_32\epoc32\data\z\resource\apps\ayfly_s60.mif" -"!:\resource\apps\ayfly_s60.mif"
 
 ; Add any installation notes if applicable

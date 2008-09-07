@@ -66,10 +66,10 @@
 #include "ayfly_s60Application.h"
 #include "ayfly_s60AppUi.h"
 #include "ayfly_s60AppView.h"
-#include "ayfly_s60PlayListView.h"
 #ifdef UIQ3
 #include "ayfly_uiq3.rsg"
 #else
+#include "ayfly_s60PlayListView.h"
 #include "ayfly_s60.rsg"
 #endif
 
