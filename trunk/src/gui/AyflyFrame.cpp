@@ -54,7 +54,8 @@ IMPLEMENT_APP(AyflyApp)
 #define wxID_POSSLIDER 1030
 #define wxID_AYFREQSLIDER 1050
 #define wxID_INTFREQSLIDER 1051
-#define wxID_CHIPTYPE 1052
+#define wxID_CHIPTYPE_AY 1052
+#define wxID_CHIPTYPE_YM 1052
 #define wxID_SELECTALL 1100
 #define wxID_SETREPEAT 1101
 #define TIMER_ID 1040
@@ -86,7 +87,8 @@ EVT_COMMAND_SCROLL_THUMBTRACK(wxID_POSSLIDER, AyflyFrame::OnScroll)
 EVT_COMMAND_SCROLL_THUMBRELEASE(wxID_POSSLIDER, AyflyFrame::OnScroll)
 EVT_LIST_ITEM_ACTIVATED(PLAYLIST_ID, AyflyFrame::OnSelectSong)
 EVT_LIST_KEY_DOWN(PLAYLIST_ID, AyflyFrame::OnListKeyDown)
-EVT_RADIOBOX(wxID_CHIPTYPE, AyflyFrame::OnChipSelect)
+EVT_RADIOBUTTON(wxID_CHIPTYPE_AY, AyflyFrame::OnChipSelect)
+EVT_RADIOBUTTON(wxID_CHIPTYPE_YM, AyflyFrame::OnChipSelect)
 END_EVENT_TABLE()
 
 #ifdef WINDOWS
@@ -229,15 +231,14 @@ AyflyFrame::AyflyFrame(const wxString &title) :
 
     allSizer->Add(intfreqSizer, 0, wxEXPAND, 5);
 
-    wxBoxSizer* chipTypeSizer;
-    chipTypeSizer = new wxBoxSizer( wxVERTICAL );
+    wxStaticBoxSizer* chipTypeSizer;
+    chipTypeSizer = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Chip type") ), wxHORIZONTAL );
 
-    wxString chipTypeBoxChoices[] =
-    {   wxT("AY-8910"), wxT("YM-2149")};
-    int chipTypeBoxNChoices = sizeof( chipTypeBoxChoices ) / sizeof( wxString );
-    chipTypeBox = new wxRadioBox( this, wxID_CHIPTYPE, wxT("Chip type"), wxDefaultPosition, wxDefaultSize, chipTypeBoxNChoices, chipTypeBoxChoices, 1, wxRA_SPECIFY_ROWS );
-    chipTypeBox->SetSelection( 0 );
-    chipTypeSizer->Add( chipTypeBox, 0, wxALL, 5 );
+    chipTypeAY = new wxRadioButton( this, wxID_CHIPTYPE_AY, wxT("AY-8910"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP );
+    chipTypeSizer->Add( chipTypeAY, 0, wxALL, 5 );
+
+    chipTypeYM = new wxRadioButton( this, wxID_CHIPTYPE_YM, wxT("YM-2149"), wxDefaultPosition, wxDefaultSize, 0 );
+    chipTypeSizer->Add( chipTypeYM, 0, wxALL, 5 );
 
     allSizer->Add( chipTypeSizer, 0, 0, 5 );
 
@@ -798,7 +799,7 @@ void AyflyFrame::OnChipSelect(wxCommandEvent &event)
 {
     if(currentSong && currentSong->info)
     {
-        ay_setchiptype(currentSong->info, chipTypeBox->GetSelection());
+        ay_setchiptype(currentSong->info, chipTypeAY->GetValue() ? 0 : 1);
     }
 }
 
@@ -973,7 +974,7 @@ bool AyflyFrame::OpenFile()
             SetTitle(frameTitle.c_str());
             posslider->SetRange(0, ay_getsonglength(currentSong->info));
             RecreateToolbar();
-            ay_setchiptype(currentSong->info, chipTypeBox->GetSelection());
+            ay_setchiptype(currentSong->info, chipTypeAY->GetValue() ? 0 : 1);
 #ifdef WINDOWS
             //ay_sethwnd(currentSong->info, (HWND)GetHWND());
 #endif
