@@ -54,29 +54,38 @@ RESOURCE QIK_VIEW_CONFIGURATIONS r_ayfly_ui_configurations
 			{
 			ui_config_mode = KQikPenStyleTouchPortrait;
 			command_list = r_menu;
+			view = r_ayfly_layout;
 			},
 		QIK_VIEW_CONFIGURATION
 			{
 			ui_config_mode = KQikPenStyleTouchLandscape;
 			command_list = r_menu;
+			view = r_ayfly_layout;
 			},
 		QIK_VIEW_CONFIGURATION
 			{
 			ui_config_mode = KQikSoftkeyStyleTouchPortrait;
 			command_list = r_menu;
+			view = r_ayfly_layout;
 			},
 		QIK_VIEW_CONFIGURATION
 			{
 			ui_config_mode = KQikSoftkeyStylePortrait;
 			command_list = r_menu;
+			view = r_ayfly_layout;
 			},
 		QIK_VIEW_CONFIGURATION
 			{
 			ui_config_mode = KQikSoftkeyStyleSmallPortrait;
 			command_list = r_menu;
+			view = r_ayfly_layout;
 			}
 		};
 	}
+
+RESOURCE QIK_VIEW r_ayfly_layout
+{
+}
 
 // -----------------------------------------------------------------------------
 //
