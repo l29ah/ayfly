@@ -136,7 +136,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dsound.lib dxguid.lib"
+				AdditionalDependencies="winmm.lib"
 				OutputFile="$(OutDir)\ayfly.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="false"
