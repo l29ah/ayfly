@@ -2,6 +2,7 @@ Changelog:
 
 06.09.2008 - 0.0.17
 Added support for PT1 format
+PT3 player rewritten in c++
 Added YM emulation
 Fixed some bugs in symbian version
 Added S60 2nd (Symbian 8) build
