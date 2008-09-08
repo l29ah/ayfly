@@ -134,7 +134,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="ayfly.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\ayfly_dll\Release"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
