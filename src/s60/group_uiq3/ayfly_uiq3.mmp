@@ -21,7 +21,7 @@ EPOCSTACKSIZE		0x5000
 SOURCEPATH		..\src
 SOURCE			ayfly_s60.cpp
 SOURCE			ayfly_s60Application.cpp
-SOURCE			ayfly_s60AppView.cpp
+SOURCE			ayfly_uiq3AppView.cpp
 SOURCE			ayfly_s60AppUi.cpp
 SOURCE			ayfly_s60Document.cpp
 
