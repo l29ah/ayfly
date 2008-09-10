@@ -18,61 +18,39 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef S60_H_
-#    define S60_H_
+#ifndef AYFLY_UIQ3APPVIEW_H_
+#define AYFLY_UIQ3APPVIEW_H_
 
-#    ifndef UNICODE
-#        define UNICODE
-#    endif
+#include <qikviewbase.h>
 
-#    ifndef _UNICODE
-#        define _UNICODE
-#    endif
+// UID for the application;
+// this should correspond to the uid defined in the mmp file
+const TUid KUidayfly_s60AppView =
+    {
+    1
+    };
 
-#ifndef sizeof_array
-#    define sizeof_array(x) sizeof(x) / sizeof(x [0])
-#endif
+/**
+A very simple view that displays the text "Hello world", drawn using the default title 
+font supplied by UIQ. It also consist of three commands that will bring up infoprints.
+*/
+class Cayfly_s60AppView : public CQikViewBase
+    {
+public:
+    static Cayfly_s60AppView* NewLC(CQikAppUi& aAppUi);
+    ~Cayfly_s60AppView();
+    
+    // from CQikViewBase
+    TVwsViewId ViewId()const;
+    void HandleCommandL(CQikCommand& aCommand);
+    
+protected: 
+    // from CQikViewBase
+    void ViewConstructL();
+    
+private:
+    Cayfly_s60AppView(CQikAppUi& aAppUi);
+    void ConstructL();
+    };
 
-#include "ayfly.h"
-
-#include "ayfly_s60.hrh"
-
-#ifdef EKA2
-#include <e32cmn.h>
-#include <eikstart.h>
-#endif
-#include <f32file.h>
-#include <s32std.h>
-#include <s32file.h>
-#include <coemain.h>
-#include <eikenv.h>
-#ifndef UIQ3
-#include <avkon.hrh>
-#include <aknmessagequerydialog.h>
-#include <aknnotewrappers.h>
-#include <caknfileselectiondialog.h>
-#include <pathinfo.h>
-#include <stringloader.h>
-#include <aknlists.h>
-#else
-#include <qikselectfiledlg.h>
-#include <qikcommand.h>
-#endif
-
-
-
-
-#include "ayfly_s60.pan"
-#include "ayfly_s60Document.h"
-#include "ayfly_s60Application.h"
-#include "ayfly_s60AppUi.h"
-#ifdef UIQ3
-#include "ayfly_uiq3.rsg"
-#include "ayfly_uiq3AppView.h"
-#else
-#include "ayfly_s60.rsg"
-#include "ayfly_s60AppView.h"
-#include "ayfly_s60PlayListView.h"
-#endif
-
-#endif /*S60_H_*/
+#endif /* AYFLY_UIQ3APPVIEW_H_ */
