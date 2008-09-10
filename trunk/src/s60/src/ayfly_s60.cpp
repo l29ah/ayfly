@@ -21,7 +21,7 @@
 #include "s60.h"
 #ifdef EKA2
 // INCLUDE FILES
-LOCAL_C CApaApplication* NewApplication()
+EXPORT_C CApaApplication* NewApplication()
 {
 	return new Cayfly_s60Application;
 }

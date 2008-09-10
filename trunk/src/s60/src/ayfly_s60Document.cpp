@@ -28,7 +28,11 @@
 // Two-phased constructor.
 // -----------------------------------------------------------------------------
 //
+#ifdef UIQ3
+Cayfly_s60Document* Cayfly_s60Document::NewL(CQikApplication& aApp)
+#else
 Cayfly_s60Document* Cayfly_s60Document::NewL(CEikApplication& aApp)
+#endif
 	{
 	Cayfly_s60Document* self = NewLC(aApp);
 	CleanupStack::Pop(self);
@@ -40,7 +44,11 @@ Cayfly_s60Document* Cayfly_s60Document::NewL(CEikApplication& aApp)
 // Two-phased constructor.
 // -----------------------------------------------------------------------------
 //
+#ifdef UIQ3
+Cayfly_s60Document* Cayfly_s60Document::NewLC(CQikApplication& aApp)
+#else
 Cayfly_s60Document* Cayfly_s60Document::NewLC(CEikApplication& aApp)
+#endif
 	{
 	Cayfly_s60Document* self = new ( ELeave ) Cayfly_s60Document( aApp );
 
@@ -64,10 +72,12 @@ void Cayfly_s60Document::ConstructL()
 // C++ default constructor can NOT contain any code, that might leave.
 // -----------------------------------------------------------------------------
 //
-Cayfly_s60Document::Cayfly_s60Document(CEikApplication& aApp) :
+
 #ifdef UIQ3
+Cayfly_s60Document::Cayfly_s60Document(CQikApplication& aApp) :
     CQikDocument(aApp)
 #else //S60
+Cayfly_s60Document::Cayfly_s60Document(CEikApplication& aApp) :
 	CAknDocument(aApp)
 #endif
 	{

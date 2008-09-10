@@ -16,10 +16,7 @@ TARGET			ayfly_uiq3.exe
 TARGETTYPE		exe
 UID		  0x100039CE _UID3
 
-COMPRESSTARGET
-
-EPOCHEAPSIZE  100000 5000000
-EPOCSTACKSIZE 65536
+EPOCSTACKSIZE		0x5000
 
 SOURCEPATH		..\src
 SOURCE			ayfly_s60.cpp
@@ -34,9 +31,9 @@ SOURCE			z80ex\z80ex.cpp speccy.cpp formats.cpp ay.cpp common.cpp AbstractAudio.
 SOURCEPATH		..\data
 
 START RESOURCE ayfly_uiq3.rss
-	HEADER
-	TARGET ayfly_uiq3
-	TARGETPATH resource\apps
+	HEADER	
+	TARGETPATH \resource\apps
+	LANG 01
 END
 
 START RESOURCE ayfly_uiq3_reg.rss
@@ -63,7 +60,6 @@ LIBRARY        quiconfigclient.lib
 LIBRARY        bafl.lib
 LIBRARY        qikdlg.lib mediaclientaudiostream.lib
 
-LANG SC
 
 VENDORID	  	  0
 SECUREID		  _UID3

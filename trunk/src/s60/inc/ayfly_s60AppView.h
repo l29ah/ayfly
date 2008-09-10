@@ -13,7 +13,13 @@
 // INCLUDES
 #include <coecntrl.h>
 
+const TUid KUidayfly_s60View =
+    {
+    1
+    };
+
 // CLASS DECLARATION
+
 class Cayfly_s60AppView : public CCoeControl
 	{
 public:
@@ -43,6 +49,10 @@ public:
 	 * Virtual Destructor.
 	 */
 	virtual ~Cayfly_s60AppView();
+	/*TVwsViewId ViewId() const
+	{
+	    return TVwsViewId(KUidayfly_s60App, KUidayfly_s60View);	
+	};*/
 
 public:
 	// Functions from base classes
