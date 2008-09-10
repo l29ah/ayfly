@@ -37,7 +37,7 @@ font supplied by UIQ. It also consist of three commands that will bring up infop
 class Cayfly_s60AppView : public CQikViewBase
     {
 public:
-    static Cayfly_s60AppView* NewLC(CQikAppUi& aAppUi);
+    static Cayfly_s60AppView* NewL(CQikAppUi& aAppUi);
     ~Cayfly_s60AppView();
     
     // from CQikViewBase
@@ -51,6 +51,7 @@ protected:
 private:
     Cayfly_s60AppView(CQikAppUi& aAppUi);
     void ConstructL();
+    Cayfly_s60AppUi *appui;
     };
 
 #endif /* AYFLY_UIQ3APPVIEW_H_ */
