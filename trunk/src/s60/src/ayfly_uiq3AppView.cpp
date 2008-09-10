@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include "s60.h"
+
 /**
 Creates and constructs the view.
 
@@ -47,6 +49,7 @@ default view.
 Cayfly_s60AppView::Cayfly_s60AppView(CQikAppUi& aAppUi) 
     : CQikViewBase(aAppUi, KNullViewId)
     {
+        appui = (Cayfly_s60AppUi *)&aAppUi; 
     }
 
 /**
@@ -95,13 +98,16 @@ The command Ids are defined in the .hrh file.
 @param aCommand The command to be executed
 @see CQikViewBase::HandleCommandL
 */
-void CHelloWorldView::HandleCommandL(CQikCommand& aCommand)
+void Cayfly_s60AppView::HandleCommandL(CQikCommand& aCommand)
     {
-    switch(aCommand.Id())
+    
+    appui->HandleCommandL(aCommand.Id());
+    
+    /*switch(aCommand.Id())
         {
         
         default:
             CQikViewBase::HandleCommandL(aCommand);
             break;
-        }
+        }*/
     }

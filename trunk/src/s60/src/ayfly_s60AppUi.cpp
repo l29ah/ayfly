@@ -37,7 +37,12 @@ void Cayfly_s60AppUi::ConstructL()
 	BaseConstructL(CAknAppUi::EAknEnableSkin);
 #endif
 	// Create view object
+#ifdef UIQ3
+	iAppView = Cayfly_s60AppView::NewL(*this);
+#else
 	iAppView = Cayfly_s60AppView::NewL(ClientRect() );
+#endif
+
 #ifdef UIQ3
 	AddViewL(*iAppView);
 #endif
