@@ -13,6 +13,7 @@
 // INCLUDES
 #ifdef UIQ3
 #include <qikdocument.h>
+#include <QikApplication.h>
 #else //S60
 #include <akndoc.h>
 #endif
@@ -47,7 +48,11 @@ public:
 	 * @param aApp Application creating this document.
 	 * @return A pointer to the created instance of Cayfly_s60Document.
 	 */
+#ifdef UIQ3
+	static Cayfly_s60Document* NewL(CQikApplication& aApp);
+#else
 	static Cayfly_s60Document* NewL(CEikApplication& aApp);
+#endif
 
 	/**
 	 * NewLC.
@@ -58,7 +63,11 @@ public:
 	 * @param aApp Application creating this document.
 	 * @return A pointer to the created instance of Cayfly_s60Document.
 	 */
+#ifdef UIQ3
+	static Cayfly_s60Document* NewLC(CQikApplication& aApp);
+#else
 	static Cayfly_s60Document* NewLC(CEikApplication& aApp);
+#endif
 
 	/**
 	 * ~Cayfly_s60Document
@@ -92,7 +101,11 @@ private:
 	 * C++ default constructor.
 	 * @param aApp Application creating this document.
 	 */
+#ifdef UIQ3
+	Cayfly_s60Document(CQikApplication& aApp);
+#else //S60
 	Cayfly_s60Document(CEikApplication& aApp);
+#endif
 
 	};
 

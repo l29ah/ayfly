@@ -32,7 +32,7 @@ void Cayfly_s60AppUi::ConstructL()
 {
 	// Initialise app UI with standard value.
 #ifdef UIQ3
-    BaseConstructL();
+    CQikAppUi::ConstructL();
 #else
 	BaseConstructL(CAknAppUi::EAknEnableSkin);
 #endif

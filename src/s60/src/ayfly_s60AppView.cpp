@@ -20,6 +20,7 @@
 
 // INCLUDE FILES
 #include "s60.h"
+
 // ============================ MEMBER FUNCTIONS ===============================
 
 // -----------------------------------------------------------------------------
@@ -57,8 +58,15 @@ void Cayfly_s60AppView::ConstructL(const TRect& aRect)
 	// Create a window for this application view
 	CreateWindowL();
 
+
 	// Set the windows size
 	SetRect(aRect);
+	
+#ifdef UIQ3
+	CQikCommandManager& cmdManager = CQikCommandManager::Static();
+	cmdManager.InsertIntoCommandListL(*this, *this, R_MENU);
+#endif
+
 
 	// Activate the window, which makes it ready to be drawn
 	ActivateL();
