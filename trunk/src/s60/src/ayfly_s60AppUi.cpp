@@ -38,6 +38,9 @@ void Cayfly_s60AppUi::ConstructL()
 #endif
 	// Create view object
 	iAppView = Cayfly_s60AppView::NewL(ClientRect() );
+#ifdef UIQ3
+	AddViewL(*iAppView);
+#endif
 	iVolume = 5;
 	currentSong = 0;
 }
