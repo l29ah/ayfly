@@ -353,6 +353,8 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
             if(timer.IsRunning())
                 timer.Stop();
 
+            ay_sethwnd(currentSong->info, (HWND)GetHWND());
+
             ay_startsong(currentSong->info);
 
             timer.Start(TIMER_INTERVAL);

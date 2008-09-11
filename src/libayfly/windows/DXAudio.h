@@ -50,12 +50,15 @@ private:
     bool dx_created;
     HRESULT CreateBasicBuffer();
     HRESULT SetNotificationPositions();
-    static DWORD pascal PlayingThread(void *arg);
-    void FillBuffer(DWORD dwOffset, DWORD dwSoundBytes);
+    static void CALLBACK TimerProc(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
+    void FillBuffer(DWORD dwSoundBytes);
     void ClearBuffer();
-    DWORD DXProcess();
+    void DXProcess();
     AYSongInfo *songinfo;
     HWND hWndMain;
+    MMRESULT m_nIDTimer;
+    LONG srvExch;
+    UINT dwOffset;
 
 };
 

@@ -175,7 +175,7 @@ struct AYSongInfo
 #ifndef WINDOWS
 #include "unix/SDLAudio.h"
 #else
-#include "windows/WaveAudio.h"
+#include "windows/DXAudio.h"
 #endif
 #else
 #include "s60/ayfly_s60Audio.h"
