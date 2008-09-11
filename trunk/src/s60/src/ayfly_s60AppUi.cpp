@@ -40,7 +40,7 @@ void Cayfly_s60AppUi::ConstructL()
 #ifdef UIQ3
 	iAppView = Cayfly_s60AppView::NewL(*this);
 #else
-	iAppView = Cayfly_s60AppView::NewL(ClientRect() );
+	iAppView = Cayfly_s60PlayListView::NewL(ClientRect() );
 #endif
 
 #ifdef UIQ3

@@ -91,7 +91,7 @@ private:
 	 * The application view
 	 * Owned by Cayfly_s60AppUi
 	 */
-	Cayfly_s60AppView* iAppView;
+	Cayfly_s60PlayListView* iAppView;
 	void *currentSong;
 	TInt iVolume;
 	//Cayfly_s60Audio *player;

@@ -39,7 +39,7 @@ SOURCEPATH		..\data
 START RESOURCE ayfly_s60.rss
 	HEADER
 	TARGET ayfly_s60
-	TARGETPATH resource\apps
+	TARGETPATH \resource\apps
 END
 
 START RESOURCE ayfly_s60_reg.rss
@@ -65,7 +65,6 @@ LIBRARY        commondialogs.lib mediaclientaudiostream.lib
 LANG SC
 
 VENDORID	  	  0
-SECUREID		  _UID3
 CAPABILITY	  	  ReadUserData
 // End of File
 
