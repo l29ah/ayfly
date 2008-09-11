@@ -21,6 +21,8 @@
 #ifndef AYFLY_S60PLAYLISTVIEW_H_
 #define AYFLY_S60PLAYLISTVIEW_H_
 
+#include <eiklbo.h>
+
 class Cayfly_s60PlayListView: public CCoeControl, public MEikListBoxObserver
 {
 public:
