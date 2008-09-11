@@ -59,7 +59,7 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
         return 0;
 #ifndef __SYMBIAN32__
 #ifdef WINDOWS
-    info->player = new WaveAudio(sr, info);
+    info->player = new DXAudio(sr, info);
 #else
     info->player = new SDLAudio(sr, info);
 #endif
@@ -141,7 +141,7 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFi
     info->sr = sr;
 #ifndef __SYMBIAN32__
 #ifdef WINDOWS
-    info->player = new WaveAudio(sr, info);
+    info->player = new DXAudio(sr, info);
 #else
     info->player = new SDLAudio(sr, info);
 #endif
@@ -481,6 +481,6 @@ AYSongInfo::~AYSongInfo()
 #ifdef WINDOWS
 AYFLY_API void ay_sethwnd(void *info, HWND hWnd)
 {
-    //((DXAudio *)((AYSongInfo *)info)->player)->SetHWND(hWnd);
+    ((DXAudio *)((AYSongInfo *)info)->player)->SetHWND(hWnd);
 }
 #endif
