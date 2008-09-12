@@ -301,7 +301,7 @@ void Cayfly_s60Sound::PrivateSetVolume()
             iVolume = 0;
         if(iVolume > iStream->MaxVolume())
             iVolume = iStream->MaxVolume();
-        iStream->SetVolume(iStream->MaxVolume());
+        iStream->SetVolume(iVolume);
     }
 }
 

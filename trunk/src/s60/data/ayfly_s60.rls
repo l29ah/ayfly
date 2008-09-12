@@ -15,13 +15,13 @@
 #define qtn_caption_string "Ayfly player"
 
 // First item in "Options" menu pane
-#define qtn_command1 "Open file"
+#define qtn_addfile "Add file"
 
 // Second item in "Options" menu pane
-#define qtn_command2 "Start Audio"
+#define qtn_startplayer "Start player"
 
 // Third item in "Options" menu pane
-#define qtn_command3 "Stop Audio"
+#define qtn_stopplayer "Stop player"
 
 #define qtn_help "Help"
 

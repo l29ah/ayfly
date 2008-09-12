@@ -18,7 +18,11 @@
 #endif
 
 // FORWARD DECLARATIONS
+#ifdef UIQ3
 class Cayfly_s60AppView;
+#else //S60
+class Cayfly_s60PlayListView;
+#endif
 
 // CLASS DECLARATION
 /**

@@ -60,7 +60,8 @@ SYSTEMINCLUDE	 \epoc32\include \epoc32\include\libc
 
 LIBRARY		   euser.lib apparc.lib cone.lib eikcore.lib eikcoctl.lib
 LIBRARY        avkon.lib fbscli.lib eikdlg.lib efsrv.lib estor.lib
-LIBRARY        commondialogs.lib mediaclientaudiostream.lib
+LIBRARY        commondialogs.lib mediaclientaudiostream.lib bafl.lib
+LIBRARY	       commonengine.lib egul.lib eikctl.lib
 
 LANG SC
 

@@ -98,7 +98,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		Exit();
 	}
 		break;
-	case ECommand1:
+	case EAddFile:
 	{
 	    TFileName FileName = _L("E:");
 #ifndef UIQ3
@@ -116,17 +116,19 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		if (bRet)
 		{
 		    if(currentSong)
-		        ay_closesong(&currentSong);
+		        ay_closesong(&currentSong);		    
 		    currentSong = ay_initsong(FileName, 44100);
 		    if(!currentSong)
 		    {
 		        CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Can't open file!"));
 		    }
+		    else
+		        iAppView->AddFile(FileName);
 		}
 	}
 		break;
 
-	case ECommand2:
+	case EStartPlayer:
 	{
 		if(currentSong)
 		{
@@ -137,7 +139,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		}
 	}
 		break;
-	case ECommand3:
+	case EStopPlayer:
 	{
 	    if(currentSong)
 	    {
@@ -170,8 +172,8 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 #endif
 	default:
 	{
-	    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("!!!"));
-		Panic(Eayfly_s60Ui);
+	    //CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("!!!"));
+		//Panic(Eayfly_s60Ui);
 	}
 		break;
 	}
