@@ -13,7 +13,7 @@
 // INCLUDES
 #ifdef UIQ3
 #include <qikdocument.h>
-#include <QikApplication.h>
+#include <qikapplication.h>
 #else //S60
 #include <akndoc.h>
 #endif
