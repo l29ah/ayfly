@@ -22,6 +22,7 @@
 #define AYFLY_S60PLAYLISTVIEW_H_
 
 #include <eiklbo.h>
+#include <coecntrl.h>
 
 class Cayfly_s60PlayListView: public CCoeControl, public MEikListBoxObserver
 {
@@ -34,6 +35,7 @@ public:
 public:
     // from MEikListBoxObserver 
     void HandleListBoxEventL(CEikListBox* aListBox, TListBoxEvent aEventType);
+    void AddFile(TFileName filePath);
 protected:
     //  From CCoeControl
     void SizeChanged();

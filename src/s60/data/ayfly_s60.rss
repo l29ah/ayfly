@@ -71,18 +71,18 @@ RESOURCE MENU_PANE r_menu
 		// added the new Options menu command here
 		MENU_ITEM
 				{
-				command = ECommand1;
-				txt = qtn_command1;
+				command = EAddFile;
+				txt = qtn_addfile;
 				},
 		MENU_ITEM
 				{
-				command = ECommand2;
-				txt = qtn_command2;
+				command = EStartPlayer;
+				txt = qtn_startplayer;
 				},
 		MENU_ITEM
                 {
-                command = ECommand3;
-                txt = qtn_command3;
+                command = EStopPlayer;
+                txt = qtn_stopplayer;
 				},
 		MENU_ITEM
 				{
@@ -96,6 +96,12 @@ RESOURCE MENU_PANE r_menu
 				}
 		};
 }
+
+RESOURCE LISTBOX r_ayfly_playlist
+  {
+  flags = EAknListBoxSelectionList;
+  }
+
 #ifdef EKA2
 // -----------------------------------------------------------------------------
 //

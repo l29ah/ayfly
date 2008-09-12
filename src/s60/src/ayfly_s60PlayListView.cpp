@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "s60.h"
+#include <barsread.h>
 _LIT (KListFormatString, "%d\t");
 
 const TInt KFolderIconSlot = 0;
@@ -56,6 +57,13 @@ void Cayfly_s60PlayListView::SetUpListBoxL()
 {
     iListBox = new (ELeave) CAknSingleGraphicStyleListBox();
     iListBox->SetContainerWindowL(*this);
+    
+    TResourceReader reader;
+    iEikonEnv->CreateResourceReaderLC(reader, R_AYFLY_PLAYLIST);
+
+        // Create the list box
+    iListBox->ConstructFromResourceL(reader);
+    CleanupStack::PopAndDestroy(); // reader
 
     
     // Add this to observe the list box
@@ -113,3 +121,23 @@ CCoeControl* Cayfly_s60PlayListView::ComponentControl(TInt aIndex) const
             return (NULL);
     }
 }
+
+void Cayfly_s60PlayListView::AddFile(TFileName filePath)
+{
+    CTextListBoxModel* model = iListBox->Model();    // Does not own the returned model
+    User::LeaveIfNull(model);
+    model->SetOwnershipType(ELbmOwnsItemArray);
+    CDesCArray* itemArray = static_cast<CDesCArray*>(model->ItemTextArray());
+    User::LeaveIfNull(itemArray);
+    
+    itemArray->Reset();
+    
+    TParse tfp;
+    tfp.Set(filePath, NULL, NULL);
+    TFileName fileName = tfp.NameAndExt();
+    itemArray->AppendL(fileName);
+    iListBox->HandleItemAdditionL();
+    iListBox->SetCurrentItemIndex(itemArray->Count() - 1);
+    iListBox->DrawNow();
+}
+    
