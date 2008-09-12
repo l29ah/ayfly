@@ -17,4 +17,3 @@ PRJ_PLATFORMS
 // Specify the platforms your component needs to be built for here.
 WINSCW
 GCCE
-ARMV5

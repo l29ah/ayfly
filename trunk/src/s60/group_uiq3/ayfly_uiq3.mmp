@@ -33,7 +33,7 @@ SOURCEPATH		..\data
 START RESOURCE ayfly_uiq3.rss
 	HEADER	
 	TARGETPATH \resource\apps
-	LANG 01
+	LANG SC
 END
 
 START RESOURCE ayfly_uiq3_reg.rss

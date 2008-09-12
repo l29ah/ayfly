@@ -26,7 +26,6 @@
 ;You should change the source paths to match that of your environment
 ;<source> <destination>
 "..\..\..\..\..\symbian-sdks\uiq31\epoc32\release\gcce\urel\ayfly_uiq3.exe"		-"!:\sys\bin\ayfly_uiq3.exe"
-"..\..\..\..\..\symbian-sdks\uiq31\epoc32\data\z\resource\apps\ayfly_uiq3.r01"		-"!:\resource\apps\ayfly_uiq3.r01"
 "..\..\..\..\..\symbian-sdks\uiq31\epoc32\data\z\resource\apps\ayfly_uiq3.rsc"		-"!:\resource\apps\ayfly_uiq3.rsc"
 "..\..\..\..\..\symbian-sdks\uiq31\epoc32\data\z\private\10003a3f\import\apps\ayfly_uiq3_reg.rsc"	-"!:\private\10003a3f\import\apps\ayfly_uiq3_reg.rsc"
 ;"..\..\..\..\..\symbian-sdks\uiq31\epoc32\data\z\resource\apps\ayfly_uiq3.mif" -"!:\resource\apps\ayfly_s60.mif"
