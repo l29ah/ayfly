@@ -25,18 +25,23 @@ Cayfly_s60PlayListView* Cayfly_s60PlayListView::NewL(const TRect& aRect)
     Cayfly_s60PlayListView* me = new (ELeave) Cayfly_s60PlayListView();
     CleanupStack::PushL(me);
     me->ConstructL(aRect);
-    CleanupStack::Pop(me);
+    CleanupStack::Pop(me);    
     return (me);
 }
 
 Cayfly_s60PlayListView::Cayfly_s60PlayListView()
 {
+    currentSong = 0;
 }
 
 Cayfly_s60PlayListView::~Cayfly_s60PlayListView()
 {    
     iFocusPos.Close();
     delete iListBox;
+    if(currentSong)
+    {
+        ay_closesong(&currentSong);
+    }
 }
 
 void Cayfly_s60PlayListView::ConstructL(const TRect& aRect)
@@ -75,8 +80,7 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
     switch(aEventType)
     {
         case EEventEnterKeyPressed:
-        case EEventItemClicked:   
-        default:
+        case EEventItemClicked:
         {// An item has been chosen and will be opened
             CTextListBoxModel* model = iListBox->Model();
             User::LeaveIfNull(model);
@@ -90,30 +94,31 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
             TInt index = lbString.Locate('\t');
             if(index != KErrNotFound)
             {
-                filePath = lbString.Mid(index + 1);
+                lbString = lbString.Mid(index + 1);
                 index = lbString.Locate('\t');
                 if(index != KErrNotFound)
                 {
                     fileNameExt = lbString.Left(index);
                     lbString = lbString.Mid(index + 1);
                     index = lbString.Locate('\t');
-                    if(index != KErrNotFound)
-                    {
-                        lbString = lbString.Mid(index + 1);
-                        index = lbString.Locate('\t');
-                        fileDrive = lbString.Left(index);                        
-                    }
+                    fileDrive = lbString.Left(index);                    
                 }
             }
             filePath.Zero();
             filePath.Append(fileDrive);
             filePath.Append(fileNameExt);
-            CEikonEnv::InfoWinL(_L("DeviceMessage"), filePath);
+            //CEikonEnv::InfoWinL(_L("DeviceMessage"), filePath);
+            if(currentSong)
+            {
+                ay_closesong(&currentSong);
+            }
+            currentSong = ay_initsong(filePath, 44100);
+            ay_startsong(currentSong);
             
         }
             break;
-        //default: // Nothing to do
-            //break;
+        default: // Nothing to do
+            break;
     };
 }
 
@@ -172,6 +177,14 @@ void Cayfly_s60PlayListView::AddFile(TFileName filePath)
     iListBox->HandleItemAdditionL();
     iListBox->SetCurrentItemIndex(itemArray->Count() - 1);
     iListBox->DrawNow();
+}
+
+void Cayfly_s60PlayListView::StopSong()
+{
+    if(currentSong)
+    {
+        ay_closesong(&currentSong);
+    }
 }
     
 
