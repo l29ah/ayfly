@@ -20,7 +20,21 @@
 
 // INCLUDE FILES
 #include "s60.h"
+#include <maknfilefilter.h>
 
+#ifdef S60
+
+class CSongFilter: public MAknFileFilter
+{
+    TBool Accept(const TDesC &/*aDriveAndPath*/, const TEntry &aEntry) const
+    {
+        if(aEntry.IsDir() || ay_format_supported(aEntry.iName.Right(4)))
+        return ETrue;
+        return EFalse;
+    }
+};
+
+#endif
 // ============================ MEMBER FUNCTIONS ===============================
 
 // -----------------------------------------------------------------------------
@@ -30,24 +44,24 @@
 //
 void Cayfly_s60AppUi::ConstructL()
 {
-	// Initialise app UI with standard value.
+    // Initialise app UI with standard value.
 #ifdef UIQ3
     CQikAppUi::ConstructL();
 #else
-	BaseConstructL(CAknAppUi::EAknEnableSkin);
+    BaseConstructL(CAknAppUi::EAknEnableSkin);
 #endif
-	// Create view object
+    // Create view object
 #ifdef UIQ3
-	iAppView = Cayfly_s60AppView::NewL(*this);
+    iAppView = Cayfly_s60AppView::NewL(*this);
 #else
-	iAppView = Cayfly_s60PlayListView::NewL(ClientRect() );
+    iAppView = Cayfly_s60PlayListView::NewL(ClientRect());
 #endif
 
 #ifdef UIQ3
-	AddViewL(*iAppView);
+    AddViewL(*iAppView);
 #endif
-	iVolume = 5;
-	currentSong = 0;
+    iVolume = 5;
+    currentSong = 0;
 }
 // -----------------------------------------------------------------------------
 // Cayfly_s60AppUi::Cayfly_s60AppUi()
@@ -56,7 +70,7 @@ void Cayfly_s60AppUi::ConstructL()
 //
 Cayfly_s60AppUi::Cayfly_s60AppUi()
 {
-	// No implementation required
+    // No implementation required
 }
 
 // -----------------------------------------------------------------------------
@@ -66,14 +80,14 @@ Cayfly_s60AppUi::Cayfly_s60AppUi()
 //
 Cayfly_s60AppUi::~Cayfly_s60AppUi()
 {
-	if (iAppView)
-	{
-		delete iAppView;
-		iAppView = NULL;
-	}
+    if(iAppView)
+    {
+        delete iAppView;
+        iAppView = NULL;
+    }
 
-	if(currentSong)
-	    ay_closesong((void **)currentSong);
+    if(currentSong)
+        ay_closesong((void **)currentSong);
 
 }
 
@@ -84,100 +98,105 @@ Cayfly_s60AppUi::~Cayfly_s60AppUi()
 //
 void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 {
-	switch (aCommand)
-	{
-	case EEikCmdExit:
+    switch(aCommand)
+    {
+        case EEikCmdExit:
 #ifndef UIQ3 //S60
-	case EAknSoftkeyExit:
+        case EAknSoftkeyExit:
 #endif
-	{
-	    if(currentSong)
-	    {
-	        ay_closesong(&currentSong);
-	    }
-		Exit();
-	}
-		break;
-	case EAddFile:
-	{
-	    TFileName FileName = _L("");
-#ifndef UIQ3
-		TBool bRet = CAknFileSelectionDialog::RunDlgLD(FileName, _L(""), _L("Select file!"), NULL);
-#else //S60
-		CDesCArray* mime = new (ELeave) CDesCArrayFlat(1);
-		CleanupStack::PushL(mime);
-		CDesCArray* file = new(ELeave) CDesCArrayFlat(1);
-		CleanupStack::PushL(file);
-		TBool bRet = CQikSelectFileDlg::RunDlgLD(*mime, *file);
-		if(bRet)
-		    FileName = (*file) [0];
-		CleanupStack::PopAndDestroy(2);
+        {
+            if(currentSong)
+            {
+                ay_closesong(&currentSong);
+            }
+            Exit();
+        }
+            break;
+        case EAddFile:
+        {
+            TFileName FileName = _L("E:\\");
+#ifndef UIQ3            
+            CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeSelect);
+            CSongFilter* filter = new(ELeave) CSongFilter;
+            dlg->SetDefaultFolderL(_L("\\"));
+            dlg->AddFilterL(filter);
+            TBool bRet = dlg->ExecuteL(FileName);
+
+#else //UIQ3
+                    CDesCArray* mime = new (ELeave) CDesCArrayFlat(1);
+                    CleanupStack::PushL(mime);
+                    CDesCArray* file = new(ELeave) CDesCArrayFlat(1);
+                    CleanupStack::PushL(file);
+                    TBool bRet = CQikSelectFileDlg::RunDlgLD(*mime, *file);
+                    if(bRet)
+                    FileName = (*file) [0];
+                    CleanupStack::PopAndDestroy(2);
 #endif
-		if (bRet)
-		{
-		    if(currentSong)
-		        ay_closesong(&currentSong);		    
-		    currentSong = ay_initsong(FileName, 44100);
-		    if(!currentSong)
-		    {
-		        CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Can't open file!"));
-		    }
-		    else
-		        iAppView->AddFile(FileName);
-		}
-	}
-		break;
+                    if (bRet)
+                    {
+                        if(currentSong)
+                        ay_closesong(&currentSong);
+                        currentSong = ay_initsong(FileName, 44100);
+                        if(!currentSong)
+                        {
+                            CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Can't open file!"));
+                        }
+                        else
+                        iAppView->AddFile(FileName);
+                    }
+                }
+                break;
 
-	case EStartPlayer:
-	{
-		if(currentSong)
-		{
-		    ay_startsong(currentSong);
-		    Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
-		    _player->SetDeviceVolume(iVolume);
-		    iVolume = _player->GetDeviceVolume();
-		}
-	}
-		break;
-	case EStopPlayer:
-	{
-	    if(currentSong)
-	    {
-	        ay_stopsong(currentSong);
-	    }
-	}
-		break;
-	case EHelp:
-	{
+                case EStartPlayer:
+                {
+                    if(currentSong)
+                    {
+                        ay_startsong(currentSong);
+                        Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
+                        _player->SetDeviceVolume(iVolume);
+                        iVolume = _player->GetDeviceVolume();
+                    }
+                }
+                break;
+                case EStopPlayer:
+                {
+                    if(currentSong)
+                    {
+                        ay_stopsong(currentSong);
+                    }
+                }
+                break;
+                case EHelp:
+                {
 
-	}
-		break;
+                }
+                break;
 #ifdef EKA2
 #ifndef UIQ3
-	case EAbout:
-	{
+                    case EAbout:
+                    {
 
-		CAknMessageQueryDialog* dlg = new (ELeave)CAknMessageQueryDialog();
-		dlg->PrepareLC(R_ABOUT_QUERY_DIALOG);
-		HBufC* title = iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TITLE);
-		dlg->QueryHeading()->SetTextL(*title);
-		CleanupStack::PopAndDestroy(); //title
-		HBufC* msg = iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TEXT);
-		dlg->SetMessageTextL(*msg);
-		CleanupStack::PopAndDestroy(); //msg
-		dlg->RunLD();
-	}
-		break;
+                        CAknMessageQueryDialog* dlg = new (ELeave)CAknMessageQueryDialog();
+                        dlg->PrepareLC(R_ABOUT_QUERY_DIALOG);
+                        HBufC* title = iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TITLE);
+                        dlg->QueryHeading()->SetTextL(*title);
+                        CleanupStack::PopAndDestroy(); //title
+                        HBufC* msg = iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TEXT);
+                        dlg->SetMessageTextL(*msg);
+                        CleanupStack::PopAndDestroy(); //msg
+                        dlg->RunLD();
+                    }
+                    break;
 #endif
 #endif
-	default:
-	{
-	    //CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("!!!"));
-		//Panic(Eayfly_s60Ui);
-	}
-		break;
-	}
-}
+                    default:
+                    {
+                        //CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("!!!"));
+                        //Panic(Eayfly_s60Ui);
+                    }
+                    break;
+                }
+            }
 
 TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEventCode aType)
 {
@@ -210,7 +229,6 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
         return EKeyWasConsumed;
     }
 
-
 }
 
 // -----------------------------------------------------------------------------
@@ -221,7 +239,7 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
 //
 void Cayfly_s60AppUi::HandleStatusPaneSizeChange()
 {
-	iAppView->SetRect(ClientRect() );
+    iAppView->SetRect(ClientRect());
 }
 
 // End of File

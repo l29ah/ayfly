@@ -478,6 +478,16 @@ AYSongInfo::~AYSongInfo()
 
 }
 
+#ifndef __SYMBIAN32__
+bool ay_format_supported(AY_TXT_TYPE filePath)
+#else
+bool ay_format_supported(const TFileName filePath)
+#endif
+{
+    return ay_sys_format_supported(filePath);    
+}
+
+
 #ifdef WINDOWS
 AYFLY_API void ay_sethwnd(void *info, HWND hWnd)
 {

@@ -192,6 +192,11 @@ void ay_sys_z80exec(AYSongInfo &info);
 void ay_sys_resetz80(AYSongInfo &info);
 void ay_sys_shutdownz80(AYSongInfo &info);
 bool ay_sys_initsong(AYSongInfo &info);
+#ifndef __SYMBIAN32__
+bool ay_sys_format_supported(AY_TXT_TYPE filePath);
+#else
+bool ay_sys_format_supported(const TFileName filePath);
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -521,6 +526,17 @@ AYFLY_API void ay_setchiptype(void *info, unsigned char chip_type);
  */
 
 AYFLY_API unsigned char ay_getchiptype(void *info);
+
+/*
+ * Returns true if format supported by the library
+ */
+
+#ifndef __SYMBIAN32__
+bool ay_format_supported(AY_TXT_TYPE filePath);
+#else
+bool ay_format_supported(const TFileName filePath);
+#endif
+
 
 /*
  * Sets window handle, used for directx init procedure
