@@ -76,6 +76,11 @@ RESOURCE MENU_PANE r_menu
 				},
 		MENU_ITEM
                 {
+                command = EStartPlayer;
+                txt = qtn_startplayer;
+				},
+		MENU_ITEM
+                {
                 command = EStopPlayer;
                 txt = qtn_stopplayer;
 				},

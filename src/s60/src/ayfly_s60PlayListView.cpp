@@ -20,6 +20,8 @@
 #include "s60.h"
 #include <barsread.h>
 
+#define ESoftStartSong 0x8001
+
 Cayfly_s60PlayListView* Cayfly_s60PlayListView::NewL(const TRect& aRect)
 {
     Cayfly_s60PlayListView* me = new (ELeave) Cayfly_s60PlayListView();
@@ -32,6 +34,7 @@ Cayfly_s60PlayListView* Cayfly_s60PlayListView::NewL(const TRect& aRect)
 Cayfly_s60PlayListView::Cayfly_s60PlayListView()
 {
     currentSong = 0;
+    currentIndex = 0;
     volume = 0.5;
 }
 
@@ -82,13 +85,17 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
     {
         case EEventEnterKeyPressed:
         case EEventItemClicked:
+            currentIndex = iListBox->CurrentItemIndex();
+        case ESoftStartSong:
         {// An item has been chosen and will be opened
             CTextListBoxModel* model = iListBox->Model();
             User::LeaveIfNull(model);
+            if(model->NumberOfItems() < 1)
+                return;
             model->SetOwnershipType(ELbmOwnsItemArray);
             CDesCArray* itemArray = static_cast<CDesCArray*> (model->ItemTextArray());
             User::LeaveIfNull(itemArray);
-            TFileName lbString = itemArray->operator [](iListBox->CurrentItemIndex());
+            TFileName lbString = itemArray->operator [](currentIndex);
             TFileName fileNameExt;
             TFileName fileDrive;
             TFileName filePath;
@@ -117,6 +124,7 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
             ay_setvolume(currentSong, 0, volume, 0);
             ay_setvolume(currentSong, 1, volume, 0);
             ay_setvolume(currentSong, 2, volume, 0);
+            ay_setcallback(currentSong, elapsedCallback, this);
             ay_startsong(currentSong);
 
         }
@@ -190,12 +198,29 @@ void Cayfly_s60PlayListView::AddFile(TFileName filePath)
     lbString.Append(tfp.DriveAndPath());
     lbString.Append(_L("\t"));
     itemArray->AppendL(lbString);
-    iListBox->HandleItemAdditionL();
-    iListBox->SetCurrentItemIndex(itemArray->Count() - 1);
+    iListBox->HandleItemAdditionL();    
+    if(model->NumberOfItems() == 1)
+    {
+        currentIndex = 0;
+        iListBox->SetCurrentItemIndex(0);
+    }
     iListBox->DrawNow();
 }
 
-void Cayfly_s60PlayListView::StopSong()
+void Cayfly_s60PlayListView::StartPlayer()
+{
+    if(currentSong && ay_songstarted(currentSong))
+    {
+        return;
+    }
+    CTextListBoxModel* model = iListBox->Model(); // Does not own the returned model
+    User::LeaveIfNull(model);
+    if(model->NumberOfItems() < 1)
+        return;
+    HandleListBoxEventL(iListBox, ESoftStartSong);
+}  
+
+void Cayfly_s60PlayListView::StopPlayer()
 {
     if(currentSong)
     {
@@ -227,5 +252,29 @@ void Cayfly_s60PlayListView::DownVolume()
         ay_setvolume(currentSong, 2, volume, 0);
         volume = ay_getvolume(currentSong, 0, 0);
     }
+}
+
+void Cayfly_s60PlayListView::NextSong()
+{
+    if(currentSong)
+    {
+        ay_closesong(&currentSong);
+        currentIndex++;
+        CTextListBoxModel* model = iListBox->Model();
+        User::LeaveIfNull(model);
+        if(model->NumberOfItems() <= currentIndex)
+        {
+            currentIndex = 0;
+            return;
+        }
+        HandleListBoxEventL(iListBox, ESoftStartSong);       
+        
+    }
+}
+
+void Cayfly_s60PlayListView::elapsedCallback(void *arg)
+{
+    Cayfly_s60PlayListView *me = (Cayfly_s60PlayListView *)arg;
+    me->NextSong();    
 }
 

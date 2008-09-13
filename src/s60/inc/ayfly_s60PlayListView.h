@@ -36,9 +36,11 @@ public:
     // from MEikListBoxObserver 
     void HandleListBoxEventL(CEikListBox* aListBox, TListBoxEvent aEventType);
     void AddFile(TFileName filePath);
-    void StopSong();
+    void StartPlayer();
+    void StopPlayer();
     void UpVolume();
     void DownVolume();
+    void NextSong();
 protected:
     //  From CCoeControl
     void SizeChanged();
@@ -57,6 +59,8 @@ private:
 private:
     void *currentSong;
     float volume;
+    TInt currentIndex;
+    static void elapsedCallback(void *arg);
 };
 
 #endif /* AYFLY_S60PLAYLISTVIEW_H_ */
