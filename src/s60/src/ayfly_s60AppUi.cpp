@@ -64,7 +64,6 @@ void Cayfly_s60AppUi::ConstructL()
     AddToStackL(iAppView);
 #endif
     iVolume = 5;
-    currentSong = 0;
 }
 // -----------------------------------------------------------------------------
 // Cayfly_s60AppUi::Cayfly_s60AppUi()
@@ -89,11 +88,7 @@ Cayfly_s60AppUi::~Cayfly_s60AppUi()
         iAppView = NULL;
     }
 
-    if(currentSong)
-        ay_closesong((void **)currentSong);
-
 }
-
 // -----------------------------------------------------------------------------
 // Cayfly_s60AppUi::HandleCommandL()
 // Takes care of command handling.
@@ -108,10 +103,6 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
         case EAknSoftkeyExit:
 #endif
         {
-            if(currentSong)
-            {
-                ay_closesong(&currentSong);
-            }
             Exit();
         }
             break;
@@ -189,25 +180,11 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
     {
         if(aKeyEvent.iCode == EKeyRightArrow)
         {
-            if(currentSong)
-            {
-                Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
-                iVolume++;
-                _player->SetDeviceVolume(iVolume);
-                iVolume = _player->GetDeviceVolume();
                 return EKeyWasConsumed;
-            }
         }
         else if(aKeyEvent.iCode == EKeyLeftArrow)
         {
-            if(currentSong)
-            {
-                Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
-                iVolume--;
-                _player->SetDeviceVolume(_player->GetDeviceVolume() - 1);
-                iVolume = _player->GetDeviceVolume();
                 return EKeyWasConsumed;
-            }
         }        
     }
     return EKeyWasNotConsumed;
