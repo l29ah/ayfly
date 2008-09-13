@@ -100,9 +100,9 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		break;
 	case EAddFile:
 	{
-	    TFileName FileName = _L("C:");
+	    TFileName FileName = _L("");
 #ifndef UIQ3
-		TBool bRet = CAknFileSelectionDialog::RunDlgLD(FileName, _L("E:"), _L("Select file!"), NULL);
+		TBool bRet = CAknFileSelectionDialog::RunDlgLD(FileName, _L(""), _L("Select file!"), NULL);
 #else //S60
 		CDesCArray* mime = new (ELeave) CDesCArrayFlat(1);
 		CleanupStack::PushL(mime);
