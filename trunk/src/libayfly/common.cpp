@@ -301,6 +301,8 @@ AYFLY_API void ay_resetsong(void *info)
 
 AYFLY_API void ay_closesong(void **info)
 {
+    if(ay_songstarted(info))
+        ay_stopsong(info);
     AYSongInfo *song = (AYSongInfo *)*info;
     AYSongInfo **ppsong = (AYSongInfo **)info;
     delete song;
@@ -328,9 +330,9 @@ AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl, unsigned long chip_n
 }
 
 AYFLY_API void ay_setcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg)
-{
-    ((AYSongInfo *)info)->callback = callback;
+{    
     ((AYSongInfo *)info)->callback_arg = callback_arg;
+    ((AYSongInfo *)info)->callback = callback;
 }
 
 AYFLY_API bool ay_songstarted(void *info)

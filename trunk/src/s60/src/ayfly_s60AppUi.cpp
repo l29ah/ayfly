@@ -133,13 +133,10 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
         }
             break;
         case EStartPlayer:
-        {
-        }
-
+            iAppView->StartPlayer();
+            break;
         case EStopPlayer:
-        {
             iAppView->StopPlayer();
-        }
             break;
         case EHelp:
         {
