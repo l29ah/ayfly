@@ -107,7 +107,7 @@ void Cayfly_s60Sound::MaoscOpenComplete(TInt aError)
         songinfo->player->GetAYBufferMono(iBuffer2, MIX_BUFFER_LENGTH);
     }
 
-    iStream->SetVolume(iVolume);
+    iStream->SetVolume(iStream->MaxVolume());
     iStream->SetBalanceL();
 
     // Write both buffers
@@ -297,11 +297,11 @@ void Cayfly_s60Sound::PrivateSetVolume()
 {
     if(iState == EPlaying)
     {
-        if(iVolume < 0)
+        /*if(iVolume < 0)
             iVolume = 0;
         if(iVolume > iStream->MaxVolume())
             iVolume = iStream->MaxVolume();
-        iStream->SetVolume(iVolume);
+        iStream->SetVolume(iVolume);*/
     }
 }
 

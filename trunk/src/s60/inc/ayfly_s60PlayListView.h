@@ -37,6 +37,8 @@ public:
     void HandleListBoxEventL(CEikListBox* aListBox, TListBoxEvent aEventType);
     void AddFile(TFileName filePath);
     void StopSong();
+    void UpVolume();
+    void DownVolume();
 protected:
     //  From CCoeControl
     void SizeChanged();
@@ -54,6 +56,7 @@ private:
     RArray<TInt> iFocusPos; // position of focus in listbox for the folders passed, used whem going back
 private:
     void *currentSong;
+    float volume;
 };
 
 #endif /* AYFLY_S60PLAYLISTVIEW_H_ */
