@@ -44,10 +44,13 @@ Cayfly_s60PlayListView::~Cayfly_s60PlayListView()
     {
         ay_closesong(&currentSong);
     }
+    if(player)
+        delete player;
 }
 
 void Cayfly_s60PlayListView::ConstructL(const TRect& aRect)
 {
+    player = new Cayfly_s60Audio();
     CreateWindowL();
 
     SetUpListBoxL();
@@ -116,7 +119,9 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
             {
                 ay_closesong(&currentSong);
             }
-            currentSong = ay_initsong(filePath, 44100);
+            currentSong = ay_initsong_wo_player(filePath, 44100);
+            ay_setsongplayer(currentSong, player);
+            player->SetSongInfo((AYSongInfo *)currentSong);
             ay_setvolume(currentSong, 0, volume, 0);
             ay_setvolume(currentSong, 1, volume, 0);
             ay_setvolume(currentSong, 2, volume, 0);
@@ -296,9 +301,19 @@ void Cayfly_s60PlayListView::NextSong()
     }
 }
 
+TInt Cayfly_s60PlayListView::stopCallback(TAny* aObject)
+{
+    Cayfly_s60PlayListView *me = (Cayfly_s60PlayListView *)aObject;
+    me->iPeriodic->Cancel();
+    me->NextSong();
+    return 0;
+}
+
 void Cayfly_s60PlayListView::elapsedCallback(void *arg)
 {
-    Cayfly_s60PlayListView *me = (Cayfly_s60PlayListView *)0;
-    me->NextSong();
+    Cayfly_s60PlayListView *me = (Cayfly_s60PlayListView *)arg;
+    const TInt tickInterval=1000;
+    me->iPeriodic = CPeriodic::NewL(0); // neutral priority
+    me->iPeriodic->Start(tickInterval, tickInterval, stopCallback);
 }
 

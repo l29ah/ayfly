@@ -41,6 +41,7 @@ public:
     void UpVolume();
     void DownVolume();
     void NextSong();
+    CPeriodic *iPeriodic;
 protected:
     //  From CCoeControl
     void SizeChanged();
@@ -61,6 +62,9 @@ private:
     float volume;
     TInt currentIndex;
     static void elapsedCallback(void *arg);
+    Cayfly_s60Audio *player;
+    static TInt stopCallback(TAny* aObject);
+    
 };
 
 #endif /* AYFLY_S60PLAYLISTVIEW_H_ */

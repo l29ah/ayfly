@@ -37,7 +37,7 @@ public:
         EStopped = 0, EStarting, EPlaying, EStopping
     };
 public:
-    static Cayfly_s60Sound* NewL(AYSongInfo *info);
+    static Cayfly_s60Sound* NewL();
     virtual ~Cayfly_s60Sound();
 
     void StartPlay();
@@ -58,6 +58,7 @@ public:
     void PrivateSetVolume();
     TInt State();
     void Exit();
+    void SetSongInfo(AYSongInfo *info);
     unsigned char *iBuffer1;
     unsigned char *iBuffer2;
     TPtr8 iDesc1;
@@ -78,7 +79,7 @@ public:
     bool stereo;
 private:
     void ConstructL();
-    Cayfly_s60Sound(AYSongInfo *info);
+    Cayfly_s60Sound();
     AYSongInfo *songinfo;
     static TInt MixLoop(TAny *t);
 };
@@ -88,12 +89,14 @@ class Cayfly_s60Audio : public AbstractAudio
 {
 public:
     Cayfly_s60Audio(AYSongInfo *info);
+    Cayfly_s60Audio();
     virtual ~Cayfly_s60Audio();
     virtual bool Start();
     virtual void Stop();
     void SetDeviceVolume(TInt aVolume);
     TInt GetDeviceVolume();
     bool Started() {return sound->State() == Cayfly_s60Sound::EPlaying ? true : false;};
+    void SetSongInfo(AYSongInfo *info);
 private:
     Cayfly_s60Sound *sound;
 };

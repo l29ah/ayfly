@@ -82,6 +82,8 @@ void ay_sys_resetz80(AYSongInfo &info)
 void ay_sys_shutdownz80(AYSongInfo &info)
 {
     ay_sys_resetz80(info);
+    z80ex_destroy(info.z80ctx);
+    info.z80ctx = 0;
     memset(info.module, 0, 65536);
     memset(info.z80IO, 0, 65536);
 }

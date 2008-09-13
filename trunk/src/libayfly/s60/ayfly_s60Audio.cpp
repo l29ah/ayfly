@@ -30,19 +30,17 @@ _LIT(KThreadName, "ayflyplaybackthread");
 static const TInt sampleRateConversionTable[] =
 { 44100, TMdaAudioDataSettings::ESampleRate44100Hz, 32000, TMdaAudioDataSettings::ESampleRate32000Hz, 22050, TMdaAudioDataSettings::ESampleRate22050Hz, 16000, TMdaAudioDataSettings::ESampleRate16000Hz, 11025, TMdaAudioDataSettings::ESampleRate11025Hz, 48000, TMdaAudioDataSettings::ESampleRate48000Hz, 8000, TMdaAudioDataSettings::ESampleRate8000Hz };
 
-Cayfly_s60Sound* Cayfly_s60Sound::NewL(AYSongInfo *info)
+Cayfly_s60Sound* Cayfly_s60Sound::NewL()
 {
-    Cayfly_s60Sound* a = new (ELeave) Cayfly_s60Sound(info);
+    Cayfly_s60Sound* a = new (ELeave) Cayfly_s60Sound();
     a->ConstructL();
     return a;
 }
 
-Cayfly_s60Sound::Cayfly_s60Sound(AYSongInfo *info) :
+Cayfly_s60Sound::Cayfly_s60Sound() :
     iDesc1(0, 0, 0), iDesc2(0, 0, 0)
-{
-    songinfo = info;
+{    
     iVolume = 7;
-
 }
 
 Cayfly_s60Sound::~Cayfly_s60Sound()
@@ -314,6 +312,11 @@ void Cayfly_s60Sound::PrivateWaitRequestOK()
     }
 }
 
+void Cayfly_s60Sound::SetSongInfo(AYSongInfo *info)
+{
+    songinfo = info;
+}
+
 CCommandHandler::~CCommandHandler()
 {
 }
@@ -456,7 +459,15 @@ Cayfly_s60Audio::Cayfly_s60Audio(AYSongInfo *info) :
     AbstractAudio(AUDIO_FREQ, info)
 {
     songinfo = info;
-    sound = Cayfly_s60Sound::NewL(songinfo);
+    sound = Cayfly_s60Sound::NewL();
+    if(sound)
+        sound->SetSongInfo(info);
+}
+
+Cayfly_s60Audio::Cayfly_s60Audio() :
+    AbstractAudio(AUDIO_FREQ, 0)
+{
+    sound = Cayfly_s60Sound::NewL();
 }
 
 Cayfly_s60Audio::~Cayfly_s60Audio()
@@ -499,5 +510,18 @@ TInt Cayfly_s60Audio::GetDeviceVolume()
         return sound->GetDeviceVolume();
     }
     return 0;
+}
+
+void Cayfly_s60Audio::SetSongInfo(AYSongInfo *info)
+{
+    songinfo = info;
+    if(ay8910)
+    {
+        delete ay8910;        
+    }
+    songinfo->sr = AUDIO_FREQ;
+    ay8910 = new ay(songinfo);
+    if(sound)
+        sound->SetSongInfo(songinfo);
 }
 
