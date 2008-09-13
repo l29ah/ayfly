@@ -167,6 +167,7 @@ struct AYSongInfo
     unsigned long int_freq; /* interrupts frequency */
     unsigned long sr; /* sample rate */
     unsigned char chip_type; /* chip type: AY = 0 or YM = 1 */
+    bool own_player; /* is player ws created during initialization by the library */
     ~AYSongInfo();
 };
 
@@ -226,6 +227,16 @@ extern "C" {
 AYFLY_API void *ay_initsong(const AY_CHAR *FilePath, unsigned long sr);
 #else
 AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr);
+#endif
+
+/*
+ * The same as above, but doesn't initialize player.
+ */
+
+#ifndef __SYMBIAN32__
+AYFLY_API void *ay_initsong_wo_player(const AY_CHAR *FilePath, unsigned long sr);
+#else
+AYFLY_API void *ay_initsong_wo_player(TFileName FilePath, unsigned long sr);
 #endif
 
 /*

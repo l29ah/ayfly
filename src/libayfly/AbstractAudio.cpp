@@ -24,9 +24,14 @@ AbstractAudio::AbstractAudio(unsigned long _sr, AYSongInfo *info)
 {
     sr = _sr;
     songinfo = info;
-    songinfo->sr = _sr;
     started = false;
-    ay8910 = new ay(songinfo);
+    ay8910 = 0;
+    
+    if(songinfo)
+    {
+        songinfo->sr = _sr;    
+        ay8910 = new ay(songinfo);
+    }
 }
 
 AbstractAudio::~AbstractAudio()

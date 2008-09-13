@@ -44,35 +44,24 @@ AYSongInfo *ay_sys_getnewinfo()
     info->sr = 44100;
     info->player = 0;
     info->chip_type = 0;
+    info->own_player = true;
     memset(info->z80IO, 0, 65536);
     return info;
 }
 
 #ifndef __SYMBIAN32__
-AYFLY_API void *ay_initsong(const AY_CHAR *FilePath, unsigned long sr)
+AYFLY_API void *ay_initsong_wo_player(const AY_CHAR *FilePath, unsigned long sr)
 #else
-AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
+AYFLY_API void *ay_initsong_wo_player(TFileName FilePath, unsigned long sr)
 #endif
 {
     AYSongInfo *info = ay_sys_getnewinfo();
     if(!info)
         return 0;
-#ifndef __SYMBIAN32__
-#ifdef WINDOWS
-    info->player = new DXAudio(sr, info);
-#else
-    info->player = new SDLAudio(sr, info);
-#endif
-#else
-    info->player = new Cayfly_s60Audio(info);
-#endif
-    if(!info->player)
-    {
-        delete info;
-        return 0;
-    }
+
     info->FilePath = FilePath;
     info->sr = sr;
+    info->own_player = false;
 
     if(!ay_sys_initz80(*info))
     {
@@ -100,15 +89,36 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
                     if(info->init_proc)
                         info->init_proc(*info);
                 }
-#ifndef __SYMBIAN32__
                 ay_sys_getsonginfoindirect(*info);
-#else
-                info->Length = -1;
-#endif
             }
         }
     }
+    return info;    
+}
 
+#ifndef __SYMBIAN32__
+AYFLY_API void *ay_initsong(const AY_CHAR *FilePath, unsigned long sr)
+#else
+AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
+#endif
+{
+    AYSongInfo *info = (AYSongInfo *)ay_initsong_wo_player(FilePath, sr);    
+    if(!info)
+        return 0;
+#ifndef __SYMBIAN32__
+#ifdef WINDOWS
+    info->player = new DXAudio(sr, info);
+#else
+    info->player = new SDLAudio(sr, info);
+#endif
+#else
+    info->player = new Cayfly_s60Audio(info);
+#endif
+    if(!info->player)
+    {
+        delete info;
+        return 0;
+    }
     return info;
 }
 
@@ -171,11 +181,7 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFi
                 ay_sys_resetz80(*info);
             else if(info->init_proc)
                 info->init_proc(*info);
-#ifndef __SYMBIAN32__
             ay_sys_getsonginfoindirect(*info);
-#else
-            info->Length = -1;
-#endif
         }
     }
 
@@ -301,8 +307,8 @@ AYFLY_API void ay_resetsong(void *info)
 
 AYFLY_API void ay_closesong(void **info)
 {
-    if(ay_songstarted(info))
-        ay_stopsong(info);
+    if(ay_songstarted(*info))
+        ay_stopsong(*info);
     AYSongInfo *song = (AYSongInfo *)*info;
     AYSongInfo **ppsong = (AYSongInfo **)info;
     delete song;
@@ -462,11 +468,15 @@ AYSongInfo::~AYSongInfo()
     {
         cleanup_proc(*this);
     }
-    if(player)
+    if(own_player)
     {
-        delete player;
-        player = 0;
+        if(player)
+        {
+            delete player;
+            player = 0;
+        }
     }
+    ay_sys_shutdownz80(*this);
     if(module)
     {
         delete[] module;
