@@ -49,7 +49,7 @@ private:
 private:
     void Draw(const TRect& aRect) const;
 private:
-    CAknColumnListBox* iListBox;
+    CAknDoubleStyleListBox* iListBox;
     RArray<TInt> iFocusPos; // position of focus in listbox for the folders passed, used whem going back
 private:
 };

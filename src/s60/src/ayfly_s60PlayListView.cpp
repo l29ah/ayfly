@@ -55,7 +55,7 @@ void Cayfly_s60PlayListView::ConstructL(const TRect& aRect)
 
 void Cayfly_s60PlayListView::SetUpListBoxL()
 {
-    iListBox = new (ELeave) CAknSingleGraphicStyleListBox();
+    iListBox = new (ELeave) CAknDoubleStyleListBox();
     iListBox->SetContainerWindowL(*this);
     
     TResourceReader reader;
@@ -71,7 +71,7 @@ void Cayfly_s60PlayListView::SetUpListBoxL()
 
     //  Add vertical scroll bars (which are visible when necessary)
     iListBox->CreateScrollBarFrameL(ETrue);
-    iListBox->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EOff, CEikScrollBarFrame::EAuto);
+    iListBox->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EOff, CEikScrollBarFrame::EAuto);    
 }
 
 void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TListBoxEvent aEventType)
@@ -79,13 +79,45 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
     switch(aEventType)
     {
         case EEventEnterKeyPressed:
-        case EEventItemClicked:
+        case EEventItemClicked:   
+        default:
         {// An item has been chosen and will be opened
+            CTextListBoxModel* model = iListBox->Model();
+            User::LeaveIfNull(model);
+            model->SetOwnershipType(ELbmOwnsItemArray);
+            CDesCArray* itemArray = static_cast<CDesCArray*>(model->ItemTextArray());
+            User::LeaveIfNull(itemArray);
+            TFileName lbString = itemArray->operator [](iListBox->CurrentItemIndex());
+            TFileName fileNameExt;
+            TFileName fileDrive;
+            TFileName filePath;             
+            TInt index = lbString.Locate('\t');
+            if(index != KErrNotFound)
+            {
+                filePath = lbString.Mid(index + 1);
+                index = lbString.Locate('\t');
+                if(index != KErrNotFound)
+                {
+                    fileNameExt = lbString.Left(index);
+                    lbString = lbString.Mid(index + 1);
+                    index = lbString.Locate('\t');
+                    if(index != KErrNotFound)
+                    {
+                        lbString = lbString.Mid(index + 1);
+                        index = lbString.Locate('\t');
+                        fileDrive = lbString.Left(index);                        
+                    }
+                }
+            }
+            filePath.Zero();
+            filePath.Append(fileDrive);
+            filePath.Append(fileNameExt);
+            CEikonEnv::InfoWinL(_L("DeviceMessage"), filePath);
             
         }
             break;
-        default: // Nothing to do
-            break;
+        //default: // Nothing to do
+            //break;
     };
 }
 
@@ -129,15 +161,21 @@ void Cayfly_s60PlayListView::AddFile(TFileName filePath)
     model->SetOwnershipType(ELbmOwnsItemArray);
     CDesCArray* itemArray = static_cast<CDesCArray*>(model->ItemTextArray());
     User::LeaveIfNull(itemArray);
-    
-    itemArray->Reset();
+       
     
     TParse tfp;
-    tfp.Set(filePath, NULL, NULL);
-    TFileName fileName = tfp.NameAndExt();
-    itemArray->AppendL(fileName);
+    tfp.Set(filePath, NULL, NULL);    
+    TFileName lbString;
+    lbString.Zero();
+    lbString.Append(_L("\t"));
+    lbString.Append(tfp.NameAndExt());
+    lbString.Append(_L("\t"));
+    lbString.Append(tfp.DriveAndPath());
+    lbString.Append(_L("\t"));    
+    itemArray->AppendL(lbString);
     iListBox->HandleItemAdditionL();
     iListBox->SetCurrentItemIndex(itemArray->Count() - 1);
     iListBox->DrawNow();
 }
     
+

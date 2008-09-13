@@ -100,7 +100,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 		break;
 	case EAddFile:
 	{
-	    TFileName FileName = _L("E:");
+	    TFileName FileName = _L("C:");
 #ifndef UIQ3
 		TBool bRet = CAknFileSelectionDialog::RunDlgLD(FileName, _L("E:"), _L("Select file!"), NULL);
 #else //S60
