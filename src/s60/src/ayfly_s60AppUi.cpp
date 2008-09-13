@@ -108,7 +108,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
             break;
         case EAddFile:
         {
-            TFileName FileName = _L("E:\\");
+            TFileName FileName = _L("C:\\");
 #ifndef UIQ3            
             CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeSelect);
             CSongFilter* filter = new (ELeave) CSongFilter;
@@ -170,27 +170,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
     }
 }
 
-TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEventCode aType)
-{
-    if(aType != EEventKey)
-    {
-        return EKeyWasNotConsumed;
-    }
-    else
-    {
-        if(aKeyEvent.iCode == EKeyRightArrow)
-        {
-            iAppView->UpVolume();
-            return EKeyWasConsumed;
-        }
-        else if(aKeyEvent.iCode == EKeyLeftArrow)
-        {
-            iAppView->DownVolume();
-            return EKeyWasConsumed;
-        }
-    }
-    return EKeyWasNotConsumed;
-}
+
 
 // -----------------------------------------------------------------------------
 //  Called by the framework when the application status pane

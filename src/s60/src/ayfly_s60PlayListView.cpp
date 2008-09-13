@@ -128,6 +128,19 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
 
 TKeyResponse Cayfly_s60PlayListView::OfferKeyEventL(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
+    if(aType == EEventKeyDown)    
+    {
+        if(aKeyEvent.iScanCode == EStdKeyRightArrow)
+        {
+            UpVolume();
+            return EKeyWasConsumed;
+        }
+        else if(aKeyEvent.iScanCode == EStdKeyLeftArrow)
+        {
+            DownVolume();
+            return EKeyWasConsumed;
+        }
+    }
     return (iListBox->OfferKeyEventL(aKeyEvent, aType));
 }
 

@@ -43,7 +43,7 @@ protected:
     //  From CCoeControl
     void SizeChanged();
     TInt CountComponentControls() const;
-    CCoeControl* ComponentControl(TInt aIndex) const;
+    CCoeControl* ComponentControl(TInt aIndex) const;    
 private:
     void SetUpListBoxL();
 private:
