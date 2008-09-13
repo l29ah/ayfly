@@ -59,6 +59,9 @@ void Cayfly_s60AppUi::ConstructL()
 
 #ifdef UIQ3
     AddViewL(*iAppView);
+#else
+    iAppView->SetMopParent(this);
+    AddToStackL(iAppView);
 #endif
     iVolume = 5;
     currentSong = 0;
@@ -114,7 +117,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
             break;
         case EAddFile:
         {
-            TFileName FileName = _L("E:\\");
+            TFileName FileName = _L("C:\\");
 #ifndef UIQ3            
             CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeSelect);
             CSongFilter* filter = new(ELeave) CSongFilter;
@@ -133,37 +136,15 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
                     CleanupStack::PopAndDestroy(2);
 #endif
                     if (bRet)
-                    {
-                        if(currentSong)
-                        ay_closesong(&currentSong);
-                        currentSong = ay_initsong(FileName, 44100);
-                        if(!currentSong)
-                        {
-                            CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("Can't open file!"));
-                        }
-                        else
+                    {                        
                         iAppView->AddFile(FileName);
                     }
                 }
                 break;
-
-                case EStartPlayer:
-                {
-                    if(currentSong)
-                    {
-                        ay_startsong(currentSong);
-                        Cayfly_s60Audio *_player = (Cayfly_s60Audio *)ay_getsongplayer(currentSong);
-                        _player->SetDeviceVolume(iVolume);
-                        iVolume = _player->GetDeviceVolume();
-                    }
-                }
-                break;
+                
                 case EStopPlayer:
                 {
-                    if(currentSong)
-                    {
-                        ay_stopsong(currentSong);
-                    }
+                    iAppView->StopSong();
                 }
                 break;
                 case EHelp:
@@ -206,7 +187,7 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
     }
     else
     {
-        if(aKeyEvent.iCode == EKeyUpArrow)
+        if(aKeyEvent.iCode == EKeyRightArrow)
         {
             if(currentSong)
             {
@@ -214,9 +195,10 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
                 iVolume++;
                 _player->SetDeviceVolume(iVolume);
                 iVolume = _player->GetDeviceVolume();
+                return EKeyWasConsumed;
             }
         }
-        else if(aKeyEvent.iCode == EKeyDownArrow)
+        else if(aKeyEvent.iCode == EKeyLeftArrow)
         {
             if(currentSong)
             {
@@ -224,11 +206,11 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
                 iVolume--;
                 _player->SetDeviceVolume(_player->GetDeviceVolume() - 1);
                 iVolume = _player->GetDeviceVolume();
+                return EKeyWasConsumed;
             }
-        }
-        return EKeyWasConsumed;
+        }        
     }
-
+    return EKeyWasNotConsumed;
 }
 
 // -----------------------------------------------------------------------------

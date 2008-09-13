@@ -17,9 +17,6 @@
 // First item in "Options" menu pane
 #define qtn_addfile "Add file"
 
-// Second item in "Options" menu pane
-#define qtn_startplayer "Start player"
-
 // Third item in "Options" menu pane
 #define qtn_stopplayer "Stop player"
 

@@ -36,6 +36,7 @@ public:
     // from MEikListBoxObserver 
     void HandleListBoxEventL(CEikListBox* aListBox, TListBoxEvent aEventType);
     void AddFile(TFileName filePath);
+    void StopSong();
 protected:
     //  From CCoeControl
     void SizeChanged();
@@ -52,6 +53,7 @@ private:
     CAknDoubleStyleListBox* iListBox;
     RArray<TInt> iFocusPos; // position of focus in listbox for the folders passed, used whem going back
 private:
+    void *currentSong;
 };
 
 #endif /* AYFLY_S60PLAYLISTVIEW_H_ */
