@@ -20,8 +20,6 @@
 #include "s60.h"
 #include <barsread.h>
 
-#define ESoftStartSong 0x8001
-
 Cayfly_s60PlayListView* Cayfly_s60PlayListView::NewL(const TRect& aRect)
 {
     Cayfly_s60PlayListView* me = new (ELeave) Cayfly_s60PlayListView();
@@ -84,9 +82,7 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
     switch(aEventType)
     {
         case EEventEnterKeyPressed:
-        case EEventItemClicked:
-            currentIndex = iListBox->CurrentItemIndex();
-        case ESoftStartSong:
+        case EEventItemClicked:            
         {// An item has been chosen and will be opened
             CTextListBoxModel* model = iListBox->Model();
             User::LeaveIfNull(model);
@@ -95,7 +91,7 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
             model->SetOwnershipType(ELbmOwnsItemArray);
             CDesCArray* itemArray = static_cast<CDesCArray*> (model->ItemTextArray());
             User::LeaveIfNull(itemArray);
-            TFileName lbString = itemArray->operator [](currentIndex);
+            TFileName lbString = itemArray->operator [](iListBox->CurrentItemIndex());
             TFileName fileNameExt;
             TFileName fileDrive;
             TFileName filePath;
@@ -217,7 +213,8 @@ void Cayfly_s60PlayListView::StartPlayer()
     User::LeaveIfNull(model);
     if(model->NumberOfItems() < 1)
         return;
-    HandleListBoxEventL(iListBox, ESoftStartSong);
+    iListBox->SetCurrentItemIndex(currentIndex);
+    HandleListBoxEventL(iListBox, EEventEnterKeyPressed);
 }  
 
 void Cayfly_s60PlayListView::StopPlayer()
@@ -267,7 +264,8 @@ void Cayfly_s60PlayListView::NextSong()
             currentIndex = 0;
             return;
         }
-        HandleListBoxEventL(iListBox, ESoftStartSong);       
+        iListBox->SetCurrentItemIndex(currentIndex);
+        HandleListBoxEventL(iListBox, EEventEnterKeyPressed);      
         
     }
 }
