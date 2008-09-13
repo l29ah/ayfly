@@ -13,7 +13,7 @@
 
 #define qtn_caption_string "Ayfly player"
 #define qtn_addfile "Add file"
-#define qtn_startplayer "Stop player"
+#define qtn_startplayer "Start player"
 #define qtn_stopplayer "Stop player"
 #define qtn_help "Help"
 #define qtn_about "About"

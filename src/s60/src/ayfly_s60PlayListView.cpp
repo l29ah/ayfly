@@ -120,7 +120,7 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
             ay_setvolume(currentSong, 0, volume, 0);
             ay_setvolume(currentSong, 1, volume, 0);
             ay_setvolume(currentSong, 2, volume, 0);
-            ay_setcallback(currentSong, elapsedCallback, this);
+            ay_setcallback(currentSong, Cayfly_s60PlayListView::elapsedCallback, this);
             ay_startsong(currentSong);
 
         }
@@ -132,7 +132,7 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
 
 TKeyResponse Cayfly_s60PlayListView::OfferKeyEventL(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
-    if(aType == EEventKeyDown)    
+    if(aType == EEventKeyDown)
     {
         if(aKeyEvent.iScanCode == EStdKeyRightArrow)
         {
@@ -143,6 +143,29 @@ TKeyResponse Cayfly_s60PlayListView::OfferKeyEventL(const TKeyEvent& aKeyEvent, 
         {
             DownVolume();
             return EKeyWasConsumed;
+        }
+        else if(aKeyEvent.iScanCode == EStdKeyBackspace)
+        {
+            CTextListBoxModel* model = iListBox->Model();
+            User::LeaveIfNull(model);
+            if(model->NumberOfItems() < 1)
+                return EKeyWasConsumed;
+            model->SetOwnershipType(ELbmOwnsItemArray);
+            CDesCArray* itemArray = static_cast<CDesCArray*> (model->ItemTextArray());
+            User::LeaveIfNull(itemArray);
+            if(currentIndex == iListBox->CurrentItemIndex())
+            {
+                ay_closesong(&currentSong);
+            }
+            if(currentIndex >= iListBox->CurrentItemIndex())
+            {
+                currentIndex--;
+            }
+            itemArray->Delete(iListBox->CurrentItemIndex()); 
+            iListBox->HandleItemRemovalL();
+            iListBox->DrawNow();
+            return EKeyWasConsumed;
+
         }
     }
     return (iListBox->OfferKeyEventL(aKeyEvent, aType));
@@ -194,7 +217,7 @@ void Cayfly_s60PlayListView::AddFile(TFileName filePath)
     lbString.Append(tfp.DriveAndPath());
     lbString.Append(_L("\t"));
     itemArray->AppendL(lbString);
-    iListBox->HandleItemAdditionL();    
+    iListBox->HandleItemAdditionL();
     if(model->NumberOfItems() == 1)
     {
         currentIndex = 0;
@@ -213,9 +236,11 @@ void Cayfly_s60PlayListView::StartPlayer()
     User::LeaveIfNull(model);
     if(model->NumberOfItems() < 1)
         return;
+    if(currentIndex < 0)
+        currentIndex = 0;
     iListBox->SetCurrentItemIndex(currentIndex);
     HandleListBoxEventL(iListBox, EEventEnterKeyPressed);
-}  
+}
 
 void Cayfly_s60PlayListView::StopPlayer()
 {
@@ -264,15 +289,16 @@ void Cayfly_s60PlayListView::NextSong()
             currentIndex = 0;
             return;
         }
+        if(currentIndex <0)
+            currentIndex = 0;
         iListBox->SetCurrentItemIndex(currentIndex);
         HandleListBoxEventL(iListBox, EEventEnterKeyPressed);      
-        
     }
 }
 
 void Cayfly_s60PlayListView::elapsedCallback(void *arg)
 {
-    Cayfly_s60PlayListView *me = (Cayfly_s60PlayListView *)arg;
-    me->NextSong();    
+    Cayfly_s60PlayListView *me = (Cayfly_s60PlayListView *)0;
+    me->NextSong();
 }
 
