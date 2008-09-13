@@ -100,12 +100,7 @@ private:
 #else //S60
 	Cayfly_s60PlayListView* iAppView;
 #endif
-	void *currentSong;
 	TInt iVolume;
-	//Cayfly_s60Audio *player;
-	//TFileName folderName;
-
-
 	};
 
 #endif // __AYFLY_S60APPUI_h__
