@@ -70,7 +70,7 @@ public:
     ;
     inline void SetVolume(unsigned long chnl, float new_volume)
     {
-        volume[chnl] = new_volume;
+        volume[chnl] = new_volume > 1 ? 1 : (new_volume < 0 ? 0 : new_volume);
     }
     ;
     inline const unsigned char *GetRegs()

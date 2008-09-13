@@ -25,17 +25,18 @@ Cayfly_s60PlayListView* Cayfly_s60PlayListView::NewL(const TRect& aRect)
     Cayfly_s60PlayListView* me = new (ELeave) Cayfly_s60PlayListView();
     CleanupStack::PushL(me);
     me->ConstructL(aRect);
-    CleanupStack::Pop(me);    
+    CleanupStack::Pop(me);
     return (me);
 }
 
 Cayfly_s60PlayListView::Cayfly_s60PlayListView()
 {
     currentSong = 0;
+    volume = 0.5;
 }
 
 Cayfly_s60PlayListView::~Cayfly_s60PlayListView()
-{    
+{
     iFocusPos.Close();
     delete iListBox;
     if(currentSong)
@@ -48,7 +49,7 @@ void Cayfly_s60PlayListView::ConstructL(const TRect& aRect)
 {
     CreateWindowL();
 
-    SetUpListBoxL();    
+    SetUpListBoxL();
 
     SetRect(aRect);
     ActivateL();
@@ -58,21 +59,21 @@ void Cayfly_s60PlayListView::SetUpListBoxL()
 {
     iListBox = new (ELeave) CAknDoubleStyleListBox();
     iListBox->SetContainerWindowL(*this);
-    
+
     TResourceReader reader;
     iEikonEnv->CreateResourceReaderLC(reader, R_AYFLY_PLAYLIST);
 
-        // Create the list box
+    // Create the list box
     iListBox->ConstructFromResourceL(reader);
     CleanupStack::PopAndDestroy(); // reader
 
-    
+
     // Add this to observe the list box
     iListBox->SetListBoxObserver(this);
 
     //  Add vertical scroll bars (which are visible when necessary)
     iListBox->CreateScrollBarFrameL(ETrue);
-    iListBox->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EOff, CEikScrollBarFrame::EAuto);    
+    iListBox->ScrollBarFrame()->SetScrollBarVisibilityL(CEikScrollBarFrame::EOff, CEikScrollBarFrame::EAuto);
 }
 
 void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TListBoxEvent aEventType)
@@ -85,12 +86,12 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
             CTextListBoxModel* model = iListBox->Model();
             User::LeaveIfNull(model);
             model->SetOwnershipType(ELbmOwnsItemArray);
-            CDesCArray* itemArray = static_cast<CDesCArray*>(model->ItemTextArray());
+            CDesCArray* itemArray = static_cast<CDesCArray*> (model->ItemTextArray());
             User::LeaveIfNull(itemArray);
             TFileName lbString = itemArray->operator [](iListBox->CurrentItemIndex());
             TFileName fileNameExt;
             TFileName fileDrive;
-            TFileName filePath;             
+            TFileName filePath;
             TInt index = lbString.Locate('\t');
             if(index != KErrNotFound)
             {
@@ -101,7 +102,7 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
                     fileNameExt = lbString.Left(index);
                     lbString = lbString.Mid(index + 1);
                     index = lbString.Locate('\t');
-                    fileDrive = lbString.Left(index);                    
+                    fileDrive = lbString.Left(index);
                 }
             }
             filePath.Zero();
@@ -113,8 +114,11 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
                 ay_closesong(&currentSong);
             }
             currentSong = ay_initsong(filePath, 44100);
+            ay_setvolume(currentSong, 0, volume, 0);
+            ay_setvolume(currentSong, 1, volume, 0);
+            ay_setvolume(currentSong, 2, volume, 0);
             ay_startsong(currentSong);
-            
+
         }
             break;
         default: // Nothing to do
@@ -157,22 +161,21 @@ CCoeControl* Cayfly_s60PlayListView::ComponentControl(TInt aIndex) const
 
 void Cayfly_s60PlayListView::AddFile(TFileName filePath)
 {
-    CTextListBoxModel* model = iListBox->Model();    // Does not own the returned model
+    CTextListBoxModel* model = iListBox->Model(); // Does not own the returned model
     User::LeaveIfNull(model);
     model->SetOwnershipType(ELbmOwnsItemArray);
-    CDesCArray* itemArray = static_cast<CDesCArray*>(model->ItemTextArray());
+    CDesCArray* itemArray = static_cast<CDesCArray*> (model->ItemTextArray());
     User::LeaveIfNull(itemArray);
-       
-    
+
     TParse tfp;
-    tfp.Set(filePath, NULL, NULL);    
+    tfp.Set(filePath, NULL, NULL);
     TFileName lbString;
     lbString.Zero();
     lbString.Append(_L("\t"));
     lbString.Append(tfp.NameAndExt());
     lbString.Append(_L("\t"));
     lbString.Append(tfp.DriveAndPath());
-    lbString.Append(_L("\t"));    
+    lbString.Append(_L("\t"));
     itemArray->AppendL(lbString);
     iListBox->HandleItemAdditionL();
     iListBox->SetCurrentItemIndex(itemArray->Count() - 1);
@@ -186,5 +189,30 @@ void Cayfly_s60PlayListView::StopSong()
         ay_closesong(&currentSong);
     }
 }
-    
+
+void Cayfly_s60PlayListView::UpVolume()
+{
+    if(currentSong)
+    {
+        volume = ay_getvolume(currentSong, 0, 0);
+        volume += 0.1;
+        ay_setvolume(currentSong, 0, volume, 0);
+        ay_setvolume(currentSong, 1, volume, 0);
+        ay_setvolume(currentSong, 2, volume, 0);
+        volume = ay_getvolume(currentSong, 0, 0);
+    }
+}
+
+void Cayfly_s60PlayListView::DownVolume()
+{
+    if(currentSong)
+    {
+        volume = ay_getvolume(currentSong, 0, 0);
+        volume -= 0.1;
+        ay_setvolume(currentSong, 0, volume, 0);
+        ay_setvolume(currentSong, 1, volume, 0);
+        ay_setvolume(currentSong, 2, volume, 0);
+        volume = ay_getvolume(currentSong, 0, 0);
+    }
+}
 

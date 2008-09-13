@@ -108,67 +108,67 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
             break;
         case EAddFile:
         {
-            TFileName FileName = _L("C:\\");
+            TFileName FileName = _L("E:\\");
 #ifndef UIQ3            
             CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeSelect);
-            CSongFilter* filter = new(ELeave) CSongFilter;
+            CSongFilter* filter = new (ELeave) CSongFilter;
             dlg->SetDefaultFolderL(_L("\\"));
             dlg->AddFilterL(filter);
             TBool bRet = dlg->ExecuteL(FileName);
 
 #else //UIQ3
-                    CDesCArray* mime = new (ELeave) CDesCArrayFlat(1);
-                    CleanupStack::PushL(mime);
-                    CDesCArray* file = new(ELeave) CDesCArrayFlat(1);
-                    CleanupStack::PushL(file);
-                    TBool bRet = CQikSelectFileDlg::RunDlgLD(*mime, *file);
-                    if(bRet)
-                    FileName = (*file) [0];
-                    CleanupStack::PopAndDestroy(2);
+            CDesCArray* mime = new (ELeave) CDesCArrayFlat(1);
+            CleanupStack::PushL(mime);
+            CDesCArray* file = new(ELeave) CDesCArrayFlat(1);
+            CleanupStack::PushL(file);
+            TBool bRet = CQikSelectFileDlg::RunDlgLD(*mime, *file);
+            if(bRet)
+            FileName = (*file) [0];
+            CleanupStack::PopAndDestroy(2);
 #endif
-                    if (bRet)
-                    {                        
-                        iAppView->AddFile(FileName);
-                    }
-                }
-                break;
-                
-                case EStopPlayer:
-                {
-                    iAppView->StopSong();
-                }
-                break;
-                case EHelp:
-                {
+            if(bRet)
+            {
+                iAppView->AddFile(FileName);
+            }
+        }
+            break;
 
-                }
-                break;
+        case EStopPlayer:
+        {
+            iAppView->StopSong();
+        }
+            break;
+        case EHelp:
+        {
+
+        }
+            break;
 #ifdef EKA2
 #ifndef UIQ3
-                    case EAbout:
-                    {
+            case EAbout:
+            {
 
-                        CAknMessageQueryDialog* dlg = new (ELeave)CAknMessageQueryDialog();
-                        dlg->PrepareLC(R_ABOUT_QUERY_DIALOG);
-                        HBufC* title = iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TITLE);
-                        dlg->QueryHeading()->SetTextL(*title);
-                        CleanupStack::PopAndDestroy(); //title
-                        HBufC* msg = iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TEXT);
-                        dlg->SetMessageTextL(*msg);
-                        CleanupStack::PopAndDestroy(); //msg
-                        dlg->RunLD();
-                    }
-                    break;
-#endif
-#endif
-                    default:
-                    {
-                        //CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("!!!"));
-                        //Panic(Eayfly_s60Ui);
-                    }
-                    break;
-                }
+                CAknMessageQueryDialog* dlg = new (ELeave)CAknMessageQueryDialog();
+                dlg->PrepareLC(R_ABOUT_QUERY_DIALOG);
+                HBufC* title = iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TITLE);
+                dlg->QueryHeading()->SetTextL(*title);
+                CleanupStack::PopAndDestroy(); //title
+                HBufC* msg = iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TEXT);
+                dlg->SetMessageTextL(*msg);
+                CleanupStack::PopAndDestroy(); //msg
+                dlg->RunLD();
             }
+            break;
+#endif
+#endif
+        default:
+        {
+            //CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("!!!"));
+            //Panic(Eayfly_s60Ui);
+        }
+            break;
+    }
+}
 
 TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEventCode aType)
 {
@@ -180,12 +180,14 @@ TKeyResponse Cayfly_s60AppUi::HandleKeyEventL(const TKeyEvent &aKeyEvent, TEvent
     {
         if(aKeyEvent.iCode == EKeyRightArrow)
         {
-                return EKeyWasConsumed;
+            iAppView->UpVolume();
+            return EKeyWasConsumed;
         }
         else if(aKeyEvent.iCode == EKeyLeftArrow)
         {
-                return EKeyWasConsumed;
-        }        
+            iAppView->DownVolume();
+            return EKeyWasConsumed;
+        }
     }
     return EKeyWasNotConsumed;
 }
