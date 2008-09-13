@@ -19,10 +19,6 @@
  ***************************************************************************/
 #include "s60.h"
 #include <barsread.h>
-_LIT (KListFormatString, "%d\t");
-
-const TInt KFolderIconSlot = 0;
-const TInt KFileIconSlot = 1;
 
 Cayfly_s60PlayListView* Cayfly_s60PlayListView::NewL(const TRect& aRect)
 {

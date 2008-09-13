@@ -39,7 +39,7 @@ typedef void (*GETINFO_CALLBACK)(AYSongInfo &info);
 
 enum _FileTypes
 {
-    FILE_TYPE_AY, FILE_TYPE_TRACKER
+    FILE_TYPE_AY, FILE_TYPE_TRACKER, FILE_TYPE_NULL
 };
 
 struct _Players
@@ -116,6 +116,60 @@ struct ayData
     unsigned long num_tracks;
     unsigned long first_track;
 };
+
+#ifndef __SYMBIAN32__
+bool ay_sys_format_supported(AY_TXT_TYPE filePath)
+#else
+bool ay_sys_format_supported(const TFileName filePath)
+#endif
+{
+    _FileTypes fileType = FILE_TYPE_NULL;
+#ifndef __SYMBIAN32__
+    AY_TXT_TYPE cfp = filePath;
+    std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int))std::tolower);
+    if(cfp.rfind(TXT(".ay")) != std::string::npos)
+    {
+        fileType = FILE_TYPE_AY;
+    }
+    else
+    {
+        for(unsigned long player = 0; player < sizeof_array(Players); player++)
+        {
+            if(cfp.rfind(Players[player].ext) != std::string::npos)
+            {
+                fileType = FILE_TYPE_TRACKER;
+                break;
+            }
+        }
+    }
+#else
+    TFileName cfp = filePath;
+    cfp.LowerCase();
+    TParse parse;
+    parse.Set(cfp, NULL, NULL);
+    if (parse.Ext().Match(_L(".ay")) != KErrNotFound)
+    {
+        fileType = FILE_TYPE_AY;
+    }
+    else
+    {
+        for (unsigned long player = 0; player < sizeof_array(Players); player++)
+        {
+            TPtrC ext = parse.Ext();
+            TPtrC ext_cur = Players [player].ext;
+            if (ext.Compare(ext_cur) == 0)
+            {
+                fileType = FILE_TYPE_TRACKER;
+                break;
+            }
+        }
+    }
+#endif
+    if(fileType == FILE_TYPE_NULL)
+        return false;
+    return true;
+}
+
 
 void ay_sys_initayfmt(AYSongInfo &info, ayData &aydata, unsigned char track);
 
