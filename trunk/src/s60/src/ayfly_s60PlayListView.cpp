@@ -20,6 +20,8 @@
 #include "s60.h"
 #include <barsread.h>
 
+const TInt tickInterval=1000;
+
 Cayfly_s60PlayListView* Cayfly_s60PlayListView::NewL(const TRect& aRect)
 {
     Cayfly_s60PlayListView* me = new (ELeave) Cayfly_s60PlayListView();
@@ -33,11 +35,12 @@ Cayfly_s60PlayListView::Cayfly_s60PlayListView()
 {
     currentSong = 0;
     currentIndex = 0;
-    volume = 0.5;
+    volume = 0.5;    
 }
 
 Cayfly_s60PlayListView::~Cayfly_s60PlayListView()
 {
+    delete iPeriodic;
     iFocusPos.Close();
     delete iListBox;
     if(currentSong)
@@ -285,6 +288,7 @@ void Cayfly_s60PlayListView::NextSong()
 {
     if(currentSong)
     {
+        ay_stopsong(currentSong);
         ay_closesong(&currentSong);
         currentIndex++;
         CTextListBoxModel* model = iListBox->Model();
@@ -305,6 +309,7 @@ TInt Cayfly_s60PlayListView::stopCallback(TAny* aObject)
 {
     Cayfly_s60PlayListView *me = (Cayfly_s60PlayListView *)aObject;
     me->iPeriodic->Cancel();
+    delete me->iPeriodic;
     me->NextSong();
     return 0;
 }
@@ -312,8 +317,7 @@ TInt Cayfly_s60PlayListView::stopCallback(TAny* aObject)
 void Cayfly_s60PlayListView::elapsedCallback(void *arg)
 {
     Cayfly_s60PlayListView *me = (Cayfly_s60PlayListView *)arg;
-    const TInt tickInterval=1000;
     me->iPeriodic = CPeriodic::NewL(0); // neutral priority
-    me->iPeriodic->Start(tickInterval, tickInterval, stopCallback);
+    me->iPeriodic->Start(tickInterval, tickInterval, TCallBack(stopCallback, arg));
 }
 

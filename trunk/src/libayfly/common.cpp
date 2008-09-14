@@ -460,7 +460,7 @@ AYFLY_API void ay_z80xec(void *info)
 
 AYSongInfo::~AYSongInfo()
 {
-    if(player)
+    if(player && player->Started())
     {
         player->Stop();
     }
