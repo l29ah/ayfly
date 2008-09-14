@@ -61,7 +61,7 @@ private:
     void *currentSong;
     float volume;
     TInt currentIndex;
-    static void elapsedCallback(void *arg);
+    static bool elapsedCallback(void *arg);
     Cayfly_s60Audio *player;
     static void stopCallback(void *arg);
     
