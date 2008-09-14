@@ -295,6 +295,14 @@ void DXAudio::DXProcess()
         {
             FillBuffer(dwMaxSize);
         }
+        
+        if(songinfo->stopping)
+        {
+            songinfo->stopping = false;
+            Stop();
+            if(songinfo->s_callback)
+                songinfo->s_callback(songinfo->s_callback_arg);
+        }
 
         InterlockedExchange (&srvExch, FALSE);        
     }
