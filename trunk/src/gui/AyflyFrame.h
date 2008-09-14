@@ -38,7 +38,8 @@ public:
     bool AddFile(const wxString &filePath);
     void Next();
 
-    static void ElapsedCallback(void *arg);
+    static bool ElapsedCallback(void *arg);
+    static void StopCallback(void *arg);
 
 private:
     wxString defaultDir;

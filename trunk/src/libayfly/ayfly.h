@@ -116,15 +116,27 @@ struct AYSongInfo;
 
 /*
  * Prototype for callback function, called when
- * song end reached. Example code:
+ * song end reached. Client code sholnd return true 
+ * if song is to be stopped. Example code:
+ * bool callback(void *songinfo)
+ * {
+ *      wprintf("Song %s ended!\n", ay_getsongname(songinfo));
+ *      return true;
+ * }
+ */
+typedef bool (*ELAPSED_CALLBACK)(void *arg);
+
+typedef void (*STOPPED_CALLBACK)(void *arg);
+
+/*
+ * Prototype for callback function, called when
+ * song stopped.
  * void callback(void *songinfo)
  * {
- *      ay_stopsong(songinfo);
  *      wprintf("Song %s ended!\n", ay_getsongname(songinfo));
  *      exit(0);
  * }
  */
-typedef void (*ELAPSED_CALLBACK)(void *arg);
 
 /* System callback prototypes */
 typedef void (*PLAYER_INIT_PROC)(AYSongInfo &info);
@@ -159,8 +171,10 @@ struct AYSongInfo
     AbstractAudio *player; /* player for this song */
     Z80EX_CONTEXT *z80ctx; /* z80 execution context */
     unsigned long timeElapsed; /* playing time in tacts */
-    ELAPSED_CALLBACK callback; /* song end callback function */
-    void *callback_arg; /* argument for callback */
+    ELAPSED_CALLBACK e_callback; /* song elapsed callback function */
+    void *e_callback_arg; /* argument for elapsed callback */
+    STOPPED_CALLBACK s_callback; /* song stop callback function */
+    void *s_callback_arg; /* argument for stop callback */
     unsigned short ay_reg; /* current AY register */
     unsigned long z80_freq; /* z80 cpu frequency */
     unsigned long ay_freq; /* AY chip frequency */
@@ -168,6 +182,7 @@ struct AYSongInfo
     unsigned long sr; /* sample rate */
     unsigned char chip_type; /* chip type: AY = 0 or YM = 1 */
     bool own_player; /* is player ws created during initialization by the library */
+    bool stopping;
     ~AYSongInfo();
 };
 
@@ -430,7 +445,15 @@ AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl, unsigned long chip_n
  * Function called when song @info ended, or reverted to the loop position
  */
 
-AYFLY_API void ay_setcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg);
+AYFLY_API void ay_setelapsedcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg);
+
+/*
+ * Sets callback function for song described by @info to function pointed by
+ * @callback. When the function called, @callback_arg is passed as the only argument.
+ * Function called when song was stopped.
+ */
+
+AYFLY_API void ay_setstoppedcallback(void *info, STOPPED_CALLBACK callback, void *callback_arg);
 
 /*
  * Gets song length in 1/50 second

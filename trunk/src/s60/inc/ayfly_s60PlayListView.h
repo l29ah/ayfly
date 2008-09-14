@@ -63,7 +63,7 @@ private:
     TInt currentIndex;
     static void elapsedCallback(void *arg);
     Cayfly_s60Audio *player;
-    static TInt stopCallback(TAny* aObject);
+    static void stopCallback(void *arg);
     
 };
 
