@@ -22,6 +22,7 @@
 #define SDLSOUND_H_
 
 #include "SDL.h"
+#include "SDL_thread.h" 
 
 class AbstractAudio;
 
@@ -35,6 +36,8 @@ public:
 private:
 	static void Play(void *udata, Uint8 *stream, int len);
 	SDL_AudioSpec fmt_out;
+	SDL_Thread *stopping_thread;
+	static int StoppingThread(void *arg);
 };
 
 #endif /*SDLSOUND_H_*/

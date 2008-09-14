@@ -36,7 +36,10 @@ AYSongInfo *ay_sys_getnewinfo()
     info->file_len = 0;
     info->z80ctx = 0;
     info->timeElapsed = 0;
-    info->callback = 0;
+    info->e_callback = 0;
+    info->e_callback_arg = 0;
+    info->s_callback = 0;
+    info->s_callback_arg = 0;
     info->z80_freq = Z80_FREQ;
     info->ay_freq = info->z80_freq / 2;
     info->int_freq = INT_FREQ;
@@ -45,6 +48,7 @@ AYSongInfo *ay_sys_getnewinfo()
     info->player = 0;
     info->chip_type = 0;
     info->own_player = true;
+    info->stopping = false;
     memset(info->z80IO, 0, 65536);
     return info;
 }
@@ -279,6 +283,7 @@ AYFLY_API TFileName ay_getsongpath(void *info)
 
 AYFLY_API void ay_seeksong(void *info, long new_position)
 {
+    ((AYSongInfo *)info)->stopping = false;
     ay_sys_rewindsong(*(AYSongInfo *)info, new_position);
 }
 
@@ -287,6 +292,7 @@ AYFLY_API void ay_resetsong(void *info)
     AYSongInfo *song = (AYSongInfo *)info;
     if(!song->player)
         return;
+    song->stopping = false;
     bool started = song->player->Started();
     if(started)
         song->player->Stop();
@@ -307,9 +313,10 @@ AYFLY_API void ay_resetsong(void *info)
 
 AYFLY_API void ay_closesong(void **info)
 {
-    if(ay_songstarted(*info))
-        ay_stopsong(*info);
     AYSongInfo *song = (AYSongInfo *)*info;
+    if(song->player)
+        if(ay_songstarted(*info))
+            ay_stopsong(*info);    
     AYSongInfo **ppsong = (AYSongInfo **)info;
     delete song;
     *ppsong = 0;
@@ -335,10 +342,16 @@ AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl, unsigned long chip_n
     return ((AYSongInfo *)info)->player->ChnlMuted(chnl, chip_num);
 }
 
-AYFLY_API void ay_setcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg)
+AYFLY_API void ay_setelapsedcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg)
 {    
-    ((AYSongInfo *)info)->callback_arg = callback_arg;
-    ((AYSongInfo *)info)->callback = callback;
+    ((AYSongInfo *)info)->e_callback_arg = callback_arg;
+    ((AYSongInfo *)info)->e_callback = callback;
+}
+
+AYFLY_API void ay_setstoppedcallback(void *info, STOPPED_CALLBACK callback, void *callback_arg)
+{    
+    ((AYSongInfo *)info)->s_callback_arg = callback_arg;
+    ((AYSongInfo *)info)->s_callback = callback;
 }
 
 AYFLY_API bool ay_songstarted(void *info)
@@ -348,12 +361,14 @@ AYFLY_API bool ay_songstarted(void *info)
 
 AYFLY_API void ay_startsong(void *info)
 {
+    ((AYSongInfo *)info)->stopping = false;
     if(!ay_songstarted(info))
         ((AYSongInfo *)info)->player->Start();
 }
 
 AYFLY_API void ay_stopsong(void *info)
 {
+    ((AYSongInfo *)info)->stopping = false;
     if(ay_songstarted(info))
     {
         ((AYSongInfo *)info)->player->Stop();

@@ -352,8 +352,9 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
         {
             if(timer.IsRunning())
                 timer.Stop();
-
+#ifdef WINDOWS
             ay_sethwnd(currentSong->info, (HWND)GetHWND());
+#endif
 
             ay_startsong(currentSong->info);
 
@@ -383,7 +384,8 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
     if(currentSong && currentSong->info)
     {
         posslider->SetValue(ay_getelapsedtime(currentSong->info));
-        ay_setcallback(currentSong->info, AyflyFrame::ElapsedCallback, this);
+        ay_setelapsedcallback(currentSong->info, AyflyFrame::ElapsedCallback, this);
+        ay_setstoppedcallback(currentSong->info, AyflyFrame::StopCallback, this);
 
         if(ay_songstarted(currentSong->info))
         {
@@ -554,15 +556,6 @@ void AyflyFrame::OnTimer(wxTimerEvent& event)
     if(!currentSong->info)
         return;
 
-    if(songEnd)
-    {
-        songEnd = false;
-        wxCommandEvent evt;
-        evt.SetId(wxID_CALLBACK);
-        OnNext(evt);
-        return;
-    }
-
     unsigned long timeElapsed = ay_getelapsedtime(currentSong->info);
     if(!bTracking)
         posslider->SetValue(timeElapsed);
@@ -587,18 +580,27 @@ void AyflyFrame::OnTimer(wxTimerEvent& event)
 
 }
 
-void AyflyFrame::ElapsedCallback(void *arg)
+bool AyflyFrame::ElapsedCallback(void *arg)
 {
     AyflyFrame *frame = (AyflyFrame *)arg;
     wxCommandEvent evt;
 
-    frame->songEnd = true;
-
     if(frame->toolBar->GetToolState(wxID_REPEAT))
     {
-        frame->songEnd = false;
+        return false;
     }
+    return true;
+}
 
+void AyflyFrame::StopCallback(void *arg)
+{
+    AyflyFrame *frame = (AyflyFrame *)arg;
+
+    frame->songEnd = true;
+
+    wxCommandEvent evt(wxID_NEXT, wxID_CALLBACK);
+    //frame->OnNext(evt);
+    frame->ProcessEvent(evt);
 }
 
 void AyflyFrame::OnScroll(wxScrollEvent &event)

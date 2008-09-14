@@ -24,10 +24,16 @@ SDLAudio::SDLAudio(unsigned long _sr, AYSongInfo *info) :
     AbstractAudio(_sr, info)
 {
     songinfo = info;
+    stopping_thread = 0;
 }
 
 SDLAudio::~SDLAudio()
 {
+    if(stopping_thread)
+    {
+        SDL_KillThread(stopping_thread);
+        stopping_thread = 0;
+    }
     Stop();
 }
 
@@ -71,5 +77,22 @@ void SDLAudio::Stop()
 void SDLAudio::Play(void *udata, Uint8 *stream, int len)
 {
     SDLAudio *audio = (SDLAudio *)udata;
+    if(audio->songinfo->stopping)
+    {
+        audio->songinfo->stopping = false;
+        audio->stopping_thread = SDL_CreateThread(SDLAudio::StoppingThread, audio);
+        memset(stream, 0, len);
+        return;
+    }
     audio->ay8910->ayProcess(stream, len);
+}
+
+int SDLAudio::StoppingThread(void *arg)
+{
+    SDLAudio *audio = (SDLAudio *)arg;
+    audio->stopping_thread = 0;
+    audio->Stop();
+    if(audio->songinfo->s_callback)
+        audio->songinfo->s_callback(audio->songinfo->s_callback_arg);
+    return 0;
 }

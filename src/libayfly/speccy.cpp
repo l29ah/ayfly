@@ -81,11 +81,16 @@ void ay_sys_resetz80(AYSongInfo &info)
 
 void ay_sys_shutdownz80(AYSongInfo &info)
 {
-    ay_sys_resetz80(info);
-    z80ex_destroy(info.z80ctx);
-    info.z80ctx = 0;
-    memset(info.module, 0, 65536);
-    memset(info.z80IO, 0, 65536);
+    if(info.z80ctx)
+    {
+        ay_sys_resetz80(info);
+        z80ex_destroy(info.z80ctx);
+        info.z80ctx = 0;
+    }
+    if(info.module)
+        memset(info.module, 0, 65536);
+    if(info.z80IO)
+        memset(info.z80IO, 0, 65536);
 }
 
 void ay_sys_z80exec(AYSongInfo &info)
@@ -106,7 +111,7 @@ void ay_sys_z80exec(AYSongInfo &info)
     if (++info.timeElapsed >= info.Length)
     {
         info.timeElapsed = info.Loop;
-        if (info.callback)
-            info.callback(info.callback_arg);
+        if (info.e_callback)
+            info.stopping = info.e_callback(info.e_callback_arg);
     }
 }
