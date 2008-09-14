@@ -45,7 +45,10 @@ Cayfly_s60PlayListView::~Cayfly_s60PlayListView()
         ay_closesong(&currentSong);
     }
     if(player)
+    {
         delete player;
+        player = 0;
+    }
 }
 
 void Cayfly_s60PlayListView::ConstructL(const TRect& aRect)
@@ -120,7 +123,7 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
             {
                 ay_closesong(&currentSong);
             }
-            currentSong = ay_initsong_wo_player(filePath, 44100);
+            currentSong = ay_initsong(filePath, 44100, player);
             ay_setsongplayer(currentSong, player);
             player->SetSongInfo((AYSongInfo *)currentSong);
             ay_setvolume(currentSong, 0, volume, 0);

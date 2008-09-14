@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "ayfly.h"
+#include "eikenv.h"
 
 AYSongInfo *ay_sys_getnewinfo()
 {
@@ -54,9 +55,9 @@ AYSongInfo *ay_sys_getnewinfo()
 }
 
 #ifndef __SYMBIAN32__
-AYFLY_API void *ay_initsong_wo_player(const AY_CHAR *FilePath, unsigned long sr)
+AYFLY_API void *ay_initsong(const AY_CHAR *FilePath, unsigned long sr, AbstractAudio *player)
 #else
-AYFLY_API void *ay_initsong_wo_player(TFileName FilePath, unsigned long sr)
+AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio *player)
 #endif
 {
     AYSongInfo *info = ay_sys_getnewinfo();
@@ -65,67 +66,30 @@ AYFLY_API void *ay_initsong_wo_player(TFileName FilePath, unsigned long sr)
 
     info->FilePath = FilePath;
     info->sr = sr;
-    info->own_player = false;
-
-    if(!ay_sys_initz80(*info))
+    if(player)
     {
-        delete info;
-        info = 0;
+        info->player = player;
+        info->own_player = false;
     }
     else
     {
-        if(!ay_sys_readfromfile(*info))
-        {
-            delete info;
-            info = 0;
-        }
-        else
-        {
-            if(!ay_sys_initsong(*info))
-            {
-                delete info;
-                info = 0;
-            }
-            else
-            {
-                if(!info->bEmul)
-                {
-                    if(info->init_proc)
-                        info->init_proc(*info);
-                }
-                ay_sys_getsonginfoindirect(*info);
-            }
-        }
-    }
-    return info;
-}
-
-#ifndef __SYMBIAN32__
-AYFLY_API void *ay_initsong(const AY_CHAR *FilePath, unsigned long sr)
-#else
-AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
-#endif
-{
-    AYSongInfo *info = ay_sys_getnewinfo();
-    if(!info)
-        return 0;
-
-    info->FilePath = FilePath;
-    info->sr = sr;
 #ifndef __SYMBIAN32__
 #ifdef WINDOWS
-    info->player = new DXAudio(sr, info);
+        info->player = new DXAudio(sr, info);
 #else
-    info->player = new SDLAudio(sr, info);
+        info->player = new SDLAudio(sr, info);
 #endif
 #else
-    info->player = new Cayfly_s60Audio(info);
+        info->player = new Cayfly_s60Audio(info);
 #endif
-    if(!info->player)
-    {
-        delete info;
-        return 0;
+        if(!info->player)
+        {
+            delete info;
+            return 0;
+        }
     }
+    
+    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("0"));
 
     if(!ay_sys_initz80(*info))
     {
@@ -134,6 +98,7 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
     }
     else
     {
+        CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("1"));
         if(!ay_sys_readfromfile(*info))
         {
             delete info;
@@ -141,6 +106,7 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
         }
         else
         {
+            CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("2"));
             if(!ay_sys_initsong(*info))
             {
                 delete info;
@@ -148,12 +114,15 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
             }
             else
             {
+                CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("3"));
                 if(!info->bEmul)
                 {
                     if(info->init_proc)
                         info->init_proc(*info);
                 }
+                CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("4"));
                 ay_sys_getsonginfoindirect(*info);
+                CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("5"));
             }
         }
     }
@@ -161,9 +130,9 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
 }
 
 #ifndef __SYMBIAN32__
-AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, AY_CHAR *type, unsigned long size)
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, AY_CHAR *type, unsigned long size, AbstractAudio *player)
 #else
-AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size)
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size, AbstractAudio *player)
 #endif
 {
     AYSongInfo *info = ay_sys_getnewinfo();
@@ -187,19 +156,27 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFi
         return 0;
     }
     info->sr = sr;
+    if(player)
+    {
+        info->player = player;
+        info->own_player = false;
+    }
+    else
+    {
 #ifndef __SYMBIAN32__
 #ifdef WINDOWS
-    info->player = new DXAudio(sr, info);
+        info->player = new DXAudio(sr, info);
 #else
-    info->player = new SDLAudio(sr, info);
+        info->player = new SDLAudio(sr, info);
 #endif
 #else
-    info->player = new Cayfly_s60Audio(info);
-#endif
-    if(!info->player)
-    {
-        delete info;
-        return 0;
+        info->player = new Cayfly_s60Audio(info);
+#endif    
+        if(!info->player)
+        {
+            delete info;
+            return 0;
+        }
     }
     if(!ay_sys_initsong(*info))
     {
@@ -480,8 +457,11 @@ AYFLY_API void ay_setsongplayer(void *info, void * /* class AbstractAudio */play
     if(((AYSongInfo *)info)->player)
     {
         ay_stopsong(info);
-        delete ((AYSongInfo *)info)->player;
-        ((AYSongInfo *)info)->player = 0;
+        if(((AYSongInfo *)info)->own_player)
+        {
+            delete ((AYSongInfo *)info)->player;
+            ((AYSongInfo *)info)->player = 0;
+        }
     }
     ((AYSongInfo *)info)->player = (AbstractAudio *)player;
 }
