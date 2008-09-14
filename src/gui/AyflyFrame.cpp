@@ -291,6 +291,9 @@ AyflyFrame::AyflyFrame(const wxString &title) :
 
     wxAcceleratorTable accel(sizeof_array(default_bindings) - 1, accel_entries);
     SetAcceleratorTable(accel);
+    
+    //Connect(wxID_NEXT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnQuit) );
+
 }
 
 AyflyFrame::~AyflyFrame()
@@ -484,7 +487,7 @@ void AyflyFrame::OnNext(wxCommandEvent &event)
         ay_closesong((void **)&currentSong->info);
     }
 
-    if(event.GetId() == wxID_CALLBACK)
+    if(event.GetClientData() == (void *)wxID_CALLBACK)
         started = true;
 
     wxListEvent evt;
@@ -598,9 +601,10 @@ void AyflyFrame::StopCallback(void *arg)
 
     frame->songEnd = true;
 
-    wxCommandEvent evt(wxID_NEXT, wxID_CALLBACK);
-    //frame->OnNext(evt);
-    frame->ProcessEvent(evt);
+    wxCommandEvent evt(wxEVT_COMMAND_MENU_SELECTED, wxID_NEXT);
+    evt.SetEventObject(frame);    
+    evt.SetClientData((void *)wxID_CALLBACK);
+    frame->AddPendingEvent(evt);
 }
 
 void AyflyFrame::OnScroll(wxScrollEvent &event)

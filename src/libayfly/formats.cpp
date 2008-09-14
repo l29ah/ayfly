@@ -641,6 +641,7 @@ void ay_sys_rewindsong(AYSongInfo &info, long new_position)
         while(info.timeElapsed != new_position)
         {
             info.play_proc(info);
+            info.timeElapsed++;
         }
 
     }

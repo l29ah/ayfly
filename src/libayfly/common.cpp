@@ -97,7 +97,7 @@ AYFLY_API void *ay_initsong_wo_player(TFileName FilePath, unsigned long sr)
             }
         }
     }
-    return info;    
+    return info;
 }
 
 #ifndef __SYMBIAN32__
@@ -106,9 +106,12 @@ AYFLY_API void *ay_initsong(const AY_CHAR *FilePath, unsigned long sr)
 AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
 #endif
 {
-    AYSongInfo *info = (AYSongInfo *)ay_initsong_wo_player(FilePath, sr);    
+    AYSongInfo *info = ay_sys_getnewinfo();
     if(!info)
         return 0;
+
+    info->FilePath = FilePath;
+    info->sr = sr;
 #ifndef __SYMBIAN32__
 #ifdef WINDOWS
     info->player = new DXAudio(sr, info);
@@ -122,6 +125,37 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr)
     {
         delete info;
         return 0;
+    }
+
+    if(!ay_sys_initz80(*info))
+    {
+        delete info;
+        info = 0;
+    }
+    else
+    {
+        if(!ay_sys_readfromfile(*info))
+        {
+            delete info;
+            info = 0;
+        }
+        else
+        {
+            if(!ay_sys_initsong(*info))
+            {
+                delete info;
+                info = 0;
+            }
+            else
+            {
+                if(!info->bEmul)
+                {
+                    if(info->init_proc)
+                        info->init_proc(*info);
+                }
+                ay_sys_getsonginfoindirect(*info);
+            }
+        }
     }
     return info;
 }
@@ -316,7 +350,7 @@ AYFLY_API void ay_closesong(void **info)
     AYSongInfo *song = (AYSongInfo *)*info;
     if(song->player)
         if(ay_songstarted(*info))
-            ay_stopsong(*info);    
+            ay_stopsong(*info);
     AYSongInfo **ppsong = (AYSongInfo **)info;
     delete song;
     *ppsong = 0;
@@ -343,13 +377,13 @@ AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl, unsigned long chip_n
 }
 
 AYFLY_API void ay_setelapsedcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg)
-{    
+{
     ((AYSongInfo *)info)->e_callback_arg = callback_arg;
     ((AYSongInfo *)info)->e_callback = callback;
 }
 
 AYFLY_API void ay_setstoppedcallback(void *info, STOPPED_CALLBACK callback, void *callback_arg)
-{    
+{
     ((AYSongInfo *)info)->s_callback_arg = callback_arg;
     ((AYSongInfo *)info)->s_callback = callback;
 }
@@ -468,7 +502,7 @@ AYFLY_API unsigned char ay_getchiptype(void *info)
     return ((AYSongInfo *)info)->chip_type;
 }
 
-AYFLY_API void ay_z80xec(void *info)
+AYFLY_API void ay_z80exec(void *info)
 {
     return ay_sys_z80exec(*(AYSongInfo *)info);
 }
@@ -511,9 +545,8 @@ bool ay_format_supported(AY_TXT_TYPE filePath)
 bool ay_format_supported(const TFileName filePath)
 #endif
 {
-    return ay_sys_format_supported(filePath);    
+    return ay_sys_format_supported(filePath);
 }
-
 
 #ifdef WINDOWS
 AYFLY_API void ay_sethwnd(void *info, HWND hWnd)

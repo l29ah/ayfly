@@ -371,7 +371,7 @@ AYFLY_API TFileName ay_getsongpath(void *info);
  * Used only in ay emulator and song positioning
  */
 
-AYFLY_API void ay_z80xec(void *info);
+AYFLY_API void ay_z80exec(void *info);
 
 /*
  * Set song pointer to new position @new_position

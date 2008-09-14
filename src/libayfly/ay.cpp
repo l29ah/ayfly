@@ -21,15 +21,10 @@
 #include "ayfly.h"
 
 const float ay::init_levels_ay[] =
-{ 0x0000, 0x0000, 0x0385, 0x0385, 0x053D, 0x053D, 0x0770, 0x0770,
-  0x0AD7, 0x0AD7, 0x0FD5, 0x0FD5, 0x15B0, 0x15B0, 0x230C, 0x230C,
-  0x2B4C, 0x2B4C, 0x43C1, 0x43C1, 0x5A4B, 0x5A4B, 0x732F, 0x732F,
-  0x9204, 0x9204, 0xAFF1, 0xAFF1, 0xD921, 0xD921, 0xFFFF, 0xFFFF };
+{ 0x0000, 0x0000, 0x0385, 0x0385, 0x053D, 0x053D, 0x0770, 0x0770, 0x0AD7, 0x0AD7, 0x0FD5, 0x0FD5, 0x15B0, 0x15B0, 0x230C, 0x230C, 0x2B4C, 0x2B4C, 0x43C1, 0x43C1, 0x5A4B, 0x5A4B, 0x732F, 0x732F, 0x9204, 0x9204, 0xAFF1, 0xAFF1, 0xD921, 0xD921, 0xFFFF, 0xFFFF };
 
-const float ay::init_levels_ym [] =
-{ 0, 0, 0xF8, 0x1C2, 0x29E, 0x33A, 0x3F2, 0x4D7, 0x610, 0x77F, 0x90A, 0xA42,
-    0xC3B, 0xEC2, 0x1137, 0x13A7, 0x1750, 0x1BF9, 0x20DF, 0x2596, 0x2C9D, 0x3579,
-    0x3E55, 0x4768, 0x54FF, 0x6624, 0x773B, 0x883F, 0xA1DA, 0xC0FC, 0xE094, 0xFFFF};
+const float ay::init_levels_ym[] =
+{ 0, 0, 0xF8, 0x1C2, 0x29E, 0x33A, 0x3F2, 0x4D7, 0x610, 0x77F, 0x90A, 0xA42, 0xC3B, 0xEC2, 0x1137, 0x13A7, 0x1750, 0x1BF9, 0x20DF, 0x2596, 0x2C9D, 0x3579, 0x3E55, 0x4768, 0x54FF, 0x6624, 0x773B, 0x883F, 0xA1DA, 0xC0FC, 0xE094, 0xFFFF };
 #define TONE_ENABLE(ch) ((regs [AY_MIXER] >> (ch)) & 1)
 #define NOISE_ENABLE(ch) ((regs [AY_MIXER] >> (3 + (ch))) & 1)
 #define TONE_PERIOD(ch) (((((regs [((ch) << 1) + 1]) & 0xf) << 8)) | (regs [(ch) << 1]))
@@ -44,10 +39,12 @@ const float ay::init_levels_ym [] =
     short *stream16 = (short *) stream;
 
 #define AY_PROCESS_STEP \
+    if(songinfo->stopping == false)\
+    {\
     if(++int_counter > int_limit)\
     {\
         int_counter = 0;\
-        ay_z80xec(songinfo);\
+        ay_z80exec(songinfo);\
         memcpy(ayreg_tail [ayreg_writeptr], regs, 16);\
         ayreg_writeptr = ++ayreg_writeptr % AYREG_TAIL_LEN;\
     }\
@@ -94,7 +91,8 @@ const float ay::init_levels_ym [] =
 \
     s0 = s0 / (float)ay_tacts;\
     s1 = (s1 / (float)ay_tacts) / 1.42;\
-    s2 = s2 / (float)ay_tacts;
+    s2 = s2 / (float)ay_tacts;\
+    }
 
 #define AY_PROCESS_START_LOOP \
     for(unsigned long i = 0; i < work_len; i++)\
@@ -169,7 +167,7 @@ void ay::ayReset()
     {
         for(unsigned long l = 0; l < 16; l++)
         {
-            ayreg_tail [i] [l] = 0;
+            ayreg_tail[i][l] = 0;
         }
     }
     ayreg_readptr = ayreg_writeptr = 0;
@@ -288,15 +286,17 @@ void ay::updateEnvelope()
 void ay::ayProcess(unsigned char *stream, unsigned long len)
 {
     AY_PROCESS_INIT
-    AY_PROCESS_START_LOOP
-AY_PROCESS_STEP    stream16[i * 2] = s0 + s1;
-    stream16[i * 2 + 1] = s2 + s1;
-    AY_PROCESS_END_LOOP
-    }
+    AY_PROCESS_START_LOOP 
+    AY_PROCESS_STEP
+            stream16[i * 2] = s0 + s1;
+            stream16[i * 2 + 1] = s2 + s1;
+        AY_PROCESS_END_LOOP
+}
 void ay::ayProcessMono(unsigned char *stream, unsigned long len)
 {
     AY_PROCESS_INIT
-    AY_PROCESS_START_LOOP
-AY_PROCESS_STEP    stream16[i] = s0 + s1 + s2;
-    AY_PROCESS_END_LOOP
-    }
+    AY_PROCESS_START_LOOP 
+    AY_PROCESS_STEP
+            stream16[i] = s0 + s1 + s2;
+        AY_PROCESS_END_LOOP
+}
