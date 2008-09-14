@@ -39,7 +39,7 @@ Cayfly_s60Sound* Cayfly_s60Sound::NewL()
 
 Cayfly_s60Sound::Cayfly_s60Sound() :
     iDesc1(0, 0, 0), iDesc2(0, 0, 0)
-{    
+{
     iVolume = 7;
 }
 
@@ -193,6 +193,13 @@ void Cayfly_s60Sound::MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer)
         return;
     }
 
+    if(songinfo->stopping)
+    {
+        iState = EStopping;
+        iStream->Stop();
+        return;
+    }
+
     if(iState == EPlaying)
     {
         if(!iIdleActive)
@@ -223,6 +230,13 @@ void Cayfly_s60Sound::MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer)
 void Cayfly_s60Sound::MaoscPlayComplete(TInt aError)
 {
     iState = EStopped;
+    if(songinfo->stopping)
+    {
+        songinfo->stopping = false;
+        if(songinfo->s_callback)
+            songinfo->s_callback(songinfo->s_callback_arg);
+        return;
+    }
 }
 
 void Cayfly_s60Sound::SetDeviceVolume(TInt aVolume)
@@ -296,10 +310,10 @@ void Cayfly_s60Sound::PrivateSetVolume()
     if(iState == EPlaying)
     {
         /*if(iVolume < 0)
-            iVolume = 0;
-        if(iVolume > iStream->MaxVolume())
-            iVolume = iStream->MaxVolume();
-        iStream->SetVolume(iVolume);*/
+         iVolume = 0;
+         if(iVolume > iStream->MaxVolume())
+         iVolume = iStream->MaxVolume();
+         iStream->SetVolume(iVolume);*/
     }
 }
 
@@ -517,7 +531,7 @@ void Cayfly_s60Audio::SetSongInfo(AYSongInfo *info)
     songinfo = info;
     if(ay8910)
     {
-        delete ay8910;        
+        delete ay8910;
     }
     songinfo->sr = AUDIO_FREQ;
     ay8910 = new ay(songinfo);
