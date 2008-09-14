@@ -38,7 +38,6 @@ Cayfly_s60PlayListView::Cayfly_s60PlayListView()
 
 Cayfly_s60PlayListView::~Cayfly_s60PlayListView()
 {
-    delete iPeriodic;
     iFocusPos.Close();
     delete iListBox;
     if(currentSong)
@@ -87,7 +86,8 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
     {
         case EEventEnterKeyPressed:
         case EEventItemClicked:            
-        {// An item has been chosen and will be opened
+        {// An item has been chosen and will be opened  
+            iListBox->DrawDeferred();
             CTextListBoxModel* model = iListBox->Model();
             User::LeaveIfNull(model);
             if(model->NumberOfItems() < 1)
@@ -170,7 +170,7 @@ TKeyResponse Cayfly_s60PlayListView::OfferKeyEventL(const TKeyEvent& aKeyEvent, 
             }
             itemArray->Delete(iListBox->CurrentItemIndex()); 
             iListBox->HandleItemRemovalL();
-            iListBox->DrawNow();
+            iListBox->DrawDeferred();
             return EKeyWasConsumed;
 
         }
@@ -245,7 +245,7 @@ void Cayfly_s60PlayListView::StartPlayer()
         return;
     if(currentIndex < 0)
         currentIndex = 0;
-    iListBox->SetCurrentItemIndex(currentIndex);
+    iListBox->SetCurrentItemIndex(currentIndex);    
     HandleListBoxEventL(iListBox, EEventEnterKeyPressed);
 }
 
@@ -306,7 +306,9 @@ void Cayfly_s60PlayListView::NextSong()
 void Cayfly_s60PlayListView::stopCallback(void *arg)
 {
     Cayfly_s60PlayListView *me = (Cayfly_s60PlayListView *)arg;
+    CTrapCleanup *ctrap = CTrapCleanup::New();
     me->NextSong();
+    delete ctrap;
 }
 
 bool Cayfly_s60PlayListView::elapsedCallback(void *arg)
