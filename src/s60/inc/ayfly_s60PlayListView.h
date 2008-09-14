@@ -40,8 +40,7 @@ public:
     void StopPlayer();
     void UpVolume();
     void DownVolume();
-    void NextSong();
-    CPeriodic *iPeriodic;
+    void NextSong();    
 protected:
     //  From CCoeControl
     void SizeChanged();

@@ -224,7 +224,8 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
         *data_len = 0;
 
 #else
-    RFs fsSession = CCoeEnv::Static()->FsSession();
+    RFs fsSession;// = CCoeEnv::Static()->FsSession();
+    fsSession.Connect();
     RFileReadStream readStream;
     TEntry entry;
     TInt err = readStream.Open(fsSession, filePath, EFileRead);
