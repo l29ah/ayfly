@@ -532,7 +532,6 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
     cfp.LowerCase();
     TParse parse;
     parse.Set(cfp, NULL, NULL);
-
     if (parse.Ext() == _L(".ay"))
 #endif
     {
@@ -591,7 +590,7 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
             TPtrC ext_cur = Players [i].ext;
             if (ext.Compare(ext_cur) == 0)
 #endif
-            {
+            {                
                 if(Players[i].getInfo)
                     Players[i].getInfo(info);
                 bRet = true;

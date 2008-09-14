@@ -239,19 +239,9 @@ extern "C" {
  */
 
 #ifndef __SYMBIAN32__
-AYFLY_API void *ay_initsong(const AY_CHAR *FilePath, unsigned long sr);
+AYFLY_API void *ay_initsong(const AY_CHAR *FilePath, unsigned long sr, AbstractAudio *player = 0);
 #else
-AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr);
-#endif
-
-/*
- * The same as above, but doesn't initialize player.
- */
-
-#ifndef __SYMBIAN32__
-AYFLY_API void *ay_initsong_wo_player(const AY_CHAR *FilePath, unsigned long sr);
-#else
-AYFLY_API void *ay_initsong_wo_player(TFileName FilePath, unsigned long sr);
+AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio *player = 0);
 #endif
 
 /*
@@ -279,9 +269,9 @@ AYFLY_API void *ay_initsong_wo_player(TFileName FilePath, unsigned long sr);
  */
 
 #ifndef __SYMBIAN32__
-AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, AY_CHAR *type, unsigned long size);
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, AY_CHAR *type, unsigned long size, AbstractAudio *player = 0);
 #else
-AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size);
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size, AbstractAudio *player = 0);
 #endif
 
 /*
