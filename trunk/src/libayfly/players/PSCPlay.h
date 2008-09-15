@@ -5,6 +5,8 @@
  (c)1999-2004 S.V.Bulba
  */
 
+#include "eikenv.h"
+
 struct PSC_File
 {
     signed char PSC_MusicName[69];
@@ -48,6 +50,7 @@ struct PSC_SongInfo
 
 void PSC_Init(AYSongInfo &info)
 {
+    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("31"));
     unsigned char *module = info.module;
     PSC_File *header = (PSC_File *) module;
     AbstractAudio *player = info.player;
@@ -59,6 +62,8 @@ void PSC_Init(AYSongInfo &info)
     info.data = (void *) new PSC_SongInfo;
     if(!info.data)
         return;
+    
+    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("32"));
 
     PSC.DelayCounter = 1;
     PSC.Delay = header->PSC_Delay;
@@ -101,8 +106,9 @@ void PSC_Init(AYSongInfo &info)
     PSC_C.Ton_Slide_Enabled = false;
     PSC_C.Note_Skip_Counter = 1;
     PSC_C.Ton = 0;
-
+    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("33"));    
     player->ResetAy();
+    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("34"));
 
 }
 
