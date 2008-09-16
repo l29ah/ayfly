@@ -53,7 +53,7 @@ Cayfly_s60PlayListView::~Cayfly_s60PlayListView()
 
 void Cayfly_s60PlayListView::ConstructL(const TRect& aRect)
 {
-    player = new Cayfly_s60Audio();
+    player = new Cayfly_s60Audio;
     CreateWindowL();
 
     SetUpListBoxL();
@@ -123,9 +123,7 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
             {
                 ay_closesong(&currentSong);
             }
-            currentSong = ay_initsong(filePath, 44100, player);
-            ay_setsongplayer(currentSong, player);
-            player->SetSongInfo((AYSongInfo *)currentSong);
+            currentSong = ay_initsong(filePath, 44100, player);            
             ay_setvolume(currentSong, 0, volume, 0);
             ay_setvolume(currentSong, 1, volume, 0);
             ay_setvolume(currentSong, 2, volume, 0);
@@ -302,16 +300,14 @@ void Cayfly_s60PlayListView::NextSong()
         if(currentIndex <0)
             currentIndex = 0;
         iListBox->SetCurrentItemIndex(currentIndex);
-        HandleListBoxEventL(iListBox, EEventEnterKeyPressed);      
+        HandleListBoxEventL(iListBox, EEventEnterKeyPressed);
     }
 }
 
 void Cayfly_s60PlayListView::stopCallback(void *arg)
 {
     Cayfly_s60PlayListView *me = (Cayfly_s60PlayListView *)arg;
-    CTrapCleanup *ctrap = CTrapCleanup::New();
     me->NextSong();
-    delete ctrap;
 }
 
 bool Cayfly_s60PlayListView::elapsedCallback(void *arg)
