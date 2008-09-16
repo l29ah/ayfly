@@ -98,7 +98,8 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
             model->SetOwnershipType(ELbmOwnsItemArray);
             CDesCArray* itemArray = static_cast<CDesCArray*> (model->ItemTextArray());
             User::LeaveIfNull(itemArray);
-            TFileName lbString = itemArray->operator [](iListBox->CurrentItemIndex());
+            currentIndex = iListBox->CurrentItemIndex();
+            TFileName lbString = itemArray->operator [](currentIndex);
             TFileName fileNameExt;
             TFileName fileDrive;
             TFileName filePath;
