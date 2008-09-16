@@ -319,9 +319,6 @@ AYFLY_API void ay_resetsong(void *info)
 AYFLY_API void ay_closesong(void **info)
 {
     AYSongInfo *song = (AYSongInfo *)*info;
-    if(song->player)
-        if(ay_songstarted(*info))
-            ay_stopsong(*info);
     AYSongInfo **ppsong = (AYSongInfo **)info;
     delete song;
     *ppsong = 0;
