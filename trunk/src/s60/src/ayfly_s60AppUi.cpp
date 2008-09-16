@@ -84,6 +84,7 @@ Cayfly_s60AppUi::~Cayfly_s60AppUi()
 {
     if(iAppView)
     {
+        RemoveFromStack(iAppView);
         delete iAppView;
         iAppView = NULL;
     }
@@ -108,7 +109,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
             break;
         case EAddFile:
         {
-            TFileName FileName = _L("E:\\");
+            TFileName FileName = _L("C:\\");
 #ifndef UIQ3            
             CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeSelect);
             CSongFilter* filter = new (ELeave) CSongFilter;

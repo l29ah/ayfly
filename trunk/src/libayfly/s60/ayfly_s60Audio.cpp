@@ -41,13 +41,11 @@ Cayfly_s60Sound* Cayfly_s60Sound::NewL()
 Cayfly_s60Sound::Cayfly_s60Sound() :
     iDesc1(0, 0, 0), iDesc2(0, 0, 0)
 {
-    iVolume = 7;
-    iPeriodic = CPeriodic::New(0);
+    iVolume = 7; 
 }
 
 Cayfly_s60Sound::~Cayfly_s60Sound()
-{
-    delete iPeriodic;
+{    
     delete[] iBuffer1;
     delete[] iBuffer2;
 }
@@ -234,7 +232,8 @@ void Cayfly_s60Sound::MaoscPlayComplete(TInt aError)
     iState = EStopped;
     if(songinfo->stopping)
     {
-        songinfo->stopping = false;        
+        songinfo->stopping = false; 
+        iPeriodic = CPeriodic::New(0);
         iPeriodic->Start(1000, 1000, TCallBack(Cayfly_s60Sound::StopTCallback, this));        
         return;
     }
@@ -335,9 +334,9 @@ void Cayfly_s60Sound::SetSongInfo(AYSongInfo *info)
 TInt Cayfly_s60Sound::StopTCallback(TAny *aPtr)
 {
     Cayfly_s60Sound *me = (Cayfly_s60Sound *)aPtr;
-    me->iPeriodic->Cancel();
-    /*if(me->songinfo->s_callback)
-        me->songinfo->s_callback(me->songinfo->s_callback_arg);*/
+    delete me->iPeriodic;
+    if(me->songinfo->s_callback)
+        me->songinfo->s_callback(me->songinfo->s_callback_arg);
     return 0;
 }
 
