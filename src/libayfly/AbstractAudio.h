@@ -92,6 +92,7 @@ public:
         ay8910->SetParameters();
     }
     ;
+    virtual void SetSongInfo(AYSongInfo *info);
 protected:
     unsigned long sr;
     bool started;

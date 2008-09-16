@@ -82,6 +82,8 @@ private:
     Cayfly_s60Sound();
     AYSongInfo *songinfo;
     static TInt MixLoop(TAny *t);
+    CPeriodic *iPeriodic;
+    static TInt StopTCallback(TAny *aPtr);
 };
 
 //control class

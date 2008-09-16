@@ -18,7 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "ayfly.h"
-#include "eikenv.h"
 
 AYSongInfo *ay_sys_getnewinfo()
 {
@@ -70,6 +69,7 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio 
     {
         info->player = player;
         info->own_player = false;
+        player->SetSongInfo(info);
     }
     else
     {
@@ -89,8 +89,6 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio 
         }
     }
     
-    CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("0"));
-
     if(!ay_sys_initz80(*info))
     {
         delete info;
@@ -98,7 +96,6 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio 
     }
     else
     {
-        CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("1"));
         if(!ay_sys_readfromfile(*info))
         {
             delete info;
@@ -106,7 +103,6 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio 
         }
         else
         {
-            CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("2"));
             if(!ay_sys_initsong(*info))
             {
                 delete info;
@@ -114,15 +110,12 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio 
             }
             else
             {
-                CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("3"));
                 if(!info->bEmul)
                 {
                     if(info->init_proc)
                         info->init_proc(*info);
                 }
-                CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("4"));
-                ay_sys_getsonginfoindirect(*info);
-                CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("5"));
+                ay_sys_getsonginfoindirect(*info);                
             }
         }
     }
@@ -160,6 +153,7 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFi
     {
         info->player = player;
         info->own_player = false;
+        player->SetSongInfo(info);
     }
     else
     {

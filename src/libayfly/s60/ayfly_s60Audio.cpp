@@ -23,6 +23,7 @@
  */
 
 #include "ayfly.h"
+#include <eikenv.h>
 
 _LIT(KThreadName, "ayflyplaybackthread");
 
@@ -41,11 +42,12 @@ Cayfly_s60Sound::Cayfly_s60Sound() :
     iDesc1(0, 0, 0), iDesc2(0, 0, 0)
 {
     iVolume = 7;
+    iPeriodic = CPeriodic::New(0);
 }
 
 Cayfly_s60Sound::~Cayfly_s60Sound()
 {
-
+    delete iPeriodic;
     delete[] iBuffer1;
     delete[] iBuffer2;
 }
@@ -195,8 +197,7 @@ void Cayfly_s60Sound::MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer)
 
     if(songinfo->stopping)
     {
-        iState = EStopping;
-        iStream->Stop();
+        iState = EStopping;        
         return;
     }
 
@@ -232,9 +233,8 @@ void Cayfly_s60Sound::MaoscPlayComplete(TInt aError)
     iState = EStopped;
     if(songinfo->stopping)
     {
-        songinfo->stopping = false;
-        if(songinfo->s_callback)
-            songinfo->s_callback(songinfo->s_callback_arg);
+        songinfo->stopping = false;        
+        iPeriodic->Start(1000, 1000, TCallBack(Cayfly_s60Sound::StopTCallback, this));        
         return;
     }
 }
@@ -329,6 +329,15 @@ void Cayfly_s60Sound::PrivateWaitRequestOK()
 void Cayfly_s60Sound::SetSongInfo(AYSongInfo *info)
 {
     songinfo = info;
+}
+
+TInt Cayfly_s60Sound::StopTCallback(TAny *aPtr)
+{
+    Cayfly_s60Sound *me = (Cayfly_s60Sound *)aPtr;
+    me->iPeriodic->Cancel();
+    if(me->songinfo->s_callback)
+        me->songinfo->s_callback(me->songinfo->s_callback_arg);
+    return 0;
 }
 
 CCommandHandler::~CCommandHandler()
@@ -528,13 +537,7 @@ TInt Cayfly_s60Audio::GetDeviceVolume()
 
 void Cayfly_s60Audio::SetSongInfo(AYSongInfo *info)
 {
-    songinfo = info;
-    if(ay8910)
-    {
-        delete ay8910;
-    }
-    songinfo->sr = AUDIO_FREQ;
-    ay8910 = new ay(songinfo);
+    AbstractAudio::SetSongInfo(info);    
     if(sound)
         sound->SetSongInfo(songinfo);
 }

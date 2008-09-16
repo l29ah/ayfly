@@ -42,3 +42,13 @@ AbstractAudio::~AbstractAudio()
         ay8910 = 0;
     }
 }
+
+void AbstractAudio::SetSongInfo(AYSongInfo *info)
+{
+    songinfo = info;
+    if(ay8910)
+    {
+        delete ay8910;
+    }
+    ay8910 = new ay(songinfo);
+}
