@@ -80,7 +80,7 @@ public:
         return ayreg_tail [i];
     };
 
-    void SetParameters();
+    void SetParameters(AYSongInfo *_songinfo = 0);
 private:
     static const float init_levels_ay[32];
     static const float init_levels_ym[32];

@@ -126,8 +126,10 @@ ay::~ay()
 {
 }
 
-void ay::SetParameters()
+void ay::SetParameters(AYSongInfo *_songinfo)
 {
+    if((_songinfo != songinfo) && (_songinfo != 0))
+        songinfo = _songinfo;
     float ay_tacts_f = (float)songinfo->ay_freq / (float)songinfo->sr / (float)8;
     ay_tacts = ay_tacts_f;
     if((ay_tacts_f - ay_tacts) >= 0.5)

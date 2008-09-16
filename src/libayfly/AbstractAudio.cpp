@@ -46,9 +46,11 @@ AbstractAudio::~AbstractAudio()
 void AbstractAudio::SetSongInfo(AYSongInfo *info)
 {
     songinfo = info;
-    if(ay8910)
+    if(!ay8910)
     {
-        delete ay8910;
+        ay8910 = new ay(songinfo);
     }
-    ay8910 = new ay(songinfo);
+    else
+        ay8910->SetParameters(songinfo);
+    
 }

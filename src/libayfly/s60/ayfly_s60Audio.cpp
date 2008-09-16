@@ -197,7 +197,8 @@ void Cayfly_s60Sound::MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer)
 
     if(songinfo->stopping)
     {
-        iState = EStopping;        
+        iState = EStopping;     
+        iStream->Stop();
         return;
     }
 
@@ -335,8 +336,8 @@ TInt Cayfly_s60Sound::StopTCallback(TAny *aPtr)
 {
     Cayfly_s60Sound *me = (Cayfly_s60Sound *)aPtr;
     me->iPeriodic->Cancel();
-    if(me->songinfo->s_callback)
-        me->songinfo->s_callback(me->songinfo->s_callback_arg);
+    /*if(me->songinfo->s_callback)
+        me->songinfo->s_callback(me->songinfo->s_callback_arg);*/
     return 0;
 }
 
@@ -502,7 +503,6 @@ Cayfly_s60Audio::~Cayfly_s60Audio()
         delete sound;
         sound = 0;
     }
-
 }
 
 bool Cayfly_s60Audio::Start()
