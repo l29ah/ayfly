@@ -50,6 +50,7 @@
 #include <avkon.hrh>
 #include <aknmessagequerydialog.h>
 #include <aknnotewrappers.h>
+#include <caknmemoryselectiondialog.h>
 #include <caknfileselectiondialog.h>
 #include <pathinfo.h>
 #include <stringloader.h>
