@@ -24,15 +24,15 @@
 
 #ifdef S60
 
-class CSongFilter: public MAknFileFilter
-{
-    TBool Accept(const TDesC &/*aDriveAndPath*/, const TEntry &aEntry) const
+class CSongFilter : public MAknFileFilter
     {
-        if(aEntry.IsDir() || ay_format_supported(aEntry.iName.Right(4)))
-        return ETrue;
+    TBool Accept(const TDesC &/*aDriveAndPath*/, const TEntry &aEntry) const
+        {
+        if (aEntry.IsDir() || ay_format_supported(aEntry.iName.Right(4)))
+            return ETrue;
         return EFalse;
-    }
-};
+        }
+    };
 
 #endif
 // ============================ MEMBER FUNCTIONS ===============================
@@ -43,7 +43,7 @@ class CSongFilter: public MAknFileFilter
 // -----------------------------------------------------------------------------
 //
 void Cayfly_s60AppUi::ConstructL()
-{
+    {
     // Initialise app UI with standard value.
 #ifdef UIQ3
     CQikAppUi::ConstructL();
@@ -64,16 +64,16 @@ void Cayfly_s60AppUi::ConstructL()
     AddToStackL(iAppView);
 #endif
     iVolume = 5;
-}
+    }
 // -----------------------------------------------------------------------------
 // Cayfly_s60AppUi::Cayfly_s60AppUi()
 // C++ default constructor can NOT contain any code, that might leave.
 // -----------------------------------------------------------------------------
 //
 Cayfly_s60AppUi::Cayfly_s60AppUi()
-{
+    {
     // No implementation required
-}
+    }
 
 // -----------------------------------------------------------------------------
 // Cayfly_s60AppUi::~Cayfly_s60AppUi()
@@ -81,41 +81,59 @@ Cayfly_s60AppUi::Cayfly_s60AppUi()
 // -----------------------------------------------------------------------------
 //
 Cayfly_s60AppUi::~Cayfly_s60AppUi()
-{
-    if(iAppView)
     {
+    if (iAppView)
+        {
         RemoveFromStack(iAppView);
         delete iAppView;
         iAppView = NULL;
-    }
+        }
 
-}
+    }
 // -----------------------------------------------------------------------------
 // Cayfly_s60AppUi::HandleCommandL()
 // Takes care of command handling.
 // -----------------------------------------------------------------------------
 //
 void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
-{
-    switch(aCommand)
     {
+    switch (aCommand)
+        {
         case EEikCmdExit:
 #ifndef UIQ3 //S60
         case EAknSoftkeyExit:
 #endif
-        {
+            {
             Exit();
-        }
+            }
             break;
         case EAddFile:
-        {
-            TFileName FileName = _L("E:\\");
-#ifndef UIQ3            
+            {
+            TFileName FileName= PathInfo::MemoryCardRootPath();
+#ifndef UIQ3
+            CAknMemorySelectionDialog* memDlg = CAknMemorySelectionDialog::NewL(ECFDDialogTypeCopy, ETrue);
+            CAknMemorySelectionDialog::TMemory memory = CAknMemorySelectionDialog::EPhoneMemory;
+            if (memDlg->ExecuteL(memory) == CAknFileSelectionDialog::ERightSoftkey)
+                {
+                // cancel selection
+                break;
+                }
+
+            if (memory==CAknMemorySelectionDialog::EMemoryCard)
+                {
+                FileName = PathInfo::MemoryCardRootPath();
+                }
+            else
+                {
+                FileName = PathInfo::PhoneMemoryRootPath();
+                }
+            delete memDlg;
             CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeSelect);
             CSongFilter* filter = new (ELeave) CSongFilter;
             dlg->SetDefaultFolderL(_L("\\"));
             dlg->AddFilterL(filter);
             TBool bRet = dlg->ExecuteL(FileName);
+            delete dlg;
 
 #else //UIQ3
             CDesCArray* mime = new (ELeave) CDesCArrayFlat(1);
@@ -127,11 +145,70 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
             FileName = (*file) [0];
             CleanupStack::PopAndDestroy(2);
 #endif
-            if(bRet)
-            {
+            if (bRet)
+                {
                 iAppView->AddFile(FileName);
+                }
             }
-        }
+            break;
+        case EAddFolder:
+            TFileName FolderName= PathInfo::MemoryCardRootPath();
+#ifndef UIQ3 
+            CAknMemorySelectionDialog* memDlg = CAknMemorySelectionDialog::NewL(ECFDDialogTypeCopy, ETrue);
+            CAknMemorySelectionDialog::TMemory memory = CAknMemorySelectionDialog::EPhoneMemory;
+            if (memDlg->ExecuteL(memory) == CAknFileSelectionDialog::ERightSoftkey)
+                {
+                // cancel selection
+                break;
+                }
+
+            if (memory==CAknMemorySelectionDialog::EMemoryCard)
+                {
+                FolderName = PathInfo::MemoryCardRootPath();
+                }
+            else
+                {
+                FolderName = PathInfo::PhoneMemoryRootPath();
+                }
+            delete memDlg;
+            CAknFileSelectionDialog* dlg = CAknFileSelectionDialog::NewL(ECFDDialogTypeCopy);
+
+            // some dialog customizations:
+            dlg->SetTitleL(_L("Select folder"));
+            dlg->SetRightSoftkeyRootFolderL(_L("Back")); // for root folder
+
+            bool bRet = dlg->ExecuteL(FolderName);
+            delete dlg;
+            if (bRet)
+                {
+                RFs session;
+                session.Connect();
+                CDirScan* scan = CDirScan::NewL(session);
+                CDir* files;
+                scan->SetScanDataL(FolderName , KEntryAttNormal, ESortByName|EAscending, CDirScan::EScanDownTree);
+                scan->NextL(files);
+                while (files)
+                    {
+                    for (TInt i=0; i < files->Count() ; i++)
+                        {
+                        TEntry file= (*files)[i];
+                        if (ay_format_supported(file.iName.Right(4)))
+                        {
+                            TFileName FileName = _L("");
+                            FileName.Append(scan->FullPath());
+                            FileName.Append(file.iName);
+                            iAppView->AddFile(FileName);                            
+                        }
+                        }
+                    delete files;
+                    scan->NextL(files);
+                    }
+                delete scan;
+                session.Close();
+                }
+
+#else //UIQ3
+#endif
             break;
         case EStartPlayer:
             iAppView->StartPlayer();
@@ -140,38 +217,36 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
             iAppView->StopPlayer();
             break;
         case EHelp:
-        {
+            {
 
-        }
+            }
             break;
 #ifdef EKA2
 #ifndef UIQ3
-            case EAbout:
+        case EAbout:
             {
 
-                CAknMessageQueryDialog* dlg = new (ELeave)CAknMessageQueryDialog();
-                dlg->PrepareLC(R_ABOUT_QUERY_DIALOG);
-                HBufC* title = iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TITLE);
-                dlg->QueryHeading()->SetTextL(*title);
-                CleanupStack::PopAndDestroy(); //title
-                HBufC* msg = iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TEXT);
-                dlg->SetMessageTextL(*msg);
-                CleanupStack::PopAndDestroy(); //msg
-                dlg->RunLD();
+            CAknMessageQueryDialog* dlg = new (ELeave)CAknMessageQueryDialog();
+            dlg->PrepareLC(R_ABOUT_QUERY_DIALOG);
+            HBufC* title= iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TITLE);
+            dlg->QueryHeading()->SetTextL(*title);
+            CleanupStack::PopAndDestroy(); //title
+            HBufC* msg= iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TEXT);
+            dlg->SetMessageTextL(*msg);
+            CleanupStack::PopAndDestroy(); //msg
+            dlg->RunLD();
             }
             break;
 #endif
 #endif
         default:
-        {
+            {
             //CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("!!!"));
             //Panic(Eayfly_s60Ui);
-        }
+            }
             break;
+        }
     }
-}
-
-
 
 // -----------------------------------------------------------------------------
 //  Called by the framework when the application status pane
@@ -180,8 +255,8 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 // -----------------------------------------------------------------------------
 //
 void Cayfly_s60AppUi::HandleStatusPaneSizeChange()
-{
+    {
     iAppView->SetRect(ClientRect());
-}
+    }
 
 // End of File

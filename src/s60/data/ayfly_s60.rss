@@ -1,5 +1,5 @@
 //  RESOURCE IDENTIFIER
-NAME AYFL	// 4 letter ID
+NAME AYFL // 4 letter ID
 //  INCLUDES
 #include <eikon.rh>
 #include <eikcore.rsg>
@@ -20,8 +20,8 @@ NAME AYFL	// 4 letter ID
 // -----------------------------------------------------------------------------
 //
 RESOURCE RSS_SIGNATURE
-	{
-	}
+    {
+    }
 // -----------------------------------------------------------------------------
 //
 //	Default Document Name
@@ -29,9 +29,9 @@ RESOURCE RSS_SIGNATURE
 // -----------------------------------------------------------------------------
 //
 RESOURCE TBUF r_default_document_name
-	{
-	buf="ayfly_s60";
-	}
+    {
+    buf="ayfly_s60";
+    }
 // -----------------------------------------------------------------------------
 //
 //	Define default menu and CBA key.
@@ -39,10 +39,10 @@ RESOURCE TBUF r_default_document_name
 // -----------------------------------------------------------------------------
 //
 RESOURCE EIK_APP_INFO
-	{
-	menubar = r_menubar;
-	cba = R_AVKON_SOFTKEYS_OPTIONS_EXIT;
-	}
+    {
+    menubar = r_menubar;
+    cba = R_AVKON_SOFTKEYS_OPTIONS_EXIT;
+    }
 // -----------------------------------------------------------------------------
 //
 //   r_menubar
@@ -51,12 +51,13 @@ RESOURCE EIK_APP_INFO
 // -----------------------------------------------------------------------------
 //
 RESOURCE MENU_BAR r_menubar
-	{
-	titles =
-		{
-		MENU_TITLE { menu_pane = r_menu; }
-		};
-	}
+    {
+    titles =
+        {
+        MENU_TITLE
+            {menu_pane = r_menu;}
+        };
+    }
 // -----------------------------------------------------------------------------
 //
 //   r_menu
@@ -65,42 +66,47 @@ RESOURCE MENU_BAR r_menubar
 // -----------------------------------------------------------------------------
 //
 RESOURCE MENU_PANE r_menu
-	{
-	items =
-		{
-		// added the new Options menu command here
-		MENU_ITEM
-				{
-				command = EAddFile;
-				txt = qtn_addfile;
-				},
-		MENU_ITEM
-                {
-                command = EStartPlayer;
-                txt = qtn_startplayer;
-				},
-		MENU_ITEM
-                {
-                command = EStopPlayer;
-                txt = qtn_stopplayer;
-				},
-		MENU_ITEM
-				{
-				command = EAbout;
-				txt = qtn_about;
-				},
-		MENU_ITEM
-				{
-				command = EAknSoftkeyExit;
-				txt = qtn_exit;
-				}
-		};
-}
+    {
+    items =
+        {
+        // added the new Options menu command here
+        MENU_ITEM
+            {
+            command = EAddFile;
+            txt = qtn_addfile;
+            },
+        MENU_ITEM
+            {
+            command = EAddFolder;
+            txt = qtn_addfolder;
+            },
+        MENU_ITEM
+            {
+            command = EStartPlayer;
+            txt = qtn_startplayer;
+            },
+        MENU_ITEM
+            {
+            command = EStopPlayer;
+            txt = qtn_stopplayer;
+            },
+        MENU_ITEM
+            {
+            command = EAbout;
+            txt = qtn_about;
+            },
+        MENU_ITEM
+            {
+            command = EAknSoftkeyExit;
+            txt = qtn_exit;
+            }
+        };
+    }
 
 RESOURCE LISTBOX r_ayfly_playlist
-  {
-  flags = EAknListBoxSelectionList;
-  }
+    {
+    flags = EAknListBoxSelectionList;
+    }
 
 #ifdef EKA2
 // -----------------------------------------------------------------------------
@@ -110,40 +116,44 @@ RESOURCE LISTBOX r_ayfly_playlist
 // -----------------------------------------------------------------------------
 //
 RESOURCE DIALOG r_about_query_dialog
-	{
-	flags = EGeneralQueryFlags | EEikDialogFlagNoBorder | EEikDialogFlagNoShadow;
-	buttons = R_AVKON_SOFTKEYS_OK_EMPTY;
-	items=
-		{
-		DLG_LINE 
-			{
-			type = EAknCtPopupHeadingPane;
-			id = EAknMessageQueryHeaderId;
-			itemflags = EEikDlgItemNonFocusing;
-			control = AVKON_HEADING
-				{
-				};
-			},
-		DLG_LINE
-			{
-			type = EAknCtMessageQuery;
-			id = EAknMessageQueryContentId;
-			control = AVKON_MESSAGE_QUERY
-				{
-				};
-			}
-		};
-	}
+    {
+    flags = EGeneralQueryFlags | EEikDialogFlagNoBorder | EEikDialogFlagNoShadow;
+    buttons = R_AVKON_SOFTKEYS_OK_EMPTY;
+    items=
+        {
+        DLG_LINE
+            {
+            type = EAknCtPopupHeadingPane;
+            id = EAknMessageQueryHeaderId;
+            itemflags = EEikDlgItemNonFocusing;
+            control = AVKON_HEADING
+                {
+                };
+            },
+        DLG_LINE
+            {
+            type = EAknCtMessageQuery;
+            id = EAknMessageQueryContentId;
+            control = AVKON_MESSAGE_QUERY
+                {
+                };
+            }
+        };
+    }
 // -----------------------------------------------------------------------------
 //
 // Resources for messages.
 //
 // -----------------------------------------------------------------------------
 //
-RESOURCE TBUF32 r_caption_string { buf=qtn_caption_string; }
-RESOURCE TBUF32 r_about_dialog_title { buf=qtn_about_dialog_title; }
-RESOURCE TBUF r_about_dialog_text { buf=qtn_about_dialog_text; }
-RESOURCE TBUF r_command1_text { buf=qtn_command1_text; }
+RESOURCE TBUF32 r_caption_string
+    {buf=qtn_caption_string;}
+RESOURCE TBUF32 r_about_dialog_title
+    {buf=qtn_about_dialog_title;}
+RESOURCE TBUF r_about_dialog_text
+    {buf=qtn_about_dialog_text;}
+RESOURCE TBUF r_command1_text
+    {buf=qtn_command1_text;}
 // ---------------------------------------------------------------------------- 
 //
 // r_localisable_app_info
@@ -151,16 +161,16 @@ RESOURCE TBUF r_command1_text { buf=qtn_command1_text; }
 // ---------------------------------------------------------------------------- 
 //
 RESOURCE LOCALISABLE_APP_INFO r_localisable_app_info
-	{
-	short_caption = qtn_caption_string;
-	caption_and_icon = 
-	CAPTION_AND_ICON_INFO
-		{
-		caption = qtn_caption_string;
+    {
+    short_caption = qtn_caption_string;
+    caption_and_icon =
+    CAPTION_AND_ICON_INFO
+        {
+        caption = qtn_caption_string;
 
-		number_of_icons = 1;
-		icon_file = "\\Resource\\Apps\\ayfly_s60.mif";
-		};
-	}
+        number_of_icons = 1;
+        icon_file = "\\Resource\\Apps\\ayfly_s60.mif";
+        };
+    }
 #endif
 // End of File
