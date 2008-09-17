@@ -42,7 +42,8 @@ public:
 
     void StartPlay();
     void StopPlay();
-    void SetDeviceVolume(TInt aVolume);
+    void UpDeviceVolume();
+    void DownDeviceVolume();
     TInt GetDeviceVolume();
 
     virtual void MaoscOpenComplete(TInt aError);
@@ -95,7 +96,8 @@ public:
     virtual ~Cayfly_s60Audio();
     virtual bool Start();
     virtual void Stop();
-    void SetDeviceVolume(TInt aVolume);
+    void UpDeviceVolume();
+    void DownDeviceVolume();
     TInt GetDeviceVolume();
     bool Started() {return sound->State() == Cayfly_s60Sound::EPlaying ? true : false;};
     void SetSongInfo(AYSongInfo *info);

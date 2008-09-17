@@ -41,7 +41,7 @@ Cayfly_s60Sound* Cayfly_s60Sound::NewL()
 Cayfly_s60Sound::Cayfly_s60Sound() :
     iDesc1(0, 0, 0), iDesc2(0, 0, 0)
 {
-    iVolume = 7; 
+    iVolume = -1; 
 }
 
 Cayfly_s60Sound::~Cayfly_s60Sound()
@@ -104,8 +104,11 @@ void Cayfly_s60Sound::MaoscOpenComplete(TInt aError)
         songinfo->player->GetAYBufferMono(iBuffer1, MIX_BUFFER_LENGTH);
         songinfo->player->GetAYBufferMono(iBuffer2, MIX_BUFFER_LENGTH);
     }
+    
+    if(iVolume < 0)
+        iVolume = 100;
 
-    iStream->SetVolume(iStream->MaxVolume());
+    iStream->SetVolume((iVolume * iStream->MaxVolume()) / 100);
     iStream->SetBalanceL();
 
     // Write both buffers
@@ -239,9 +242,16 @@ void Cayfly_s60Sound::MaoscPlayComplete(TInt aError)
     }
 }
 
-void Cayfly_s60Sound::SetDeviceVolume(TInt aVolume)
+void Cayfly_s60Sound::UpDeviceVolume()
 {
-    iVolume = aVolume;
+    iVolume += 10;
+    PrivateWaitRequestOK();
+    iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_SET_VOLUME);
+}
+
+void Cayfly_s60Sound::DownDeviceVolume()
+{
+    iVolume -= 10;
     PrivateWaitRequestOK();
     iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_SET_VOLUME);
 }
@@ -309,11 +319,11 @@ void Cayfly_s60Sound::PrivateSetVolume()
 {
     if(iState == EPlaying)
     {
-        /*if(iVolume < 0)
-         iVolume = 0;
-         if(iVolume > iStream->MaxVolume())
-         iVolume = iStream->MaxVolume();
-         iStream->SetVolume(iVolume);*/
+        if(iVolume < 0)
+            iVolume = 0;
+        if(iVolume > 100)
+            iVolume = 100;
+        iStream->SetVolume((iVolume * iStream->MaxVolume()) / 100);
     }
 }
 
@@ -517,11 +527,19 @@ void Cayfly_s60Audio::Stop()
     sound->StopL();
 }
 
-void Cayfly_s60Audio::SetDeviceVolume(TInt aVolume)
+void Cayfly_s60Audio::UpDeviceVolume()
 {
     if(sound)
     {
-        sound->SetDeviceVolume(aVolume);
+        sound->UpDeviceVolume();
+    }
+}
+
+void Cayfly_s60Audio::DownDeviceVolume()
+{
+    if(sound)
+    {
+        sound->DownDeviceVolume();
     }
 }
 

@@ -125,9 +125,6 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
                 ay_closesong(&currentSong);
             }
             currentSong = ay_initsong(filePath, 44100, player);            
-            ay_setvolume(currentSong, 0, volume, 0);
-            ay_setvolume(currentSong, 1, volume, 0);
-            ay_setvolume(currentSong, 2, volume, 0);
             ay_setelapsedcallback(currentSong, Cayfly_s60PlayListView::elapsedCallback, this);
             ay_setstoppedcallback(currentSong, Cayfly_s60PlayListView::stopCallback, this);
             ay_startsong(currentSong);
@@ -261,14 +258,9 @@ void Cayfly_s60PlayListView::StopPlayer()
 
 void Cayfly_s60PlayListView::UpVolume()
 {
-    if(currentSong)
+    if(currentSong && player)
     {
-        volume = ay_getvolume(currentSong, 0, 0);
-        volume += 0.1;
-        ay_setvolume(currentSong, 0, volume, 0);
-        ay_setvolume(currentSong, 1, volume, 0);
-        ay_setvolume(currentSong, 2, volume, 0);
-        volume = ay_getvolume(currentSong, 0, 0);
+        player->UpDeviceVolume();
     }
 }
 
@@ -276,12 +268,7 @@ void Cayfly_s60PlayListView::DownVolume()
 {
     if(currentSong)
     {
-        volume = ay_getvolume(currentSong, 0, 0);
-        volume -= 0.1;
-        ay_setvolume(currentSong, 0, volume, 0);
-        ay_setvolume(currentSong, 1, volume, 0);
-        ay_setvolume(currentSong, 2, volume, 0);
-        volume = ay_getvolume(currentSong, 0, 0);
+        player->DownDeviceVolume();
     }
 }
 
