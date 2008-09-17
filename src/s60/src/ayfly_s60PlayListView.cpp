@@ -40,6 +40,7 @@ Cayfly_s60PlayListView::~Cayfly_s60PlayListView()
 {
     iFocusPos.Close();
     delete iListBox;
+    delete iSongArray;
     if(currentSong)
     {
         ay_closesong(&currentSong);
@@ -54,6 +55,7 @@ Cayfly_s60PlayListView::~Cayfly_s60PlayListView()
 void Cayfly_s60PlayListView::ConstructL(const TRect& aRect)
 {
     player = new Cayfly_s60Audio;
+    iSongArray = new (ELeave) CDesC16ArrayFlat(5);
     CreateWindowL();
 
     SetUpListBoxL();
@@ -64,7 +66,7 @@ void Cayfly_s60PlayListView::ConstructL(const TRect& aRect)
 
 void Cayfly_s60PlayListView::SetUpListBoxL()
 {
-    iListBox = new (ELeave) CAknDoubleStyleListBox();
+    iListBox = new (ELeave) CAknSingleStyleListBox();
     iListBox->SetContainerWindowL(*this);
 
     TResourceReader reader;
@@ -91,35 +93,10 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
         case EEventItemClicked:            
         {// An item has been chosen and will be opened  
             iListBox->DrawDeferred();
-            CTextListBoxModel* model = iListBox->Model();
-            User::LeaveIfNull(model);
-            if(model->NumberOfItems() < 1)
+            if(iSongArray->Count() < 1)
                 return;
-            model->SetOwnershipType(ELbmOwnsItemArray);
-            CDesCArray* itemArray = static_cast<CDesCArray*> (model->ItemTextArray());
-            User::LeaveIfNull(itemArray);
             currentIndex = iListBox->CurrentItemIndex();
-            TFileName lbString = itemArray->operator [](currentIndex);
-            TFileName fileNameExt;
-            TFileName fileDrive;
-            TFileName filePath;
-            TInt index = lbString.Locate('\t');
-            if(index != KErrNotFound)
-            {
-                lbString = lbString.Mid(index + 1);
-                index = lbString.Locate('\t');
-                if(index != KErrNotFound)
-                {
-                    fileNameExt = lbString.Left(index);
-                    lbString = lbString.Mid(index + 1);
-                    index = lbString.Locate('\t');
-                    fileDrive = lbString.Left(index);
-                }
-            }
-            filePath.Zero();
-            filePath.Append(fileDrive);
-            filePath.Append(fileNameExt);
-            //CEikonEnv::InfoWinL(_L("DeviceMessage"), filePath);
+            TFileName filePath = iSongArray->operator [](currentIndex);
             if(currentSong)
             {
                 ay_closesong(&currentSong);
@@ -167,6 +144,7 @@ TKeyResponse Cayfly_s60PlayListView::OfferKeyEventL(const TKeyEvent& aKeyEvent, 
             {
                 currentIndex--;
             }
+            iSongArray->Delete(iListBox->CurrentItemIndex());
             itemArray->Delete(iListBox->CurrentItemIndex()); 
             iListBox->HandleItemRemovalL();
             iListBox->DrawDeferred();
@@ -215,13 +193,16 @@ void Cayfly_s60PlayListView::AddFile(TFileName filePath)
 
     TParse tfp;
     tfp.Set(filePath, NULL, NULL);
+    TFileName FullPath;
+    FullPath.Zero();
     TFileName lbString;
     lbString.Zero();
     lbString.Append(_L("\t"));
     lbString.Append(tfp.NameAndExt());
     lbString.Append(_L("\t"));
-    lbString.Append(tfp.DriveAndPath());
-    lbString.Append(_L("\t"));
+    //lbString.Append(tfp.DriveAndPath());
+    //lbString.Append(_L("\t"));
+    iSongArray->AppendL(filePath);
     itemArray->AppendL(lbString);
     iListBox->HandleItemAdditionL();
     if(model->NumberOfItems() == 1)
