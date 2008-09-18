@@ -79,7 +79,7 @@
 
 
 #    include "z80ex/include/z80ex.h"
-#    ifdef _MSC_VER
+#    ifdef WINDOWS
 #        pragma warning(disable:4309)
 #        ifdef AYFLY_EXPORTS
 #           define AYFLY_API __declspec(dllexport)

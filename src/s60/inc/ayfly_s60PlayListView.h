@@ -55,7 +55,6 @@ private:
     void Draw(const TRect& aRect) const;
 private:
     CAknSingleStyleListBox* iListBox;
-    RArray<TInt> iFocusPos; // position of focus in listbox for the folders passed, used whem going back
 private:
     void *currentSong;
     float volume;
@@ -64,6 +63,7 @@ private:
     Cayfly_s60Audio *player;
     static void stopCallback(void *arg);
     CDesC16Array* iSongArray;
+    void StartSong(TInt index);
     
 };
 

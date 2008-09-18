@@ -40,7 +40,7 @@ Cayfly_s60Sound* Cayfly_s60Sound::NewL()
 Cayfly_s60Sound::Cayfly_s60Sound() :
     iDesc1(0, 0, 0), iDesc2(0, 0, 0)
 {
-    iVolume = -1; 
+    iVolume = 50; 
 }
 
 Cayfly_s60Sound::~Cayfly_s60Sound()
@@ -105,7 +105,7 @@ void Cayfly_s60Sound::MaoscOpenComplete(TInt aError)
     }
     
     if(iVolume < 0)
-        iVolume = 100;
+        iVolume = 0;
 
     iStream->SetVolume((iVolume * iStream->MaxVolume()) / 100);
     iStream->SetBalanceL();
@@ -264,6 +264,8 @@ bool Cayfly_s60Sound::StartL()
 {
     PrivateWaitRequestOK();
     iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_START_PLAYBACK);
+    PrivateWaitRequestOK();
+    iPlayerThread.RequestComplete(iRequestPtr, AYFLY_COMMAND_SET_VOLUME);
     return true;
 }
 
@@ -449,8 +451,6 @@ TInt serverthreadfunction(TAny *aThis)
 
 void Cayfly_s60Sound::ConstructL()
 {
-    iVolume = 7;
-
     iBuffer1 = new (ELeave) unsigned char[MIX_BUFFER_LENGTH];
     iDesc1.Set(iBuffer1, MIX_BUFFER_LENGTH, MIX_BUFFER_LENGTH);
     iBuffer2 = new (ELeave) unsigned char[MIX_BUFFER_LENGTH];
@@ -506,7 +506,6 @@ Cayfly_s60Audio::~Cayfly_s60Audio()
 {
     if(sound)
     {
-        Stop();
         sound->Exit();
         delete sound;
         sound = 0;

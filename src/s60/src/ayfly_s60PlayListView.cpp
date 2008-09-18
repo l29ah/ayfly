@@ -33,14 +33,11 @@ Cayfly_s60PlayListView::Cayfly_s60PlayListView()
 {
     currentSong = 0;
     currentIndex = 0;
-    volume = 0.5;    
+    volume = 0.5;
 }
 
 Cayfly_s60PlayListView::~Cayfly_s60PlayListView()
 {
-    iFocusPos.Close();
-    delete iListBox;
-    delete iSongArray;
     if(currentSong)
     {
         ay_closesong(&currentSong);
@@ -50,6 +47,9 @@ Cayfly_s60PlayListView::~Cayfly_s60PlayListView()
         delete player;
         player = 0;
     }
+
+    delete iListBox;
+    delete iSongArray;
 }
 
 void Cayfly_s60PlayListView::ConstructL(const TRect& aRect)
@@ -90,22 +90,11 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
     switch(aEventType)
     {
         case EEventEnterKeyPressed:
-        case EEventItemClicked:            
+        case EEventItemClicked:
         {// An item has been chosen and will be opened  
-            iListBox->DrawDeferred();
             if(iSongArray->Count() < 1)
                 return;
-            currentIndex = iListBox->CurrentItemIndex();
-            TFileName filePath = iSongArray->operator [](currentIndex);
-            if(currentSong)
-            {
-                ay_closesong(&currentSong);
-            }
-            currentSong = ay_initsong(filePath, 44100, player);            
-            ay_setelapsedcallback(currentSong, Cayfly_s60PlayListView::elapsedCallback, this);
-            ay_setstoppedcallback(currentSong, Cayfly_s60PlayListView::stopCallback, this);
-            ay_startsong(currentSong);
-
+            StartSong(iListBox->CurrentItemIndex());
         }
             break;
         default: // Nothing to do
@@ -145,7 +134,7 @@ TKeyResponse Cayfly_s60PlayListView::OfferKeyEventL(const TKeyEvent& aKeyEvent, 
                 currentIndex--;
             }
             iSongArray->Delete(iListBox->CurrentItemIndex());
-            itemArray->Delete(iListBox->CurrentItemIndex()); 
+            itemArray->Delete(iListBox->CurrentItemIndex());
             iListBox->HandleItemRemovalL();
             iListBox->DrawDeferred();
             return EKeyWasConsumed;
@@ -225,7 +214,8 @@ void Cayfly_s60PlayListView::StartPlayer()
         return;
     if(currentIndex < 0)
         currentIndex = 0;
-    iListBox->SetCurrentItemIndex(currentIndex);    
+    iListBox->SetCurrentItemIndex(currentIndex);
+    iListBox->DrawNow();
     HandleListBoxEventL(iListBox, EEventEnterKeyPressed);
 }
 
@@ -266,10 +256,9 @@ void Cayfly_s60PlayListView::NextSong()
             currentIndex = 0;
             return;
         }
-        if(currentIndex <0)
+        if(currentIndex < 0)
             currentIndex = 0;
-        iListBox->SetCurrentItemIndex(currentIndex);
-        HandleListBoxEventL(iListBox, EEventEnterKeyPressed);
+        StartSong(currentIndex);
     }
 }
 
@@ -281,6 +270,20 @@ void Cayfly_s60PlayListView::stopCallback(void *arg)
 
 bool Cayfly_s60PlayListView::elapsedCallback(void *arg)
 {
-    return true;    
+    return true;
+}
+
+void Cayfly_s60PlayListView::StartSong(TInt index)
+{
+    TFileName filePath = iSongArray->operator [](index);
+    if(currentSong)
+    {
+        ay_closesong(&currentSong);
+    }
+    currentSong = ay_initsong(filePath, 44100, player);
+    ay_setelapsedcallback(currentSong, Cayfly_s60PlayListView::elapsedCallback, this);
+    ay_setstoppedcallback(currentSong, Cayfly_s60PlayListView::stopCallback, this);
+    ay_startsong(currentSong);
+
 }
 
