@@ -259,7 +259,8 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 //
 void Cayfly_s60AppUi::HandleStatusPaneSizeChange()
 {
-    iAppView->SetRect(ClientRect());
+    if(iAppView)
+        iAppView->SetRect(ClientRect());
 }
 
 // End of File
