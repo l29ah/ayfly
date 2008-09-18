@@ -23,10 +23,9 @@
 const UINT DefBufferLength      = 100;
 const UINT DefBufferServiceInterval  = ((DefBufferLength / 2) - 20);
 
-DXAudio::DXAudio(unsigned long _sr, AYSongInfo *info) :
-AbstractAudio(_sr, info)
+DXAudio::DXAudio(AYSongInfo *info) :
+AbstractAudio(info)
 {
-    songinfo = info;
     buffer_size = 16384;
     hNotifyEvent1 = CreateEvent(NULL, FALSE, FALSE, NULL);
     hNotifyEvent2 = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -116,7 +115,7 @@ HRESULT DXAudio::CreateBasicBuffer()
     memset(&wfx, 0, sizeof(WAVEFORMATEX));
     wfx.wFormatTag = WAVE_FORMAT_PCM;
     wfx.nChannels = 2;
-    wfx.nSamplesPerSec = 44100;
+    wfx.nSamplesPerSec = songinfo->sr;
     wfx.nBlockAlign = 4;
     wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
     wfx.wBitsPerSample = 16;

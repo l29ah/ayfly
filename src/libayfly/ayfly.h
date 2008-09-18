@@ -146,6 +146,8 @@ typedef void (*PLAYER_CLEANUP_PROC)(AYSongInfo &info);
 #include "ay.h"
 #include "AbstractAudio.h"
 
+#define NUMBER_OF_AYS 2
+
 struct AYSongInfo
 {
 #ifndef __SYMBIAN32__
@@ -183,6 +185,7 @@ struct AYSongInfo
     unsigned char chip_type; /* chip type: AY = 0 or YM = 1 */
     bool own_player; /* is player ws created during initialization by the library */
     bool stopping;
+    ay ay8910 [NUMBER_OF_AYS];
     ~AYSongInfo();
 };
 
@@ -411,23 +414,23 @@ AYFLY_API void ay_stopsong(void *info);
  * @volume must be in range from 0 to 1.
  */
 
-AYFLY_API void ay_setvolume(void *info, unsigned long chnl, float volume, unsigned long chip_num = 0);
+AYFLY_API void ay_setvolume(void *info, unsigned long chnl, float volume, unsigned char chip_num = 0);
 
 /*
  * Returns AY chip @chip_num volume of channel @chnl in range from 0 to 1
  */
 
-AYFLY_API float ay_getvolume(void *info, unsigned long chnl, unsigned long chip_num = 0);
+AYFLY_API float ay_getvolume(void *info, unsigned long chnl, unsigned char chip_num = 0);
 /*
  * Mutes or enables AY chip @chip channel @chnl. If @mute is true - channel muted.
  */
-AYFLY_API void ay_chnlmute(void *info, unsigned long chnl, bool mute, unsigned long chip_num = 0);
+AYFLY_API void ay_chnlmute(void *info, unsigned long chnl, bool mute, unsigned char chip_num = 0);
 
 /*
  * Returns true if channel @chnl of AY chip @chip_num is muted
  */
 
-AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl, unsigned long chip_num = 0);
+AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl, unsigned char chip_num = 0);
 
 /*
  * Sets callback function for song described by @info to function pointed by
@@ -468,14 +471,14 @@ AYFLY_API unsigned long ay_getsongloop(void *info);
  * Buffer is only for reading
  */
 
-AYFLY_API const unsigned char *ay_getregs(void *info, unsigned long chip_num = 0);
+AYFLY_API const unsigned char *ay_getregs(void *info, unsigned char chip_num = 0);
 
 /*
  * User For render song AY chip @chip_num into buffer pointed by @buffer
  * with size @buffer_length bytes
  */
 
-AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned long chip_num);
+AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned char chip_num);
 
 /*
  * Returns z80 frequency
@@ -554,6 +557,12 @@ AYFLY_API unsigned char ay_getchiptype(void *info);
 /*
  * Returns true if format supported by the library
  */
+
+AYFLY_API void ay_writeay(void *info, unsigned char reg, unsigned char val, unsigned char chip_num = 0);
+
+AYFLY_API unsigned char ay_readay(void *info, unsigned char reg, unsigned char chip_num = 0);
+
+AYFLY_API void ay_resetay(void *info, unsigned char chip_num = 0);
 
 #ifndef __SYMBIAN32__
 bool ay_format_supported(AY_TXT_TYPE filePath);

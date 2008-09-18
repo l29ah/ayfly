@@ -46,7 +46,7 @@ enum
 class ay
 {
 public:
-    ay(AYSongInfo *info);
+    ay();
     ~ay();
     void ayReset();
     void ayWrite(unsigned char reg, unsigned char val);

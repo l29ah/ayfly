@@ -49,7 +49,7 @@ void writePort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, Z80EX_BYTE value, void *user
     }
     else if ((port == 0xbffd) || ((port & 0xc000) == 0x8000)) // ay data port
     {
-        info->player->WriteAy(info->ay_reg, value);
+        info->ay8910 [0].ayWrite(info->ay_reg, value);
         io [65533] = value;
     }
     else

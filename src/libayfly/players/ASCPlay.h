@@ -68,13 +68,10 @@ void ASC_Init(AYSongInfo &info)
     ASC.CurrentPosition = 0;
     ASC.DelayCounter = 1;
     ASC.Delay = header->ASC1_Delay;
-    //ASC_A.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[9]]) + ascPatPt;
-    //ASC_B.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[9] + 2]) + ascPatPt;
-    //ASC_C.Address_In_Pattern = (*(unsigned short *)&module[ascPatPt + 6 * module[9] + 4]) + ascPatPt;
     ASC_A.Address_In_Pattern = ay_sys_getword(&module[ascPatPt + 6 * module[9]]) + ascPatPt;
     ASC_B.Address_In_Pattern = ay_sys_getword(&module[ascPatPt + 6 * module[9] + 2]) + ascPatPt;
     ASC_C.Address_In_Pattern = ay_sys_getword(&module[ascPatPt + 6 * module[9] + 4]) + ascPatPt;
-    player->ResetAy();
+    ay_resetay(&info, 0);
 
 }
 
@@ -116,7 +113,7 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
             }
             if(chan.Envelope_Enabled)
             {
-                player->WriteAy(AY_ENV_FINE, module[chan.Address_In_Pattern]);
+                ay_writeay(&info, AY_ENV_FINE, module[chan.Address_In_Pattern]);
                 chan.Address_In_Pattern++;
             }
             break;
@@ -212,7 +209,7 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
         }
         else if(val == 0xf8)
         {
-            player->WriteAy(AY_ENV_SHAPE, 8);
+            ay_writeay(&info, AY_ENV_SHAPE, 8);
         }
         else if(val == 0xf9)
         {
@@ -231,7 +228,7 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
         }
         else if(val == 0xfa)
         {
-            player->WriteAy(AY_ENV_SHAPE, 10);
+            ay_writeay(&info, AY_ENV_SHAPE, 10);
         }
         else if(val == 0xfb)
         {
@@ -249,11 +246,11 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
         }
         else if(val == 0xfc)
         {
-            player->WriteAy(AY_ENV_SHAPE, 12);
+            ay_writeay(&info, AY_ENV_SHAPE, 12);
         }
         else if(val == 0xfe)
         {
-            player->WriteAy(AY_ENV_SHAPE, 14);
+            ay_writeay(&info, AY_ENV_SHAPE, 14);
         }
         chan.Address_In_Pattern++;
     }
@@ -319,7 +316,7 @@ void ASC_GetRegisters(AYSongInfo &info, ASC_Channel_Parameters &chan, unsigned c
             chan.Amplitude = 15;
         chan.Amplitude = (chan.Amplitude * (chan.Volume + 1)) >> 4;
         if(Sample_Says_OK_for_Envelope && ((TempMixer & 64) != 0))
-            player->WriteAy(AY_ENV_FINE, player->ReadAy(AY_ENV_FINE) + ((signed char) (module[chan.Point_In_Sample] << 3) / 8));
+            ay_writeay(&info, AY_ENV_FINE, ay_readay(&info, AY_ENV_FINE) + ((signed char) (module[chan.Point_In_Sample] << 3) / 8));
         else
             chan.Current_Noise += (signed char) (module[chan.Point_In_Sample] << 3) / 8;
         chan.Point_In_Sample += 3;
@@ -338,7 +335,7 @@ void ASC_GetRegisters(AYSongInfo &info, ASC_Channel_Parameters &chan, unsigned c
         if((module[chan.Point_In_Ornament - 2] & 64) != 0)
             chan.Point_In_Ornament = chan.Loop_Point_In_Ornament;
         if((TempMixer & 64) == 0)
-            player->WriteAy(AY_NOISE_PERIOD, ((unsigned char) (chan.Current_Ton_Sliding >> 8) + chan.Current_Noise) & 0x1f);
+            ay_writeay(&info, AY_NOISE_PERIOD, ((unsigned char) (chan.Current_Ton_Sliding >> 8) + chan.Current_Noise) & 0x1f);
         j = chan.Note + chan.Addition_To_Note;
         if(j < 0)
             j = 0;
@@ -401,16 +398,16 @@ void ASC_Play(AYSongInfo &info)
     ASC_GetRegisters(info, ASC_B, TempMixer);
     ASC_GetRegisters(info, ASC_C, TempMixer);
 
-    player->WriteAy(AY_MIXER, TempMixer);
-    player->WriteAy(AY_CHNL_A_FINE, ASC_A.Ton & 0xff);
-    player->WriteAy(AY_CHNL_A_COARSE, (ASC_A.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_B_FINE, ASC_B.Ton & 0xff);
-    player->WriteAy(AY_CHNL_B_COARSE, (ASC_B.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_C_FINE, ASC_C.Ton & 0xff);
-    player->WriteAy(AY_CHNL_C_COARSE, (ASC_C.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_A_VOL, ASC_A.Amplitude);
-    player->WriteAy(AY_CHNL_B_VOL, ASC_B.Amplitude);
-    player->WriteAy(AY_CHNL_C_VOL, ASC_C.Amplitude);
+    ay_writeay(&info, AY_MIXER, TempMixer);
+    ay_writeay(&info, AY_CHNL_A_FINE, ASC_A.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_A_COARSE, (ASC_A.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_B_FINE, ASC_B.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_B_COARSE, (ASC_B.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_C_FINE, ASC_C.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_C_COARSE, (ASC_C.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_A_VOL, ASC_A.Amplitude);
+    ay_writeay(&info, AY_CHNL_B_VOL, ASC_B.Amplitude);
+    ay_writeay(&info, AY_CHNL_C_VOL, ASC_C.Amplitude);
 }
 
 void ASC_GetInfo(AYSongInfo &info)

@@ -101,23 +101,13 @@ const float ay::init_levels_ym[] =
 #define AY_PROCESS_END_LOOP \
     }
 
-ay::ay(AYSongInfo *info)
+ay::ay()
 {
-    songinfo = info;
-    int_limit = songinfo->sr / info->int_freq;
-
-    float ay_tacts_f = (float)songinfo->ay_freq / (float)songinfo->sr / (float)8;
-    ay_tacts = ay_tacts_f;
-    if((ay_tacts_f - ay_tacts) >= 0.5)
-        ay_tacts++;
-
     for(unsigned long i = 0; i < sizeof_array(ay::levels_ay); i++)
     {
         ay::levels_ay[i] = ay::init_levels_ay[i] / 4;
         ay::levels_ym[i] = ay::init_levels_ym[i] / 4;
     }
-
-    levels = info->chip_type == 0 ? ay::levels_ay : ay::levels_ym;
 
     ayReset();
 }

@@ -139,7 +139,7 @@ void SQT_Init(AYSongInfo &info)
     SQT.Lines_Counter = 1;
     SQT.Positions_Pointer = SQT_PositionsPointer;
 
-    player->ResetAy();
+    ay_resetay(&info, 0);
 }
 
 void SQT_Call_LC1D1(AYSongInfo &info, SQT_Channel_Parameters &chan, unsigned short &Ptr, unsigned char a)
@@ -208,8 +208,8 @@ void SQT_Call_LC1D1(AYSongInfo &info, SQT_Channel_Parameters &chan, unsigned sho
             break;
         default:
             chan.Envelope_Enabled = true;
-            player->WriteAy(AY_ENV_SHAPE, (a - 1) & 15);
-            player->WriteAy(AY_ENV_FINE, module[Ptr]);
+            ay_writeay(&info, AY_ENV_SHAPE, (a - 1) & 15);
+            ay_writeay(&info, AY_ENV_FINE, module[Ptr]);
             break;
     }
 }
@@ -382,7 +382,7 @@ void SQT_GetRegisters(AYSongInfo &info, SQT_Channel_Parameters &chan, unsigned c
             unsigned char noise = (b0 & 0xf0) >> 3;
             if ((signed char) (b1) < 0)
                 noise++;
-            player->WriteAy(AY_NOISE_PERIOD, noise);
+            ay_writeay(&info, AY_NOISE_PERIOD, noise);
         }
         if ((b1 & 64) != 0)
         {
@@ -532,16 +532,16 @@ void SQT_Play(AYSongInfo &info)
     if (!SQT_C.MixTon)
         TempMixer |= 4;
 
-    player->WriteAy(AY_MIXER, TempMixer);
-    player->WriteAy(AY_CHNL_A_FINE, SQT_A.Ton & 0xff);
-    player->WriteAy(AY_CHNL_A_COARSE, (SQT_A.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_B_FINE, SQT_B.Ton & 0xff);
-    player->WriteAy(AY_CHNL_B_COARSE, (SQT_B.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_C_FINE, SQT_C.Ton & 0xff);
-    player->WriteAy(AY_CHNL_C_COARSE, (SQT_C.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_A_VOL, SQT_A.Amplitude);
-    player->WriteAy(AY_CHNL_B_VOL, SQT_B.Amplitude);
-    player->WriteAy(AY_CHNL_C_VOL, SQT_C.Amplitude);
+    ay_writeay(&info, AY_MIXER, TempMixer);
+    ay_writeay(&info, AY_CHNL_A_FINE, SQT_A.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_A_COARSE, (SQT_A.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_B_FINE, SQT_B.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_B_COARSE, (SQT_B.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_C_FINE, SQT_C.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_C_COARSE, (SQT_C.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_A_VOL, SQT_A.Amplitude);
+    ay_writeay(&info, AY_CHNL_B_VOL, SQT_B.Amplitude);
+    ay_writeay(&info, AY_CHNL_C_VOL, SQT_C.Amplitude);
 }
 
 void SQT_GetChannelInfo(AYSongInfo &info, unsigned char &b, unsigned long &tm, char &a1, unsigned short &j1, unsigned short &pptr, unsigned short &cptr, bool &f71, bool &f61, bool &f41, unsigned short &j11, unsigned char chnl_num)

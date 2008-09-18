@@ -92,7 +92,7 @@ void PT1_Init(AYSongInfo &info)
     PT1_C.Volume = 15;
     PT1_C.Ton = 0;
 
-    player->ResetAy();
+    ay_resetay(&info, 0);
 }
 
 void PT1_PatternInterpreter(AYSongInfo &info, PT1_Channel_Parameters &chan)
@@ -131,11 +131,11 @@ void PT1_PatternInterpreter(AYSongInfo &info, PT1_Channel_Parameters &chan)
         else if(val >= 0x82 && val <= 0x8f)
         {
             chan.Envelope_Enabled = true;
-            player->WriteAy(AY_ENV_SHAPE, val - 0x81);
+            ay_writeay(&info, AY_ENV_SHAPE, val - 0x81);
             chan.Address_In_Pattern++;
-            player->WriteAy(AY_ENV_FINE, module[chan.Address_In_Pattern]);
+            ay_writeay(&info, AY_ENV_FINE, module[chan.Address_In_Pattern]);
             chan.Address_In_Pattern++;
-            player->WriteAy(AY_ENV_COARSE, module[chan.Address_In_Pattern]);
+            ay_writeay(&info, AY_ENV_COARSE, module[chan.Address_In_Pattern]);
         }
         else if(val == 0x90)
             quit = true;
@@ -173,7 +173,7 @@ void PT1_GetRegisters(AYSongInfo &info, PT1_Channel_Parameters &chan, unsigned c
         if((signed char)b < 0)
             TempMixer = TempMixer | 64;
         else
-            player->WriteAy(AY_NOISE_PERIOD, b & 31);
+            ay_writeay(&info, AY_NOISE_PERIOD, b & 31);
         if((b & 64) != 0)
             TempMixer = TempMixer | 8;
         chan.Position_In_Sample++;
@@ -222,17 +222,17 @@ void PT1_Play(AYSongInfo &info)
     PT1_GetRegisters(info, PT1_B, TempMixer);
     PT1_GetRegisters(info, PT1_C, TempMixer);
 
-    player->WriteAy(AY_MIXER, TempMixer);
+    ay_writeay(&info, AY_MIXER, TempMixer);
 
-    player->WriteAy(AY_CHNL_A_FINE, PT1_A.Ton & 0xff);
-    player->WriteAy(AY_CHNL_A_COARSE, (PT1_A.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_B_FINE, PT1_B.Ton & 0xff);
-    player->WriteAy(AY_CHNL_B_COARSE, (PT1_B.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_C_FINE, PT1_C.Ton & 0xff);
-    player->WriteAy(AY_CHNL_C_COARSE, (PT1_C.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_A_VOL, PT1_A.Amplitude);
-    player->WriteAy(AY_CHNL_B_VOL, PT1_B.Amplitude);
-    player->WriteAy(AY_CHNL_C_VOL, PT1_C.Amplitude);
+    ay_writeay(&info, AY_CHNL_A_FINE, PT1_A.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_A_COARSE, (PT1_A.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_B_FINE, PT1_B.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_B_COARSE, (PT1_B.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_C_FINE, PT1_C.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_C_COARSE, (PT1_C.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_A_VOL, PT1_A.Amplitude);
+    ay_writeay(&info, AY_CHNL_B_VOL, PT1_B.Amplitude);
+    ay_writeay(&info, AY_CHNL_C_VOL, PT1_C.Amplitude);
 }
 
 void PT1_GetInfo(AYSongInfo &info)

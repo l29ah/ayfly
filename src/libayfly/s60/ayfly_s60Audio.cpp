@@ -488,7 +488,7 @@ void Cayfly_s60Sound::ConstructL()
 }
 
 Cayfly_s60Audio::Cayfly_s60Audio(AYSongInfo *info) :
-    AbstractAudio(AUDIO_FREQ, info)
+    AbstractAudio(info)
 {
     songinfo = info;
     sound = Cayfly_s60Sound::NewL();
@@ -497,7 +497,7 @@ Cayfly_s60Audio::Cayfly_s60Audio(AYSongInfo *info) :
 }
 
 Cayfly_s60Audio::Cayfly_s60Audio() :
-    AbstractAudio(AUDIO_FREQ, 0)
+    AbstractAudio(0)
 {
     sound = Cayfly_s60Sound::NewL();
 }

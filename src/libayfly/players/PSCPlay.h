@@ -102,7 +102,7 @@ void PSC_Init(AYSongInfo &info)
     PSC_C.Ton_Slide_Enabled = false;
     PSC_C.Note_Skip_Counter = 1;
     PSC_C.Ton = 0;
-    player->ResetAy();
+    ay_resetay(&info, 0);
 }
 
 void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
@@ -175,9 +175,9 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
             chan.Address_In_Pattern++;
             if(chan.num == 1)
             {
-                player->WriteAy(AY_ENV_SHAPE, module[chan.Address_In_Pattern] & 15);
-                player->WriteAy(AY_ENV_FINE, module[chan.Address_In_Pattern + 1]);
-                player->WriteAy(AY_ENV_COARSE, module[chan.Address_In_Pattern + 2]);
+                ay_writeay(&info, AY_ENV_SHAPE, module[chan.Address_In_Pattern] & 15);
+                ay_writeay(&info, AY_ENV_FINE, module[chan.Address_In_Pattern + 1]);
+                ay_writeay(&info, AY_ENV_COARSE, module[chan.Address_In_Pattern + 2]);
                 chan.Address_In_Pattern += 2;
             }
         }
@@ -353,16 +353,16 @@ void PSC_GetRegisters(AYSongInfo &info, PSC_Channel_Parameters &chan, unsigned c
             chan.Amplitude = chan.Amplitude | 16;
         if(((chan.Amplitude & 16) != 0) & ((b & 8) != 0))
         {
-            unsigned short env = player->ReadAy(AY_ENV_FINE) | (player->ReadAy(AY_ENV_COARSE) << 8);
+            unsigned short env = ay_readay(&info, AY_ENV_FINE) | (ay_readay(&info, AY_ENV_COARSE) << 8);
             env += (signed char) (module[chan.SamplePointer + chan.Position_In_Sample * 6 + 2]);
-            player->WriteAy(AY_ENV_FINE, env & 0xff);
-            player->WriteAy(AY_ENV_COARSE, (env >> 8) & 0xff);
+            ay_writeay(&info, AY_ENV_FINE, env & 0xff);
+            ay_writeay(&info, AY_ENV_COARSE, (env >> 8) & 0xff);
         }
         else
         {
             chan.Noise_Accumulator += module[chan.SamplePointer + chan.Position_In_Sample * 6 + 2];
             if((b & 8) == 0)
-                player->WriteAy(AY_NOISE_PERIOD, chan.Noise_Accumulator & 31);
+                ay_writeay(&info, AY_NOISE_PERIOD, chan.Noise_Accumulator & 31);
         }
         if((b & 128) == 0)
             chan.Loop_Sample_Position = chan.Position_In_Sample;
@@ -433,16 +433,16 @@ void PSC_Play(AYSongInfo &info)
     PSC_GetRegisters(info, PSC_B, TempMixer);
     PSC_GetRegisters(info, PSC_C, TempMixer);
 
-    player->WriteAy(AY_MIXER, TempMixer);
-    player->WriteAy(AY_CHNL_A_FINE, PSC_A.Ton & 0xff);
-    player->WriteAy(AY_CHNL_A_COARSE, (PSC_A.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_B_FINE, PSC_B.Ton & 0xff);
-    player->WriteAy(AY_CHNL_B_COARSE, (PSC_B.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_C_FINE, PSC_C.Ton & 0xff);
-    player->WriteAy(AY_CHNL_C_COARSE, (PSC_C.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_A_VOL, PSC_A.Amplitude);
-    player->WriteAy(AY_CHNL_B_VOL, PSC_B.Amplitude);
-    player->WriteAy(AY_CHNL_C_VOL, PSC_C.Amplitude);
+    ay_writeay(&info, AY_MIXER, TempMixer);
+    ay_writeay(&info, AY_CHNL_A_FINE, PSC_A.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_A_COARSE, (PSC_A.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_B_FINE, PSC_B.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_B_COARSE, (PSC_B.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_C_FINE, PSC_C.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_C_COARSE, (PSC_C.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_A_VOL, PSC_A.Amplitude);
+    ay_writeay(&info, AY_CHNL_B_VOL, PSC_B.Amplitude);
+    ay_writeay(&info, AY_CHNL_C_VOL, PSC_C.Amplitude);
 }
 
 void PSC_GetInfo(AYSongInfo &info)
