@@ -94,7 +94,8 @@ void Cayfly_s60PlayListView::HandleListBoxEventL(CEikListBox* /*aListBox*/, TLis
         {// An item has been chosen and will be opened  
             if(iSongArray->Count() < 1)
                 return;
-            StartSong(iListBox->CurrentItemIndex());
+            currentIndex = iListBox->CurrentItemIndex();
+            StartSong(currentIndex);
         }
             break;
         default: // Nothing to do
