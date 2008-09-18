@@ -20,8 +20,8 @@
 
 #include "ayfly.h"
 
-SDLAudio::SDLAudio(unsigned long _sr, AYSongInfo *info) :
-    AbstractAudio(_sr, info)
+SDLAudio::SDLAudio(AYSongInfo *info) :
+    AbstractAudio(info)
 {
     songinfo = info;
     stopping_thread = 0;
@@ -47,15 +47,12 @@ bool SDLAudio::Start()
         fmt.channels = 2;
         fmt.format = AUDIO_S16;
         fmt.samples = 1024 * 2 * 2;
-        fmt.freq = sr;
+        fmt.freq = songinfo->sr;
         fmt.userdata = this;
         if(SDL_OpenAudio(&fmt, &fmt_out) < 0)
         {
             return false;
         }
-
-        if(ay8910 == 0)
-            ay8910 = new ay(songinfo); // 16 bit, 2 ch.
         SDL_PauseAudio(0);
         started = true;
     }
@@ -84,7 +81,7 @@ void SDLAudio::Play(void *udata, Uint8 *stream, int len)
         memset(stream, 0, len);
         return;
     }
-    audio->ay8910->ayProcess(stream, len);
+    audio->songinfo->ay8910 [0].ayProcess(stream, len);
 }
 
 int SDLAudio::StoppingThread(void *arg)

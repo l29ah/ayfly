@@ -29,7 +29,7 @@ class AbstractAudio;
 class SDLAudio : public AbstractAudio
 {
 public:
-	SDLAudio(unsigned long _sr, AYSongInfo *info);
+	SDLAudio(AYSongInfo *info);
 	virtual ~SDLAudio();
 	virtual bool Start();
 	virtual void Stop();

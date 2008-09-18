@@ -25,7 +25,7 @@ void PSG_Init(AYSongInfo &info)
     ((PSG_SongInfo *)info.data)->PSG_Skip = 0;
     ((PSG_SongInfo *)info.data)->file_pointer = 16;
 
-    player->ResetAy();
+    ay_resetay(&info, 0);
 
 }
 
@@ -69,30 +69,30 @@ void PSG_Play(AYSongInfo &info)
                 {
 
                     case 13:
-                        player->WriteAy(AY_ENV_SHAPE, b2 & 15);
+                        ay_writeay(&info, AY_ENV_SHAPE, b2 & 15);
                         break;
                     case 1:
                     case 3:
                     case 5:
-                        player->WriteAy(b, b2 & 15);
+                        ay_writeay(&info, b, b2 & 15);
                         break;
                     case 6:
-                        player->WriteAy(AY_NOISE_PERIOD, b2 & 31);
+                        ay_writeay(&info, AY_NOISE_PERIOD, b2 & 31);
                         break;
                     case 7:
-                        player->WriteAy(AY_MIXER, b2 & 63);
+                        ay_writeay(&info, AY_MIXER, b2 & 63);
                         break;
                     case 8:
-                        player->WriteAy(AY_CHNL_A_VOL, b2 & 31);
+                        ay_writeay(&info, AY_CHNL_A_VOL, b2 & 31);
                         break;
                     case 9:
-                        player->WriteAy(AY_CHNL_B_VOL, b2 & 31);
+                        ay_writeay(&info, AY_CHNL_B_VOL, b2 & 31);
                         break;
                     case 10:
-                        player->WriteAy(AY_CHNL_C_VOL, b2 & 31);
+                        ay_writeay(&info, AY_CHNL_C_VOL, b2 & 31);
                         break;
                     default:
-                        player->WriteAy(b, b2);
+                        ay_writeay(&info, b, b2);
                         break;
                 }
             }

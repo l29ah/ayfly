@@ -180,7 +180,7 @@ void PT3_Init(AYSongInfo &info)
         PT3.Version = header->PT3_MusicName[13] - 0x30;
     }
 
-    player->ResetAy();
+    ay_resetay(&info, 0);
 }
 
 int PT3_GetNoteFreq(AYSongInfo &info, unsigned char j)
@@ -275,7 +275,7 @@ void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
         else if(val >= 0xb2 && val <= 0xbf)
         {
             chan.Envelope_Enabled = true;
-            player->WriteAy(AY_ENV_SHAPE, val - 0xb1);
+            ay_writeay(&info, AY_ENV_SHAPE, val - 0xb1);
             chan.Address_In_Pattern++;
             PT3.Env_Base_hi = module[chan.Address_In_Pattern];
             chan.Address_In_Pattern++;
@@ -328,7 +328,7 @@ void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
                 chan.Envelope_Enabled = false;
             else
             {
-                player->WriteAy(AY_ENV_SHAPE, val - 0x10);
+                ay_writeay(&info, AY_ENV_SHAPE, val - 0x10);
                 chan.Address_In_Pattern++;
                 PT3.Env_Base_hi = module[chan.Address_In_Pattern];
                 chan.Address_In_Pattern++;
@@ -599,22 +599,22 @@ void PT3_Play(AYSongInfo &info)
     PT3_ChangeRegisters(info, PT3_B, AddToEnv, TempMixer);
     PT3_ChangeRegisters(info, PT3_C, AddToEnv, TempMixer);
 
-    player->WriteAy(AY_MIXER, TempMixer);
+    ay_writeay(&info, AY_MIXER, TempMixer);
 
-    player->WriteAy(AY_CHNL_A_FINE, PT3_A.Ton & 0xff);
-    player->WriteAy(AY_CHNL_A_COARSE, (PT3_A.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_B_FINE, PT3_B.Ton & 0xff);
-    player->WriteAy(AY_CHNL_B_COARSE, (PT3_B.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_C_FINE, PT3_C.Ton & 0xff);
-    player->WriteAy(AY_CHNL_C_COARSE, (PT3_C.Ton >> 8) & 0xf);
-    player->WriteAy(AY_CHNL_A_VOL, PT3_A.Amplitude);
-    player->WriteAy(AY_CHNL_B_VOL, PT3_B.Amplitude);
-    player->WriteAy(AY_CHNL_C_VOL, PT3_C.Amplitude);
+    ay_writeay(&info, AY_CHNL_A_FINE, PT3_A.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_A_COARSE, (PT3_A.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_B_FINE, PT3_B.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_B_COARSE, (PT3_B.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_C_FINE, PT3_C.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_C_COARSE, (PT3_C.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_A_VOL, PT3_A.Amplitude);
+    ay_writeay(&info, AY_CHNL_B_VOL, PT3_B.Amplitude);
+    ay_writeay(&info, AY_CHNL_C_VOL, PT3_C.Amplitude);
 
-    player->WriteAy(AY_NOISE_PERIOD, (PT3.Noise_Base + PT3.AddToNoise) & 31);
+    ay_writeay(&info, AY_NOISE_PERIOD, (PT3.Noise_Base + PT3.AddToNoise) & 31);
     unsigned short cur_env = ay_sys_getword(&PT3.Env_Base_lo) + AddToEnv + PT3.Cur_Env_Slide;
-    player->WriteAy(AY_ENV_FINE, cur_env & 0xff);
-    player->WriteAy(AY_ENV_COARSE, (cur_env >> 8) & 0xff);
+    ay_writeay(&info, AY_ENV_FINE, cur_env & 0xff);
+    ay_writeay(&info, AY_ENV_COARSE, (cur_env >> 8) & 0xff);
 
     if(PT3.Cur_Env_Delay > 0)
     {

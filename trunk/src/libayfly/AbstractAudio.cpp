@@ -20,37 +20,17 @@
 
 #include "ayfly.h"
 
-AbstractAudio::AbstractAudio(unsigned long _sr, AYSongInfo *info)
+AbstractAudio::AbstractAudio(AYSongInfo *info)
 {
-    sr = _sr;
     songinfo = info;
     started = false;
-    ay8910 = 0;
-    
-    if(songinfo)
-    {
-        songinfo->sr = _sr;    
-        ay8910 = new ay(songinfo);
-    }
 }
 
 AbstractAudio::~AbstractAudio()
 {
-    if(ay8910)
-    {
-        delete ay8910;
-        ay8910 = 0;
-    }
 }
 
 void AbstractAudio::SetSongInfo(AYSongInfo *info)
 {
     songinfo = info;
-    if(!ay8910)
-    {
-        ay8910 = new ay(songinfo);
-    }
-    else
-        ay8910->SetParameters(songinfo);
-    
 }

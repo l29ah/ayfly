@@ -49,6 +49,10 @@ AYSongInfo *ay_sys_getnewinfo()
     info->chip_type = 0;
     info->own_player = true;
     info->stopping = false;
+    for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
+    {
+        info->ay8910[i].SetParameters(info);
+    }
     memset(info->z80IO, 0, 65536);
     return info;
 }
@@ -75,9 +79,9 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio 
     {
 #ifndef __SYMBIAN32__
 #ifdef WINDOWS
-        info->player = new DXAudio(sr, info);
+        info->player = new DXAudio(info);
 #else
-        info->player = new SDLAudio(sr, info);
+        info->player = new SDLAudio(info);
 #endif
 #else
         info->player = new Cayfly_s60Audio(info);
@@ -88,7 +92,7 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio 
             return 0;
         }
     }
-    
+
     if(!ay_sys_initz80(*info))
     {
         delete info;
@@ -115,7 +119,7 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio 
                     if(info->init_proc)
                         info->init_proc(*info);
                 }
-                ay_sys_getsonginfoindirect(*info);                
+                ay_sys_getsonginfoindirect(*info);
             }
         }
     }
@@ -159,9 +163,9 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFi
     {
 #ifndef __SYMBIAN32__
 #ifdef WINDOWS
-        info->player = new DXAudio(sr, info);
+        info->player = new DXAudio(info);
 #else
-        info->player = new SDLAudio(sr, info);
+        info->player = new SDLAudio(info);
 #endif
 #else
         info->player = new Cayfly_s60Audio(info);
@@ -324,24 +328,24 @@ AYFLY_API void ay_closesong(void **info)
     *ppsong = 0;
 }
 
-AYFLY_API void ay_setvolume(void *info, unsigned long chnl, float volume, unsigned long chip_num)
+AYFLY_API void ay_setvolume(void *info, unsigned long chnl, float volume, unsigned char chip_num)
 {
-    ((AYSongInfo *)info)->player->SetVolume(chnl, volume, chip_num);
+    ((AYSongInfo *)info)->ay8910[chip_num].SetVolume(chnl, volume);
 
 }
-AYFLY_API float ay_getvolume(void *info, unsigned long chnl, unsigned long chip_num)
+AYFLY_API float ay_getvolume(void *info, unsigned long chnl, unsigned char chip_num)
 {
-    return ((AYSongInfo *)info)->player->GetVolume(chnl, chip_num);
+    return ((AYSongInfo *)info)->ay8910[chip_num].GetVolume(chnl);
 }
 
-AYFLY_API void ay_chnlmute(void *info, unsigned long chnl, bool mute, unsigned long chip_num)
+AYFLY_API void ay_chnlmute(void *info, unsigned long chnl, bool mute, unsigned char chip_num)
 {
-    ((AYSongInfo *)info)->player->ChnlMute(chnl, mute, chip_num);
+    ((AYSongInfo *)info)->ay8910[chip_num].chnlMute(chnl, mute);
 }
 
-AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl, unsigned long chip_num)
+AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl, unsigned char chip_num)
 {
-    return ((AYSongInfo *)info)->player->ChnlMuted(chnl, chip_num);
+    return ((AYSongInfo *)info)->ay8910[chip_num].chnlMuted(chnl);
 }
 
 AYFLY_API void ay_setelapsedcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg)
@@ -392,15 +396,15 @@ AYFLY_API unsigned long ay_getsongloop(void *info)
     return ((AYSongInfo *)info)->Loop;
 }
 
-AYFLY_API const unsigned char *ay_getregs(void *info, unsigned long chip_num)
+AYFLY_API const unsigned char *ay_getregs(void *info, unsigned char chip_num)
 {
-    return ((AYSongInfo *)info)->player->GetAYRegs(chip_num);
+    return ((AYSongInfo *)info)->ay8910[chip_num].GetRegs();
 }
 
-AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned long chip_num)
+AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned char chip_num)
 {
     ay_stopsong(info);
-    ((AYSongInfo *)info)->player->GetAYBuffer(buffer, buffer_length, chip_num);
+    ((AYSongInfo *)info)->ay8910[chip_num].ayProcess(buffer, buffer_length);
 }
 
 AYFLY_API unsigned long ay_getz80freq(void *info)
@@ -410,16 +414,22 @@ AYFLY_API unsigned long ay_getz80freq(void *info)
 AYFLY_API void ay_setz80freq(void *info, unsigned long z80_freq)
 {
     ((AYSongInfo *)info)->z80_freq = z80_freq;
-    ((AYSongInfo *)info)->player->SetAYParameters();
+    for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
+    {
+        ((AYSongInfo *)info)->ay8910[i].SetParameters((AYSongInfo *)info);
+    }
 }
-AYFLY_API unsigned long ay_getayfreq(void *info, unsigned long chip_num)
+AYFLY_API unsigned long ay_getayfreq(void *info, unsigned char chip_num)
 {
     return ((AYSongInfo *)info)->ay_freq;
 }
 AYFLY_API void ay_setayfreq(void *info, unsigned long ay_freq)
 {
     ((AYSongInfo *)info)->ay_freq = ay_freq;
-    ((AYSongInfo *)info)->player->SetAYParameters();
+    for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
+    {
+        ((AYSongInfo *)info)->ay8910[i].SetParameters((AYSongInfo *)info);
+    }
 }
 AYFLY_API unsigned long ay_getintfreq(void *info)
 {
@@ -429,7 +439,10 @@ AYFLY_API unsigned long ay_getintfreq(void *info)
 AYFLY_API void ay_setintfreq(void *info, unsigned long int_freq)
 {
     ((AYSongInfo *)info)->int_freq = int_freq;
-    ((AYSongInfo *)info)->player->SetAYParameters();
+    for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
+    {
+        ((AYSongInfo *)info)->ay8910[i].SetParameters((AYSongInfo *)info);
+    }
 }
 
 AYFLY_API unsigned long ay_getsamplerate(void *info)
@@ -440,7 +453,10 @@ AYFLY_API unsigned long ay_getsamplerate(void *info)
 AYFLY_API void ay_setsamplerate(void *info, unsigned long sr)
 {
     ((AYSongInfo *)info)->sr = sr;
-    ((AYSongInfo *)info)->player->SetAYParameters();
+    for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
+    {
+        ((AYSongInfo *)info)->ay8910[i].SetParameters((AYSongInfo *)info);
+    }
 }
 
 AYFLY_API void ay_setsongplayer(void *info, void * /* class AbstractAudio */player)
@@ -465,12 +481,30 @@ AYFLY_API void *ay_getsongplayer(void *info)
 AYFLY_API void ay_setchiptype(void *info, unsigned char chip_type)
 {
     ((AYSongInfo *)info)->chip_type = chip_type;
-    ((AYSongInfo *)info)->player->SetAYParameters();
+    for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
+    {
+        ((AYSongInfo *)info)->ay8910[i].SetParameters((AYSongInfo *)info);
+    }
 }
 
 AYFLY_API unsigned char ay_getchiptype(void *info)
 {
     return ((AYSongInfo *)info)->chip_type;
+}
+
+AYFLY_API void ay_writeay(void *info, unsigned char reg, unsigned char val, unsigned char chip_num)
+{
+    ((AYSongInfo *)info)->ay8910[chip_num].ayWrite(reg, val);
+}
+
+AYFLY_API unsigned char ay_readay(void *info, unsigned char reg, unsigned char chip_num)
+{
+    return ((AYSongInfo *)info)->ay8910[chip_num].ayRead(reg);
+}
+
+AYFLY_API void ay_resetay(void *info, unsigned char chip_num)
+{
+    ((AYSongInfo *)info)->ay8910[chip_num].ayReset();
 }
 
 AYFLY_API void ay_z80exec(void *info)
