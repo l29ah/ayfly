@@ -75,6 +75,8 @@ void Cayfly_s60PlayListView::SetUpListBoxL()
     // Create the list box
     iListBox->ConstructFromResourceL(reader);
     CleanupStack::PopAndDestroy(); // reader
+    
+    iListBox->Model()->SetOwnershipType(ELbmOwnsItemArray);
 
 
     // Add this to observe the list box
