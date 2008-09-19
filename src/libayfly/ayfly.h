@@ -474,7 +474,7 @@ AYFLY_API unsigned long ay_getsongloop(void *info);
 AYFLY_API const unsigned char *ay_getregs(void *info, unsigned char chip_num = 0);
 
 /*
- * User For render song AY chip @chip_num into buffer pointed by @buffer
+ * Used for render song AY chip @chip_num into buffer pointed by @buffer
  * with size @buffer_length bytes
  */
 
