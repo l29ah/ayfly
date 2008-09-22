@@ -478,7 +478,7 @@ AYFLY_API const unsigned char *ay_getregs(void *info, unsigned char chip_num = 0
  * with size @buffer_length bytes
  */
 
-AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned char chip_num);
+AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned char chip_num = 0);
 
 /*
  * Returns z80 frequency
@@ -554,15 +554,17 @@ AYFLY_API void ay_setchiptype(void *info, unsigned char chip_type);
 
 AYFLY_API unsigned char ay_getchiptype(void *info);
 
-/*
- * Returns true if format supported by the library
- */
 
 AYFLY_API void ay_writeay(void *info, unsigned char reg, unsigned char val, unsigned char chip_num = 0);
 
 AYFLY_API unsigned char ay_readay(void *info, unsigned char reg, unsigned char chip_num = 0);
 
 AYFLY_API void ay_resetay(void *info, unsigned char chip_num = 0);
+
+/*
+ * Returns true if format supported by the library
+ */
+
 
 #ifndef __SYMBIAN32__
 bool ay_format_supported(AY_TXT_TYPE filePath);

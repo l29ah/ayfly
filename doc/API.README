@@ -62,4 +62,94 @@ float ay_getvolume(void *info, unsigned long chnl, unsigned char chip_num = 0);
 
 Возвращает громкость канала chnl (от 0 до 2) чипа AY chip_num (от 0 до 255) в пределах от 0 до 1.
 
+void ay_chnlmute(void *info, unsigned long chnl, bool mute, unsigned char chip_num = 0);
+
+Отключает (если mute = true) или включает (если mute = false) канал под номером chnl (от 0 до 2) чипа AY с номером chip_num (от 0 до 255).
+
+bool ay_chnlmuted(void *info, unsigned long chnl, unsigned char chip_num = 0);
+
+Возвращает true, если канал под номером chnl (от 0 до 2) чипа AY под номером chip_num (от 0 до 255) выключен.
+
+void ay_setelapsedcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg);
+
+Устанавливает функцию обратного вызова типа bool (void *arg), которая вызывается при достижении конца мелодии (даже если причутствует цикл). Если функцию обратного вызова возвращает true, тогда воспроизведение мелодии приостанавливается и вызывается функция обратного вызова stoppedcallback (если задана).
+
+void ay_setstoppedcallback(void *info, STOPPED_CALLBACK callback, void *callback_arg);
+
+Устанавливает функцию обратного вызова типа void (void *arg), которая вызывается при достижении конца мелодии, если функция обратного вызова elapsedcallback возвращает true.
+
+
+const unsigned char *ay_getregs(void *info, unsigned char chip_num = 0);
+
+Возвращает указатель на струкруру из 16-ти байт, которая содержит текущий снимок регистров чипа AY под номером chip_num. ВОзвращаемая структура доступна только для чтения.
+
+void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned char chip_num);
+
+Заполняет участок памяти по адресу buffer длиной buffer_length оцифровкой мелодии с чипа AY chip_num (от 0 до 255). Записываемые данные имеют формат 16 бит 44100 кГц стерео. buffer_length - длина буфера в байтах. для записи одного стерео-сэмпла  в данном режиме требуется 4 байта.
+
+unsigned long ay_getz80freq(void *info);
+
+Возвращает текущую частоту z80.
+
+void ay_setz80freq(void *info, unsigned long z80_freq);
+
+Устанавливает частоту z80, равную переменной z80_freq.
+
+unsigned long ay_getayfreq(void *info);
+
+Возвращает текущую частоту чипов AY.
+
+void ay_setayfreq(void *info, unsigned long ay_freq);
+
+Устанавливает частоту чипов AY, равную переменной ay_freq.
+
+unsigned long ay_getintfreq(void *info);
+
+Возвращает текущую частоту прерываний z80.
+
+void ay_setintfreq(void *info, unsigned long int_freq);
+
+Устанавливает частоту прерываний z80, равную переменной int_freq.
+
+unsigned long ay_getsamplerate(void *info);
+
+Возвращает текущую частоту дискретизации.
+
+void ay_setsamplerate(void *info, unsigned long sr);
+
+Устанавливает частоту дискретизации, равную переменной sr.
+
+void ay_setsongplayer(void *info, void * /* class AbstractAudio */ player);
+
+Устанавливает проигрыватель для песни. player должен быть реализацией класса, базовым для которого является класс AbstractAudio.
+
+void *ay_getsongplayer(void *info);
+
+Возвращает ссылку на проигрыватель для мелодии.
+
+void ay_setchiptype(void *info, unsigned char chip_type);
+
+Устанавливает тип чипа AY (0 = AY, 1 = YM), равным переменной chip_type.
+
+unsigned char ay_getchiptype(void *info);
+
+Возвращает тип чипа AY. 0 = AY, 1 = YM.
+
+void ay_writeay(void *info, unsigned char reg, unsigned char val, unsigned char chip_num = 0);
+
+Устанавливает значение рагистра куп чипа AY под номером chip_num равным переменной val.
+
+unsigned char ay_readay(void *info, unsigned char reg, unsigned char chip_num = 0);
+
+Возвращает значение регистра reg чипа AY под номером chip_num.
+
+bool ay_format_supported(AY_TXT_TYPE filePath);
+Возвращает true, если формат файла filePath поддерживается текущей версией библиотеки. filePath должен содержать либо расширение файла в формате ".расширение", либо полнуй путь к файлу, включая расширение.
+
+void ay_sethwnd(void *info, HWND hWnd);
+
+Устанавливает дестриптор окан для текущего плеера, равному переменной hWnd.
+
+
+
 
