@@ -25,7 +25,6 @@
 #   ifndef UNICODE
 #       define UNICODE
 #   endif
-#   include <wchar.h>
 #   define AY_CHAR wchar_t
 #else
 #   define ANSI
@@ -75,7 +74,7 @@
 #    endif
 
 
-#    include "z80ex/include/z80ex.h"
+#    include "z80ex.h"
 #    ifdef WINDOWS
 #        pragma warning(disable:4309)
 #        ifdef AYFLY_EXPORTS

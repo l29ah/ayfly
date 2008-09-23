@@ -3903,7 +3903,7 @@ echo "$as_me: error: wxWidgets libraries cannot be found...!" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/gui/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/gui/Makefile src/libayfly/Makefile src/libayfly/z80ex_new/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4477,7 +4477,7 @@ do
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "src/gui/Makefile") CONFIG_FILES="$CONFIG_FILES src/gui/Makefile" ;;
     "src/libayfly/Makefile") CONFIG_FILES="$CONFIG_FILES src/libayfly/Makefile" ;;
-    "src/libayfly/z80ex/Makefile") CONFIG_FILES="$CONFIG_FILES src/libayfly/z80ex/Makefile" ;;
+    "src/libayfly/z80ex_new/Makefile") CONFIG_FILES="$CONFIG_FILES src/libayfly/z80ex_new/Makefile" ;;
     "src/libayfly/unix/Makefile") CONFIG_FILES="$CONFIG_FILES src/libayfly/unix/Makefile" ;;
     "src/libayfly/windows/Makefile") CONFIG_FILES="$CONFIG_FILES src/libayfly/windows/Makefile" ;;
 
