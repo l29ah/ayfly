@@ -55,6 +55,7 @@
 #include <pathinfo.h>
 #include <stringloader.h>
 #include <aknlists.h>
+#include <maknfilefilter.h>
 #else
 #include <qikselectfiledlg.h>
 #include <qikcommand.h>

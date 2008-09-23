@@ -20,7 +20,6 @@
 
 // INCLUDE FILES
 #include "s60.h"
-#include <maknfilefilter.h>
 
 #ifdef S60
 
@@ -109,8 +108,8 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
             break;
         case EAddFile:
         {
-            TFileName FileName = PathInfo::MemoryCardRootPath();
 #ifndef UIQ3
+            TFileName FileName = PathInfo::MemoryCardRootPath();
             CAknMemorySelectionDialog* memDlg = CAknMemorySelectionDialog::NewL(ECFDDialogTypeSelect, ETrue);
             CAknMemorySelectionDialog::TMemory memory = CAknMemorySelectionDialog::EPhoneMemory;
             if(memDlg->ExecuteL(memory) == CAknFileSelectionDialog::ERightSoftkey)
@@ -136,6 +135,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
             delete dlg;
 
 #else //UIQ3
+            TFileName FileName = _L("E:\\");
             CDesCArray* mime = new (ELeave) CDesCArrayFlat(1);
             CleanupStack::PushL(mime);
             CDesCArray* file = new(ELeave) CDesCArrayFlat(1);
@@ -153,8 +153,8 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
             break;
         case EAddFolder:
         {
-            TFileName FolderName = PathInfo::MemoryCardRootPath();
 #ifndef UIQ3 
+            TFileName FolderName = PathInfo::MemoryCardRootPath();
             CAknMemorySelectionDialog* memDlg = CAknMemorySelectionDialog::NewL(ECFDDialogTypeSelect, ETrue);
             CAknMemorySelectionDialog::TMemory memory = CAknMemorySelectionDialog::EPhoneMemory;
             if(memDlg->ExecuteL(memory) == CAknFileSelectionDialog::ERightSoftkey)
