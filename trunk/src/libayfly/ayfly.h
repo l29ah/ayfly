@@ -25,6 +25,7 @@
 #   ifndef UNICODE
 #       define UNICODE
 #   endif
+#   include <wchar.h>
 #   define AY_CHAR wchar_t
 #else
 #   define ANSI
@@ -96,12 +97,11 @@
 #    ifndef __SYMBIAN32__
 #        define AUDIO_FREQ 44100
 #        ifdef UNICODE
-#        define TXT(x) L##x
-#           define AY_TXT_TYPE std::wstring
+#           define TXT(x) L##x
 #        else
-#        define TXT(x) x
-#           define AY_TXT_TYPE std::string
+#           define TXT(x) x
 #        endif
+#        define AY_TXT_TYPE CayflyString
 #    else
 #        define TXT(x) _S(x)
 #        define AUDIO_FREQ 32000
@@ -143,6 +143,7 @@ typedef void (*PLAYER_INIT_PROC)(AYSongInfo &info);
 typedef void (*PLAYER_PLAY_PROC)(AYSongInfo &info);
 typedef void (*PLAYER_CLEANUP_PROC)(AYSongInfo &info);
 
+#include "ayflyString.h"
 #include "ay.h"
 #include "AbstractAudio.h"
 

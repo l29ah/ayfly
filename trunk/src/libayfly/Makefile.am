@@ -1,7 +1,7 @@
 INCLUDES = -I$(top_srcdir)/src/libayfly $(SDL_CFLAGS) $(DX_CFLAGS) $(all_includes)
 SUBDIRS = z80ex 
 noinst_LIBRARIES = libayfly.a
-libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp lha.cpp common.cpp
+libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp lha.cpp common.cpp ayflyString.cpp
 
 if IS_WINDOWS
 EXTRASUBDIRS += windows
