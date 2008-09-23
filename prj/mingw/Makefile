@@ -1,7 +1,7 @@
 OBJS = AbstractAudio.o ay.o common.o formats.o speccy.o DXAudio.o z80ex.o ayflyString.o
 DX_INCLUDES = -I/opt/directx/include
 DX_LIBS = /opt/directx/lib/dxguid.lib /opt/directx/lib/dsound.lib 
-INCLUDES = -I../../src/libayfly -I../../src/libayfly/z80ex $(DX_INCLUDES) -DAYFLY_EXPORTS
+INCLUDES = -I../../src/libayfly -I../../src/libayfly/z80ex_new -I../../src/libayfly/z80ex_new/include $(DX_INCLUDES) -DAYFLY_EXPORTS
 LIBS = $(DX_LIBS) -lwinmm -lole32 -luuid -lsupc++
 
 CFLAGS = -O3 -g0 -s -ffast-math

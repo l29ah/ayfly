@@ -33,7 +33,7 @@ SOURCE			ayfly_s60Document.cpp
 SOURCE			ayfly_s60PlayListView.cpp
 
 SOURCEPATH		..\..\libayfly
-SOURCE			z80ex\z80ex.cpp speccy.cpp formats.cpp ay.cpp common.cpp AbstractAudio.cpp s60\ayfly_s60Audio.cpp
+SOURCE			z80ex_new\z80ex.c speccy.cpp formats.cpp ay.cpp common.cpp AbstractAudio.cpp s60\ayfly_s60Audio.cpp
 
 SOURCEPATH		..\data
 
@@ -54,7 +54,7 @@ END
 
 
 
-USERINCLUDE	   ..\inc ..\..\libayfly
+USERINCLUDE	   ..\inc ..\..\libayfly ..\..\libayfly\z80ex_new ..\..\libayfly\z80ex_new\include
 USERINCLUDE    ..\help
 
 SYSTEMINCLUDE	 \epoc32\include \epoc32\include\libc
@@ -62,7 +62,7 @@ SYSTEMINCLUDE	 \epoc32\include \epoc32\include\libc
 LIBRARY		   euser.lib apparc.lib cone.lib eikcore.lib eikcoctl.lib
 LIBRARY        avkon.lib fbscli.lib eikdlg.lib efsrv.lib estor.lib
 LIBRARY        commondialogs.lib mediaclientaudiostream.lib bafl.lib
-LIBRARY	       commonengine.lib egul.lib eikctl.lib platformenv.lib
+LIBRARY	       commonengine.lib egul.lib eikctl.lib platformenv.lib estlib.lib
 
 LANG SC
 
