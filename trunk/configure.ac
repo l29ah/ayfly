@@ -18,6 +18,7 @@ case "$host_os" in
 		AC_DEFINE([WIN32], [1])
 		AC_DEFINE([_WINDOWS], [1])
 		AC_DEFINE([_WIN32], [1])
+		AC_DEFINE([AYFLY_STATIC], [1])
 		AC_ARG_WITH([directx], [AS_HELP_STRING([--with-directx], [Specify directx SDK path])],
 					[],
 					[with_directx=/opt/directx])

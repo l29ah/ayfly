@@ -308,7 +308,7 @@ AyflyFrame::~AyflyFrame()
 
 void AyflyFrame::OnAbout(wxCommandEvent &event)
 {
-    wxMessageBox(wxT("Programming: Andrew Deryabin, 2008\n Icons & Graphics: Alexander Shatin,  2008\n  Using modified z80ex library by Stanislav Lomakin."), wxT("Ayfly version " AYFLY_VERSION_TEXT), wxOK | wxICON_INFORMATION, this);
+    wxMessageBox(wxT("Programming: Andrew Deryabin, 2008\n Icons & Graphics: Alexander Shatin,  2008\n  Using z80ex library by Stanislav Lomakin."), wxT("Ayfly version " AYFLY_VERSION_TEXT), wxOK | wxICON_INFORMATION, this);
 }
 
 void AyflyFrame::OnQuit(wxCommandEvent &event)
