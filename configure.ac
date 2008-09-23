@@ -43,6 +43,6 @@ if test "x$GUI_LIBS" = x0; then
 	AC_ERROR([wxWidgets libraries cannot be found...!])
 fi
 
-AC_CONFIG_FILES([Makefile src/Makefile src/gui/Makefile src/libayfly/Makefile src/libayfly/z80ex_new/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/gui/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile])
 AC_OUTPUT
 
