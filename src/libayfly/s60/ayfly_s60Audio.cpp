@@ -239,7 +239,7 @@ void Cayfly_s60Sound::MaoscPlayComplete(TInt aError)
     {
         songinfo->stopping = false; 
         iIdleCallback = CIdle::NewL(CActive::EPriorityIdle);
-        iIdleCallback->Start(TCallBack(Cayfly_s60Sound::StopTCallback, this));        
+        iIdleCallback->Start(TCallBack(Cayfly_s60Sound::StopTCallback, this));
         return;
     }
 }
