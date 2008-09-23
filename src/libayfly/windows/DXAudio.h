@@ -34,7 +34,7 @@
 class DXAudio: public AbstractAudio
 {
 public:
-    DXAudio(unsigned long _sr, AYSongInfo *info);
+    DXAudio(AYSongInfo *info);
     virtual ~DXAudio();
     virtual bool Start(void);
     virtual void Stop();
@@ -54,7 +54,6 @@ private:
     void FillBuffer(DWORD dwSoundBytes);
     void ClearBuffer();
     void DXProcess();
-    AYSongInfo *songinfo;
     HWND hWndMain;
     MMRESULT m_nIDTimer;
     LONG srvExch;

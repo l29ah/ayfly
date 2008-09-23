@@ -60,12 +60,8 @@
 #    include <string.h>
 
 #    ifndef __SYMBIAN32__
-#    include <algorithm>
-#    include <cctype>
 #    include <wchar.h>
-#    include <string>
-#    include <fstream>
-#    include <iostream>
+#    include <ctype.h>
 #    else
 #ifdef EKA2
 #    include <e32cmn.h>

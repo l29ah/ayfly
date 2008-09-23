@@ -90,7 +90,7 @@ size_t CayflyString::length()
 #endif
 }
 
-const AY_CHAR *CayflyString::c_str()
+const AY_CHAR *CayflyString::c_str() const
 {
     return m_str;
 }
@@ -120,16 +120,16 @@ int CayflyString::compare(const AY_CHAR *str)
 
 int CayflyString::rcompare(const CayflyString & str)
 {
-    return compare(str.c_str());
+    return rcompare(str.c_str());
 }
 
 int CayflyString::rcompare(const AY_CHAR *str)
 {
     size_t mylen = length();
 #ifdef UNICODE
-    size_t len = strlen(str);
-#else
     size_t len = wcslen(str);
+#else
+    size_t len = strlen(str);
 #endif
     if(mylen < len)
         return len - mylen;

@@ -1,4 +1,4 @@
-OBJS = AbstractAudio.o ay.o common.o formats.o speccy.o DXAudio.o z80ex.o
+OBJS = AbstractAudio.o ay.o common.o formats.o speccy.o DXAudio.o z80ex.o ayflyString.o
 DX_INCLUDES = -I/opt/directx/include
 DX_LIBS = /opt/directx/lib/dxguid.lib /opt/directx/lib/dsound.lib 
 INCLUDES = -I../../src/libayfly -I../../src/libayfly/z80ex $(DX_INCLUDES) -DAYFLY_EXPORTS
@@ -6,7 +6,7 @@ LIBS = $(DX_LIBS) -lwinmm -lole32 -luuid -lsupc++
 
 CFLAGS = -O3 -g0 -s -ffast-math
 CC = mingw32-gcc
-CXX = mingw32-g++
+CXX = mingw32-gcc
 
 all: ayfly.dll
 
@@ -30,3 +30,5 @@ DXAudio.o: ../../src/libayfly/windows/DXAudio.cpp
 	$(CXX) -c $(INCLUDES) $(CFLAGS) ../../src/libayfly/windows/DXAudio.cpp -o DXAudio.o
 z80ex.o: ../../src/libayfly/z80ex/z80ex.cpp
 	$(CXX) -c $(INCLUDES) $(CFLAGS) ../../src/libayfly/z80ex/z80ex.cpp -o z80ex.o
+ayflyString.o: ../../src/libayfly/ayflyString.cpp
+	$(CXX) -c $(INCLUDES) $(CFLAGS) ../../src/libayfly/ayflyString.cpp -o ayflyString.o

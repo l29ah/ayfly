@@ -33,7 +33,7 @@ public:
     CayflyString& operator =(const CayflyString &str);
     CayflyString& operator =(const AY_CHAR *str);
     size_t length();
-    AY_CHAR *c_str();
+    const AY_CHAR *c_str() const;
     void toLower();
     int compare(const CayflyString &str);
     int compare(const AY_CHAR *str);    

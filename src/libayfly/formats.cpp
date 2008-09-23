@@ -182,7 +182,7 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
 {
     unsigned char *fileData = 0;
 #ifndef __SYMBIAN32__
-    std::ifstream f;
+    FILE *f;
 #if !defined(WINDOWS) && defined(UNICODE)
     size_t len = filePath.length() * 6;
     char *mb_str = new char[len + 1];
@@ -197,29 +197,29 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
     const wchar_t *wc_str = filePath.c_str();
     size_t cnt_conv = wcsrtombs(mb_str, &wc_str, len, &mbstate);
     mb_str[cnt_conv] = 0;
-    f.open(mb_str, std::ios_base::in | std::ios_base::binary);
+    f = fopen(mb_str, "rb");
     delete[] mb_str;
 #else
-    f.open(filePath.c_str(), std::ios_base::in | std::ios_base::binary);
+    f = fopen(filePath.c_str(), "rb");
 #endif
     if(f)
     {
-        f.seekg(0, std::ios::end);
-        *data_len = f.tellg();
-        f.seekg(0, std::ios::beg);
+        fseek(f, 0, SEEK_END);
+        *data_len = ftell(f);
+        fseek(f, 0, SEEK_SET);
 
         unsigned long to_allocate = *data_len < 65536 ? 65536 : *data_len;
         fileData = new unsigned char[to_allocate];
         if(!fileData)
         {
-            f.close();
+            fclose(f);
             return 0;
         }
         memset(fileData, 0, to_allocate);
-        f.read((char *)fileData, *data_len);
-        if(f.bad())
+        fread((char *)fileData, 1, *data_len, f);
+        if(ferror(f))
             *data_len = 0;
-        f.close();
+        fclose(f);
     }
     else
         *data_len = 0;
@@ -271,6 +271,7 @@ bool ay_sys_initsong(AYSongInfo &info)
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE cfp = info.FilePath;
+    cfp.toLower();
     //std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int))std::tolower);
     if(cfp.rcompare(TXT(".ay")) == 0)
     {
@@ -526,6 +527,7 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
     bool bRet = false;
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE cfp = info.FilePath;
+    cfp.toLower();
     //std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int))std::tolower);
     if(cfp.rcompare(TXT(".ay")) == 0)
 #else
