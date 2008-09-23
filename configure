@@ -3543,6 +3543,10 @@ _ACEOF
 #define _WIN32 1
 _ACEOF
 
+		cat >>confdefs.h <<\_ACEOF
+#define AYFLY_STATIC 1
+_ACEOF
+
 
 # Check whether --with-directx was given.
 if test "${with_directx+set}" = set; then
