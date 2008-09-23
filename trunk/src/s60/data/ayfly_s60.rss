@@ -41,8 +41,27 @@ RESOURCE TBUF r_default_document_name
 RESOURCE EIK_APP_INFO
     {
     menubar = r_menubar;
-    cba = R_AVKON_SOFTKEYS_OPTIONS_EXIT;
+    cba = r_ayfly_cba_buttons;
     }
+
+RESOURCE CBA r_ayfly_cba_buttons
+  {
+  buttons =
+    {
+    CBA_BUTTON
+      {
+      id = EAknSoftkeyOptions;
+      txt = "Menu";
+      },
+    CBA_BUTTON
+      {
+      id = EStopPlayer;
+      txt = "Stop";
+      }
+    };
+  }
+
+
 // -----------------------------------------------------------------------------
 //
 //   r_menubar
