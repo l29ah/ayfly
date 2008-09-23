@@ -200,7 +200,11 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
     f = fopen(mb_str, "rb");
     delete[] mb_str;
 #else
+#if defined(WINDOWS) && defined(UNICODE)
+	f = _wfopen(filePath.c_str(), TXT("rb"));
+#else
     f = fopen(filePath.c_str(), "rb");
+#endif
 #endif
     if(f)
     {
