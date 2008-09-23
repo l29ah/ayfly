@@ -33,7 +33,7 @@ SOURCE			ayfly_s60Document.cpp
 SOURCE			ayfly_s60PlayListView.cpp
 
 SOURCEPATH		..\..\libayfly
-SOURCE			z80ex_new\z80ex.c speccy.cpp formats.cpp ay.cpp common.cpp AbstractAudio.cpp s60\ayfly_s60Audio.cpp
+SOURCE			z80ex\z80ex.c speccy.cpp formats.cpp ay.cpp common.cpp AbstractAudio.cpp s60\ayfly_s60Audio.cpp
 
 SOURCEPATH		..\data
 
@@ -54,7 +54,7 @@ END
 
 
 
-USERINCLUDE	   ..\inc ..\..\libayfly ..\..\libayfly\z80ex_new ..\..\libayfly\z80ex_new\include
+USERINCLUDE	   ..\inc ..\..\libayfly ..\..\libayfly\z80ex ..\..\libayfly\z80ex\include
 USERINCLUDE    ..\help
 
 SYSTEMINCLUDE	 \epoc32\include \epoc32\include\libc
