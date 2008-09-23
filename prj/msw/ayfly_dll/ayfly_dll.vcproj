@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\src\libayfly"
+				AdditionalIncludeDirectories="..\..\..\src\libayfly;..\..\..\src\libayfly\z80ex;..\..\..\src\libayfly\z80ex\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;AYFLY_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\src\libayfly"
+				AdditionalIncludeDirectories="..\..\..\src\libayfly;..\..\..\src\libayfly\z80ex;..\..\..\src\libayfly\z80ex\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;AYFLY_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -194,7 +194,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\src\libayfly"
+				AdditionalIncludeDirectories="..\..\..\src\libayfly;..\..\..\src\libayfly\z80ex;..\..\..\src\libayfly\z80ex\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;AYFLY_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -271,7 +271,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				EnableIntrinsicFunctions="false"
-				AdditionalIncludeDirectories="..\..\..\src\libayfly"
+				AdditionalIncludeDirectories="..\..\..\src\libayfly;..\..\..\src\libayfly\z80ex;..\..\..\src\libayfly\z80ex\include"
 				PreprocessorDefinitions="WIN32;DEBUG;_WINDOWS;_USRDLL;AYFLY_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="false"
@@ -342,6 +342,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\src\libayfly\ayflyString.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\src\libayfly\common.cpp"
 					>
 				</File>
@@ -365,7 +369,7 @@
 					Name="z80ex"
 					>
 					<File
-						RelativePath="..\..\..\src\libayfly\z80ex\z80ex.cpp"
+						RelativePath="..\..\..\src\libayfly\z80ex\z80ex.c"
 						>
 					</File>
 				</Filter>
@@ -392,6 +396,10 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\libayfly\ayfly.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\libayfly\ayflyString.h"
 						>
 					</File>
 				</Filter>
