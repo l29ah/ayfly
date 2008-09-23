@@ -193,10 +193,10 @@ void DXAudio::FillBuffer(DWORD dwSoundBytes)
     if (SUCCEEDED(hr))
     {
         // Write to pointers.
-        ay8910->ayProcess((unsigned char *)lpvPtr1, dwBytes1);
+        songinfo->ay8910 [0].ayProcess((unsigned char *)lpvPtr1, dwBytes1);
         if (NULL != lpvPtr2)
         {
-            ay8910->ayProcess((unsigned char *)lpvPtr2, dwBytes2);
+            songinfo->ay8910 [0].ayProcess((unsigned char *)lpvPtr2, dwBytes2);
         }
 
         // Release the data back to DirectSound.
