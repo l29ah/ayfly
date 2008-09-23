@@ -104,5 +104,42 @@ void CayflyString::toLower()
     }
 }
 
+int CayflyString::compare(const CayflyString & str)
+{
+    return compare(str.c_str());
+}
+
+int CayflyString::compare(const AY_CHAR *str)
+{
+#ifdef UNICODE
+    return wcscmp(m_str, str);
+#else
+    return strcmp(m_str, str);
+#endif
+}
+
+int CayflyString::rcompare(const CayflyString & str)
+{
+    return compare(str.c_str());
+}
+
+int CayflyString::rcompare(const AY_CHAR *str)
+{
+    size_t mylen = length();
+#ifdef UNICODE
+    size_t len = strlen(str);
+#else
+    size_t len = wcslen(str);
+#endif
+    if(mylen < len)
+        return len - mylen;
+    
+#ifdef UNICODE
+    return wcscmp(&m_str [mylen - len], str);
+#else
+    return strcmp(&m_str [mylen - len], str);
+#endif
+}
+
 
 

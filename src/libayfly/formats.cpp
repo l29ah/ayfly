@@ -126,8 +126,9 @@ bool ay_sys_format_supported(const TFileName filePath)
     _FileTypes fileType = FILE_TYPE_NULL;
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE cfp = filePath;
-    std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int))std::tolower);
-    if(cfp.rfind(TXT(".ay")) != std::string::npos)
+    cfp.toLower();
+    //std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int))std::tolower);
+    if(cfp.rcompare(TXT(".ay")) == 0)
     {
         fileType = FILE_TYPE_AY;
     }
@@ -135,7 +136,7 @@ bool ay_sys_format_supported(const TFileName filePath)
     {
         for(unsigned long player = 0; player < sizeof_array(Players); player++)
         {
-            if(cfp.rfind(Players[player].ext) != std::string::npos)
+            if(cfp.rcompare(Players[player].ext) == 0)
             {
                 fileType = FILE_TYPE_TRACKER;
                 break;
@@ -270,8 +271,8 @@ bool ay_sys_initsong(AYSongInfo &info)
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE cfp = info.FilePath;
-    std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int))std::tolower);
-    if(cfp.rfind(TXT(".ay")) != std::string::npos)
+    //std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int))std::tolower);
+    if(cfp.rcompare(TXT(".ay")) == 0)
     {
         fileType = FILE_TYPE_AY;
     }
@@ -279,7 +280,7 @@ bool ay_sys_initsong(AYSongInfo &info)
     {
         for(player = 0; player < sizeof_array(Players); player++)
         {
-            if(cfp.rfind(Players[player].ext) != std::string::npos)
+            if(cfp.rcompare(Players[player].ext) == 0)
             {
                 break;
             }
@@ -525,8 +526,8 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
     bool bRet = false;
 #ifndef __SYMBIAN32__
     AY_TXT_TYPE cfp = info.FilePath;
-    std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int))std::tolower);
-    if(cfp.rfind(TXT(".ay")) != std::string::npos)
+    //std::transform(cfp.begin(), cfp.end(), cfp.begin(), (int(*)(int))std::tolower);
+    if(cfp.rcompare(TXT(".ay")) == 0)
 #else
     TFileName cfp = info.FilePath;
     cfp.LowerCase();
@@ -584,7 +585,7 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
         for(unsigned int i = 0; i < sizeof_array(Players); i++)
         {
 #ifndef __SYMBIAN32__
-            if(cfp.rfind(Players[i].ext) != std::string::npos)
+            if(cfp.rcompare(Players[i].ext) == 0)
 #else
             TPtrC ext = parse.Ext();
             TPtrC ext_cur = Players [i].ext;
