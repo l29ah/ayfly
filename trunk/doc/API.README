@@ -148,7 +148,7 @@ bool ay_format_supported(AY_TXT_TYPE filePath);
 
 void ay_sethwnd(void *info, HWND hWnd);
 
-Устанавливает дестриптор окан для текущего плеера, равному переменной hWnd.
+Устанавливает дестриптор окна для текущего плеера, равному переменной hWnd.
 
 
 
