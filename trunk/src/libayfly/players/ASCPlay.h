@@ -52,7 +52,6 @@ void ASC_Init(AYSongInfo &info)
 {
     unsigned char *module = info.module;
     ASC1_File *header = (ASC1_File *) module;
-    AbstractAudio *player = info.player;
     unsigned short ascPatPt = ASC1_PatternsPointers;
     if(info.data)
     {
@@ -79,7 +78,6 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
 {
     unsigned char *module = info.module;
     ASC1_File *header = (ASC1_File *) module;
-    AbstractAudio *player = info.player;
     short delta_ton;
     bool Initialization_Of_Ornament_Disabled, Initialization_Of_Sample_Disabled;
 
@@ -260,7 +258,6 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
 void ASC_GetRegisters(AYSongInfo &info, ASC_Channel_Parameters &chan, unsigned char &TempMixer)
 {
     unsigned char *module = info.module;
-    AbstractAudio *player = info.player;
     signed char j;
     bool Sample_Says_OK_for_Envelope;
     if(chan.Sample_Finished || !chan.Sound_Enabled)
@@ -358,7 +355,6 @@ void ASC_Play(AYSongInfo &info)
 {
     unsigned char *module = info.module;
     ASC1_File *header = (ASC1_File *) module;
-    AbstractAudio *player = info.player;
     unsigned char TempMixer;
 
     if(--ASC.DelayCounter <= 0)

@@ -45,7 +45,6 @@ void PT1_Init(AYSongInfo &info)
 {
     unsigned char *module = info.module;
     PT1_File *header = (PT1_File *)module;
-    AbstractAudio *player = info.player;
     if(info.data)
     {
         delete (PT1_SongInfo *)info.data;
@@ -99,7 +98,6 @@ void PT1_PatternInterpreter(AYSongInfo &info, PT1_Channel_Parameters &chan)
 {
     unsigned char *module = info.module;
     PT1_File *header = (PT1_File *)module;
-    AbstractAudio *player = info.player;
     bool quit = false;
     do
     {
@@ -154,7 +152,6 @@ void PT1_PatternInterpreter(AYSongInfo &info, PT1_Channel_Parameters &chan)
 void PT1_GetRegisters(AYSongInfo &info, PT1_Channel_Parameters &chan, unsigned char &TempMixer)
 {
     unsigned char *module = info.module;
-    AbstractAudio *player = info.player;
     unsigned char j, b;
     if(chan.Enabled)
     {
@@ -190,7 +187,6 @@ void PT1_Play(AYSongInfo &info)
 {
     unsigned char *module = info.module;
     PT1_File *header = (PT1_File *)module;
-    AbstractAudio *player = info.player;
     unsigned char TempMixer;
     PT1.DelayCounter--;
     if(PT1.DelayCounter == 0)

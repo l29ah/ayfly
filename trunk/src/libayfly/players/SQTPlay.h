@@ -101,7 +101,6 @@ bool SQT_PreInit(AYSongInfo &info)
 void SQT_Init(AYSongInfo &info)
 {
     unsigned char *module = info.module;
-    AbstractAudio *player = info.player;
     SQT_File *header = (SQT_File *) module;
 
     if (!SQT_PreInit(info))
@@ -145,7 +144,6 @@ void SQT_Init(AYSongInfo &info)
 void SQT_Call_LC1D1(AYSongInfo &info, SQT_Channel_Parameters &chan, unsigned short &Ptr, unsigned char a)
 {
     unsigned char *module = info.module;
-    AbstractAudio *player = info.player;
     Ptr++;
     if (chan.b6ix0)
     {
@@ -360,7 +358,6 @@ void SQT_PatternInterpreter(AYSongInfo &info, SQT_Channel_Parameters &chan)
 void SQT_GetRegisters(AYSongInfo &info, SQT_Channel_Parameters &chan, unsigned char &TempMixer)
 {
     unsigned char *module = info.module;
-    AbstractAudio *player = info.player;
     unsigned char j, b0, b1;
     TempMixer = TempMixer << 1;
     if (chan.Enabled)
@@ -443,7 +440,6 @@ void SQT_GetRegisters(AYSongInfo &info, SQT_Channel_Parameters &chan, unsigned c
 void SQT_Play(AYSongInfo &info)
 {
     unsigned char *module = info.module;
-    AbstractAudio *player = info.player;
     SQT_File *header = (SQT_File *) module;
     unsigned char TempMixer;
 

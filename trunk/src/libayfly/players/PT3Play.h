@@ -121,7 +121,6 @@ void PT3_Init(AYSongInfo &info)
     unsigned char b;
     unsigned char *module = info.module;
     PT3_File *header = (PT3_File *)module;
-    AbstractAudio *player = info.player;
     if(info.data)
     {
         delete (PT3_SongInfo *)info.data;
@@ -213,7 +212,6 @@ void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
 {
     unsigned char *module = info.module;
     PT3_File *header = (PT3_File *)module;
-    AbstractAudio *player = info.player;
     bool quit;
     unsigned char flag9, flag8, flag5, flag4, flag3, flag2, flag1;
     unsigned char counter;
@@ -562,7 +560,6 @@ void PT3_Play(AYSongInfo &info)
 {
     unsigned char *module = info.module;
     PT3_File *header = (PT3_File *)module;
-    AbstractAudio *player = info.player;
     unsigned char TempMixer;
     char AddToEnv;
    
