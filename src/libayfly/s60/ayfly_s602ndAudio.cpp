@@ -24,8 +24,6 @@
 
 #include "ayfly.h"
 
-_LIT(KThreadName, "ayflyplaybackthread");
-
 /* preferred order of sample rate selection */
 static const TInt sampleRateConversionTable[] =
 { 44100, TMdaAudioDataSettings::ESampleRate44100Hz, 32000, TMdaAudioDataSettings::ESampleRate32000Hz, 22050, TMdaAudioDataSettings::ESampleRate22050Hz, 16000, TMdaAudioDataSettings::ESampleRate16000Hz, 11025, TMdaAudioDataSettings::ESampleRate11025Hz, 48000, TMdaAudioDataSettings::ESampleRate48000Hz, 8000, TMdaAudioDataSettings::ESampleRate8000Hz };
