@@ -193,7 +193,11 @@ struct AYSongInfo
 #include "windows/DXAudio.h"
 #endif
 #else
+#ifdef EKA2
 #include "s60/ayfly_s60Audio.h"
+#else
+#include "s60/ayfly_s602ndAudio.h"
+#endif
 #endif
 
 

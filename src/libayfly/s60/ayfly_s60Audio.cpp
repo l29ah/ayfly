@@ -476,13 +476,11 @@ void Cayfly_s60Sound::ConstructL()
     {
         User::After(10000);
     };
-    iPlayerThread.SetProcessPriority(EPriorityHigh);
 #ifdef EKA2
+    iPlayerThread.SetProcessPriority(EPriorityHigh);
     iPlayerThread.SetPriority(EPriorityRealTime);
-#else
-    iPlayerThread.SetPriority(EPriorityMore);
-#endif
     curthread.SetPriority(EPriorityLess);
+#endif
 
     iPlayerThread.Resume(); /* start the streaming thread */
 }

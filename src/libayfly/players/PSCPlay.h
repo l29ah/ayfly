@@ -50,7 +50,6 @@ void PSC_Init(AYSongInfo &info)
 {
     unsigned char *module = info.module;
     PSC_File *header = (PSC_File *) module;
-    AbstractAudio *player = info.player;
     if(info.data)
     {
         delete (ASC_SongInfo *) info.data;
@@ -109,7 +108,6 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
 {
     unsigned char *module = info.module;
     PSC_File *header = (PSC_File *) module;
-    AbstractAudio *player = info.player;
     bool quit;
     bool b1b, b2b, b3b, b4b, b5b, b6b, b7b;
     quit = b1b = b2b = b3b = b4b = b5b = b6b = b7b = false;
@@ -274,7 +272,6 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
 void PSC_GetRegisters(AYSongInfo &info, PSC_Channel_Parameters &chan, unsigned char &TempMixer)
 {
     unsigned char *module = info.module;
-    AbstractAudio *player = info.player;
     unsigned char j, b;
     if(chan.Enabled)
     {
@@ -393,7 +390,6 @@ void PSC_GetRegisters(AYSongInfo &info, PSC_Channel_Parameters &chan, unsigned c
 void PSC_Play(AYSongInfo &info)
 {
     unsigned char *module = info.module;
-    AbstractAudio *player = info.player;
     unsigned char TempMixer;
   
     if(--PSC.DelayCounter <= 0)

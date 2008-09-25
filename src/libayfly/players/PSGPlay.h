@@ -13,7 +13,6 @@ struct PSG_SongInfo
 
 void PSG_Init(AYSongInfo &info)
 {
-    AbstractAudio *player = info.player;
     if(info.data)
     {
         delete (PSG_SongInfo *)info.data;
@@ -32,7 +31,6 @@ void PSG_Init(AYSongInfo &info)
 void PSG_Play(AYSongInfo &info)
 {
     unsigned char *module = info.module;
-    AbstractAudio *player = info.player;
     PSG_SongInfo *psg_info = (PSG_SongInfo *)info.data;
     unsigned char b, b2;
     if(psg_info->PSG_Skip > 0)
