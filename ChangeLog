@@ -1,5 +1,14 @@
 Changelog:
 
+26.09.2008 - 0.0.18
+Added basic playlist to S60 version
+Updated z80ex library to latest version (thx 2 boo_boo)
+DirectX driver is more stable now. Windows versions now use it instead of WaveAPI.
++Improoved stability on Windows Vista
+Made mingw32 makefiles for building ayfly.dll library without Visual Studio (and even Windows)
+Added first version of library API documentation
+Fixed some bugs
+
 06.09.2008 - 0.0.17
 Added support for PT1 format
 PT3 player rewritten in c++

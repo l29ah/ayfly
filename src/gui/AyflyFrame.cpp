@@ -355,9 +355,6 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
         {
             if(timer.IsRunning())
                 timer.Stop();
-#ifdef WINDOWS
-            ay_sethwnd(currentSong->info, (HWND)GetHWND());
-#endif
 
             ay_startsong(currentSong->info);
 
@@ -983,8 +980,14 @@ bool AyflyFrame::OpenFile()
             posslider->SetRange(0, ay_getsonglength(currentSong->info));
             RecreateToolbar();
             ay_setchiptype(currentSong->info, chipTypeAY->GetValue() ? 0 : 1);
+            ay_setvolume(currentSong->info, 0, CalculateVolume(slidera->GetValue()), 0);
+            ay_setvolume(currentSong->info, 1, CalculateVolume(sliderb->GetValue()), 0);
+            ay_setvolume(currentSong->info, 2, CalculateVolume(sliderc->GetValue()), 0);
+            ay_setvolume(currentSong->info, 0, CalculateVolume(slidera->GetValue()), 1);
+            ay_setvolume(currentSong->info, 1, CalculateVolume(sliderb->GetValue()), 1);
+            ay_setvolume(currentSong->info, 2, CalculateVolume(sliderc->GetValue()), 1);
 #ifdef WINDOWS
-            //ay_sethwnd(currentSong->info, (HWND)GetHWND());
+            ay_sethwnd(currentSong->info, (HWND)GetHWND());
 #endif
             return true;
         }
