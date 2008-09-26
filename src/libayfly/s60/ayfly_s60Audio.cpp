@@ -23,6 +23,7 @@
  */
 
 #include "ayfly.h"
+#include "eikenv.h"
 
 _LIT(KThreadName, "ayflyplaybackthread");
 

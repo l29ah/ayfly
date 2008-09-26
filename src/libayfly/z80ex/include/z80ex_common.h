@@ -16,6 +16,8 @@
 #define LIB_EXPORT
 #endif
 
+#define USE_TIMINGS 0
+
 #if defined(__SYMBIAN32__)
 typedef unsigned char Z80EX_BYTE;
 typedef signed char Z80EX_SIGNED_BYTE;

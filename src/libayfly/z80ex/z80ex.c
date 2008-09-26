@@ -43,10 +43,12 @@ LIB_EXPORT int z80ex_step(Z80EX_CONTEXT *cpu)
 	cpu->op_tstate=0;
 	
 	opcode=READ_OP_M1(); /*fetch opcode*/
+#if USE_TIUSE_TIMINGS
 	if(cpu->int_vector_req)
 	{
 		TSTATES(2); /*interrupt eats two extra wait-states*/
 	}
+#endif
 	R++; /*R increased by one on every first M1 cycle*/
 
 	T_WAIT_UNTIL(4); /*M1 cycle eats min 4 t-states*/
