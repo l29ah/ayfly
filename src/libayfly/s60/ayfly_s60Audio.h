@@ -85,6 +85,7 @@ private:
     static TInt MixLoop(TAny *t);
     CIdle *iIdleCallback;
     static TInt StopTCallback(TAny *aPtr);
+    bool stopping_callback;
 };
 
 //control class
