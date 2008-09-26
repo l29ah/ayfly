@@ -16,10 +16,10 @@ TARGET			ayfly_s60.exe
 TARGETTYPE		exe
 UID		  0x100039CE _UID3
 
-OPTION GCCE   -O3 --fast-math
+//OPTION GCCE   -O3 --fast-math
 
 
-COMPRESSTARGET
+//COMPRESSTARGET
 
 EPOCHEAPSIZE  100000 5000000
 EPOCSTACKSIZE 65536
@@ -63,6 +63,7 @@ LIBRARY		   euser.lib apparc.lib cone.lib eikcore.lib eikcoctl.lib
 LIBRARY        avkon.lib fbscli.lib eikdlg.lib efsrv.lib estor.lib
 LIBRARY        commondialogs.lib mediaclientaudiostream.lib bafl.lib
 LIBRARY	       commonengine.lib egul.lib eikctl.lib platformenv.lib estlib.lib
+LIBRARY        mmfcontrollerframework.lib form.lib ecom.lib 
 
 LANG SC
 
@@ -70,4 +71,3 @@ VENDORID	  	  0
 CAPABILITY	  	  ReadUserData
 // End of File
 
-SRCDBG

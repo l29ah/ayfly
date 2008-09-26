@@ -58,6 +58,8 @@ void Cayfly_s60Sound::MaoscOpenComplete(TInt aError)
         iState = EStopped;
         return;
     }
+    
+    stopping_callback = false;
 
     TInt mix_freq = 0;
 
@@ -200,7 +202,9 @@ void Cayfly_s60Sound::MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer)
     }
 
     if(songinfo->stopping)
-    {        
+    {
+    	songinfo->stopping = false;
+    	stopping_callback = true;
         iState = EStopping;
         iStream->Stop();
         return;
@@ -235,10 +239,10 @@ void Cayfly_s60Sound::MaoscBufferCopied(TInt aError, const TDesC8 &aBuffer)
 
 void Cayfly_s60Sound::MaoscPlayComplete(TInt aError)
 {
-    iState = EStopped;
-    if(songinfo->stopping)
+    iState = EStopped;    
+    if(stopping_callback)
     {
-        songinfo->stopping = false; 
+    	stopping_callback = false; 
         iIdleCallback = CIdle::NewL(CActive::EPriorityIdle);
         iIdleCallback->Start(TCallBack(Cayfly_s60Sound::StopTCallback, this));
         return;
@@ -346,7 +350,7 @@ void Cayfly_s60Sound::SetSongInfo(AYSongInfo *info)
 
 TInt Cayfly_s60Sound::StopTCallback(TAny *aPtr)
 {
-    Cayfly_s60Sound *me = (Cayfly_s60Sound *)aPtr;
+    Cayfly_s60Sound *me = (Cayfly_s60Sound *)aPtr;    
     if(me->songinfo->s_callback)
         me->songinfo->s_callback(me->songinfo->s_callback_arg);
     return EFalse;
@@ -460,6 +464,8 @@ void Cayfly_s60Sound::ConstructL()
     iStream = NULL;
     iState = EStopped;
     stereo = true;
+    
+    songinfo = 0;
 
     /*********************************************************************************
      Priority scheme:
@@ -554,5 +560,6 @@ void Cayfly_s60Audio::SetSongInfo(AYSongInfo *info)
     AbstractAudio::SetSongInfo(info);    
     if(sound)
         sound->SetSongInfo(songinfo);
+    songinfo->stopping = false;
 }
 
