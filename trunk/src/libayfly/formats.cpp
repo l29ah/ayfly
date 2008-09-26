@@ -626,9 +626,7 @@ void ay_sys_rewindsong(AYSongInfo &info, long new_position)
 
     if(info.timeElapsed < timeCurrent)
     {
-        timeCurrent = 0;
-        /*if (!ay_sys_readfromfile(info))
-         return;*/
+        timeCurrent = 0;    
         ay_resetsong(&info);
     }
 
