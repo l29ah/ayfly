@@ -223,9 +223,10 @@ void Cayfly_s60PlayListView::StartPlayer()
 }
 
 void Cayfly_s60PlayListView::StopPlayer()
-{
-    if(currentSong)
+{    
+    if(currentSong)        
     {
+        ay_stopsong(currentSong);
         ay_closesong(&currentSong);
     }
 }
@@ -250,6 +251,7 @@ void Cayfly_s60PlayListView::NextSong()
 {
     if(currentSong)
     {
+        ay_stopsong(currentSong);
         ay_closesong(&currentSong);
         currentIndex++;
         CTextListBoxModel* model = iListBox->Model();

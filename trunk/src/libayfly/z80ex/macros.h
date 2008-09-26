@@ -119,6 +119,7 @@
 }
 
 /*wait until end of opcode-tstate given (to be used on opcode execution)*/
+#if USE_TIMINGS
 #define T_WAIT_UNTIL(t_state) \
 { \
 	int nn;\
@@ -128,9 +129,12 @@
 		if(cpu->tstate_cb != NULL) cpu->tstate_cb(cpu, cpu->tstate_cb_user_data); \
 	}\
 }
-
+#else
+#define T_WAIT_UNTIL(t_state)
+#endif
 /*spend <amount> t-states (not affecting opcode-tstate counter,
 for using outside of certain opcode execution)*/
+#if USE_TIMINGS
 #define TSTATES(amount) \
 {\
 	int nn;\
@@ -140,7 +144,9 @@ for using outside of certain opcode execution)*/
 		if(cpu->tstate_cb != NULL) cpu->tstate_cb(cpu, cpu->tstate_cb_user_data); \
 	}\
 }
-
+#else
+#define TSTATES(amount)
+#endif
 /* instructions */
 
 #define AND(value)\
