@@ -38,7 +38,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR cmdLine, int nS
     clex.hIconSm = 0;
     clex.hInstance = hInstance;
     clex.hbrBackground = (HBRUSH)(COLOR_WINDOW);
-    clex.lpfnWndProc = 0; //!!!
+    clex.lpfnWndProc = AyflyWindowProc;
     clex.lpszClassName = TXT("ayfly class");
     clex.lpszMenuName = 0;    
     clex.style = CS_HREDRAW | CS_VREDRAW;
