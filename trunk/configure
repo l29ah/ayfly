@@ -3907,6 +3907,9 @@ echo "$as_me: error: wxWidgets libraries cannot be found...!" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
+CFLAGS="$CFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1"
+CXXFLAGS="$CXXFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1"
+
 ac_config_files="$ac_config_files Makefile src/Makefile src/gui/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile"
 
 cat >confcache <<\_ACEOF
