@@ -73,6 +73,8 @@
 #    include <mdaaudiooutputstream.h>
 #    endif
 
+/* this turns off full timings support in z80ex */
+#define Z80EX_OPSTEP_FAST_AND_ROUGH 1 
 
 #    include "z80ex.h"
 #    ifdef WINDOWS
