@@ -6,7 +6,7 @@
 using namespace std;
 
 //called at the end of song/start of loop
-void song_end(void *songinfo);
+bool song_end(void *songinfo);
 //simple end flag
 bool end;
 
@@ -32,7 +32,7 @@ int _tmain(int argc, TCHAR **argv)
         cout << "Playing song " << filename << ".." << endl;
         cout << "Song length = " << (ay_getsonglength(songinfo) / 50) << " seconds.." << endl;
         end = false;
-        ay_setcallback(songinfo, song_end, songinfo);
+        ay_setelapsedcallback(songinfo, song_end, songinfo);
         //important!! our window handle must be set BEFORE playback start!
         HWND hWnd = GetConsoleWindow();
         ay_sethwnd(songinfo, hWnd);
@@ -53,8 +53,9 @@ int _tmain(int argc, TCHAR **argv)
 
 }
 
-void song_end(void *songinfo)
+bool song_end(void *songinfo)
 {
     //just mark the end of song now..
     end = true;
+	return end;
 }

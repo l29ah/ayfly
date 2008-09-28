@@ -115,7 +115,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\src\libayfly"
+				AdditionalIncludeDirectories="..\..\..\src\libayfly;..\..\..\src\libayfly\z80ex;..\..\..\src\libayfly\z80ex\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
