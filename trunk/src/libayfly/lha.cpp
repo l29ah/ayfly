@@ -132,7 +132,7 @@ bool MakeTable(lha_params &params, int nChar, unsigned char *BitLen, int TableBi
     for(i = 1; i <= 16; i++)
         Count[i] = 0;
     for(i = 0; i < nChar; i++)
-        Count[(*BitLen[i])]++;
+        Count[BitLen[i]]++;
     Start[1] = 0;
     for(i = 1; i <= 16; i++)
         Start[i + 1] = Start[i] + (Count[i] << (16 - i));
@@ -156,7 +156,7 @@ bool MakeTable(lha_params &params, int nChar, unsigned char *BitLen, int TableBi
         k = 1 << TableBits;
         while(i != k)
         {
-            *Table[i] = 0;
+            Table[i] = 0;
             i++;
         }
     }
@@ -164,7 +164,7 @@ bool MakeTable(lha_params &params, int nChar, unsigned char *BitLen, int TableBi
     Mask = 1 << (15 - TableBits);
     for(Ch = 0; Ch < nChar; Ch++)
     {
-        Len = *BitLen[Ch];
+        Len = BitLen[Ch];
         if(Len == 0)
             continue;
         k = Start[Len];
@@ -172,31 +172,176 @@ bool MakeTable(lha_params &params, int nChar, unsigned char *BitLen, int TableBi
         if(Len <= TableBits)
         {
             for(i = k; i < NextCode; i++)
-                *Table[i] = Ch;
+                Table[i] = Ch;
         }
         else
         {
-            p = &(*Table[k >> JutBits]);
+            p = &(Table[k >> JutBits]);
             i = Len - TableBits;
             while(i != 0)
             {
-                if(*p[0] == 0)
+                if(p[0] == 0)
                 {
                     params.Right[Avail] = 0;
                     params.Left[Avail] = 0;
-                    *p[0] = Avail;
+                    p[0] = Avail;
                     Avail++;
                 }
                 if((k & Mask) != 0)
-                    p = &(params.Right[*p[0]]);
+                    p = &(params.Right[p[0]]);
                 else
-                    p = &(params.Left[*p[0]]);
+                    p = &(params.Left[p[0]]);
                 k = k << 1;
                 i--;
             }
-            *p[0] = Ch;
+            p[0] = Ch;
         }
         Start[Len] = NextCode;
     }
+}
+
+void ReadPtLen(lha_params &params, int Nn, int nBit, int Ispecial)
+{
+    int i, c, n;
+    unsigned short Mask;
+    n = GetBits(params, nBit);
+    if(n == 0)
+    {
+        c = GetBits(params, nBit);
+        for(i = 0; i < Nn; i++)
+            params.PtLen[i] = 0;
+        for(i = 0; i <= 255; i++)
+            params.PtTable[i] = c;
+    }
+    else
+    {
+        i = 0;
+        while(i < n)
+        {
+            c = params.BitBuf >> (BitBufSiz - 3);
+            if(c == 7)
+            {
+                Mask = 1 << (BitBufSiz - 4);
+                while((Mask & params.BitBuf) != 0)
+                {
+                    Mask = Mask >> 1;
+                    c++;
+                }
+            }
+            if(c < 7)
+                FillBuf(params, 3);
+            else
+                FillBuf(params, c - 3);
+            params.PtLen[i] = c;
+            i++;
+            if(i == Ispecial)
+            {
+                c = GetBits(params, 2) - 1;
+                while(c >= 0)
+                {
+                    params.PtLen[i] = 0;
+                    i++;
+                    c--;
+                }
+            }
+        }
+        while(i < Nn)
+        {
+            params.PtLen[i] = 0;
+            i++;
+        }
+        MakeTable(params, Nn, params.PtLen, 8, params.PtTable);
+    }
+}
+
+void ReadCLen(lha_params &params)
+{
+    int i, c, n;
+    unsigned short Mask;
+    n = GetBits(params, CBit);
+    if(n == 0)
+    {
+        c = GetBits(params, CBit);
+        for(i = 0; i < Nc; i++)
+            params.CLen[i] = 0;
+        for(i = 0; i <= 4095; i++)
+            params.CTable[i] = c;
+    }
+    else
+    {
+        i = 0;
+        while(i < n)
+        {
+            c = params.PtTable[params.BitBuf >> (BitBufSiz - 8)];
+            if(c >= Nt)
+            {
+                Mask = 1 << (BitBufSiz - 9);
+                do
+                {
+                    if((params.BitBuf & Mask) != 0)
+                        c = params.Right[c];
+                    else
+                        c = params.Left[c];
+                    Mask = Mask >> 1;
+                }
+                while(c >= Nt);
+            }
+            FillBuf(params, params.PtLen[c]);
+            if(c <= 2)
+            {
+                if(c == 1)
+                    c = 2 + GetBits(params, 4);
+                else if(c == 2)
+                    c = 19 + GetBits(params, CBit);
+                while(c >= 0)
+                {
+                    params.CLen[i] = 0;
+                    i++;
+                    c--;
+                }
+            }
+            else
+            {
+                params.CLen[i] = c - 2;
+                i++;
+            }
+        }
+        while(i < Nc)
+        {
+            params.CLen[i] = 0;
+            i++;
+        }
+        MakeTable(params, Nc, params.CLen, 12, params.CTable);
+    }
+}
+
+unsigned short DecodeC(lha_params &params)
+{
+    unsigned short j, Mask, DecodeC;
+    if(params.BlockSize == 0)
+    {
+        params.BlockSize = GetBits(params, 16);
+        ReadPtLen(params, Nt, TBit, 3);
+        ReadCLen(params);
+        ReadPtLen(params, Np, PBit, -1);
+    }
+    params.BlockSize--;
+    j = params.CTable[params.BitBuf >> (BitBufSiz - 12)];
+    if(j >= Nc)
+    {
+        Mask = 1 << (BitBufSiz - 13);
+        do
+        {
+            if((params.BitBuf & Mask) != 0)
+                j = params.Right[j];
+            else
+                j = params.Left[j];
+            Mask = Mask >> 1;
+        }
+        while(j >= Nc);
+    }
+    FillBuf(params, params.CLen[j]);
+    DecodeC = j;
+    return DecodeC;
 }
 
