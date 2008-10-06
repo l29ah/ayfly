@@ -34,6 +34,19 @@ void writeMemory(Z80EX_CONTEXT *cpu, Z80EX_WORD addr, Z80EX_BYTE value, void *us
 }
 Z80EX_BYTE readPort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, void *user_data)
 {
+    AYSongInfo *info = (AYSongInfo *)user_data;
+    if ((port == 0xfffd) || ((port & 0xc000) == 0xc000)) //ay control port
+    {
+        if(info->ay_reg == 16)
+        {
+            if(info->chip_type == 0)
+                return 0x10;
+            else
+                return 0xff;
+        }
+        else
+            return info->ay8910 [0].ayRead(info->ay_reg);
+    }
     unsigned char *io = ((AYSongInfo *)user_data)->z80IO;
     return io [port];
 }

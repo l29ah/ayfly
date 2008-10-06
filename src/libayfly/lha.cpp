@@ -80,7 +80,7 @@ void BWrite(lha_params &params, unsigned char *P, int N)
     int T;
     unsigned char *Scan;
     Scan = P;
-    for(T = 1; T < N; T++)
+    for(T = 1; T <= N; T++)
     {
         *params.OutPtr = *Scan;
         Scan++;
@@ -117,81 +117,86 @@ unsigned short GetBits(lha_params &params, int n)
 
 void InitGetBits(lha_params &params)
 {
-  params.BitBuf = 0;
-  params.SubBitBuf = 0;
-  params.BitCount = 0;
-  FillBuf (params, BitBufSiz);
+    params.BitBuf = 0;
+    params.SubBitBuf = 0;
+    params.BitCount = 0;
+    FillBuf(params, BitBufSiz);
 }
-/*
-bool MakeTable (lha_params &params, int nChar, unsigned char *BitLen, int TableBits, unsigned short *Table)
+
+bool MakeTable(lha_params &params, int nChar, unsigned char *BitLen, int TableBits, unsigned short *Table)
 {
-  unsigned short Count [16], Weight [16];
-  unsigned short Start [17];
-  unsigned short *p ;
-  int i, k, Len, Ch, JutBits, Avail, NextCode, Mask;
-  for(i = 0; i < 16; i++)
-      Count [i] = 0;
-  for(i = 0; i < nChar; i++)
-      Count [(*BitLen [i]) - 1]++;
-  Start [0] = 0;
-  for(i = 0; i < 16; i++)
-    Start [i + 1] = Start [i] + (Count [i] << (15 - i));
-  if(Start [16] != 0)
-      return false;
-  JutBits = 16 - TableBits;
-  for(i = 0; i < TableBits; i++)
-  {
-    Start [i] = Start [i] >> JutBits;
-    Weight [i] = 1 << (TableBits - 1 - i);
-  }
-  i = TableBits + 1;
-  while(i <= 16)
-  {
-    Weight [i] = 1 << (16 - i);
-    i++;
-  }
-  i = Start [TableBits] >> JutBits;
-  if(i != 0)
-  {
-    k = 1 << TableBits;
-    while(i != k)
+    unsigned short Count[17], Weight[17];
+    unsigned short Start[18];
+    unsigned short *p;
+    int i, k, Len, Ch, JutBits, Avail, NextCode, Mask;
+    for(i = 1; i <= 16; i++)
+        Count[i] = 0;
+    for(i = 0; i < nChar; i++)
+        Count[(*BitLen[i])]++;
+    Start[1] = 0;
+    for(i = 1; i <= 16; i++)
+        Start[i + 1] = Start[i] + (Count[i] << (16 - i));
+    if(Start[17] != 0)
+        return false;
+    JutBits = 16 - TableBits;
+    for(i = 1; i <= TableBits; i++)
     {
-      *Table [i - 1] = 0;
-      i++;
+        Start[i] = Start[i] >> JutBits;
+        Weight[i] = 1 << (TableBits - i);
     }
-  }
-  Avail = nChar;
-  Mask = 1 << (15 - TableBits);
-  For Ch := 0 To Pred (nChar) Do
-  Begin
-    Len := BitLen^ [Ch];
-    If Len = 0 Then Continue;
-    k := Start [Len];
-    NextCode := k + Weight [Len];
-    If Len <= TableBits Then
-    Begin
-      For i := k To Pred (NextCode) Do Table^ [i] := Ch;
-    End Else
-    Begin
-      p := Addr (Table^ [k Shr JutBits]);
-      i := Len - TableBits;
-      While i <> 0 Do
-      Begin
-        If p^ [0] = 0 Then
-        Begin
-          Right [Avail] := 0;
-          Left [Avail] := 0;
-          p^ [0] := Avail;
-          Inc (Avail);
-        End;
-        If (k And Mask) <> 0 Then p := Addr (Right [p^ [0]])
-          Else p := Addr (Left [p^ [0]]);
-        k := k Shl 1;
-        Dec (i);
-      End;
-      p^ [0] := Ch;
-    End;
-    Start [Len] := NextCode;
-  End;
+    i = TableBits + 1;
+    while(i <= 16)
+    {
+        Weight[i] = 1 << (16 - i);
+        i++;
+    }
+    i = Start[TableBits + 1] >> JutBits;
+    if(i != 0)
+    {
+        k = 1 << TableBits;
+        while(i != k)
+        {
+            *Table[i] = 0;
+            i++;
+        }
+    }
+    Avail = nChar;
+    Mask = 1 << (15 - TableBits);
+    for(Ch = 0; Ch < nChar; Ch++)
+    {
+        Len = *BitLen[Ch];
+        if(Len == 0)
+            continue;
+        k = Start[Len];
+        NextCode = k + Weight[Len];
+        if(Len <= TableBits)
+        {
+            for(i = k; i < NextCode; i++)
+                *Table[i] = Ch;
+        }
+        else
+        {
+            p = &(*Table[k >> JutBits]);
+            i = Len - TableBits;
+            while(i != 0)
+            {
+                if(*p[0] == 0)
+                {
+                    params.Right[Avail] = 0;
+                    params.Left[Avail] = 0;
+                    *p[0] = Avail;
+                    Avail++;
+                }
+                if((k & Mask) != 0)
+                    p = &(params.Right[*p[0]]);
+                else
+                    p = &(params.Left[*p[0]]);
+                k = k << 1;
+                i--;
+            }
+            *p[0] = Ch;
+        }
+        Start[Len] = NextCode;
+    }
 }
-*/
+
