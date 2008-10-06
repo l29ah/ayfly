@@ -168,6 +168,7 @@ struct AYSongInfo
     unsigned char *file_data; /* z80 memory or raw song data */
     unsigned char z80IO [65536]; /* z80 ports */
     unsigned long file_len; /* file length */
+    unsigned long module_len; /* file length */
     AbstractAudio *player; /* player for this song */
     Z80EX_CONTEXT *z80ctx; /* z80 execution context */
     unsigned long timeElapsed; /* playing time in tacts */
@@ -218,6 +219,7 @@ bool ay_sys_format_supported(AY_TXT_TYPE filePath);
 #else
 bool ay_sys_format_supported(const TFileName filePath);
 #endif
+void ay_sys_decodelha(AYSongInfo &info);
 
 #ifdef __cplusplus
 extern "C" {

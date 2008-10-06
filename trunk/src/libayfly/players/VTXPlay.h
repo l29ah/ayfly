@@ -13,7 +13,7 @@ struct VTX_File
 #define VTX_Loop (header->Loop0 | (header->Loop1 << 8))
 #define VTX_ChipFrq (header->ChipFrq0 | (header->ChipFrq1 << 8))
 #define VTX_Year (header->Year0 | (header->Year1 << 8))
-#define VTX_UnpackSize (header->UnpackSize | (header->UnpackSize1 << 8) | (header->UnpackSize2 << 16) | (header->UnpackSize3 << 24))
+#define VTX_UnpackSize (header->UnpackSize0 | (header->UnpackSize1 << 8) | (header->UnpackSize2 << 16) | (header->UnpackSize3 << 24))
 
 struct VTX_SongInfo
 {
@@ -25,25 +25,6 @@ void VTX_Init(AYSongInfo &info)
 {
     unsigned char *module = info.module;
     VTX_File *header = (VTX_File *) module;
-    AbstractAudio *player = info.player;
-    int i,j,k;
-    intLooping_VBL,TimLen;
-    int ChipFrq,PlrFrq,ChanMode;
-    intSter:integer;
-    signed char Ch;
-    unsigned short Wrd;
-    unsigned long DWrd;
-    int FormSpec;
-    int orisize;
-    orisize = 0;
-    Looping_VBL = -1;
-    TimLen = 0;
-    ChipFrq = -1;
-    PlrFrq = -1;
-    ChanMode = -1;
-    ChType = 0;
-    Ster = 0;
-    FormSpec = -1;
     if(info.data)
     {
         delete (VTX_SongInfo *) info.data;
@@ -56,5 +37,36 @@ void VTX_Init(AYSongInfo &info)
     {
         return;
     }
+    if(info.module != 0)
+    {
+        delete [] info.module;
+        info.module_len = VTX_UnpackSize;
+        info.module = new unsigned char [info.module_len];
+        memset(info.module, 0, sizeof(info.module_len));
+    }
+    ay_sys_decodelha(info);
+    info.module = 0;
+    
+}
 
+void VTX_Play(AYSongInfo &info)
+{
+}
+
+void VTX_Cleanup(AYSongInfo &info)
+{
+    if(info.data)
+    {
+        delete (VTX_SongInfo *) info.data;
+        info.data = 0;
+    }
+}
+
+void VTX_GetInfo(AYSongInfo &info)
+{
+    unsigned char *module = info.file_data;
+    VTX_File *header = (VTX_File *) module;
+    info.Length = VTX_UnpackSize / 14;
+    info.Loop = VTX_Loop;
+    
 }

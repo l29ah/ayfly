@@ -34,6 +34,7 @@ AYSongInfo *ay_sys_getnewinfo()
     info->cleanup_proc = 0;
     info->data = 0;
     info->file_len = 0;
+    info->module_len = 0;
     info->z80ctx = 0;
     info->timeElapsed = 0;
     info->e_callback = 0;
@@ -137,6 +138,7 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFi
         return 0;
     info->FilePath = type;
     info->file_len = size;
+    info->module_len = size;
     unsigned long to_allocate = size < 65536 ? 65536 : size;
     info->file_data = new unsigned char[to_allocate];
     if(!info->file_data)
