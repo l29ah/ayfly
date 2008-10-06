@@ -45,8 +45,8 @@ const unsigned long BufSize = 1 << BufBit;
 
 struct lha_params
 {
-    const unsigned char *file_data;
-    const unsigned long file_len;
+    unsigned char *file_data;
+    unsigned long file_len;
     unsigned long file_offset;
     unsigned long OrigSize, CompSize;
     unsigned char *OutPtr;
@@ -60,6 +60,8 @@ struct lha_params
     unsigned char PtLen[Npt];
     unsigned short CTable[4096];
     unsigned char CLen[Nc];
+    unsigned short Decode_I;
+    short Decode_J;
 };
 
 unsigned char GetC(lha_params &params)
@@ -345,3 +347,100 @@ unsigned short DecodeC(lha_params &params)
     return DecodeC;
 }
 
+unsigned short DecodeP(lha_params &params)
+{
+    unsigned short j, Mask, DecodeP;
+    j = params.PtTable[params.BitBuf >> (BitBufSiz - 8)];
+    if(j >= Np)
+    {
+        Mask = 1 << (BitBufSiz - 9);
+        do
+        {
+            if((params.BitBuf & Mask) != 0)
+                j = params.Right[j];
+            else
+                j = params.Left[j];
+            Mask = Mask >> 1;
+        }
+        while(j >= Np);
+    }
+    FillBuf(params, params.PtLen[j]);
+    if(j != 0)
+    {
+        j--;
+        j = (1 << j) + GetBits(params, j);
+    }
+    DecodeP = j;
+    return DecodeP;
+}
+
+void DecodeBuffer(lha_params &params, unsigned short Count, unsigned char *Buffer)
+{
+    unsigned short c, r;
+    r = 0;
+    params.Decode_J--;
+    while(params.Decode_J >= 0)
+    {
+        Buffer[r] = Buffer[params.Decode_I];
+        params.Decode_I = (params.Decode_I + 1) & (DicSiz - 1);
+        r++;
+        if(r == Count)
+            return;
+        params.Decode_J--;
+    }
+    while(true)
+    {
+        c = DecodeC(params);
+        if(c <= UCharMax)
+        {
+            Buffer[r] = c;
+            r++;
+            if(r == Count)
+                return;
+        }
+        else
+        {
+            params.Decode_J = c - (UCharMax + 1 - ThResHold);
+            params.Decode_I = (r - DecodeP(params) - 1) & (DicSiz - 1);
+            params.Decode_J--;
+            while(params.Decode_J >= 0)
+            {
+                Buffer[r] = Buffer[params.Decode_I];
+                params.Decode_I = (params.Decode_I + 1) & (DicSiz - 1);
+                r++;
+                if(r == Count)
+                    return;
+                params.Decode_J--;
+            }
+        }
+    }
+}
+
+void ay_sys_decodelha(AYSongInfo &info)
+{
+  unsigned char p [DicSiz];
+  int l;
+  unsigned short a;
+  lha_params params;
+  memset(&params, 0, sizeof(lha_params));
+  params.OutPtr = info.module;
+  params.file_data = info.file_data;
+  params.file_len = info.file_len;  
+  params.CompSize = info.file_len;
+  params.OrigSize = info.module_len;
+  params.BufPtr = 0;
+  InitGetBits(params);
+  params.BlockSize = 0;
+  params.Decode_J = 0;
+  l = params.OrigSize;
+  while(l > 0)
+  {
+    if(l > DicSiz)
+        a = DicSiz;
+    else 
+        a = l;
+    DecodeBuffer (params, a, p);
+    BWrite (params, p, a);
+    l -= a;
+  }
+}
