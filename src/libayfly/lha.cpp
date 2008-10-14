@@ -37,7 +37,7 @@ const unsigned long PBit = 4;
 const unsigned long TBit = 5;
 const unsigned long Npt = Nt;
 const unsigned long Nul = 0;
-const unsigned long MaxHashVal = (3 * DicSiz + ((DicSiz << 9) + 1) * UCharMax);
+const unsigned long MaxHashVal = (3 * DicSiz + ((DicSiz >> 9) + 1) * UCharMax);
 const unsigned long WinBit = 14;
 const unsigned long WindowSize = 1 << WinBit;
 const unsigned long BufBit = 13;
@@ -53,7 +53,7 @@ struct lha_params
     unsigned short BitBuf;
     unsigned short SubBitBuf, BitCount;
     unsigned char Buffer[BufSize];
-    unsigned short BufPtr;
+    unsigned long BufPtr;
     unsigned short BlockSize;
     unsigned short Left[2 * Nc], Right[2 * Nc];
     unsigned short PtTable[256];
@@ -66,15 +66,9 @@ struct lha_params
 
 unsigned char GetC(lha_params &params)
 {
-    unsigned long l;
-    if(params.BufPtr == 0)
-    {
-        unsigned long sz = (BufSize + params.file_offset) >= params.file_len ? (params.file_len - params.file_offset) : BufSize;
-        memcpy(params.Buffer, params.file_data + params.file_offset, sz);
-        params.file_offset += sz;
-    }
-    params.BufPtr = (params.BufPtr + 1) % (BufSize - 1);
-    return params.Buffer[params.BufPtr];
+    unsigned char res = params.file_data [params.BufPtr];
+    params.BufPtr++;
+    return res;
 }
 
 void BWrite(lha_params &params, unsigned char *P, int N)
@@ -112,9 +106,9 @@ void FillBuf(lha_params &params, int n)
 
 unsigned short GetBits(lha_params &params, int n)
 {
-    unsigned short GetBits = params.BitBuf >> (BitBufSiz - n);
+    unsigned short res = params.BitBuf >> (BitBufSiz - n);
     FillBuf(params, n);
-    return GetBits;
+    return res;
 }
 
 void InitGetBits(lha_params &params)
@@ -139,7 +133,7 @@ bool MakeTable(lha_params &params, int nChar, unsigned char *BitLen, int TableBi
     for(i = 1; i <= 16; i++)
         Start[i + 1] = Start[i] + (Count[i] << (16 - i));
     if(Start[17] != 0)
-        return false;
+        exit(1);
     JutBits = 16 - TableBits;
     for(i = 1; i <= TableBits; i++)
     {
@@ -233,7 +227,8 @@ void ReadPtLen(lha_params &params, int Nn, int nBit, int Ispecial)
             if(c < 7)
                 FillBuf(params, 3);
             else
-                FillBuf(params, c - 3);
+                FillBuf(params, (unsigned char)(c - 3));                
+                
             params.PtLen[i] = c;
             i++;
             if(i == Ispecial)
@@ -343,8 +338,7 @@ unsigned short DecodeC(lha_params &params)
         while(j >= Nc);
     }
     FillBuf(params, params.CLen[j]);
-    DecodeC = j;
-    return DecodeC;
+    return j;
 }
 
 unsigned short DecodeP(lha_params &params)
@@ -370,8 +364,7 @@ unsigned short DecodeP(lha_params &params)
         j--;
         j = (1 << j) + GetBits(params, j);
     }
-    DecodeP = j;
-    return DecodeP;
+    return j;
 }
 
 void DecodeBuffer(lha_params &params, unsigned short Count, unsigned char *Buffer)
@@ -416,7 +409,7 @@ void DecodeBuffer(lha_params &params, unsigned short Count, unsigned char *Buffe
     }
 }
 
-void ay_sys_decodelha(AYSongInfo &info)
+void ay_sys_decodelha(AYSongInfo &info, unsigned long offset)
 {
   unsigned char p [DicSiz];
   int l;
@@ -424,9 +417,9 @@ void ay_sys_decodelha(AYSongInfo &info)
   lha_params params;
   memset(&params, 0, sizeof(lha_params));
   params.OutPtr = info.module;
-  params.file_data = info.file_data;
-  params.file_len = info.file_len;  
-  params.CompSize = info.file_len;
+  params.file_data = info.file_data + offset;
+  params.file_len = info.file_len;
+  params.CompSize = info.file_len - offset;
   params.OrigSize = info.module_len;
   params.BufPtr = 0;
   InitGetBits(params);
