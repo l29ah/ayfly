@@ -32,6 +32,9 @@ public:
     CayflyString(const CayflyString &str);
     CayflyString& operator =(const CayflyString &str);
     CayflyString& operator =(const AY_CHAR *str);
+#ifdef UNICODE
+    CayflyString& operator =(const char *str);
+#endif
     size_t length();
     const AY_CHAR *c_str() const;
     void toLower();

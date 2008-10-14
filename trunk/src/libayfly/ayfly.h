@@ -152,10 +152,16 @@ struct AYSongInfo
     AY_TXT_TYPE Author; /* Song author */
     AY_TXT_TYPE Name; /* Song name */
     AY_TXT_TYPE FilePath; /* Song file path */
+    AY_TXT_TYPE PrgName; /* Program name */
+    AY_TXT_TYPE TrackName; /* Track name */
+    AY_TXT_TYPE CompName; /* Compiler name */
 #else
-    TFileName Author;
-    TFileName Name;
-    TFileName FilePath;
+    TFileName Author; /* Song author */
+    TFileName Name; /* Song name */
+    TFileName FilePath; /* Song file path */
+    TFileName PrgName; /* Program name */
+    TFileName TrackName; /* Track name */
+    AY_TXT_TYPE CompName; /* Compiler name */
 #endif
     unsigned long Length; /* Song length in seconds */
     unsigned long Loop; /* Loop start position */
@@ -219,7 +225,7 @@ bool ay_sys_format_supported(AY_TXT_TYPE filePath);
 #else
 bool ay_sys_format_supported(const TFileName filePath);
 #endif
-void ay_sys_decodelha(AYSongInfo &info);
+void ay_sys_decodelha(AYSongInfo &info, unsigned long offset);
 
 #ifdef __cplusplus
 extern "C" {

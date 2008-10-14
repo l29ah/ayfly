@@ -76,10 +76,45 @@ CayflyString& CayflyString::operator =(const AY_CHAR *str)
     }
     size_t len = ayfly_strlen(str);
     m_str = new AY_CHAR [len + 1];
-    memcpy(m_str, str, len * sizeof(AY_CHAR));
+    memcpy(m_str, str, len * sizeof(AY_CHAR));    
     m_str[len] = 0;
     return *this;
 }
+
+#ifdef UNICODE
+CayflyString& CayflyString::operator =(const char *str)
+{
+    if(m_str)
+    {
+        delete[] m_str;
+        m_str = 0;
+    }
+    size_t len = strlen(str);
+    m_str = new AY_CHAR [len + 1];
+    mbstate_t mbstate;
+    ::memset((void*)&mbstate, 0, sizeof(mbstate));
+    const char *strc = str;
+    wchar_t *wstrc = m_str;
+    size_t lenc = 0;
+    while(lenc < len)
+    {   
+        size_t conv_res = mbrtowc(wstrc, strc, 1, &mbstate);
+        switch(conv_res)
+        {
+            case 0:
+                break;
+            default:
+                lenc++;
+                strc++;
+                wstrc++;
+                break;
+        }
+    }
+    m_str [lenc] = 0;
+    return *this;
+                         
+}
+#endif
 
 size_t CayflyString::length()
 {

@@ -114,8 +114,6 @@ struct bindings default_bindings[] =
 AyflyFrame::AyflyFrame(const wxString &title) :
     wxFrame(NULL, wxID_ANY, title), timer(this, TIMER_ID)
 {
-    SetBackgroundStyle(wxBG_STYLE_COLOUR);
-    SetBackgroundColour(wxColour(0xef, 0xeb, 0xe7));
     SetIcon(wxIcon(Icon_xpm));
     CreateStatusBar(2);
     SetStatusText(wxT("Welcome to Ayfly!"));
@@ -979,7 +977,14 @@ bool AyflyFrame::OpenFile()
             SetTitle(frameTitle.c_str());
             posslider->SetRange(0, ay_getsonglength(currentSong->info));
             RecreateToolbar();
-            ay_setchiptype(currentSong->info, chipTypeAY->GetValue() ? 0 : 1);
+            fileExt.LowerCase();
+            if(fileExt == wxT("vtx"))
+            {
+                chipTypeAY->SetValue(ay_getchiptype(currentSong->info) ? 0 : 1);
+                chipTypeYM->SetValue(ay_getchiptype(currentSong->info) ? 1 : 0);
+            }
+            else
+                ay_setchiptype(currentSong->info, chipTypeAY->GetValue() ? 0 : 1);
             ay_setvolume(currentSong->info, 0, CalculateVolume(slidera->GetValue()), 0);
             ay_setvolume(currentSong->info, 1, CalculateVolume(sliderb->GetValue()), 0);
             ay_setvolume(currentSong->info, 2, CalculateVolume(sliderc->GetValue()), 0);
