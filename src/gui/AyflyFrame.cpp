@@ -982,6 +982,11 @@ bool AyflyFrame::OpenFile()
             {
                 chipTypeAY->SetValue(ay_getchiptype(currentSong->info) ? 0 : 1);
                 chipTypeYM->SetValue(ay_getchiptype(currentSong->info) ? 1 : 0);
+                ayfreqSlider->SetValue(ay_getayfreq(currentSong->info));
+                wxScrollEvent evt;
+                evt.SetId(wxID_AYFREQSLIDER);
+                evt.SetPosition(ay_getayfreq(currentSong->info));
+                OnScroll(evt);
             }
             else
                 ay_setchiptype(currentSong->info, chipTypeAY->GetValue() ? 0 : 1);

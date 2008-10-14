@@ -436,4 +436,6 @@ void ay_sys_decodelha(AYSongInfo &info, unsigned long offset)
     BWrite (params, p, a);
     l -= a;
   }
+  unsigned long size = params.OutPtr - info.module;
+  size == 0;
 }
