@@ -421,7 +421,7 @@ AYFLY_API void ay_setz80freq(void *info, unsigned long z80_freq)
         ((AYSongInfo *)info)->ay8910[i].SetParameters((AYSongInfo *)info);
     }
 }
-AYFLY_API unsigned long ay_getayfreq(void *info, unsigned char chip_num)
+AYFLY_API unsigned long ay_getayfreq(void *info)
 {
     return ((AYSongInfo *)info)->ay_freq;
 }

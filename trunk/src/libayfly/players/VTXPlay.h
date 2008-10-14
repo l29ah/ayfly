@@ -46,13 +46,16 @@ void VTX_Init(AYSongInfo &info)
         info.chip_type = 0;
     else
         info.chip_type = 1;
-            
+    
+    ay_setchiptype(&info, info.chip_type);    
+    ay_setayfreq(&info, VTX_ChipFrq);
+                    
     if(info.module != 0)
     {
         delete [] info.module;
-        info.module_len = VTX_UnpackSize;
+        info.module_len = VTX_UnpackSize * 2;
         info.module = new unsigned char [info.module_len];
-        memset(info.module, 0, sizeof(info.module_len));
+        memset(info.module, 0, info.module_len);
     }
     char *p = (char *)info.file_data + sizeof(VTX_File);
     info.Name = p;
