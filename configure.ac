@@ -9,9 +9,6 @@ AC_PROG_CXX
 AC_PROG_RANLIB
 AC_EXEEXT
 
-AC_DEFINE([UNICODE], [1])
-AC_DEFINE([_UNICODE], [1])
-
 case "$host_os" in
 *mingw*) windows=yes
 		AC_DEFINE([WINDOWS], [1])
@@ -44,9 +41,9 @@ if test "x$GUI_LIBS" = x0; then
 	AC_ERROR([wxWidgets libraries cannot be found...!])
 fi
 
-CFLAGS="$CFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1"
-CXXFLAGS="$CXXFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1"
+CFLAGS="$CFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1 -DUNICODE=1 -D_UNICODE=1"
+CXXFLAGS="$CXXFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1 -DUNICODE=1 -D_UNICODE=1"
 
-AC_CONFIG_FILES([Makefile src/Makefile src/gui/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/gui/Makefile src/converter/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile])
 AC_OUTPUT
 
