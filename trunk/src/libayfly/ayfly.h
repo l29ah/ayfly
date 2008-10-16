@@ -163,7 +163,7 @@ struct AYSongInfo
     TFileName TrackName; /* Track name */
     AY_TXT_TYPE CompName; /* Compiler name */
 #endif
-    unsigned long Length; /* Song length in seconds */
+    unsigned long Length; /* Song length in 1/50 of second */
     unsigned long Loop; /* Loop start position */
     bool bEmul; /* player is in z80 asm? */
     PLAYER_INIT_PROC init_proc; /* init for soft player */
@@ -488,7 +488,7 @@ AYFLY_API const unsigned char *ay_getregs(void *info, unsigned char chip_num = 0
  * with size @buffer_length bytes
  */
 
-AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_lengthc);
+AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned char chip_num = 0);
 
 /*
  * Returns z80 frequency
