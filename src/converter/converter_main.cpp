@@ -70,7 +70,7 @@ int main(int argc, char **argv)
     void *song = ay_initsong(song_name, 44100);
     if(!song)
     {
-        wprintf(L"Can't open song!\n");
+        fwprintf(stderr, L"Can't open song!\n");
         exit(1);
     }
 
