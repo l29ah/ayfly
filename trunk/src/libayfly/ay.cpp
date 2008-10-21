@@ -39,6 +39,7 @@ const float ay::init_levels_ym[] =
     short *stream16 = (short *) stream;
 
 #define AY_PROCESS_STEP \
+    s0 = s1 = s2 = 0;\
     if(songinfo->stopping == false)\
     {\
     if(++int_counter > int_limit)\
@@ -48,8 +49,6 @@ const float ay::init_levels_ym[] =
         memcpy(ayreg_tail [ayreg_writeptr], regs, 16);\
         ayreg_writeptr = ++ayreg_writeptr % AYREG_TAIL_LEN;\
     }\
-\
-    s0 = s1 = s2 = 0;\
 \
     for(unsigned long k = 0; k < ay_tacts; k++)\
     {\
