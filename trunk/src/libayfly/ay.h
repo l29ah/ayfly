@@ -116,6 +116,7 @@ private:
     unsigned char ayreg_tail [AYREG_TAIL_LEN] [16];
     unsigned long ayreg_readptr;
     unsigned long ayreg_writeptr;
+    inline void ayStep(float &s0, float &s1, float &s2);
 };
 
 #endif /*AY_H_*/

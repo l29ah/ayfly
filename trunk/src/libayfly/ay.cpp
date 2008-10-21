@@ -274,20 +274,85 @@ void ay::updateEnvelope()
     }
 }
 
+void ay::ayStep(float &s0, float &s1, float &s2)
+{
+    
+        if(++int_counter > int_limit)
+        {
+            int_counter = 0;
+            ay_z80exec(songinfo);
+            memcpy(ayreg_tail[ayreg_writeptr], regs, 16);
+            ayreg_writeptr = ++ayreg_writeptr % AYREG_TAIL_LEN;
+        }
+
+        for(unsigned long k = 0; k < ay_tacts; k++)
+        {
+
+            if(++chnl_period[0] >= tone_period_init[0])
+            {
+                chnl_period[0] -= tone_period_init[0];
+                chnl_trigger[0] ^= 1;
+            }
+            if(++chnl_period[1] >= tone_period_init[1])
+            {
+                chnl_period[1] -= tone_period_init[1];
+                chnl_trigger[1] ^= 1;
+            }
+            if(++chnl_period[2] >= tone_period_init[2])
+            {
+                chnl_period[2] -= tone_period_init[2];
+                chnl_trigger[2] ^= 1;
+            }
+
+            if(++noise_period >= noise_period_init)
+            {
+                noise_period = 0;
+                if((noise_reg + 1) & 2)
+                    noise_trigger ^= 1;
+                if(noise_reg & 1)
+                    noise_reg ^= 0x24000;
+                noise_reg >>= 1;
+            }
+            updateEnvelope();
+
+            if((chnl_trigger[0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)) & !chnl_mute[0])
+                s0 += (CHNL_ENVELOPE(0) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(0) * 2]) * volume[0];
+            if((chnl_trigger[1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)) & !chnl_mute[1])
+                s1 += (CHNL_ENVELOPE(1) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(1) * 2]) * volume[1];
+            if((chnl_trigger[2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)) & !chnl_mute[2])
+                s2 += (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2) * 2]) * volume[2];
+        }
+
+        s0 = s0 / (float)ay_tacts;
+        s1 = (s1 / (float)ay_tacts) / 1.42;
+        s2 = s2 / (float)ay_tacts;
+}
+
 void ay::ayProcess(unsigned char *stream, unsigned long len)
 {
-    AY_PROCESS_INIT
-    AY_PROCESS_START_LOOP 
-    AY_PROCESS_STEP
-            stream16[i * 2] = s0 + s1;
-            stream16[i * 2 + 1] = s2 + s1;
-        AY_PROCESS_END_LOOP
+    unsigned long work_len = (len >> 2);
+    float s0, s1, s2;
+    short *stream16 = (short *)stream;
+    for(unsigned long i = 0; i < work_len; i++)
+    {
+        s0 = s1 = s2 = 0;
+        if(songinfo->stopping == false)
+            ayStep(s0, s1, s2);
+        stream16[i * 2] = s0 + s1;
+        stream16[i * 2 + 1] = s2 + s1;
+    }
 }
 void ay::ayProcessMono(unsigned char *stream, unsigned long len)
 {
-    AY_PROCESS_INIT
-    AY_PROCESS_START_LOOP 
-    AY_PROCESS_STEP
-            stream16[i] = s0 + s1 + s2;
-        AY_PROCESS_END_LOOP
+    unsigned long work_len = (len >> 2);
+    float s0, s1, s2;
+    short *stream16 = (short *)stream;
+    for(unsigned long i = 0; i < work_len; i++)
+    {
+        s0 = s1 = s2 = 0;
+        if(songinfo->stopping == false)
+            ayStep(s0, s1, s2);
+        stream16[i] = s0 + s1 + s2;
+    }
+
 }
