@@ -174,10 +174,6 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath="..\..\..\src\libayfly\ayflyString.cpp"
-				>
-			</File>
 			<Filter
 				Name="libayfly"
 				>
@@ -190,11 +186,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\src\libayfly\ayflyString.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\src\libayfly\common.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\..\src\libayfly\formats.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\src\libayfly\lha.cpp"
 					>
 				</File>
 				<File
@@ -321,6 +325,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\src\gui\DnDFiles.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\src\gui\gui.h"
 					>
 				</File>
 			</Filter>

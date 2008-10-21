@@ -133,7 +133,7 @@ bool MakeTable(lha_params &params, int nChar, unsigned char *BitLen, int TableBi
     for(i = 1; i <= 16; i++)
         Start[i + 1] = Start[i] + (Count[i] << (16 - i));
     if(Start[17] != 0)
-        exit(1);
+        return false;
     JutBits = 16 - TableBits;
     for(i = 1; i <= TableBits; i++)
     {
