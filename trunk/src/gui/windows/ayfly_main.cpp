@@ -28,7 +28,7 @@ LRESULT CALLBACK AyflyWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 ATOM AyflyClass;
 HWND AyflyhWnd;
 
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR cmdLine, int nShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR cmdLine, int nShow)
 {
     WNDCLASSEX clex;
     clex.cbClsExtra = 0;

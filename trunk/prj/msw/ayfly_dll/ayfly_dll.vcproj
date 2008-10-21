@@ -354,6 +354,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\src\libayfly\lha.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\src\libayfly\speccy.cpp"
 					>
 				</File>
