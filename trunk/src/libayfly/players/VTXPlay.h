@@ -114,7 +114,7 @@ void VTX_Play(AYSongInfo &info)
     if(module [VTX->Position_In_VTX + k] != 255)
         ay_writeay(&info, AY_ENV_SHAPE, module [VTX->Position_In_VTX + k] & 15);
     VTX->Position_In_VTX++;
-    if(VTX->Position_In_VTX > info.Loop)
+    if(VTX->Position_In_VTX > info.Length)
         VTX->Position_In_VTX = info.Loop;
 }
 
