@@ -36,34 +36,54 @@ bool elapsed_callback(void *)
 
 int main(int argc, char **argv)
 {
-    wprintf(L"AY 891x file converter v. " AYFLY_VERSION_TEXT L", ");
-    wprintf(L"Deryabin Andrew, 2008. GNU GPL v2 license.\n");
+    fwprintf(stderr, L"AY 891x file converter v. " AYFLY_VERSION_TEXT L", ");
+    fwprintf(stderr, L"Deryabin Andrew, 2008. GNU GPL v2 license.\n");
     if(argc < 2)
     {
-        wprintf(L"\tusage: ayfly_converter ay_file > raw_pcm_file\n");
+        fwprintf(stderr, L"\tusage: ayfly_converter ay_file > raw_pcm_file\n");
         exit(1);
     }
-    
+
     end = false;
     wchar_t song_name [65536];
-    swprintf(song_name, sizeof(song_name) - 1, L"%S", argv [1]);
-    wprintf(L"Converting song %s...\n", song_name);    
-    void *song = ay_initsong(song_name, 44100);    
+    mbstate_t mbstate;
+    ::memset((void*)&mbstate, 0, sizeof(mbstate));
+    const char *strc = argv [1];
+    wchar_t *wstrc = song_name;
+    size_t lenc = 0;
+    size_t len = strlen(argv [1]);
+    while(lenc < len)
+    {
+        size_t conv_res = mbrtowc(wstrc, strc, 1, &mbstate);
+        switch(conv_res)
+        {
+            case 0:
+            break;
+            default:
+            lenc++;
+            strc++;
+            wstrc++;
+            break;
+        }
+    }
+    song_name [lenc] = 0;
+    fprintf(stderr, "Converting song %s...\n", argv [1]);
+    void *song = ay_initsong(song_name, 44100);
     if(!song)
     {
         wprintf(L"Can't open song!\n");
         exit(1);
     }
-    
+
     ay_setelapsedcallback(song, elapsed_callback, 0);
     unsigned char buffer [8192];
-    
+
     while(!end)
     {
         ay_rendersongbuffer(song, buffer, sizeof(buffer));
-        write(0, buffer, sizeof(buffer));
+        fwrite(buffer, 1, sizeof(buffer), stdout);
     }
-    
+
     ay_closesong(&song);
-            
+
 }
