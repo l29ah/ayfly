@@ -29,7 +29,6 @@ bool end;
 
 bool elapsed_callback(void *)
 {
-    printf("!!\n");
     end = true;
     return end;
 }
