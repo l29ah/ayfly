@@ -18,8 +18,8 @@ struct VTX_File
 struct VTX_SongInfo
 {
     int i;
-    int VTX_Offset;
-    int Position_In_VTX;
+    unsigned long VTX_Offset;
+    unsigned long Position_In_VTX;
     
 };
 
@@ -58,29 +58,36 @@ void VTX_Init(AYSongInfo &info)
         memset(info.module, 0, info.module_len);
     }
     char *p = (char *)info.file_data + sizeof(VTX_File);
+#ifndef __SYMBIAN32__
     info.Name = p;
-    p += info.Name.length() + 1;
+#endif
+    p += strlen(p) + 1;
+#ifndef __SYMBIAN32__
     info.Author = p;
-    p += info.Author.length() + 1;
+#endif
+    p += strlen(p) + 1;
     if((VTX_Id == 0x7961) || (VTX_Id == 0x6d79))
     {
+#ifndef __SYMBIAN32__
         info.PrgName = p;
-        p += info.PrgName.length() + 1;
+#endif
+        p += strlen(p) + 1;
+#ifndef __SYMBIAN32__
         info.TrackName = p;
-        p += info.TrackName.length() + 1;
+#endif
+        p += strlen(p) + 1;
+#ifndef __SYMBIAN32__
         info.CompName = p;
-        p += info.CompName.length() + 1;
+#endif
+        p += strlen(p) + 1;
     }
     ay_sys_decodelha(info, (unsigned char *)p - info.file_data);
-    
-    
 }
 
 void VTX_Play(AYSongInfo &info)
 {
     unsigned char *module = info.module;
-    VTX_File *header = (VTX_File *) module;
-    int k = VTX->VTX_Offset;
+    unsigned long k = VTX->VTX_Offset;
     for(int i = 0; i <= 12; i++)
     {
         switch(i)

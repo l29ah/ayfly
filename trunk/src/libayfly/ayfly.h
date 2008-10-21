@@ -161,7 +161,7 @@ struct AYSongInfo
     TFileName FilePath; /* Song file path */
     TFileName PrgName; /* Program name */
     TFileName TrackName; /* Track name */
-    AY_TXT_TYPE CompName; /* Compiler name */
+    TFileName CompName; /* Compiler name */
 #endif
     unsigned long Length; /* Song length in 1/50 of second */
     unsigned long Loop; /* Loop start position */
