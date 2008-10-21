@@ -5,4 +5,4 @@ bldmake bldfiles
 abld build armi urel
 cd ../sis
 makesis ayfly_s60_2nd.pkg
-mv ayfly_s60_2nd.sis ayfly_s60_2nd_0.0.18.sis
+mv ayfly_s60_2nd.sis ayfly_s60_2nd_0.0.19.sis

@@ -8,7 +8,7 @@
 ; Installation header
 ; Only one component name as we only support English
 ; UID is the app's UID - see HelloWorld.mmp
-#{"Ayfly player"},(0x2001D5F7),0,0,17
+#{"Ayfly player"},(0x2001D5F7),0,0,19
 
 ;Supports Series 60 v 2.0
 (0x101F7960), 0, 0, 0, {"Series60ProductID"}
