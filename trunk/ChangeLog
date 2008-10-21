@@ -1,5 +1,9 @@
 Changelog:
 
+21.10.2008 - 0.0.19
+Added support for VTX format
+Added ayfly_converter program
+
 26.09.2008 - 0.0.18
 Added basic playlist to S60 version
 Updated z80ex library to latest version (thx 2 boo_boo)
