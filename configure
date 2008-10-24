@@ -681,8 +681,8 @@ IS_UNIX_TRUE
 IS_UNIX_FALSE
 ENABLE_GUI_TRUE
 ENABLE_GUI_FALSE
-ENABLE_SDL_TRUE
-ENABLE_SDL_FALSE
+ENABLE_AUDIO_TRUE
+ENABLE_AUDIO_FALSE
 GUI_CXXFLAGS
 GUI_LIBS
 LIBOBJS
@@ -1286,8 +1286,8 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --without-gui           build only library and converter
-  --without-sdl           build without audio output support on unix
+  --without-gui           build only ayfly library and converter
+  --without-audio         build without audio output drivers
   --with-directx          Specify directx SDK path
   --with-sdl-prefix=PFX   Prefix where SDL is installed (optional)
   --with-sdl-exec-prefix=PFX Exec prefix where SDL is installed (optional)
@@ -4009,40 +4009,46 @@ fi
 
 
 
-enable_gui=yes
-enable_sdl=yes
-
 
 # Check whether --with-gui was given.
 if test "${with_gui+set}" = set; then
   withval=$with_gui;
-enable_gui=no
+with_gui=no
+
+else
+
+with_gui=yes
 
 
 fi
 
 
 
-# Check whether --with-sdl was given.
-if test "${with_sdl+set}" = set; then
-  withval=$with_sdl;
-enable_sdl=no
+# Check whether --with-audio was given.
+if test "${with_audio+set}" = set; then
+  withval=$with_audio;
+with_audio=no
+
+else
+
+with_audio=yes
 
 
 fi
 
 
 
-if test "$enable_gui" = no; then
+if test "$with_gui" = no; then
 	cat >>confdefs.h <<\_ACEOF
 #define DISABLE_GUI 1
 _ACEOF
 
 fi
 
-if test "$enable_sdl" = no; then
+if test "$with_audio" = no; then
+	with_gui=no
 	cat >>confdefs.h <<\_ACEOF
-#define DISABLE_SDL 1
+#define DISABLE_AUDIO 1
 _ACEOF
 
 fi
@@ -4079,14 +4085,16 @@ else
   with_directx=/opt/directx
 fi
 
-		DX_CFLAGS="-I$with_directx/include"
+		if test "$with_audio" = "yes" ; then
+			DX_CFLAGS="-I$with_directx/include"
 
-		DX_LIBS="-L$with_directx/lib -ldsound -ldxguid -lole32 -luuid"
+			DX_LIBS="-L$with_directx/lib -ldsound -ldxguid -lole32 -luuid"
 
+		fi
 		;;
 *) unix=yes
 
-		if test "$enable_sdl" = "yes" ; then
+		if test "$with_audio" = "yes" ; then
 
 
 # Check whether --with-sdl-prefix was given.
@@ -4420,7 +4428,7 @@ else
   IS_UNIX_FALSE=
 fi
 
- if test "$enable_gui" = "yes"; then
+ if test "$with_gui" = "yes"; then
   ENABLE_GUI_TRUE=
   ENABLE_GUI_FALSE='#'
 else
@@ -4428,16 +4436,16 @@ else
   ENABLE_GUI_FALSE=
 fi
 
- if test "$enable_sdl" = "yes"; then
-  ENABLE_SDL_TRUE=
-  ENABLE_SDL_FALSE='#'
+ if test "$with_audio" = "yes"; then
+  ENABLE_AUDIO_TRUE=
+  ENABLE_AUDIO_FALSE='#'
 else
-  ENABLE_SDL_TRUE='#'
-  ENABLE_SDL_FALSE=
+  ENABLE_AUDIO_TRUE='#'
+  ENABLE_AUDIO_FALSE=
 fi
 
 
-if test "$enable_gui" = "yes"; then
+if test "$with_gui" = "yes"; then
 	GUI_CXXFLAGS=`wx-config --cxxflags`
 
 	GUI_LIBS=`wx-config --libs`
@@ -4623,10 +4631,10 @@ echo "$as_me: error: conditional \"ENABLE_GUI\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${ENABLE_SDL_TRUE}" && test -z "${ENABLE_SDL_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"ENABLE_SDL\" was never defined.
+if test -z "${ENABLE_AUDIO_TRUE}" && test -z "${ENABLE_AUDIO_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"ENABLE_AUDIO\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"ENABLE_SDL\" was never defined.
+echo "$as_me: error: conditional \"ENABLE_AUDIO\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -5298,8 +5306,8 @@ IS_UNIX_TRUE!$IS_UNIX_TRUE$ac_delim
 IS_UNIX_FALSE!$IS_UNIX_FALSE$ac_delim
 ENABLE_GUI_TRUE!$ENABLE_GUI_TRUE$ac_delim
 ENABLE_GUI_FALSE!$ENABLE_GUI_FALSE$ac_delim
-ENABLE_SDL_TRUE!$ENABLE_SDL_TRUE$ac_delim
-ENABLE_SDL_FALSE!$ENABLE_SDL_FALSE$ac_delim
+ENABLE_AUDIO_TRUE!$ENABLE_AUDIO_TRUE$ac_delim
+ENABLE_AUDIO_FALSE!$ENABLE_AUDIO_FALSE$ac_delim
 GUI_CXXFLAGS!$GUI_CXXFLAGS$ac_delim
 GUI_LIBS!$GUI_LIBS$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim

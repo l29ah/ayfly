@@ -1,5 +1,11 @@
 Changelog:
 
+24.10.2008 - 0.0.20
+Minor changes:
+Removed wxWidgets and SDK(Directx under Windows) dependency for building only library and converter
+Added command line parsing code
+Added ability for selection of multiple files in open dialog
+
 21.10.2008 - 0.0.19
 Added support for VTX format
 Added ayfly_converter program
