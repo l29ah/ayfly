@@ -9,28 +9,32 @@ AC_PROG_CXX
 AC_PROG_RANLIB
 AC_EXEEXT
 
-enable_gui=yes
-enable_sdl=yes
-
-AC_ARG_WITH(gui, [AS_HELP_STRING([--without-gui], [build only library and converter])],
+AC_ARG_WITH(gui, [AS_HELP_STRING([--without-gui], [build only ayfly library and converter])],
 [
-enable_gui=no
+with_gui=no
+],
+[
+with_gui=yes
 ]
 )
 
-AC_ARG_WITH(sdl, [AS_HELP_STRING([--without-sdl], [build without audio output support on unix])],
+AC_ARG_WITH(audio, [AS_HELP_STRING([--without-audio], [build without audio output drivers])],
 [
-enable_sdl=no
+with_audio=no
+],
+[
+with_audio=yes
 ]
 )
 
 
-if test "$enable_gui" = no; then
+if test "$with_gui" = no; then
 	AC_DEFINE(DISABLE_GUI, [1])
 fi
 
-if test "$enable_sdl" = no; then
-	AC_DEFINE(DISABLE_SDL, [1])
+if test "$with_audio" = no; then
+	with_gui=no
+	AC_DEFINE(DISABLE_AUDIO, [1])
 fi
 
 	
@@ -45,12 +49,14 @@ case "$host_os" in
 		AC_ARG_WITH([directx], [AS_HELP_STRING([--with-directx], [Specify directx SDK path])],
 					[],
 					[with_directx=/opt/directx])
-		AC_SUBST(DX_CFLAGS, "-I$with_directx/include")
-		AC_SUBST(DX_LIBS, "-L$with_directx/lib -ldsound -ldxguid -lole32 -luuid")
+		if test "$with_audio" = "yes" ; then
+			AC_SUBST(DX_CFLAGS, "-I$with_directx/include")
+			AC_SUBST(DX_LIBS, "-L$with_directx/lib -ldsound -ldxguid -lole32 -luuid")
+		fi
 		;;
 *) unix=yes
 
-		if test "$enable_sdl" = "yes" ; then
+		if test "$with_audio" = "yes" ; then
 			AM_PATH_SDL
 			if test "x$SDL_LIBS" = x0; then
 				AC_ERROR([SDL libraries cannot be found...!])
@@ -62,10 +68,10 @@ esac
 
 AM_CONDITIONAL(IS_WINDOWS, test x$windows = xyes)
 AM_CONDITIONAL(IS_UNIX, test x$unix = xyes)
-AM_CONDITIONAL(ENABLE_GUI, test "$enable_gui" = "yes")
-AM_CONDITIONAL(ENABLE_SDL, test "$enable_sdl" = "yes")
+AM_CONDITIONAL(ENABLE_GUI, test "$with_gui" = "yes")
+AM_CONDITIONAL(ENABLE_AUDIO, test "$with_audio" = "yes")
 
-if test "$enable_gui" = "yes"; then
+if test "$with_gui" = "yes"; then
 	AC_SUBST(GUI_CXXFLAGS, `wx-config --cxxflags`)
 	AC_SUBST(GUI_LIBS, `wx-config --libs`)
 

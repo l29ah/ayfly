@@ -57,6 +57,7 @@
 #        include "wx/dialog.h"
 #        include "wx/filename.h"
 #        include "wx/dir.h"
+#        include "wx/cmdline.h"
 
 struct bindings
 {

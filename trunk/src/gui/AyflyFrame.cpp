@@ -97,23 +97,22 @@ HWND hWndMain;
 
 struct bindings default_bindings[] =
 {
-{ wxT("Open song"), wxT("wxID_OPEN"), wxID_OPEN, (int)'O', wxACCEL_NORMAL},
-{wxT("Play/Pause"), wxT("wxID_PLAY"), wxID_PLAY, (int)'X', wxACCEL_NORMAL},
-{wxT("Rewind"), wxT("wxID_REWIND"), wxID_REWIND, (int)'W', wxACCEL_NORMAL},
-{wxT("Previous song"), wxT("wxID_PREV"), wxID_PREV, (int)'Z', wxACCEL_NORMAL},
-{wxT("Next song"), wxT("wxID_NEXT"), wxID_NEXT, (int)'B', wxACCEL_NORMAL},
-{wxT("Stop"), wxT("wxID_STOP"), wxID_STOP, (int)'V', wxACCEL_NORMAL},
-{wxT("Toggle Repeat mode"), wxT("wxID_SETREPEAT"), wxID_SETREPEAT, (int)'R', wxACCEL_NORMAL},
-{wxT("Toggle A channel"), wxT("wxID_AMUTE"), wxID_AMUTE, (int)'1', wxACCEL_NORMAL},
-{wxT("Toggle B channel"), wxT("wxID_BMUTE"), wxID_BMUTE, (int)'2', wxACCEL_NORMAL},
-{wxT("Toggle C channel"), wxT("wxID_CMUTE"), wxID_CMUTE, (int)'3', wxACCEL_NORMAL},
-{wxT("Select all playlist items"), wxT("wxID_SELECTALL"), wxID_SELECTALL, (int)'A', wxACCEL_CTRL},
-{wxT(""), wxT(""), 0, 0, 0}
-};
+{ wxT("Open song"), wxT("wxID_OPEN"), wxID_OPEN, (int)'O', wxACCEL_NORMAL },
+{ wxT("Play/Pause"), wxT("wxID_PLAY"), wxID_PLAY, (int)'X', wxACCEL_NORMAL },
+{ wxT("Rewind"), wxT("wxID_REWIND"), wxID_REWIND, (int)'W', wxACCEL_NORMAL },
+{ wxT("Previous song"), wxT("wxID_PREV"), wxID_PREV, (int)'Z', wxACCEL_NORMAL },
+{ wxT("Next song"), wxT("wxID_NEXT"), wxID_NEXT, (int)'B', wxACCEL_NORMAL },
+{ wxT("Stop"), wxT("wxID_STOP"), wxID_STOP, (int)'V', wxACCEL_NORMAL },
+{ wxT("Toggle Repeat mode"), wxT("wxID_SETREPEAT"), wxID_SETREPEAT, (int)'R', wxACCEL_NORMAL },
+{ wxT("Toggle A channel"), wxT("wxID_AMUTE"), wxID_AMUTE, (int)'1', wxACCEL_NORMAL },
+{ wxT("Toggle B channel"), wxT("wxID_BMUTE"), wxID_BMUTE, (int)'2', wxACCEL_NORMAL },
+{ wxT("Toggle C channel"), wxT("wxID_CMUTE"), wxID_CMUTE, (int)'3', wxACCEL_NORMAL },
+{ wxT("Select all playlist items"), wxT("wxID_SELECTALL"), wxID_SELECTALL, (int)'A', wxACCEL_CTRL },
+{ wxT(""), wxT(""), 0, 0, 0 } };
 
-AyflyFrame::AyflyFrame(const wxString &title) :
+AyflyFrame::AyflyFrame(const wxString &title, wxArrayString &filenames) :
     wxFrame(NULL, wxID_ANY, title), timer(this, TIMER_ID)
-{
+{    
     SetIcon(wxIcon(Icon_xpm));
     CreateStatusBar(2);
     SetStatusText(wxT("Welcome to Ayfly!"));
@@ -126,7 +125,8 @@ AyflyFrame::AyflyFrame(const wxString &title) :
     bTracking = false;
     songEnd = false;
 
-    SetDropTarget(new DnDFiles(this));
+    dndFiles = new DnDFiles(this);
+    SetDropTarget(dndFiles);
 
 #ifdef WINDOWS
     this->SetSizeHints(620, 550);
@@ -230,15 +230,15 @@ AyflyFrame::AyflyFrame(const wxString &title) :
     allSizer->Add(intfreqSizer, 0, wxEXPAND, 5);
 
     wxStaticBoxSizer* chipTypeSizer;
-    chipTypeSizer = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("Chip type") ), wxHORIZONTAL );
+    chipTypeSizer = new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, wxT("Chip type")), wxHORIZONTAL);
 
-    chipTypeAY = new wxRadioButton( this, wxID_CHIPTYPE_AY, wxT("AY-8910"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP );
-    chipTypeSizer->Add( chipTypeAY, 0, wxALL, 5 );
+    chipTypeAY = new wxRadioButton(this, wxID_CHIPTYPE_AY, wxT("AY-8910"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+    chipTypeSizer->Add(chipTypeAY, 0, wxALL, 5);
 
-    chipTypeYM = new wxRadioButton( this, wxID_CHIPTYPE_YM, wxT("YM-2149"), wxDefaultPosition, wxDefaultSize, 0 );
-    chipTypeSizer->Add( chipTypeYM, 0, wxALL, 5 );
+    chipTypeYM = new wxRadioButton(this, wxID_CHIPTYPE_YM, wxT("YM-2149"), wxDefaultPosition, wxDefaultSize, 0);
+    chipTypeSizer->Add(chipTypeYM, 0, wxALL, 5);
 
-    allSizer->Add( chipTypeSizer, 0, 0, 5 );
+    allSizer->Add(chipTypeSizer, 0, 0, 5);
 
     wxBoxSizer* PosSizer;
     PosSizer = new wxBoxSizer(wxVERTICAL);
@@ -289,9 +289,13 @@ AyflyFrame::AyflyFrame(const wxString &title) :
 
     wxAcceleratorTable accel(sizeof_array(default_bindings) - 1, accel_entries);
     SetAcceleratorTable(accel);
-    
-    //Connect(wxID_NEXT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnQuit) );
-
+    dndFiles->OnDropFiles(0, 0, filenames);
+    if(filenames.GetCount() > 0)
+    {
+        wxCommandEvent evt(wxEVT_COMMAND_MENU_SELECTED, wxID_PLAY);
+        evt.SetEventObject(this);
+        AddPendingEvent(evt);
+    }
 }
 
 AyflyFrame::~AyflyFrame()
@@ -319,16 +323,14 @@ void AyflyFrame::OnOpen(wxCommandEvent &event)
     wxString caption = wxT("Select AY file");
     wxString filter = wxT("All AY files (*.stc;*.stp;*.pt2;*.pt3;*.psc;*.ay)|*.stc;*.stp;*.pt2;*.pt3;*.psc;*.ay|Sound tracker (*.stc)|*.stc|Sound tracker pro (*.stp)|*.stp|Pro tracker 2.x (*.pt2)|*.pt2|Pro tracker 3.x (*.pt3)|*.pt3|Pro sound creator (*.psc)|*.psc|AY dumps (*.ay)|*.ay");
 
-    wxFileDialog dialog(this, caption, defaultDir, defaultFileName, filter, wxFD_OPEN);
+    wxFileDialog dialog(this, caption, defaultDir, defaultFileName, filter, wxFD_OPEN | wxFD_MULTIPLE);
 
     if(dialog.ShowModal() == wxID_OK)
     {
-        path = dialog.GetPath();
-#ifndef WINDOWS
-        defaultFileName = dialog.GetFilename();
-#endif
+        wxArrayString paths;
         defaultDir = dialog.GetDirectory();
-        AddFile(path);
+        dialog.GetPaths(paths);
+        dndFiles->OnDropFiles(0, 0, paths);
     }
 }
 
@@ -370,7 +372,7 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
     {
         toolBar->ToggleTool(wxID_PLAY, false);
         if(currentIndex >= playListView->GetItemCount())
-        return;
+            return;
 
         if(OpenFile())
         {
@@ -597,7 +599,7 @@ void AyflyFrame::StopCallback(void *arg)
     frame->songEnd = true;
 
     wxCommandEvent evt(wxEVT_COMMAND_MENU_SELECTED, wxID_NEXT);
-    evt.SetEventObject(frame);    
+    evt.SetEventObject(frame);
     evt.SetClientData((void *)wxID_CALLBACK);
     frame->AddPendingEvent(evt);
 }
