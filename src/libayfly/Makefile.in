@@ -33,10 +33,10 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-@IS_WINDOWS_TRUE@am__append_1 = windows
-@IS_WINDOWS_FALSE@am__append_2 = unix
-@IS_WINDOWS_TRUE@am__append_3 = $(top_builddir)/src/libayfly/windows/DXAudio.o
-@IS_WINDOWS_FALSE@am__append_4 = $(top_builddir)/src/libayfly/unix/SDLAudio.o
+@ENABLE_AUDIO_TRUE@@IS_WINDOWS_TRUE@am__append_1 = windows
+@ENABLE_AUDIO_TRUE@@IS_WINDOWS_FALSE@am__append_2 = unix
+@ENABLE_AUDIO_TRUE@@IS_WINDOWS_TRUE@am__append_3 = $(top_builddir)/src/libayfly/windows/DXAudio.o
+@ENABLE_AUDIO_TRUE@@IS_WINDOWS_FALSE@am__append_4 = $(top_builddir)/src/libayfly/unix/SDLAudio.o
 subdir = src/libayfly
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -203,9 +203,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  src/libayfly/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  src/libayfly/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  src/libayfly/Makefile
+	  $(AUTOMAKE) --foreign  src/libayfly/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

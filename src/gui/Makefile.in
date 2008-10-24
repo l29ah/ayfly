@@ -33,7 +33,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-bin_PROGRAMS = ayfly$(EXEEXT)
+@ENABLE_GUI_TRUE@bin_PROGRAMS = ayfly$(EXEEXT)
 subdir = src/gui
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -45,13 +45,17 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_ayfly_OBJECTS = AyflyApp.$(OBJEXT) AyflyFrame.$(OBJEXT) \
-	DnDFiles.$(OBJEXT) AyflyBindingsDlg.$(OBJEXT)
+am__ayfly_SOURCES_DIST = AyflyApp.cpp AyflyFrame.cpp DnDFiles.cpp \
+	AyflyBindingsDlg.cpp
+@ENABLE_GUI_TRUE@am_ayfly_OBJECTS = AyflyApp.$(OBJEXT) \
+@ENABLE_GUI_TRUE@	AyflyFrame.$(OBJEXT) DnDFiles.$(OBJEXT) \
+@ENABLE_GUI_TRUE@	AyflyBindingsDlg.$(OBJEXT)
 ayfly_OBJECTS = $(am_ayfly_OBJECTS)
 am__DEPENDENCIES_1 =
-ayfly_DEPENDENCIES = $(top_builddir)/src/libayfly/libayfly.a \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+@ENABLE_GUI_TRUE@ayfly_DEPENDENCIES =  \
+@ENABLE_GUI_TRUE@	$(top_builddir)/src/libayfly/libayfly.a \
+@ENABLE_GUI_TRUE@	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+@ENABLE_GUI_TRUE@	$(am__DEPENDENCIES_1)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -61,7 +65,7 @@ CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
 SOURCES = $(ayfly_SOURCES)
-DIST_SOURCES = $(ayfly_SOURCES)
+DIST_SOURCES = $(am__ayfly_SOURCES_DIST)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -170,16 +174,18 @@ target_os = @target_os@
 target_vendor = @target_vendor@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-INCLUDES = -I$(top_srcdir)/gui -I$(top_srcdir)/src/libayfly \
-	-I$(top_srcdir)/src/libayfly/z80ex \
-	-I$(top_srcdir)/src/libayfly/z80ex/include $(GUI_CXXFLAGS) \
-	$(all_includes) $(EXTRAINCLUDES)
-ayfly_SOURCES = AyflyApp.cpp AyflyFrame.cpp DnDFiles.cpp AyflyBindingsDlg.cpp
-@IS_UNIX_TRUE@EXTRAINCLUDES = $(SDL_CFLAGS)
-@IS_WINDOWS_TRUE@EXTRAINCLUDES = $(DX_CFLAGS)
-@IS_UNIX_TRUE@EXTRALDADD = $(SDL_LIBS)
-@IS_WINDOWS_TRUE@EXTRALDADD = $(DX_LIBS)
-ayfly_LDADD = $(top_builddir)/src/libayfly/libayfly.a $(GUI_LIBS) $(SDL_LIBS) $(DX_LIBS)
+@ENABLE_GUI_TRUE@INCLUDES = -I$(top_srcdir)/gui \
+@ENABLE_GUI_TRUE@	-I$(top_srcdir)/src/libayfly \
+@ENABLE_GUI_TRUE@	-I$(top_srcdir)/src/libayfly/z80ex \
+@ENABLE_GUI_TRUE@	-I$(top_srcdir)/src/libayfly/z80ex/include \
+@ENABLE_GUI_TRUE@	$(GUI_CXXFLAGS) $(all_includes) \
+@ENABLE_GUI_TRUE@	$(EXTRAINCLUDES)
+@ENABLE_GUI_TRUE@ayfly_SOURCES = AyflyApp.cpp AyflyFrame.cpp DnDFiles.cpp AyflyBindingsDlg.cpp
+@ENABLE_GUI_TRUE@@IS_UNIX_TRUE@EXTRAINCLUDES = $(SDL_CFLAGS)
+@ENABLE_GUI_TRUE@@IS_WINDOWS_TRUE@EXTRAINCLUDES = $(DX_CFLAGS)
+@ENABLE_GUI_TRUE@@IS_UNIX_TRUE@EXTRALDADD = $(SDL_LIBS)
+@ENABLE_GUI_TRUE@@IS_WINDOWS_TRUE@EXTRALDADD = $(DX_LIBS)
+@ENABLE_GUI_TRUE@ayfly_LDADD = $(top_builddir)/src/libayfly/libayfly.a $(GUI_LIBS) $(SDL_LIBS) $(DX_LIBS)
 all: all-am
 
 .SUFFIXES:
@@ -193,9 +199,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  src/gui/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  src/gui/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  src/gui/Makefile
+	  $(AUTOMAKE) --foreign  src/gui/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

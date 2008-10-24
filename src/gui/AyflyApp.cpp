@@ -20,10 +20,35 @@
 
 #include "gui.h"
 
+static const wxCmdLineEntryDesc g_cmdLineDesc[] =
+{
+{ wxCMD_LINE_PARAM, NULL, NULL, wxT("input file"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
+{ wxCMD_LINE_NONE } };
+
 bool AyflyApp::OnInit()
 {
+    wxCmdLineParser cmdParser(g_cmdLineDesc, argc, argv);
+    int res;
+    {
+        wxLogNull log;
+        // Pass false to suppress auto Usage() message
+        res = cmdParser.Parse(false);
+    }
+    int fileCount = cmdParser.GetParamCount();
+    wxArrayString filenames;
+    if(fileCount > 0)
+    {        
+        for(int i = 0; i < fileCount; i++)
+        {
+            wxString cmdFilename = cmdParser.GetParam(i);
+            wxFileName fName(cmdFilename);
+            fName.Normalize(wxPATH_NORM_LONG | wxPATH_NORM_DOTS | wxPATH_NORM_TILDE | wxPATH_NORM_ABSOLUTE);
+            cmdFilename = fName.GetFullPath();
+            filenames.Add(cmdFilename);
+        }        
+    }
     wxString title = wxT(WINDOW_TEXT);
-    AyflyFrame *frame = new AyflyFrame(title.c_str());
+    AyflyFrame *frame = new AyflyFrame(title.c_str(), filenames);
 
 #ifndef _WIN32_WCE
     wxSize sz = frame->GetSize();

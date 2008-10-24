@@ -196,12 +196,12 @@ struct AYSongInfo
 
 
 #ifndef __SYMBIAN32__
+#ifndef DISABLE_AUDIO
 #ifndef WINDOWS
-#ifndef DISABLE_SDL
 #include "unix/SDLAudio.h"
-#endif
 #else
 #include "windows/DXAudio.h"
+#endif
 #endif
 #else
 #ifdef EKA2

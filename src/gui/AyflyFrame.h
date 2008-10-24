@@ -29,10 +29,12 @@ struct CurrentSong
     AYSongInfo *info;
 };
 
+class DnDFiles;
+
 class AyflyFrame : public wxFrame
 {
 public:
-    AyflyFrame(const wxString &title);
+    AyflyFrame(const wxString &title, wxArrayString &filenames);
     ~AyflyFrame();
 
     bool AddFile(const wxString &filePath);
@@ -47,6 +49,8 @@ private:
     wxString path;
     wxToolBar *toolBar;
     wxTimer timer;
+    
+    DnDFiles *dndFiles;
 
     wxStaticText* chnlATxt;
     wxStaticText* chnlBTxt;

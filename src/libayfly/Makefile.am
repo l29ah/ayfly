@@ -5,10 +5,10 @@ libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp lha.cpp com
 
 EXTRASUBDIRS = 
 
+if ENABLE_AUDIO
 if IS_WINDOWS
 EXTRASUBDIRS += windows
 else
-if ENABLE_SDL
 EXTRASUBDIRS += unix
 endif
 endif
@@ -17,10 +17,10 @@ SUBDIRS += $(EXTRASUBDIRS)
 
 EXTRALIBS = 
 
+if ENABLE_AUDIO
 if IS_WINDOWS
 EXTRALIBS += $(top_builddir)/src/libayfly/windows/DXAudio.o
 else
-if ENABLE_SDL
 EXTRALIBS += $(top_builddir)/src/libayfly/unix/SDLAudio.o
 endif
 endif
