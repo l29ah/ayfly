@@ -1,3 +1,3 @@
-SUBDIRS = libayfly gui converter
+SUBDIRS = libayfly converter gui
 
 datarootdir = @datarootdir@

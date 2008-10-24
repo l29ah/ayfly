@@ -160,7 +160,7 @@ target_os = @target_os@
 target_vendor = @target_vendor@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = libayfly gui converter
+SUBDIRS = libayfly converter gui
 all: all-recursive
 
 .SUFFIXES:
