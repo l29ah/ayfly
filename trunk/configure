@@ -679,6 +679,10 @@ IS_WINDOWS_TRUE
 IS_WINDOWS_FALSE
 IS_UNIX_TRUE
 IS_UNIX_FALSE
+ENABLE_GUI_TRUE
+ENABLE_GUI_FALSE
+ENABLE_SDL_TRUE
+ENABLE_SDL_FALSE
 GUI_CXXFLAGS
 GUI_LIBS
 LIBOBJS
@@ -1282,6 +1286,8 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --without-gui           build only library and converter
+  --without-sdl           build without audio output support on unix
   --with-directx          Specify directx SDK path
   --with-sdl-prefix=PFX   Prefix where SDL is installed (optional)
   --with-sdl-exec-prefix=PFX Exec prefix where SDL is installed (optional)
@@ -4003,6 +4009,46 @@ fi
 
 
 
+enable_gui=yes
+enable_sdl=yes
+
+
+# Check whether --with-gui was given.
+if test "${with_gui+set}" = set; then
+  withval=$with_gui;
+enable_gui=no
+
+
+fi
+
+
+
+# Check whether --with-sdl was given.
+if test "${with_sdl+set}" = set; then
+  withval=$with_sdl;
+enable_sdl=no
+
+
+fi
+
+
+
+if test "$enable_gui" = no; then
+	cat >>confdefs.h <<\_ACEOF
+#define DISABLE_GUI 1
+_ACEOF
+
+fi
+
+if test "$enable_sdl" = no; then
+	cat >>confdefs.h <<\_ACEOF
+#define DISABLE_SDL 1
+_ACEOF
+
+fi
+
+
+
 case "$host_os" in
 *mingw*) windows=yes
 		cat >>confdefs.h <<\_ACEOF
@@ -4039,6 +4085,8 @@ fi
 
 		;;
 *) unix=yes
+
+		if test "$enable_sdl" = "yes" ; then
 
 
 # Check whether --with-sdl-prefix was given.
@@ -4346,10 +4394,11 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
 
   rm -f conf.sdltest
 
-		if test "x$SDL_LIBS" = x0; then
-			{ { echo "$as_me:$LINENO: error: SDL libraries cannot be found...!" >&5
+			if test "x$SDL_LIBS" = x0; then
+				{ { echo "$as_me:$LINENO: error: SDL libraries cannot be found...!" >&5
 echo "$as_me: error: SDL libraries cannot be found...!" >&2;}
    { (exit 1); exit 1; }; }
+			fi
 		fi
 		;;
 esac
@@ -4371,16 +4420,34 @@ else
   IS_UNIX_FALSE=
 fi
 
+ if test "$enable_gui" = "yes"; then
+  ENABLE_GUI_TRUE=
+  ENABLE_GUI_FALSE='#'
+else
+  ENABLE_GUI_TRUE='#'
+  ENABLE_GUI_FALSE=
+fi
 
-GUI_CXXFLAGS=`wx-config --cxxflags`
+ if test "$enable_sdl" = "yes"; then
+  ENABLE_SDL_TRUE=
+  ENABLE_SDL_FALSE='#'
+else
+  ENABLE_SDL_TRUE='#'
+  ENABLE_SDL_FALSE=
+fi
 
-GUI_LIBS=`wx-config --libs`
+
+if test "$enable_gui" = "yes"; then
+	GUI_CXXFLAGS=`wx-config --cxxflags`
+
+	GUI_LIBS=`wx-config --libs`
 
 
-if test "x$GUI_LIBS" = x0; then
-	{ { echo "$as_me:$LINENO: error: wxWidgets libraries cannot be found...!" >&5
+	if test "x$GUI_LIBS" = x0; then
+		{ { echo "$as_me:$LINENO: error: wxWidgets libraries cannot be found...!" >&5
 echo "$as_me: error: wxWidgets libraries cannot be found...!" >&2;}
    { (exit 1); exit 1; }; }
+	fi
 fi
 
 CFLAGS="$CFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1 -DUNICODE=1 -D_UNICODE=1"
@@ -4546,6 +4613,20 @@ if test -z "${IS_UNIX_TRUE}" && test -z "${IS_UNIX_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"IS_UNIX\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"IS_UNIX\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${ENABLE_GUI_TRUE}" && test -z "${ENABLE_GUI_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"ENABLE_GUI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"ENABLE_GUI\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${ENABLE_SDL_TRUE}" && test -z "${ENABLE_SDL_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"ENABLE_SDL\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"ENABLE_SDL\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -5215,13 +5296,17 @@ IS_WINDOWS_TRUE!$IS_WINDOWS_TRUE$ac_delim
 IS_WINDOWS_FALSE!$IS_WINDOWS_FALSE$ac_delim
 IS_UNIX_TRUE!$IS_UNIX_TRUE$ac_delim
 IS_UNIX_FALSE!$IS_UNIX_FALSE$ac_delim
+ENABLE_GUI_TRUE!$ENABLE_GUI_TRUE$ac_delim
+ENABLE_GUI_FALSE!$ENABLE_GUI_FALSE$ac_delim
+ENABLE_SDL_TRUE!$ENABLE_SDL_TRUE$ac_delim
+ENABLE_SDL_FALSE!$ENABLE_SDL_FALSE$ac_delim
 GUI_CXXFLAGS!$GUI_CXXFLAGS$ac_delim
 GUI_LIBS!$GUI_LIBS$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 10; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 14; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

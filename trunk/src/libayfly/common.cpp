@@ -64,6 +64,7 @@ AYFLY_API void *ay_initsong(const AY_CHAR *FilePath, unsigned long sr, AbstractA
 AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio *player)
 #endif
 {
+    bool bPlayer = true;
     AYSongInfo *info = ay_sys_getnewinfo();
     if(!info)
         return 0;
@@ -82,12 +83,16 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio 
 #ifdef WINDOWS
         info->player = new DXAudio(info);
 #else
+#ifndef DISABLE_SDL
         info->player = new SDLAudio(info);
+#else
+        bPlayer = false;
+#endif
 #endif
 #else
         info->player = new Cayfly_s60Audio(info);
 #endif
-        if(!info->player)
+        if(bPlayer && !info->player)
         {
             delete info;
             return 0;
@@ -133,6 +138,7 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, AY_
 AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size, AbstractAudio *player)
 #endif
 {
+    bool bPlayer = true;
     AYSongInfo *info = ay_sys_getnewinfo();
     if(!info)
         return 0;
@@ -167,12 +173,16 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFi
 #ifdef WINDOWS
         info->player = new DXAudio(info);
 #else
+#ifndef DISABLE_SDL
         info->player = new SDLAudio(info);
+#else
+        bPlayer = false;
+#endif
 #endif
 #else
         info->player = new Cayfly_s60Audio(info);
 #endif    
-        if(!info->player)
+        if(bPlayer && !info->player)
         {
             delete info;
             return 0;
@@ -364,7 +374,7 @@ AYFLY_API void ay_setstoppedcallback(void *info, STOPPED_CALLBACK callback, void
 
 AYFLY_API bool ay_songstarted(void *info)
 {
-    return ((AYSongInfo *)info)->player->Started();
+    return ((AYSongInfo *)info)->player ? ((AYSongInfo *)info)->player->Started() : 0;
 }
 
 AYFLY_API void ay_startsong(void *info)

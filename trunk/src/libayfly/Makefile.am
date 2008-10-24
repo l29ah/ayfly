@@ -8,7 +8,9 @@ EXTRASUBDIRS =
 if IS_WINDOWS
 EXTRASUBDIRS += windows
 else
+if ENABLE_SDL
 EXTRASUBDIRS += unix
+endif
 endif
 
 SUBDIRS += $(EXTRASUBDIRS)
@@ -18,7 +20,9 @@ EXTRALIBS =
 if IS_WINDOWS
 EXTRALIBS += $(top_builddir)/src/libayfly/windows/DXAudio.o
 else
+if ENABLE_SDL
 EXTRALIBS += $(top_builddir)/src/libayfly/unix/SDLAudio.o
+endif
 endif
 
 libayfly_a_LIBADD = $(EXTRALIBS) $(top_builddir)/src/libayfly/z80ex/z80ex.o

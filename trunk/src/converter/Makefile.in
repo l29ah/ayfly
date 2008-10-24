@@ -50,7 +50,7 @@ ayfly_converter_OBJECTS = $(am_ayfly_converter_OBJECTS)
 am__DEPENDENCIES_1 =
 ayfly_converter_DEPENDENCIES =  \
 	$(top_builddir)/src/libayfly/libayfly.a $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -171,14 +171,14 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 INCLUDES = -I$(top_srcdir)/src/libayfly \
 	-I$(top_srcdir)/src/libayfly/z80ex \
-	-I$(top_srcdir)/src/libayfly/z80ex/include $(GUI_CXXFLAGS) \
-	$(all_includes) $(EXTRAINCLUDES)
+	-I$(top_srcdir)/src/libayfly/z80ex/include $(all_includes) \
+	$(EXTRAINCLUDES)
 ayfly_converter_SOURCES = converter_main.cpp
 @IS_UNIX_TRUE@EXTRAINCLUDES = $(SDL_CFLAGS)
 @IS_WINDOWS_TRUE@EXTRAINCLUDES = $(DX_CFLAGS)
 @IS_UNIX_TRUE@EXTRALDADD = $(SDL_LIBS)
 @IS_WINDOWS_TRUE@EXTRALDADD = $(DX_LIBS)
-ayfly_converter_LDADD = $(top_builddir)/src/libayfly/libayfly.a $(GUI_LIBS) $(SDL_LIBS) $(DX_LIBS)
+ayfly_converter_LDADD = $(top_builddir)/src/libayfly/libayfly.a $(SDL_LIBS) $(DX_LIBS)
 all: all-am
 
 .SUFFIXES:
