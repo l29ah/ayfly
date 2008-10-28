@@ -50,6 +50,7 @@ AYSongInfo *ay_sys_getnewinfo()
     info->chip_type = 0;
     info->own_player = true;
     info->stopping = false;
+    info->player_num = -1;
     for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
     {
         info->ay8910[i].SetParameters(info);
@@ -92,50 +93,40 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio 
 #endif
     }
 
-    if(!ay_sys_initz80(*info))
+    if(!ay_sys_readfromfile(*info))
     {
         delete info;
         info = 0;
     }
     else
     {
-        if(!ay_sys_readfromfile(*info))
+        if(!ay_sys_initsong(*info))
         {
             delete info;
             info = 0;
         }
         else
         {
-            if(!ay_sys_initsong(*info))
+            if(!info->bEmul)
             {
-                delete info;
-                info = 0;
+                if(info->init_proc)
+                    info->init_proc(*info);
             }
-            else
-            {
-                if(!info->bEmul)
-                {
-                    if(info->init_proc)
-                        info->init_proc(*info);
-                }
-                ay_sys_getsonginfoindirect(*info);
-            }
+            ay_sys_getsonginfoindirect(*info);
         }
     }
     return info;
 }
 
 #ifndef __SYMBIAN32__
-AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, AY_CHAR *type, unsigned long size, AbstractAudio *player)
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, unsigned long size, AbstractAudio *player)
 #else
-AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size, AbstractAudio *player)
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, unsigned long size, AbstractAudio *player)
 #endif
 {
-    bool bPlayer = true;
     AYSongInfo *info = ay_sys_getnewinfo();
     if(!info)
         return 0;
-    info->FilePath = type;
     info->file_len = size;
     info->module_len = size;
     unsigned long to_allocate = size < 65536 ? 65536 : size;
@@ -182,21 +173,13 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFi
     }
     else
     {
-        if(!ay_sys_initz80(*info))
+        if(!info->bEmul)
         {
-            delete info;
-            info = 0;
-        }
-        else
-        {
-            if(info->bEmul)
-                ay_sys_resetz80(*info);
-            else if(info->init_proc)
+            if(info->init_proc)
                 info->init_proc(*info);
-            ay_sys_getsonginfoindirect(*info);
         }
+        ay_sys_getsonginfoindirect(*info);
     }
-
     return info;
 }
 

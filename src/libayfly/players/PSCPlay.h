@@ -73,7 +73,6 @@ void PSC_Init(AYSongInfo &info)
     PSC_A.SamplePointer = PSC_SamplesPointers(0) + 0x4c;
     PSC_B.SamplePointer = PSC_A.SamplePointer;
     PSC_C.SamplePointer = PSC_A.SamplePointer;
-    //PSC_A.OrnamentPointer = (*(unsigned short *) &module[PSC_OrnamentsPointer]) + PSC_OrnamentsPointer;
     PSC_A.OrnamentPointer = ay_sys_getword(&module[PSC_OrnamentsPointer]) + PSC_OrnamentsPointer;
     PSC_B.OrnamentPointer = PSC_A.OrnamentPointer;
     PSC_C.OrnamentPointer = PSC_A.OrnamentPointer;

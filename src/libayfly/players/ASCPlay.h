@@ -428,9 +428,6 @@ void ASC_GetInfo(AYSongInfo &info)
     {
         if(ascLoopPos == i)
             info.Loop = tm;
-        //j1 = (*(unsigned short *)&module[ascPatPt + 6 * module[i + 9]]) + ascPatPt;
-        //j2 = (*(unsigned short *)&module[ascPatPt + 6 * module[i + 9] + 2]) + ascPatPt;
-        //j3 = (*(unsigned short *)&module[ascPatPt + 6 * module[i + 9] + 4]) + ascPatPt;
         j1 = ay_sys_getword(&module[ascPatPt + 6 * module[i + 9]]) + ascPatPt;
         j2 = ay_sys_getword(&module[ascPatPt + 6 * module[i + 9] + 2]) + ascPatPt;
         j3 = ay_sys_getword(&module[ascPatPt + 6 * module[i + 9] + 4]) + ascPatPt;

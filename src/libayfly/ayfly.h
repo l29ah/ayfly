@@ -123,8 +123,6 @@ struct AYSongInfo;
  */
 typedef bool (*ELAPSED_CALLBACK)(void *arg);
 
-typedef void (*STOPPED_CALLBACK)(void *arg);
-
 /*
  * Prototype for callback function, called when
  * song stopped.
@@ -135,10 +133,13 @@ typedef void (*STOPPED_CALLBACK)(void *arg);
  * }
  */
 
+typedef void (*STOPPED_CALLBACK)(void *arg);
+
 /* System callback prototypes */
 typedef void (*PLAYER_INIT_PROC)(AYSongInfo &info);
 typedef void (*PLAYER_PLAY_PROC)(AYSongInfo &info);
 typedef void (*PLAYER_CLEANUP_PROC)(AYSongInfo &info);
+typedef bool (*PLAYER_DETECT_PROC)(unsigned char *module, unsigned long length);
 
 #include "ayflyString.h"
 #include "ay.h"
@@ -191,6 +192,7 @@ struct AYSongInfo
     bool own_player; /* is player ws created during initialization by the library */
     bool stopping;
     ay ay8910 [NUMBER_OF_AYS];
+    long player_num;
     ~AYSongInfo();
 };
 
@@ -284,9 +286,9 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio 
  */
 
 #ifndef __SYMBIAN32__
-AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, AY_CHAR *type, unsigned long size, AbstractAudio *player = 0);
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, unsigned long size, AbstractAudio *player = 0);
 #else
-AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, TFileName type, unsigned long size, AbstractAudio *player = 0);
+AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, unsigned long size, AbstractAudio *player = 0);
 #endif
 
 /*
