@@ -328,7 +328,7 @@ void ay::ayStep(float &s0, float &s1, float &s2)
         s2 = s2 / (float)ay_tacts;
 }
 
-void ay::ayProcess(unsigned char *stream, unsigned long len)
+unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
 {
     unsigned long work_len = (len >> 2);
     float s0, s1, s2;
@@ -338,11 +338,14 @@ void ay::ayProcess(unsigned char *stream, unsigned long len)
         s0 = s1 = s2 = 0;
         if(songinfo->stopping == false)
             ayStep(s0, s1, s2);
+        else
+            return (i << 2);
         stream16[i * 2] = s0 + s1;
         stream16[i * 2 + 1] = s2 + s1;
     }
+    return len;
 }
-void ay::ayProcessMono(unsigned char *stream, unsigned long len)
+unsigned long ay::ayProcessMono(unsigned char *stream, unsigned long len)
 {
     unsigned long work_len = (len >> 2);
     float s0, s1, s2;
@@ -352,7 +355,10 @@ void ay::ayProcessMono(unsigned char *stream, unsigned long len)
         s0 = s1 = s2 = 0;
         if(songinfo->stopping == false)
             ayStep(s0, s1, s2);
+        else
+            return (i << 2);
         stream16[i] = s0 + s1 + s2;
     }
+    return len;
 
 }
