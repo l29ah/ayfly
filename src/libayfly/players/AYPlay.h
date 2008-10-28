@@ -52,6 +52,7 @@ void AY_initayfmt(AYSongInfo &info, ayData &aydata, unsigned char track)
 #undef GET_WORD
 #define GET_WORD(x) (((*(x))<<8)|(*(x+1)))
 
+    memset(info.module, 0, info.module_len);
     init = GET_WORD(aydata.tracks[track].data_points+2);
     interrupt = GET_WORD(aydata.tracks[track].data_points+4);
     ay_1st_block = GET_WORD(aydata.tracks[track].data_memblocks);
@@ -122,8 +123,7 @@ void AY_Init(AYSongInfo &info)
 #define GET_WORD(x) {(x) = (*ptr++) << 8; (x) |= *ptr++;}
 #define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
     ayData aydata;
-    unsigned char *module = info.module;
-    unsigned char *ptr = module;
+    unsigned char *ptr = info.file_data;
     unsigned char *ptr2;
     if(!ay_sys_initz80(info))
         return;
@@ -163,7 +163,6 @@ void AY_Init(AYSongInfo &info)
             aydata.tracks = 0;
         }
     }
-    ay_resetay(&info, 0);
 }
 
 void AY_Play(AYSongInfo &info)
@@ -173,10 +172,14 @@ void AY_Play(AYSongInfo &info)
         z80ex_step(info.z80ctx);
     }
     while(z80ex_get_reg(info.z80ctx, regPC) != 8);
+    
 }
 
 void AY_GetInfo(AYSongInfo &info)
 {
+#undef GET_WORD
+#define GET_WORD(x) {(x) = (*ptr++) << 8; (x) |= *ptr++;}
+#define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
     ayData aydata_loc;
     unsigned char *ptr = info.file_data;
     unsigned char *ptr2;
@@ -225,4 +228,12 @@ void AY_GetInfo(AYSongInfo &info)
 void AY_Cleanup(AYSongInfo &info)
 {
     ay_sys_shutdownz80(info);
+}
+
+bool AY_Detect(unsigned char *module, unsigned long length)
+{
+    unsigned char *ptr = module;
+    if(*ptr == 'Z' && *(ptr + 1) == 'X' && *(ptr + 2) == 'A' && *(ptr + 3) == 'Y' && *(ptr + 4) == 'E' && *(ptr + 5) == 'M' && *(ptr + 6) == 'U' && *(ptr + 7) == 'L')
+        return true;
+    return false;
 }

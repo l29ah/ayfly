@@ -107,11 +107,8 @@ AYFLY_API void *ay_initsong(TFileName FilePath, unsigned long sr, AbstractAudio 
         }
         else
         {
-            if(!info->bEmul)
-            {
-                if(info->init_proc)
-                    info->init_proc(*info);
-            }
+            if(info->init_proc)
+                info->init_proc(*info);
             ay_sys_getsonginfoindirect(*info);
         }
     }
@@ -173,11 +170,8 @@ AYFLY_API void *ay_initsongindirect(unsigned char *module, unsigned long sr, uns
     }
     else
     {
-        if(!info->bEmul)
-        {
-            if(info->init_proc)
-                info->init_proc(*info);
-        }
+        if(info->init_proc)
+            info->init_proc(*info);
         ay_sys_getsonginfoindirect(*info);
     }
     return info;
