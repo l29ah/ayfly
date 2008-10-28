@@ -79,6 +79,11 @@ Z80EX_BYTE readInt(Z80EX_CONTEXT *cpu, void *user_data)
 
 bool ay_sys_initz80(AYSongInfo &info)
 {
+    if(info.z80ctx)
+    {
+        z80ex_destroy(info.z80ctx);
+        info.z80ctx = 0;
+    }
     info.z80ctx = z80ex_create(readMemory, &info, writeMemory, &info, readPort, &info, writePort, &info, readInt, 0);
     if(!info.z80ctx)
         return false;
@@ -100,26 +105,13 @@ void ay_sys_shutdownz80(AYSongInfo &info)
         z80ex_destroy(info.z80ctx);
         info.z80ctx = 0;
     }
-    if(info.module)
-        memset(info.module, 0, 65536);
     if(info.z80IO)
         memset(info.z80IO, 0, 65536);
 }
 
 void ay_sys_z80exec(AYSongInfo &info)
 {
-    if(info.play_proc)
-    {
-        info.play_proc(info);
-    }
-    else
-    {
-        do
-        {
-            z80ex_step(info.z80ctx);
-        }
-        while (z80ex_get_reg(info.z80ctx, regPC) != 8);
-    }
+    info.play_proc(info);
     
     if (++info.timeElapsed >= info.Length)
     {
