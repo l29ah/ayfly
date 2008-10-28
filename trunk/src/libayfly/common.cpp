@@ -377,10 +377,10 @@ AYFLY_API const unsigned char *ay_getregs(void *info, unsigned char chip_num)
     return ((AYSongInfo *)info)->ay8910[chip_num].GetRegs();
 }
 
-AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned char chip_num)
+AYFLY_API unsigned long ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned char chip_num)
 {
     ay_stopsong(info);
-    ((AYSongInfo *)info)->ay8910[chip_num].ayProcess(buffer, buffer_length);
+    return ((AYSongInfo *)info)->ay8910[chip_num].ayProcess(buffer, buffer_length);
 }
 
 AYFLY_API unsigned long ay_getz80freq(void *info)

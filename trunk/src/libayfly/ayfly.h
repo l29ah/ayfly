@@ -492,7 +492,7 @@ AYFLY_API const unsigned char *ay_getregs(void *info, unsigned char chip_num = 0
  * with size @buffer_length bytes
  */
 
-AYFLY_API void ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned char chip_num = 0);
+AYFLY_API unsigned long ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned char chip_num = 0);
 
 /*
  * Returns z80 frequency

@@ -115,8 +115,8 @@ int main(int argc, char **argv)
 
     while(!end)
     {
-        ay_rendersongbuffer(song, buffer, sizeof(buffer));
-        fwrite(buffer, 1, sizeof(buffer), stdout);
+        unsigned long written = ay_rendersongbuffer(song, buffer, sizeof(buffer));
+        fwrite(buffer, 1, written, stdout);
     }
 
     ay_closesong(&song);

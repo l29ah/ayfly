@@ -51,8 +51,8 @@ public:
     void ayReset();
     void ayWrite(unsigned char reg, unsigned char val);
     unsigned char ayRead(unsigned char reg);
-    void ayProcess(unsigned char *stream, unsigned long len);
-    void ayProcessMono(unsigned char *stream, unsigned long len);
+    unsigned long ayProcess(unsigned char *stream, unsigned long len);
+    unsigned long ayProcessMono(unsigned char *stream, unsigned long len);
     inline void chnlMute(unsigned long chnl, bool mute)
     {
         chnl_mute[chnl] = !mute;
