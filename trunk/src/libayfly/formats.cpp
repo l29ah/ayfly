@@ -75,7 +75,7 @@ static const _Players Players[] =
 { TXT(".stc"), 0, 0, 0, 0, 0, STC_Init, 0, STC_Play, STC_Cleanup, STC_GetInfo, STC_Detect },
 { TXT(".stp"), 0, 0, 0, 0, 0, STP_Init, 0, STP_Play, STP_Cleanup, STP_GetInfo, STP_Detect },
 { TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_Cleanup, PSC_GetInfo, PSC_Detect },
-{ TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_Cleanup, SQT_GetInfo, 0 },
+{ TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_Cleanup, SQT_GetInfo, SQT_Detect },
 { TXT(".psg"), 0, 0, 0, 0, 0, PSG_Init, 0, PSG_Play, PSG_Cleanup, PSG_GetInfo, 0 },
 { TXT(".pt1"), 0, 0, 0, 0, 0, PT1_Init, 0, PT1_Play, PT1_Cleanup, PT1_GetInfo, PT1_Detect },
 { TXT(".vtx"), 0, 0, 0, 0, 0, VTX_Init, 0, VTX_Play, VTX_Cleanup, VTX_GetInfo, 0 },
