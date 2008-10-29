@@ -28,7 +28,7 @@ unsigned short ay_sys_getword(unsigned char *p)
 void ay_sys_writeword(unsigned char *p, unsigned short val)
 {
     *p = (unsigned char)(val & 0xff);
-    *(p + 1) = (unsigned char) ((val >> 8) & 0xff);
+    *(p + 1) = (unsigned char)((val >> 8) & 0xff);
 }
 
 void ay_sys_initz80module(AYSongInfo &info, unsigned long player_base, const unsigned char *player_ptr, unsigned long player_length, unsigned long player_init_proc, unsigned long player_play_proc);
@@ -63,6 +63,7 @@ struct _Players
 
 static const _Players Players[] =
 {
+{ TXT(".ay"), AY_Init, AY_Play, AY_Cleanup, AY_GetInfo, AY_Detect }, 
 { TXT(".asc"), ASC_Init, ASC_Play, ASC_Cleanup, ASC_GetInfo, ASC_Detect },
 { TXT(".pt2"), PT2_Init, PT2_Play, PT2_Cleanup, PT2_GetInfo, PT2_Detect },
 { TXT(".pt3"), PT3_Init, PT3_Play, PT3_Cleanup, PT3_GetInfo, PT3_Detect },
@@ -72,8 +73,8 @@ static const _Players Players[] =
 { TXT(".sqt"), SQT_Init, SQT_Play, SQT_Cleanup, SQT_GetInfo, SQT_Detect },
 { TXT(".psg"), PSG_Init, PSG_Play, PSG_Cleanup, PSG_GetInfo, PSG_Detect },
 { TXT(".pt1"), PT1_Init, PT1_Play, PT1_Cleanup, PT1_GetInfo, PT1_Detect },
-{ TXT(".vtx"), VTX_Init, VTX_Play, VTX_Cleanup, VTX_GetInfo, VTX_Detect },
-{ TXT(".ay"), AY_Init, AY_Play, AY_Cleanup, AY_GetInfo, AY_Detect } };
+{ TXT(".vtx"), VTX_Init, VTX_Play, VTX_Cleanup, VTX_GetInfo, VTX_Detect }
+};
 
 #ifndef __SYMBIAN32__
 bool ay_sys_format_supported(AY_TXT_TYPE filePath)
@@ -199,24 +200,22 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
     return fileData;
 }
 
-bool ay_sys_initsong(AYSongInfo &info)
+long ay_sys_detect(AYSongInfo &info)
 {
-    unsigned long player = 0;
-    unsigned char *fileData = info.file_data;
-    unsigned long fileLength = info.file_len;
-#define GET_WORD(x) {(x) = (*ptr++) << 8; (x) |= *ptr++;}
-#define GET_PTR(x) {unsigned long tmp; GET_WORD(tmp); if(tmp >= 0x8000) tmp=-0x10000+tmp; (x)=ptr-2+tmp;}
-
-    memset(info.module, 0, info.file_len);
-    memcpy(info.module, info.file_data, info.file_len);
+    long player = -1;
+    unsigned char *tmp_module = new unsigned char [info.file_len];
+    if(!tmp_module)
+        return -1;
+    memcpy(tmp_module, info.file_data, info.file_len);
     for(player = 0; player < sizeof_array(Players); player++)
     {
         if(Players[player].detect != 0)
         {
-            if(Players[player].detect(info.module, info.module_len))
+            if(Players[player].detect(tmp_module, info.module_len))
                 break;
         }
     }
+    delete [] tmp_module;
 
     if((player >= sizeof_array(Players)) && (info.FilePath.compare(TXT(""))))
     {
@@ -247,14 +246,22 @@ bool ay_sys_initsong(AYSongInfo &info)
 #endif
     }
     if(player >= sizeof_array(Players))
+        player = -1;
+    return player;
+}
+
+bool ay_sys_initsong(AYSongInfo &info)
+{
+    info.player_num = ay_sys_detect(info);
+
+    if(info.player_num < 0)
         return false;
 
-    info.player_num = player;
     memset(info.module, 0, info.file_len);
-    memcpy(info.module, fileData, fileLength);
-    info.init_proc = Players[player].soft_init_proc;
-    info.play_proc = Players[player].soft_play_proc;
-    info.cleanup_proc = Players[player].soft_cleanup_proc;
+    memcpy(info.module, info.file_data, info.file_len);
+    info.init_proc = Players[info.player_num].soft_init_proc;
+    info.play_proc = Players[info.player_num].soft_play_proc;
+    info.cleanup_proc = Players[info.player_num].soft_cleanup_proc;
     info.bEmul = false;
     return true;
 }
@@ -325,15 +332,15 @@ bool ay_sys_getsonginfoindirect(AYSongInfo &info)
     info.Loop = 0;
     info.Name = TXT("");
     info.Author = TXT("");
-    if(info.player_num > -1)
+    info.player_num = ay_sys_detect(info);
+    if(info.player_num < 0)
+        return false;
+    if(Players[info.player_num].getInfo)
     {
-        if(Players[info.player_num].getInfo)
-        {
-            Players[info.player_num].getInfo(info);
-            return true;
-        }
-
+        Players[info.player_num].getInfo(info);
+        return true;
     }
+    return false;
 }
 bool ay_sys_getsonginfo(AYSongInfo &info)
 {

@@ -21,8 +21,6 @@
 #ifndef AY_H_
 #define AY_H_
 
-#define AYREG_TAIL_LEN 10
-
 enum
 {
     AY_CHNL_A_FINE = 0,
@@ -75,9 +73,7 @@ public:
     ;
     inline const unsigned char *GetRegs()
     {
-        unsigned long i = ayreg_readptr;
-        ayreg_readptr = ++ayreg_readptr % AYREG_TAIL_LEN;
-        return ayreg_tail [i];
+        return regs;
     };
 
     void SetParameters(AYSongInfo *_songinfo = 0);
@@ -113,9 +109,6 @@ private:
     unsigned long int_counter;
     unsigned long int_limit;
     AYSongInfo *songinfo;
-    unsigned char ayreg_tail [AYREG_TAIL_LEN] [16];
-    unsigned long ayreg_readptr;
-    unsigned long ayreg_writeptr;
     inline void ayStep(float &s0, float &s1, float &s2);
 };
 
