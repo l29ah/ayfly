@@ -49,16 +49,15 @@ struct PSC_SongInfo
 void PSC_Init(AYSongInfo &info)
 {
     unsigned char *module = info.module;
-    PSC_File *header = (PSC_File *) module;
+    PSC_File *header = (PSC_File *)module;
     if(info.data)
     {
-        delete (ASC_SongInfo *) info.data;
+        delete (ASC_SongInfo *)info.data;
         info.data = 0;
     }
-    info.data = (void *) new PSC_SongInfo;
+    info.data = (void *)new PSC_SongInfo;
     if(!info.data)
         return;
-    
 
     PSC.DelayCounter = 1;
     PSC.Delay = header->PSC_Delay;
@@ -106,7 +105,7 @@ void PSC_Init(AYSongInfo &info)
 void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
 {
     unsigned char *module = info.module;
-    PSC_File *header = (PSC_File *) module;
+    PSC_File *header = (PSC_File *)module;
     bool quit;
     bool b1b, b2b, b3b, b4b, b5b, b6b, b7b;
     quit = b1b = b2b = b3b = b4b = b5b = b6b = b7b = false;
@@ -121,7 +120,7 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
         else if(val >= 0xa0 && val <= 0xbf)
         {
             //chan.OrnamentPointer = (*(unsigned short *) &module[PSC_OrnamentsPointer + (val - 0xa0) * 2]) +PSC_OrnamentsPointer;
-            chan.OrnamentPointer = ay_sys_getword(&module[PSC_OrnamentsPointer + (val - 0xa0) * 2]) +PSC_OrnamentsPointer;
+            chan.OrnamentPointer = ay_sys_getword(&module[PSC_OrnamentsPointer + (val - 0xa0) * 2]) + PSC_OrnamentsPointer;
         }
         else if(val >= 0x7e && val <= 0x9f)
         {
@@ -137,7 +136,7 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
         else if(val == 0x6c)
         {
             chan.Address_In_Pattern++;
-            chan.Addition_To_Ton = -(signed char) (module[chan.Address_In_Pattern]);
+            chan.Addition_To_Ton = -(signed char)(module[chan.Address_In_Pattern]);
             b5b = true;
         }
         else if(val == 0x6d)
@@ -214,7 +213,8 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
         else
             chan.Address_In_Pattern++;
         chan.Address_In_Pattern++;
-    } while(!quit);
+    }
+    while(!quit);
 
     if(b7b)
     {
@@ -251,7 +251,7 @@ void PSC_PatternInterpreter(AYSongInfo &info, PSC_Channel_Parameters &chan)
         chan.Volume_Inc = true;
         if((chan.Volume_Counter & 0x40) != 0)
         {
-            chan.Volume_Counter = -(signed char) (chan.Volume_Counter | 128);
+            chan.Volume_Counter = -(signed char)(chan.Volume_Counter | 128);
             chan.Volume_Inc = false;
         }
         chan.Volume_Counter_Init = chan.Volume_Counter;
@@ -280,7 +280,7 @@ void PSC_GetRegisters(AYSongInfo &info, PSC_Channel_Parameters &chan, unsigned c
             b = module[chan.OrnamentPointer + chan.Position_In_Ornament * 2];
             chan.Noise_Accumulator += b;
             j += module[chan.OrnamentPointer + chan.Position_In_Ornament * 2 + 1];
-            if((signed char) j < 0)
+            if((signed char)j < 0)
                 j += 0x56;
             if(j > 0x55)
                 j -= 0x56;
@@ -340,7 +340,7 @@ void PSC_GetRegisters(AYSongInfo &info, PSC_Channel_Parameters &chan, unsigned c
             }
         }
         chan.Volume += j;
-        if((signed char) chan.Volume < 0)
+        if((signed char)chan.Volume < 0)
             chan.Volume = 0;
         else if(chan.Volume > 15)
             chan.Volume = 15;
@@ -350,7 +350,7 @@ void PSC_GetRegisters(AYSongInfo &info, PSC_Channel_Parameters &chan, unsigned c
         if(((chan.Amplitude & 16) != 0) & ((b & 8) != 0))
         {
             unsigned short env = ay_readay(&info, AY_ENV_FINE) | (ay_readay(&info, AY_ENV_COARSE) << 8);
-            env += (signed char) (module[chan.SamplePointer + chan.Position_In_Sample * 6 + 2]);
+            env += (signed char)(module[chan.SamplePointer + chan.Position_In_Sample * 6 + 2]);
             ay_writeay(&info, AY_ENV_FINE, env & 0xff);
             ay_writeay(&info, AY_ENV_COARSE, (env >> 8) & 0xff);
         }
@@ -390,7 +390,7 @@ void PSC_Play(AYSongInfo &info)
 {
     unsigned char *module = info.module;
     unsigned char TempMixer;
-  
+
     if(--PSC.DelayCounter <= 0)
     {
         if(--PSC.Lines_Counter <= 0)
@@ -443,7 +443,7 @@ void PSC_Play(AYSongInfo &info)
 void PSC_GetInfo(AYSongInfo &info)
 {
     unsigned char *module = info.file_data;
-    PSC_File *header = (PSC_File *) module;
+    PSC_File *header = (PSC_File *)module;
     unsigned char b;
     unsigned long tm = 0;
     int i;
@@ -585,7 +585,86 @@ void PSC_Cleanup(AYSongInfo &info)
 {
     if(info.data)
     {
-        delete (PSC_SongInfo *) info.data;
+        delete (PSC_SongInfo *)info.data;
         info.data = 0;
     }
+}
+
+bool PSC_Detect(unsigned char *module, unsigned long length)
+{
+    int j, j1;
+    PSC_File *header = (PSC_File *)module;
+    if(length < 0x4c + 2)
+        return false;
+    if(PSC_OrnamentsPointer >= length)
+        return false;
+    if(PSC_OrnamentsPointer < 0x4c + 2)
+        return false;
+    if(PSC_OrnamentsPointer > 64 + 0x4c)
+        return false;
+    if((PSC_OrnamentsPointer % 2) != 0)
+        return false;
+    if(PSC_SamplesPointers(0) + 0x4c + 5 > 65534)
+        return false;
+    if(PSC_SamplesPointers(0) + 0x4c + 5 > length)
+        return false;
+
+    j = ay_sys_getword(&module[PSC_OrnamentsPointer]);
+    j += PSC_OrnamentsPointer;
+    if(j > 65535)
+        return false;
+    if(j >= length)
+        return false;
+
+    j1 = 0;
+    j1 = ay_sys_getword(&module[PSC_OrnamentsPointer-2]);
+    j1 += 0x4c;
+    if(j1 > 65535)
+        return false;
+    if(j1 >= length)
+        return false;
+    if(j - j1 < 8)
+        return false;
+    if(((j - j1) % 6) != 2)
+        return false;
+
+    j1 = PSC_SamplesPointers(0) + 0x4c + 4;
+    while((j1 < 65536) && (j1 <= length) && ((module[j1] & 32) != 0))
+        j1 += 6;
+    if(j1 > 65534)
+        return false;
+    if(j1 > length)
+        return false;
+
+    if(PSC_OrnamentsPointer - 0x4c - 2 > 0)
+    {
+        if(j1 + 3 != PSC_SamplesPointers(1) + 0x4c)
+            return false;
+    }
+    else if(j1 + 4 != j)
+        return false;
+
+    if(PSC_PatternsPointer + 11 > 65535)
+        return false;
+    if(PSC_PatternsPointer + 11 >= length)
+        return false;
+
+    j = PSC_PatternsPointer + 1;
+    if(module[j] == 255)
+        return false;
+
+    while(1)
+    {
+        j += 8;
+        if((j > 65532) && (j + 2 > length) || (module[j] == 255))
+            break;
+    }
+    
+    if(j > 65532)
+        return false;
+    if(j + 2 > length)
+        return false;
+
+    return true;
+
 }
