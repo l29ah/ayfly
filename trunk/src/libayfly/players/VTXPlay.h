@@ -20,7 +20,7 @@ struct VTX_SongInfo
     int i;
     unsigned long VTX_Offset;
     unsigned long Position_In_VTX;
-    
+
 };
 
 #define VTX ((VTX_SongInfo *)info.data)
@@ -28,13 +28,13 @@ struct VTX_SongInfo
 void VTX_Init(AYSongInfo &info)
 {
     unsigned char *module = info.file_data;
-    VTX_File *header = (VTX_File *) module;
+    VTX_File *header = (VTX_File *)module;
     if(info.data)
     {
-        delete (VTX_SongInfo *) info.data;
+        delete (VTX_SongInfo *)info.data;
         info.data = 0;
     }
-    info.data = (void *) new VTX_SongInfo;
+    info.data = (void *)new VTX_SongInfo;
     if(!info.data)
         return;
     memset(info.data, 0, sizeof(VTX_SongInfo));
@@ -46,15 +46,15 @@ void VTX_Init(AYSongInfo &info)
         info.chip_type = 0;
     else
         info.chip_type = 1;
-    
-    ay_setchiptype(&info, info.chip_type);    
+
+    ay_setchiptype(&info, info.chip_type);
     ay_setayfreq(&info, VTX_ChipFrq);
-                    
+
     if(info.module != 0)
     {
-        delete [] info.module;
+        delete[] info.module;
         info.module_len = VTX_UnpackSize * 2;
-        info.module = new unsigned char [info.module_len];
+        info.module = new unsigned char[info.module_len];
         memset(info.module, 0, info.module_len);
     }
     char *p = (char *)info.file_data + sizeof(VTX_File);
@@ -95,31 +95,31 @@ void VTX_Play(AYSongInfo &info)
             case 1:
             case 3:
             case 5:
-                ay_writeay(&info, i, module [VTX->Position_In_VTX + k] & 15);
+                ay_writeay(&info, i, module[VTX->Position_In_VTX + k] & 15);
                 break;
             case 6:
-                ay_writeay(&info, AY_NOISE_PERIOD, module [VTX->Position_In_VTX + k] & 31);
+                ay_writeay(&info, AY_NOISE_PERIOD, module[VTX->Position_In_VTX + k] & 31);
                 break;
             case 7:
-                ay_writeay(&info, AY_MIXER, module [VTX->Position_In_VTX + k] & 63);
+                ay_writeay(&info, AY_MIXER, module[VTX->Position_In_VTX + k] & 63);
                 break;
             case 8:
-                ay_writeay(&info, AY_CHNL_A_VOL, module [VTX->Position_In_VTX + k] & 31);
+                ay_writeay(&info, AY_CHNL_A_VOL, module[VTX->Position_In_VTX + k] & 31);
                 break;
             case 9:
-                ay_writeay(&info, AY_CHNL_B_VOL, module [VTX->Position_In_VTX + k] & 31);
+                ay_writeay(&info, AY_CHNL_B_VOL, module[VTX->Position_In_VTX + k] & 31);
                 break;
             case 10:
-                ay_writeay(&info, AY_CHNL_C_VOL, module [VTX->Position_In_VTX + k] & 31);
+                ay_writeay(&info, AY_CHNL_C_VOL, module[VTX->Position_In_VTX + k] & 31);
                 break;
             default:
-                ay_writeay(&info, i, module [VTX->Position_In_VTX + k]);
+                ay_writeay(&info, i, module[VTX->Position_In_VTX + k]);
                 break;
         }
         k += info.Length;
     }
-    if(module [VTX->Position_In_VTX + k] != 255)
-        ay_writeay(&info, AY_ENV_SHAPE, module [VTX->Position_In_VTX + k] & 15);
+    if(module[VTX->Position_In_VTX + k] != 255)
+        ay_writeay(&info, AY_ENV_SHAPE, module[VTX->Position_In_VTX + k] & 15);
     VTX->Position_In_VTX++;
     if(VTX->Position_In_VTX > info.Length)
         VTX->Position_In_VTX = info.Loop;
@@ -129,7 +129,7 @@ void VTX_Cleanup(AYSongInfo &info)
 {
     if(info.data)
     {
-        delete (VTX_SongInfo *) info.data;
+        delete (VTX_SongInfo *)info.data;
         info.data = 0;
     }
 }
@@ -137,8 +137,15 @@ void VTX_Cleanup(AYSongInfo &info)
 void VTX_GetInfo(AYSongInfo &info)
 {
     unsigned char *module = info.file_data;
-    VTX_File *header = (VTX_File *) module;
+    VTX_File *header = (VTX_File *)module;
     info.Length = VTX_UnpackSize / 14;
     info.Loop = VTX_Loop;
-    
+}
+
+bool VTX_Detect(unsigned char *module, unsigned long length)
+{
+    if((((module[0] = 'a') && (module[1] = 'y')) || ((module[0] = 'y') && (module[1] = 'm')) || ((module[0] = 'A') && (module[1] = 'Y')) || ((module[0] = 'Y') && (module[1] = 'M'))) && (module[2] >= 0 && module[2] <= 6))
+        return true;
+    return false;
+
 }

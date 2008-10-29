@@ -135,3 +135,12 @@ void PSG_Cleanup(AYSongInfo &info)
         info.data = 0;
     }
 }
+
+bool PSG_Detect(unsigned char *module, unsigned long length)
+{
+    char psg_sig [] = {0x50, 0x53, 0x47, 0x1a};
+    char epsg_sig [] = "EPSG";
+    if(!memcmp(module, psg_sig, 4) || !memcmp(module, epsg_sig, 4))
+        return true;
+    return false;
+}

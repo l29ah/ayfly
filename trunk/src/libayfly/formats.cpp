@@ -54,13 +54,7 @@ struct _Players
 #else
     const TText *ext;
 #endif
-    const unsigned char *player;
-    unsigned long player_base;
-    unsigned long length;
-    unsigned long module_base;
-    unsigned long emul_init_proc;
     PLAYER_INIT_PROC soft_init_proc;
-    unsigned long emul_play_proc;
     PLAYER_PLAY_PROC soft_play_proc;
     PLAYER_CLEANUP_PROC soft_cleanup_proc;
     GETINFO_CALLBACK getInfo;
@@ -69,17 +63,17 @@ struct _Players
 
 static const _Players Players[] =
 {
-{ TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASC_Cleanup, ASC_GetInfo, ASC_Detect },
-{ TXT(".pt2"), 0, 0, 0, 0, 0, PT2_Init, 0, PT2_Play, PT2_Cleanup, PT2_GetInfo, PT2_Detect },
-{ TXT(".pt3"), 0, 0, 0, 0, 0, PT3_Init, 0, PT3_Play, PT3_Cleanup, PT3_GetInfo, PT3_Detect },
-{ TXT(".stc"), 0, 0, 0, 0, 0, STC_Init, 0, STC_Play, STC_Cleanup, STC_GetInfo, STC_Detect },
-{ TXT(".stp"), 0, 0, 0, 0, 0, STP_Init, 0, STP_Play, STP_Cleanup, STP_GetInfo, STP_Detect },
-{ TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_Cleanup, PSC_GetInfo, PSC_Detect },
-{ TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_Cleanup, SQT_GetInfo, SQT_Detect },
-{ TXT(".psg"), 0, 0, 0, 0, 0, PSG_Init, 0, PSG_Play, PSG_Cleanup, PSG_GetInfo, 0 },
-{ TXT(".pt1"), 0, 0, 0, 0, 0, PT1_Init, 0, PT1_Play, PT1_Cleanup, PT1_GetInfo, PT1_Detect },
-{ TXT(".vtx"), 0, 0, 0, 0, 0, VTX_Init, 0, VTX_Play, VTX_Cleanup, VTX_GetInfo, 0 },
-{ TXT(".ay"), 0, 0, 0, 0, 0, AY_Init, 0, AY_Play, AY_Cleanup, AY_GetInfo, AY_Detect } };
+{ TXT(".asc"), ASC_Init, ASC_Play, ASC_Cleanup, ASC_GetInfo, ASC_Detect },
+{ TXT(".pt2"), PT2_Init, PT2_Play, PT2_Cleanup, PT2_GetInfo, PT2_Detect },
+{ TXT(".pt3"), PT3_Init, PT3_Play, PT3_Cleanup, PT3_GetInfo, PT3_Detect },
+{ TXT(".stc"), STC_Init, STC_Play, STC_Cleanup, STC_GetInfo, STC_Detect },
+{ TXT(".stp"), STP_Init, STP_Play, STP_Cleanup, STP_GetInfo, STP_Detect },
+{ TXT(".psc"), PSC_Init, PSC_Play, PSC_Cleanup, PSC_GetInfo, PSC_Detect },
+{ TXT(".sqt"), SQT_Init, SQT_Play, SQT_Cleanup, SQT_GetInfo, SQT_Detect },
+{ TXT(".psg"), PSG_Init, PSG_Play, PSG_Cleanup, PSG_GetInfo, PSG_Detect },
+{ TXT(".pt1"), PT1_Init, PT1_Play, PT1_Cleanup, PT1_GetInfo, PT1_Detect },
+{ TXT(".vtx"), VTX_Init, VTX_Play, VTX_Cleanup, VTX_GetInfo, VTX_Detect },
+{ TXT(".ay"), AY_Init, AY_Play, AY_Cleanup, AY_GetInfo, AY_Detect } };
 
 #ifndef __SYMBIAN32__
 bool ay_sys_format_supported(AY_TXT_TYPE filePath)
