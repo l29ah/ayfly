@@ -5,8 +5,16 @@
  (c)1999-2004 S.V.Bulba
  */
 const unsigned short ASM_Table[] =
-{ 0xedc, 0xe07, 0xd3e, 0xc80, 0xbcc, 0xb22, 0xa82, 0x9ec, 0x95c, 0x8d6, 0x858, 0x7e0, 0x76e, 0x704, 0x69f, 0x640, 0x5e6, 0x591, 0x541, 0x4f6, 0x4ae, 0x46b, 0x42c, 0x3f0, 0x3b7, 0x382, 0x34f, 0x320, 0x2f3, 0x2c8, 0x2a1, 0x27b, 0x257, 0x236, 0x216, 0x1f8, 0x1dc, 0x1c1, 0x1a8, 0x190, 0x179, 0x164, 0x150, 0x13d, 0x12c, 0x11b, 0x10b, 0xfc, 0xee, 0xe0, 0xd4, 0xc8, 0xbd, 0xb2, 0xa8, 0x9f, 0x96, 0x8d, 0x85, 0x7e, 0x77, 0x70, 0x6a, 0x64, 0x5e, 0x59, 0x54, 0x50, 0x4b, 0x47, 0x43, 0x3f, 0x3c, 0x38, 0x35,
-        0x32, 0x2f, 0x2d, 0x2a, 0x28, 0x26, 0x24, 0x22, 0x20, 0x1e, 0x1c };
+{ 0xedc, 0xe07, 0xd3e, 0xc80, 0xbcc, 0xb22, 0xa82, 0x9ec, 0x95c, 0x8d6, 0x858, 0x7e0, 0x76e, 0x704, 0x69f, 0x640, 0x5e6, 0x591, 0x541, 0x4f6, 0x4ae, 0x46b, 0x42c, 0x3f0, 0x3b7, 0x382, 0x34f, 0x320, 0x2f3, 0x2c8, 0x2a1, 0x27b, 0x257, 0x236, 0x216, 0x1f8, 0x1dc, 0x1c1, 0x1a8, 0x190, 0x179, 0x164, 0x150, 0x13d, 0x12c, 0x11b, 0x10b, 0xfc, 0xee, 0xe0, 0xd4, 0xc8, 0xbd, 0xb2, 0xa8, 0x9f, 0x96, 0x8d, 0x85, 0x7e, 0x77, 0x70, 0x6a, 0x64, 0x5e, 0x59, 0x54, 0x50, 0x4b, 0x47, 0x43, 0x3f, 0x3c, 0x38, 0x35, 0x32, 0x2f, 0x2d, 0x2a, 0x28, 0x26, 0x24, 0x22, 0x20, 0x1e, 0x1c };
+struct ASC0_File
+{
+    unsigned char ASC0_Delay;
+    unsigned char ASC0_PatternsPointers0, ASC0_PatternsPointers1;
+    unsigned char ASC0_SamplesPointers0, ASC0_SamplesPointers1;
+    unsigned char ASC0_OrnamentsPointers0, ASC0_OrnamentsPointers1;
+    unsigned char ASC0_Number_Of_Positions;
+    unsigned char ASC0_Positions[65536 - 8];
+};
 
 struct ASC1_File
 {
@@ -20,6 +28,10 @@ struct ASC1_File
 #define ASC1_PatternsPointers (header->ASC1_PatternsPointers0 | (header->ASC1_PatternsPointers1 << 8))
 #define ASC1_SamplesPointers (header->ASC1_SamplesPointers0 | (header->ASC1_SamplesPointers1 << 8))
 #define ASC1_OrnamentsPointers (header->ASC1_OrnamentsPointers0 | (header->ASC1_OrnamentsPointers1 << 8))
+
+#define ASC0_PatternsPointers (header->ASC0_PatternsPointers0 | (header->ASC0_PatternsPointers1 << 8))
+#define ASC0_SamplesPointers (header->ASC0_SamplesPointers0 | (header->ASC0_SamplesPointers1 << 8))
+#define ASC0_OrnamentsPointers (header->ASC0_OrnamentsPointers0 | (header->ASC0_OrnamentsPointers1 << 8))
 
 struct ASC_Channel_Parameters
 {
@@ -51,14 +63,14 @@ struct ASC_SongInfo
 void ASC_Init(AYSongInfo &info)
 {
     unsigned char *module = info.module;
-    ASC1_File *header = (ASC1_File *) module;
+    ASC1_File *header = (ASC1_File *)module;
     unsigned short ascPatPt = ASC1_PatternsPointers;
     if(info.data)
     {
-        delete (ASC_SongInfo *) info.data;
+        delete (ASC_SongInfo *)info.data;
         info.data = 0;
     }
-    info.data = (void *) new ASC_SongInfo;
+    info.data = (void *)new ASC_SongInfo;
     if(!info.data)
         return;
     memset(&ASC_A, 0, sizeof(ASC_Channel_Parameters));
@@ -77,7 +89,7 @@ void ASC_Init(AYSongInfo &info)
 void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
 {
     unsigned char *module = info.module;
-    ASC1_File *header = (ASC1_File *) module;
+    ASC1_File *header = (ASC1_File *)module;
     short delta_ton;
     bool Initialization_Of_Ornament_Disabled, Initialization_Of_Sample_Disabled;
 
@@ -93,7 +105,7 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
             chan.Note = val;
             chan.Address_In_Pattern++;
             chan.Current_Noise = chan.Initial_Noise;
-            if((signed char) (chan.Ton_Sliding_Counter) <= 0)
+            if((signed char)(chan.Ton_Sliding_Counter) <= 0)
                 chan.Current_Ton_Sliding = 0;
             if(!Initialization_Of_Sample_Disabled)
             {
@@ -183,13 +195,13 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
         else if(val == 0xf5)
         {
             chan.Address_In_Pattern++;
-            chan.Substruction_for_Ton_Sliding = -(signed char) (module[chan.Address_In_Pattern]) * 16;
+            chan.Substruction_for_Ton_Sliding = -(signed char)(module[chan.Address_In_Pattern]) * 16;
             chan.Ton_Sliding_Counter = 255;
         }
         else if(val == 0xf6)
         {
             chan.Address_In_Pattern++;
-            chan.Substruction_for_Ton_Sliding = (signed char) (module[chan.Address_In_Pattern]) * 16;
+            chan.Substruction_for_Ton_Sliding = (signed char)(module[chan.Address_In_Pattern]) * 16;
             chan.Ton_Sliding_Counter = 255;
         }
         else if(val == 0xf7)
@@ -201,9 +213,9 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
             else
                 delta_ton = chan.Current_Ton_Sliding / 16;
             delta_ton = delta_ton << 4;
-            chan.Substruction_for_Ton_Sliding = -delta_ton / (signed char) (module[chan.Address_In_Pattern]);
-            chan.Current_Ton_Sliding = delta_ton - delta_ton % (signed char) (module[chan.Address_In_Pattern]);
-            chan.Ton_Sliding_Counter = (signed char) (module[chan.Address_In_Pattern]);
+            chan.Substruction_for_Ton_Sliding = -delta_ton / (signed char)(module[chan.Address_In_Pattern]);
+            chan.Current_Ton_Sliding = delta_ton - delta_ton % (signed char)(module[chan.Address_In_Pattern]);
+            chan.Ton_Sliding_Counter = (signed char)(module[chan.Address_In_Pattern]);
         }
         else if(val == 0xf8)
         {
@@ -219,9 +231,9 @@ void ASC_PatternInterpreter(AYSongInfo &info, ASC_Channel_Parameters &chan)
             else
                 delta_ton = chan.Current_Ton_Sliding / 16;
             delta_ton = delta_ton << 4;
-            chan.Substruction_for_Ton_Sliding = -delta_ton / (signed char) (module[chan.Address_In_Pattern]);
-            chan.Current_Ton_Sliding = delta_ton - delta_ton % (signed char) (module[chan.Address_In_Pattern]);
-            chan.Ton_Sliding_Counter = (signed char) (module[chan.Address_In_Pattern]);
+            chan.Substruction_for_Ton_Sliding = -delta_ton / (signed char)(module[chan.Address_In_Pattern]);
+            chan.Current_Ton_Sliding = delta_ton - delta_ton % (signed char)(module[chan.Address_In_Pattern]);
+            chan.Ton_Sliding_Counter = (signed char)(module[chan.Address_In_Pattern]);
 
         }
         else if(val == 0xfa)
@@ -290,7 +302,7 @@ void ASC_GetRegisters(AYSongInfo &info, ASC_Channel_Parameters &chan, unsigned c
             chan.Loop_Point_In_Sample = chan.Point_In_Sample;
         if((module[chan.Point_In_Sample] & 96) == 32)
             chan.Sample_Finished = true;
-        chan.Ton_Deviation += (signed char) (module[chan.Point_In_Sample + 1]);
+        chan.Ton_Deviation += (signed char)(module[chan.Point_In_Sample + 1]);
         TempMixer |= (module[chan.Point_In_Sample + 2] & 9) << 3;
         if((module[chan.Point_In_Sample + 2] & 6) == 2)
             Sample_Says_OK_for_Envelope = true;
@@ -307,15 +319,15 @@ void ASC_GetRegisters(AYSongInfo &info, ASC_Channel_Parameters &chan, unsigned c
                 chan.Addition_To_Amplitude++;
         }
         chan.Amplitude = chan.Addition_To_Amplitude + (module[chan.Point_In_Sample + 2] >> 4);
-        if((signed char) (chan.Amplitude) < 0)
+        if((signed char)(chan.Amplitude) < 0)
             chan.Amplitude = 0;
         else if(chan.Amplitude > 15)
             chan.Amplitude = 15;
         chan.Amplitude = (chan.Amplitude * (chan.Volume + 1)) >> 4;
         if(Sample_Says_OK_for_Envelope && ((TempMixer & 64) != 0))
-            ay_writeay(&info, AY_ENV_FINE, ay_readay(&info, AY_ENV_FINE) + ((signed char) (module[chan.Point_In_Sample] << 3) / 8));
+            ay_writeay(&info, AY_ENV_FINE, ay_readay(&info, AY_ENV_FINE) + ((signed char)(module[chan.Point_In_Sample] << 3) / 8));
         else
-            chan.Current_Noise += (signed char) (module[chan.Point_In_Sample] << 3) / 8;
+            chan.Current_Noise += (signed char)(module[chan.Point_In_Sample] << 3) / 8;
         chan.Point_In_Sample += 3;
         if((module[chan.Point_In_Sample - 3] & 64) != 0)
         {
@@ -327,12 +339,12 @@ void ASC_GetRegisters(AYSongInfo &info, ASC_Channel_Parameters &chan, unsigned c
         if((module[chan.Point_In_Ornament] & 128) != 0)
             chan.Loop_Point_In_Ornament = chan.Point_In_Ornament;
         chan.Addition_To_Note += module[chan.Point_In_Ornament + 1];
-        chan.Current_Noise += (-(signed char) (module[chan.Point_In_Ornament] & 0x10)) | module[chan.Point_In_Ornament];
+        chan.Current_Noise += (-(signed char)(module[chan.Point_In_Ornament] & 0x10)) | module[chan.Point_In_Ornament];
         chan.Point_In_Ornament += 2;
         if((module[chan.Point_In_Ornament - 2] & 64) != 0)
             chan.Point_In_Ornament = chan.Loop_Point_In_Ornament;
         if((TempMixer & 64) == 0)
-            ay_writeay(&info, AY_NOISE_PERIOD, ((unsigned char) (chan.Current_Ton_Sliding >> 8) + chan.Current_Noise) & 0x1f);
+            ay_writeay(&info, AY_NOISE_PERIOD, ((unsigned char)(chan.Current_Ton_Sliding >> 8) + chan.Current_Noise) & 0x1f);
         j = chan.Note + chan.Addition_To_Note;
         if(j < 0)
             j = 0;
@@ -341,7 +353,7 @@ void ASC_GetRegisters(AYSongInfo &info, ASC_Channel_Parameters &chan, unsigned c
         chan.Ton = (ASM_Table[j] + chan.Ton_Deviation + (chan.Current_Ton_Sliding / 16)) & 0xfff;
         if(chan.Ton_Sliding_Counter != 0)
         {
-            if((signed char) (chan.Ton_Sliding_Counter) > 0)
+            if((signed char)(chan.Ton_Sliding_Counter) > 0)
                 chan.Ton_Sliding_Counter--;
             chan.Current_Ton_Sliding += chan.Substruction_for_Ton_Sliding;
         }
@@ -354,7 +366,7 @@ void ASC_GetRegisters(AYSongInfo &info, ASC_Channel_Parameters &chan, unsigned c
 void ASC_Play(AYSongInfo &info)
 {
     unsigned char *module = info.module;
-    ASC1_File *header = (ASC1_File *) module;
+    ASC1_File *header = (ASC1_File *)module;
     unsigned char TempMixer;
 
     if(--ASC.DelayCounter <= 0)
@@ -409,7 +421,7 @@ void ASC_Play(AYSongInfo &info)
 void ASC_GetInfo(AYSongInfo &info)
 {
     unsigned char *module = info.file_data;
-    ASC1_File *header = (ASC1_File *) module;
+    ASC1_File *header = (ASC1_File *)module;
     short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
     bool env1, env2, env3;
@@ -531,7 +543,7 @@ void ASC_GetInfo(AYSongInfo &info)
             {
                 while(true)
                 {
-                    unsigned char val = (unsigned char) module[j3];
+                    unsigned char val = (unsigned char)module[j3];
                     if(val <= 0x55)
                     {
                         a3 = a33;
@@ -580,7 +592,59 @@ void ASC_Cleanup(AYSongInfo &info)
 {
     if(info.data)
     {
-        delete (ASC_SongInfo *) info.data;
+        delete (ASC_SongInfo *)info.data;
         info.data = 0;
     }
+}
+
+bool ASC0_Detect(unsigned char *module, unsigned long length)
+{
+    int j,j1;
+    unsigned char j3;
+    ASC0_File *header = (ASC0_File *)module;
+    if(length < 9)
+        return false;
+    if(ASC0_PatternsPointers - 8 - header->ASC0_Number_Of_Positions != 0)
+        return false;
+    if(ASC0_PatternsPointers> length)
+        return false;
+    if(ASC0_SamplesPointers> length)
+        return false;
+    if(ASC0_OrnamentsPointers> length)
+        return false;
+
+    j = ay_sys_getword(&module[ASC0_SamplesPointers]);
+    if(j != 0x40)
+        return false;
+    j = ay_sys_getword(&module[ASC0_OrnamentsPointers]);
+    if(j != 0x40)
+        return false;
+
+    j3 = 0;
+    for(j1 = 0; j1 < header->ASC0_Number_Of_Positions; j1++)        
+        if(j3 < header->ASC0_Positions[j1])
+            j3 = header->ASC0_Positions[j1];
+
+    j = ay_sys_getword(&module[ASC0_PatternsPointers]);
+    if(j != (j3 + 1) * 6)
+        return false;
+    j = ay_sys_getword(&module[ASC0_OrnamentsPointers + 0x40 - 2]);
+    j += ASC0_OrnamentsPointers;
+    while((j < length) && (j < 65535) && ((module[j] & 0x40) == 0))
+        j +=2;
+    
+    if(j > 65534)
+        return false;
+    if(j >= length)
+        return false;
+    return true;
+}
+
+bool ASC1_Detect(unsigned char *module, unsigned long length)
+{
+}
+
+bool ASC_Detect(unsigned char *module, unsigned long length)
+{
+
 }
