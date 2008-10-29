@@ -599,7 +599,7 @@ void ASC_Cleanup(AYSongInfo &info)
 
 bool ASC0_Detect(unsigned char *module, unsigned long length)
 {
-    int j,j1;
+    int j, j1;
     unsigned char j3;
     ASC0_File *header = (ASC0_File *)module;
     if(length < 9)
@@ -621,7 +621,7 @@ bool ASC0_Detect(unsigned char *module, unsigned long length)
         return false;
 
     j3 = 0;
-    for(j1 = 0; j1 < header->ASC0_Number_Of_Positions; j1++)        
+    for(j1 = 0; j1 < header->ASC0_Number_Of_Positions; j1++)
         if(j3 < header->ASC0_Positions[j1])
             j3 = header->ASC0_Positions[j1];
 
@@ -631,8 +631,8 @@ bool ASC0_Detect(unsigned char *module, unsigned long length)
     j = ay_sys_getword(&module[ASC0_OrnamentsPointers + 0x40 - 2]);
     j += ASC0_OrnamentsPointers;
     while((j < length) && (j < 65535) && ((module[j] & 0x40) == 0))
-        j +=2;
-    
+        j += 2;
+
     if(j > 65534)
         return false;
     if(j >= length)
@@ -642,9 +642,53 @@ bool ASC0_Detect(unsigned char *module, unsigned long length)
 
 bool ASC1_Detect(unsigned char *module, unsigned long length)
 {
+    int j, j1;
+    unsigned char j3;
+    ASC1_File *header = (ASC1_File *)module;
+    if(length < 9)
+        return false;
+    int delta = ASC1_PatternsPointers - header->ASC1_Number_Of_Positions;
+    if(delta < 9 || delta > 72)
+        return false;
+    if(ASC1_PatternsPointers> length)
+        return false;
+    if(ASC1_SamplesPointers> length)
+        return false;
+    if(ASC1_OrnamentsPointers> length)
+        return false;
+
+    j = ay_sys_getword(&module[ASC1_SamplesPointers]);
+    if(j != 0x40)
+        return false;
+    j = ay_sys_getword(&module[ASC1_OrnamentsPointers]);
+    if(j != 0x40)
+        return false;
+
+    j3 = 0;
+    for(j1 = 0; j1 < header->ASC1_Number_Of_Positions; j1++)
+        if(j3 < header->ASC1_Positions[j1])
+            j3 = header->ASC1_Positions[j1];
+
+    j = ay_sys_getword(&module[ASC1_PatternsPointers]);
+    if(j != (j3 + 1) * 6)
+        return false;
+    j = ay_sys_getword(&module[ASC1_OrnamentsPointers + 0x40 - 2]);
+    j += ASC1_OrnamentsPointers;
+    while((j < length) && (j < 65535) && ((module[j] & 0x40) == 0))
+        j += 2;
+
+    if(j > 65534)
+        return false;
+    if(j >= length)
+        return false;
+    return true;
 }
 
 bool ASC_Detect(unsigned char *module, unsigned long length)
 {
+    if(!ASC1_Detect(module, length))
+        if(!ASC0_Detect(module, length))
+            return false;
+    return true;
 
 }
