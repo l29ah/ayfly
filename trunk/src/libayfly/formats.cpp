@@ -70,14 +70,14 @@ struct _Players
 static const _Players Players[] =
 {
 { TXT(".asc"), 0, 0, 0, 0, 0, ASC_Init, 0, ASC_Play, ASC_Cleanup, ASC_GetInfo, 0 },
-{ TXT(".pt2"), PT2Play_data, 0xc000, sizeof(PT2Play_data), 0x0000, 0xc000, 0, 0xc006, 0, 0, PT2_GetInfo, 0 },
-{ TXT(".pt3"), 0, 0, 0, 0, 0, PT3_Init, 0, PT3_Play, PT3_Cleanup, PT3_GetInfo, 0 },
+{ TXT(".pt2"), 0, 0, 0, 0, 0, PT2_Init, 0, PT2_Play, PT2_Cleanup, PT2_GetInfo, PT2_Detect },
+{ TXT(".pt3"), 0, 0, 0, 0, 0, PT3_Init, 0, PT3_Play, PT3_Cleanup, PT3_GetInfo, PT3_Detect },
 { TXT(".stc"), 0, 0, 0, 0, 0, STC_Init, 0, STC_Play, STC_Cleanup, STC_GetInfo, STC_Detect },
 { TXT(".stp"), 0, 0, 0, 0, 0, STP_Init, 0, STP_Play, STP_Cleanup, STP_GetInfo, STP_Detect },
 { TXT(".psc"), 0, 0, 0, 0, 0, PSC_Init, 0, PSC_Play, PSC_Cleanup, PSC_GetInfo, 0 },
 { TXT(".sqt"), 0, 0, 0, 0, 0, SQT_Init, 0, SQT_Play, SQT_Cleanup, SQT_GetInfo, 0 },
 { TXT(".psg"), 0, 0, 0, 0, 0, PSG_Init, 0, PSG_Play, PSG_Cleanup, PSG_GetInfo, 0 },
-{ TXT(".pt1"), 0, 0, 0, 0, 0, PT1_Init, 0, PT1_Play, PT1_Cleanup, PT1_GetInfo, 0 },
+{ TXT(".pt1"), 0, 0, 0, 0, 0, PT1_Init, 0, PT1_Play, PT1_Cleanup, PT1_GetInfo, PT1_Detect },
 { TXT(".vtx"), 0, 0, 0, 0, 0, VTX_Init, 0, VTX_Play, VTX_Cleanup, VTX_GetInfo, 0 },
 { TXT(".ay"), 0, 0, 0, 0, 0, AY_Init, 0, AY_Play, AY_Cleanup, AY_GetInfo, AY_Detect } };
 
@@ -262,7 +262,6 @@ bool ay_sys_initsong(AYSongInfo &info)
     info.play_proc = Players[player].soft_play_proc;
     info.cleanup_proc = Players[player].soft_cleanup_proc;
     info.bEmul = false;
-    fwprintf(stderr, L"format = %s\n", Players [player].ext.c_str());
     return true;
 }
 

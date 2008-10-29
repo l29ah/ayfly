@@ -394,7 +394,7 @@ void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
             chan.SimpleGliss = true;
             chan.Current_OnOff = 0;
             if((chan.Ton_Slide_Count == 0) && (PT3.Version >= 7))
-                    chan.Ton_Slide_Count++;
+                chan.Ton_Slide_Count++;
         }
         else if(counter == flag2)
         {
@@ -562,7 +562,7 @@ void PT3_Play(AYSongInfo &info)
     PT3_File *header = (PT3_File *)module;
     unsigned char TempMixer;
     char AddToEnv;
-   
+
     PT3.DelayCounter--;
     if(PT3.DelayCounter == 0)
     {
@@ -952,5 +952,56 @@ void PT3_Cleanup(AYSongInfo &info)
         delete (PT3_SongInfo *)info.data;
         info.data = 0;
     }
+}
+
+bool PT3_Detect(unsigned char *module, unsigned long length)
+{
+    int j, j1, j2;
+    PT3_File *header = (PT3_File *)module;
+    if(length < 202)
+        return false;
+    if(PT3_PatternsPointer> length)
+        return false;
+    if(module[PT3_PatternsPointer - 1] != 255)
+        return false;
+    if(PT3_OrnamentsPointers(0) + 2 > length)
+        return false;
+
+    j = 0;
+    memcpy(&j, &module[PT3_OrnamentsPointers(0)], 3);
+    if(j != 256)
+        return false;
+
+    j = ay_sys_getword(&module[PT3_PatternsPointer]);
+    if(j > length)
+        return false;
+    if(j - (int)(PT3_PatternsPointer) <= 0)
+        return false;
+    if(((j - (int)(PT3_PatternsPointer)) % 6) != 0)
+        return false;
+
+    j1 = 0;
+    j2 = 0;
+    while((j2 < 256) && (j2 <= length - 201) && (header->PT3_PositionList[j2] != 255))
+    {
+        if((unsigned long)(j1) < header->PT3_PositionList[j2])
+            j1 = header->PT3_PositionList[j2];
+        if((j1 % 3) != 0)
+            return false;
+        j2++;
+    }
+    if(((j - (int)(PT3_PatternsPointer)) / 6) != ((j1 / 3) + 1))
+        return false;
+
+    j = 15;
+    while((j > 0) && (PT3_OrnamentsPointers(j) == 0))
+        j--;
+
+    int F_Length = PT3_OrnamentsPointers(j) + module[PT3_OrnamentsPointers(j) + 1] + 2;
+    if(F_Length > length + 1)
+        return false;
+
+    header->PT3_NumberOfPositions = j2;
+    return true;
 }
 

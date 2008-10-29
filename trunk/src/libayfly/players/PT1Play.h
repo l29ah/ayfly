@@ -348,3 +348,55 @@ void PT1_Cleanup(AYSongInfo &info)
         info.data = 0;
     }
 }
+
+bool PT1_Detect(unsigned char *module, unsigned long length)
+{
+    int j, j1, j2;
+    PT1_File *header = (PT1_File *)module;
+    if(length < 0x66)
+        return false;
+    if(PT1_PatternsPointer >= length)
+        return false;
+
+    j = 0;
+    j1 = 65535;
+    for(j2 = 0; j2 <= 15; j2++)
+    {
+        if(j < PT1_SamplesPointers(j2))
+            j = PT1_SamplesPointers(j2);
+        if((PT1_OrnamentsPointers(j2) != 0) && (j1 > PT1_OrnamentsPointers(j2)))
+            j1 = PT1_OrnamentsPointers(j2);
+    }
+
+    if(j1 < 0x67)
+        return false;
+    if(j < 0x67)
+        return false;
+    if(j > 65534)
+        return false;
+    if(j > length)
+        return false;
+    if((j + module[j] * 3 + 2) != j1)
+        return false;
+
+    j = 0;
+    for(j2 = 0; j2 <= 15; j2++)
+        if(j < PT1_OrnamentsPointers(j2))
+            j = PT1_OrnamentsPointers(j2);
+    if(j < 0x67)
+        return false;
+    int F_Length = j + 64;
+    if(F_Length > 65536)
+        return false;
+    if(F_Length > length + 1)
+        return false;
+
+    j = 0x63;
+    while((j <= PT1_PatternsPointer) && (module[j] != 255))
+        j++;
+    if(j + 1 != PT1_PatternsPointer)
+        return false;
+
+    header->PT1_NumberOfPositions = j - 0x63;
+    return true;
+}
