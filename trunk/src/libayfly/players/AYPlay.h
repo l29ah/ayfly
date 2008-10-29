@@ -15,8 +15,8 @@ static const unsigned char intz[] =
 static const unsigned char intnz[] =
 { 0xf3, /* di */
 0xcd, 0, 0, /* call init */
-0x0, 0x0, /* loop: im 1 */
-0x00, /* ei */
+0xed, 0x56, /* loop: im 1 */
+0xfb, /* ei */
 0x00, /* halt */
 0xcd, 0, 0, /* call interrupt */
 0x18, 0xf7 /* jr loop */
@@ -172,7 +172,6 @@ void AY_Play(AYSongInfo &info)
         z80ex_step(info.z80ctx);
     }
     while(z80ex_get_reg(info.z80ctx, regPC) != 4);
-    
 }
 
 void AY_GetInfo(AYSongInfo &info)
@@ -216,6 +215,8 @@ void AY_GetInfo(AYSongInfo &info)
             if(aydata_loc.num_tracks)
             {
                 info.Length = aydata_loc.tracks[0].fadestart;
+                if(!info.Length)
+                    info.Length = 3000 * 50;
                 info.Name = (char *)aydata_loc.tracks[0].name;
             }
 

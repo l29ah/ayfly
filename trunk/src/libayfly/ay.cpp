@@ -33,73 +33,6 @@ const float ay::init_levels_ym[] =
 #define CHNL_ENVELOPE(ch) (regs [AY_CHNL_A_VOL + (ch)] & 0x10)
 #define ENVELOPE_PERIOD (((regs [AY_ENV_COARSE]) << 8) | regs [AY_ENV_FINE])
 
-#define AY_PROCESS_INIT \
-    unsigned long work_len = (len >> 2);\
-    float s0, s1, s2;\
-    short *stream16 = (short *) stream;
-
-#define AY_PROCESS_STEP \
-    s0 = s1 = s2 = 0;\
-    if(songinfo->stopping == false)\
-    {\
-    if(++int_counter > int_limit)\
-    {\
-        int_counter = 0;\
-        ay_z80exec(songinfo);\
-        memcpy(ayreg_tail [ayreg_writeptr], regs, 16);\
-        ayreg_writeptr = ++ayreg_writeptr % AYREG_TAIL_LEN;\
-    }\
-\
-    for(unsigned long k = 0; k < ay_tacts; k++)\
-    {\
-\
-        if(++chnl_period[0] >= tone_period_init[0])\
-        {\
-            chnl_period[0] -= tone_period_init[0];\
-            chnl_trigger[0] ^= 1;\
-        }\
-        if(++chnl_period[1] >= tone_period_init[1])\
-        {\
-            chnl_period[1] -= tone_period_init[1];\
-            chnl_trigger[1] ^= 1;\
-        }\
-        if(++chnl_period[2] >= tone_period_init[2])\
-        {\
-            chnl_period[2] -= tone_period_init[2];\
-            chnl_trigger[2] ^= 1;\
-        }\
-\
-        if(++noise_period >= noise_period_init)\
-        {\
-            noise_period = 0;\
-            if((noise_reg + 1) & 2)\
-                noise_trigger ^= 1;\
-            if(noise_reg & 1)\
-                noise_reg ^= 0x24000;\
-            noise_reg >>= 1;\
-        }\
-        updateEnvelope();\
-\
-        if((chnl_trigger[0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)) & !chnl_mute[0])\
-            s0 += (CHNL_ENVELOPE(0) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(0) * 2]) * volume[0];\
-        if((chnl_trigger[1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)) & !chnl_mute[1])\
-            s1 += (CHNL_ENVELOPE(1) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(1) * 2]) * volume[1];\
-        if((chnl_trigger[2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)) & !chnl_mute[2])\
-            s2 += (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2) * 2]) * volume[2];\
-    }\
-\
-    s0 = s0 / (float)ay_tacts;\
-    s1 = (s1 / (float)ay_tacts) / 1.42;\
-    s2 = s2 / (float)ay_tacts;\
-    }
-
-#define AY_PROCESS_START_LOOP \
-    for(unsigned long i = 0; i < work_len; i++)\
-    {
-
-#define AY_PROCESS_END_LOOP \
-    }
-
 ay::ay()
 {
     for(unsigned long i = 0; i < sizeof_array(ay::levels_ay); i++)
@@ -154,14 +87,6 @@ void ay::ayReset()
 
     volume[0] = volume[1] = volume[2] = 1;
     env_type_old = 0;
-    for(unsigned long i = 0; i < AYREG_TAIL_LEN; i++)
-    {
-        for(unsigned long l = 0; l < 16; l++)
-        {
-            ayreg_tail[i][l] = 0;
-        }
-    }
-    ayreg_readptr = ayreg_writeptr = 0;
 
     setEnvelope();
 }
@@ -281,8 +206,6 @@ void ay::ayStep(float &s0, float &s1, float &s2)
         {
             int_counter = 0;
             ay_z80exec(songinfo);
-            memcpy(ayreg_tail[ayreg_writeptr], regs, 16);
-            ayreg_writeptr = ++ayreg_writeptr % AYREG_TAIL_LEN;
         }
 
         for(unsigned long k = 0; k < ay_tacts; k++)

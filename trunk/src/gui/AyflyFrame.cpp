@@ -220,7 +220,7 @@ AyflyFrame::AyflyFrame(const wxString &title, wxArrayString &filenames) :
     wxBoxSizer* intfreqSizer;
     intfreqSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    intfreqSlider = new wxSlider(this, wxID_INTFREQSLIDER, 50, 10, 150, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+    intfreqSlider = new wxSlider(this, wxID_INTFREQSLIDER, 50, 10, 300, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
     intfreqSizer->Add(intfreqSlider, 1, wxALL | wxEXPAND, 5);
 
     txtintfreq = new wxStaticText(this, wxID_ANY, wxT("INT freq = 0"), wxDefaultPosition, wxDefaultSize, 0);
