@@ -52,7 +52,6 @@ int main(int argc, char **argv)
         std::vector<unsigned char>::iterator iter;
         unsigned char buffer [8192];
         size_t rd = 0;
-        fwprintf(stderr, L"Reading from stdin..\n");
         while((rd = fread(buffer, 1, sizeof(buffer), stdin))> 0)
         {
             for(unsigned long i = 0; i < rd; i++)
@@ -61,7 +60,6 @@ int main(int argc, char **argv)
             }
         }
         unsigned long size = module_vect.size();
-        fwprintf(stderr, L"Read %u bytes..\n", size);
         if(size > 0)
         {                        
             unsigned char *module = new unsigned char [size];
