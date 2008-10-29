@@ -19,7 +19,7 @@ static const unsigned char intnz[] =
 0x00, /* ei */
 0x00, /* halt */
 0xcd, 0, 0, /* call interrupt */
-0x18, 0xfb /* jr loop */
+0x18, 0xf7 /* jr loop */
 };
 
 //for .ay format
@@ -171,7 +171,7 @@ void AY_Play(AYSongInfo &info)
     {
         z80ex_step(info.z80ctx);
     }
-    while(z80ex_get_reg(info.z80ctx, regPC) != 8);
+    while(z80ex_get_reg(info.z80ctx, regPC) != 4);
     
 }
 
