@@ -81,6 +81,7 @@ void writePort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, Z80EX_BYTE value, void *user
                     break;
                 case 0xbf:
                     write_dat: info->ay8910 [0].ayWrite(info->ay_reg, value);
+                    printf("%d -> %d\n", info->ay_reg, value);
                     break;
                 default:
                     if((h & 0xc0) == 0xc0)
@@ -150,16 +151,4 @@ void ay_sys_shutdownz80(AYSongInfo &info)
     }
     if(info.z80IO)
         memset(info.z80IO, 0, 65536);
-}
-
-void ay_sys_z80exec(AYSongInfo &info)
-{
-    info.play_proc(info);
-
-    if(++info.timeElapsed >= info.Length)
-    {
-        info.timeElapsed = info.Loop;
-        if(info.e_callback)
-            info.stopping = info.e_callback(info.e_callback_arg);
-    }
 }

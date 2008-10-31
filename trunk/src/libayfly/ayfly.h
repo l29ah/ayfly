@@ -166,7 +166,7 @@ struct AYSongInfo
 #endif
     unsigned long Length; /* Song length in 1/50 of second */
     unsigned long Loop; /* Loop start position */
-    bool bEmul; /* player is in z80 asm? */
+    bool is_z80; /* player is in z80 asm? */
     PLAYER_INIT_PROC init_proc; /* init for soft player */
     PLAYER_PLAY_PROC play_proc; /* play for soft player */
     PLAYER_CLEANUP_PROC cleanup_proc; /* play for soft player */
@@ -186,9 +186,11 @@ struct AYSongInfo
     unsigned short ay_reg; /* current AY register */
     unsigned long z80_freq; /* z80 cpu frequency */
     unsigned long ay_freq; /* AY chip frequency */
-    unsigned long int_freq; /* interrupts frequency */
+    unsigned long int_freq; /* interrupts frequency */    
     unsigned long sr; /* sample rate */
     unsigned char chip_type; /* chip type: AY = 0 or YM = 1 */
+    long int_counter;
+    long int_limit;
     bool own_player; /* is player ws created during initialization by the library */
     bool stopping;
     ay ay8910 [NUMBER_OF_AYS];
@@ -220,7 +222,6 @@ bool ay_sys_getsonginfo(AYSongInfo &info);
 bool ay_sys_getsonginfoindirect(AYSongInfo &info);
 void ay_sys_rewindsong(AYSongInfo &info, long new_position);
 bool ay_sys_initz80(AYSongInfo &info);
-void ay_sys_z80exec(AYSongInfo &info);
 void ay_sys_resetz80(AYSongInfo &info);
 void ay_sys_shutdownz80(AYSongInfo &info);
 bool ay_sys_initsong(AYSongInfo &info);
@@ -379,6 +380,7 @@ AYFLY_API TFileName ay_getsongpath(void *info);
  */
 
 AYFLY_API void ay_z80exec(void *info);
+AYFLY_API void ay_softexec(void *info);
 
 /*
  * Set song pointer to new position @new_position
