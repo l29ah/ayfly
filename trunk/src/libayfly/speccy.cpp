@@ -34,7 +34,7 @@ void writeMemory(Z80EX_CONTEXT *cpu, Z80EX_WORD addr, Z80EX_BYTE value, void *us
 }
 Z80EX_BYTE readPort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, void *user_data)
 {
-    AYSongInfo *info = (AYSongInfo *)user_data;
+    /*AYSongInfo *info = (AYSongInfo *)user_data;
     if((port == 0xfffd) || ((port & 0xc000) == 0xc000)) //ay control port
     {
         if(info->ay_reg == 16)
@@ -48,7 +48,8 @@ Z80EX_BYTE readPort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, void *user_data)
             return info->ay8910[0].ayRead(info->ay_reg);
     }
     unsigned char *io = ((AYSongInfo *)user_data)->z80IO;
-    return io[port];
+    return io[port];*/
+    return 0xff;
 }
 
 void writePort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, Z80EX_BYTE value, void *user_data)
@@ -81,7 +82,6 @@ void writePort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, Z80EX_BYTE value, void *user
                     break;
                 case 0xbf:
                     write_dat: info->ay8910 [0].ayWrite(info->ay_reg, value);
-                    printf("%d -> %d\n", info->ay_reg, value);
                     break;
                 default:
                     if((h & 0xc0) == 0xc0)

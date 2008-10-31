@@ -698,19 +698,21 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
 
                 bool started = ay_songstarted(currentSong->info);
 
-                if(started)
+                /*if(started)
                 {
                     wxCommandEvent evt;
                     OnPlay(evt);
-                }
+                }*/
+                timer.Stop();
+                ay_stopsong(currentSong->info);
 
                 unsigned long pos = event.GetPosition();
                 ay_seeksong(currentSong->info, pos);
 
                 if(started)
                 {
-                    wxCommandEvent evt;
-                    OnPlay(evt);
+                    ay_startsong(currentSong->info);
+                    timer.Start();
                 }
 
                 bTracking = false;
