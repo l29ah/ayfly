@@ -59,22 +59,22 @@ struct _Players
     PLAYER_CLEANUP_PROC soft_cleanup_proc;
     GETINFO_CALLBACK getInfo;
     PLAYER_DETECT_PROC detect;
+    bool is_z80;
 };
 
 static const _Players Players[] =
 {
-{ TXT(".ay"), AY_Init, AY_Play, AY_Cleanup, AY_GetInfo, AY_Detect }, 
-{ TXT(".asc"), ASC_Init, ASC_Play, ASC_Cleanup, ASC_GetInfo, ASC_Detect },
-{ TXT(".pt2"), PT2_Init, PT2_Play, PT2_Cleanup, PT2_GetInfo, PT2_Detect },
-{ TXT(".pt3"), PT3_Init, PT3_Play, PT3_Cleanup, PT3_GetInfo, PT3_Detect },
-{ TXT(".stc"), STC_Init, STC_Play, STC_Cleanup, STC_GetInfo, STC_Detect },
-{ TXT(".stp"), STP_Init, STP_Play, STP_Cleanup, STP_GetInfo, STP_Detect },
-{ TXT(".psc"), PSC_Init, PSC_Play, PSC_Cleanup, PSC_GetInfo, PSC_Detect },
-{ TXT(".sqt"), SQT_Init, SQT_Play, SQT_Cleanup, SQT_GetInfo, SQT_Detect },
-{ TXT(".psg"), PSG_Init, PSG_Play, PSG_Cleanup, PSG_GetInfo, PSG_Detect },
-{ TXT(".pt1"), PT1_Init, PT1_Play, PT1_Cleanup, PT1_GetInfo, PT1_Detect },
-{ TXT(".vtx"), VTX_Init, VTX_Play, VTX_Cleanup, VTX_GetInfo, VTX_Detect }
-};
+{ TXT(".ay"), AY_Init, AY_Play, AY_Cleanup, AY_GetInfo, AY_Detect, true },
+{ TXT(".asc"), ASC_Init, ASC_Play, ASC_Cleanup, ASC_GetInfo, ASC_Detect, false },
+{ TXT(".pt2"), PT2_Init, PT2_Play, PT2_Cleanup, PT2_GetInfo, PT2_Detect, true },
+{ TXT(".pt3"), PT3_Init, PT3_Play, PT3_Cleanup, PT3_GetInfo, PT3_Detect, false },
+{ TXT(".stc"), STC_Init, STC_Play, STC_Cleanup, STC_GetInfo, STC_Detect, true },
+{ TXT(".stp"), STP_Init, STP_Play, STP_Cleanup, STP_GetInfo, STP_Detect, true },
+{ TXT(".psc"), PSC_Init, PSC_Play, PSC_Cleanup, PSC_GetInfo, PSC_Detect, false },
+{ TXT(".sqt"), SQT_Init, SQT_Play, SQT_Cleanup, SQT_GetInfo, SQT_Detect, false },
+{ TXT(".psg"), PSG_Init, PSG_Play, PSG_Cleanup, PSG_GetInfo, PSG_Detect, false },
+{ TXT(".pt1"), PT1_Init, PT1_Play, PT1_Cleanup, PT1_GetInfo, PT1_Detect, false },
+{ TXT(".vtx"), VTX_Init, VTX_Play, VTX_Cleanup, VTX_GetInfo, VTX_Detect, false } };
 
 #ifndef __SYMBIAN32__
 bool ay_sys_format_supported(AY_TXT_TYPE filePath)
@@ -203,7 +203,7 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
 long ay_sys_detect(AYSongInfo &info)
 {
     long player = -1;
-    unsigned char *tmp_module = new unsigned char [info.file_len];
+    unsigned char *tmp_module = new unsigned char[info.file_len];
     if(!tmp_module)
         return -1;
     memcpy(tmp_module, info.file_data, info.file_len);
@@ -215,7 +215,7 @@ long ay_sys_detect(AYSongInfo &info)
                 break;
         }
     }
-    delete [] tmp_module;
+    delete[] tmp_module;
 
     if((player >= sizeof_array(Players)) && (info.FilePath.compare(TXT(""))))
     {
@@ -247,6 +247,14 @@ long ay_sys_detect(AYSongInfo &info)
     }
     if(player >= sizeof_array(Players))
         player = -1;
+    else
+    {
+        info.is_z80 = Players[player].is_z80;
+        for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
+        {
+            info.ay8910[i].SetParameters(&info);
+        }
+    }
     return player;
 }
 
@@ -262,7 +270,6 @@ bool ay_sys_initsong(AYSongInfo &info)
     info.init_proc = Players[info.player_num].soft_init_proc;
     info.play_proc = Players[info.player_num].soft_play_proc;
     info.cleanup_proc = Players[info.player_num].soft_cleanup_proc;
-    info.bEmul = false;
     return true;
 }
 
@@ -293,7 +300,6 @@ bool ay_sys_readfromfile(AYSongInfo &info)
     unsigned long data_len = 65536;
     info.timeElapsed = 0;
     info.Length = 0;
-    info.bEmul = true;
     info.init_proc = 0;
     info.play_proc = 0;
     if(info.file_data)
@@ -354,20 +360,22 @@ void ay_sys_rewindsong(AYSongInfo &info, long new_position)
     if(info.player && info.player->Started())
         info.player->Stop();
 
-    unsigned long timeCurrent = info.timeElapsed;
-    info.timeElapsed = new_position;
-
-    if(info.timeElapsed < timeCurrent)
+    if(info.timeElapsed > new_position)
     {
-        timeCurrent = 0;
+        info.timeElapsed = 0;
         ay_resetsong(&info);
     }
 
-    info.timeElapsed = timeCurrent;
-    while(info.timeElapsed != new_position)
+    if(info.is_z80)
     {
-        info.play_proc(info);
-        info.timeElapsed++;
+    }
+    else
+    {
+        while(info.timeElapsed != new_position)
+        {
+            info.play_proc(info);
+            info.timeElapsed++;
+        }
     }
 }
 

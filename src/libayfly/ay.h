@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+
+
 #ifndef AY_H_
 #define AY_H_
 
@@ -106,10 +108,13 @@ private:
     void setEnvelope();
     void updateEnvelope();
     float volume[3];
+    AYSongInfo *songinfo;
     unsigned long int_counter;
     unsigned long int_limit;
-    AYSongInfo *songinfo;
-    inline void ayStep(float &s0, float &s1, float &s2);
+    inline void aySoftStep(float &s0, float &s1, float &s2);
+    inline void ayZ80Step(float &s0, float &s1, float &s2);
+    typedef void (ay::*stepfunc)(float &s0, float &s1, float &s2);
+    ay::stepfunc Step;
 };
 
 #endif /*AY_H_*/

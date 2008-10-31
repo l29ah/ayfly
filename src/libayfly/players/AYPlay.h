@@ -17,7 +17,7 @@ static const unsigned char intnz[] =
 0xcd, 0, 0, /* call init */
 0xed, 0x56, /* loop: im 1 */
 0xfb, /* ei */
-0x00, /* halt */
+0x76, /* halt */
 0xcd, 0, 0, /* call interrupt */
 0x18, 0xf7 /* jr loop */
 };
@@ -104,7 +104,7 @@ void AY_initayfmt(AYSongInfo &info, ayData &aydata, unsigned char track)
     }
 
     z80ex_set_reg(info.z80ctx, regSP, aydata.tracks[track].data_points[0] * 256 + aydata.tracks[track].data_points[1]);
-    z80ex_set_reg(info.z80ctx, regI, 3);
+    z80ex_set_reg(info.z80ctx, regI, 0);
     Z80EX_WORD reg = aydata.tracks[track].data[8] * 256 + aydata.tracks[track].data[9];
     z80ex_set_reg(info.z80ctx, regAF, reg);
     z80ex_set_reg(info.z80ctx, regAF_, reg);
@@ -114,6 +114,8 @@ void AY_initayfmt(AYSongInfo &info, ayData &aydata, unsigned char track)
     z80ex_set_reg(info.z80ctx, regDE_, reg);
     z80ex_set_reg(info.z80ctx, regHL, reg);
     z80ex_set_reg(info.z80ctx, regHL_, reg);
+    z80ex_set_reg(info.z80ctx, regIX, reg);
+    z80ex_set_reg(info.z80ctx, regIY, reg);
 
 }
 

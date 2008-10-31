@@ -28,7 +28,7 @@ AYSongInfo *ay_sys_getnewinfo()
     info->Name = TXT("");
     info->Author = TXT("");
     info->Length = info->Loop = 0;
-    info->bEmul = false;
+    info->is_z80 = false;
     info->init_proc = 0;
     info->play_proc = 0;
     info->cleanup_proc = 0;
@@ -51,6 +51,8 @@ AYSongInfo *ay_sys_getnewinfo()
     info->own_player = true;
     info->stopping = false;
     info->player_num = -1;
+    info->int_counter = 0;
+    info->int_limit = 0; 
     for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
     {
         info->ay8910[i].SetParameters(info);
@@ -283,7 +285,7 @@ AYFLY_API void ay_resetsong(void *info)
         song->player->Stop();
     song->timeElapsed = 0;
     ay_sys_initsong(*song);
-    if(song->bEmul)
+    if(song->is_z80)
     {
         ay_sys_resetz80(*song);
     }
@@ -483,9 +485,39 @@ AYFLY_API void ay_resetay(void *info, unsigned char chip_num)
     ((AYSongInfo *)info)->ay8910[chip_num].ayReset();
 }
 
+AYFLY_API void ay_softexec(void *info)
+{
+    AYSongInfo *song = (AYSongInfo *)info;
+    song->play_proc(*song);
+
+    song->int_counter = 0;
+
+    if(++song->timeElapsed >= song->Length)
+    {
+        song->timeElapsed = song->Loop;
+        if(song->e_callback)
+            song->stopping = song->e_callback(song->e_callback_arg);
+    }
+}
+
 AYFLY_API void ay_z80exec(void *info)
 {
-    return ay_sys_z80exec(*(AYSongInfo *)info);
+    AYSongInfo *song = (AYSongInfo *)info;    
+    song->int_counter += z80ex_step(song->z80ctx);
+    //printf("counter = %d\n", song->int_counter);    
+    if(song->int_counter > song->int_limit)
+    {
+        song->int_counter -= song->int_limit;
+        //printf("addr = %d\n", z80ex_get_reg(song->z80ctx, regPC));
+        song->int_counter += z80ex_int(song->z80ctx);
+        if(++song->timeElapsed >= song->Length)
+        {
+            song->timeElapsed = song->Loop;
+            if(song->e_callback)
+                song->stopping = song->e_callback(song->e_callback_arg);
+        }
+    }
+
 }
 
 AYSongInfo::~AYSongInfo()
