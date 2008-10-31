@@ -294,8 +294,6 @@ AYFLY_API void ay_resetsong(void *info)
         if(song->init_proc)
             song->init_proc(*song);
     }
-    if(started)
-        song->player->Start();
 }
 
 AYFLY_API void ay_closesong(void **info)
@@ -356,6 +354,7 @@ AYFLY_API void ay_stopsong(void *info)
     if(ay_songstarted(info))
     {
         ((AYSongInfo *)info)->player->Stop();
+        while(((AYSongInfo *)info)->player->Started()); //very bad :(
     }
 }
 

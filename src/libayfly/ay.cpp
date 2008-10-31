@@ -60,7 +60,7 @@ void ay::SetParameters(AYSongInfo *_songinfo)
     Step = songinfo->is_z80 ? &ay::ayZ80Step : &ay::aySoftStep;
     int_limit = songinfo->sr / songinfo->int_freq;
     if(songinfo->is_z80)
-        songinfo->int_limit = (songinfo->z80_freq / songinfo->sr) / ay_tacts;
+        songinfo->int_limit = songinfo->z80_freq / songinfo->sr;
 }
 
 void ay::ayReset()
@@ -269,13 +269,15 @@ void ay::ayZ80Step(float &s0, float &s1, float &s2)
         }
     }
 
+    while(songinfo->int_counter++ < songinfo->int_limit)
+    {
+        songinfo->int_counter += z80ex_step(songinfo->z80ctx);
+    }
+    songinfo->int_counter -= songinfo->int_limit;
+    
+
     for(unsigned long k = 0; k < ay_tacts; k++)
     {
-        while(songinfo->int_counter++ < songinfo->int_limit)
-        {
-            songinfo->int_counter += z80ex_step(songinfo->z80ctx);
-        }
-        songinfo->int_counter -= songinfo->int_limit;
 
         if(++chnl_period[0] >= tone_period_init[0])
         {
