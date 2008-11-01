@@ -58,9 +58,16 @@ void ay::SetParameters(AYSongInfo *_songinfo)
         ay_tacts++;
     levels = songinfo->chip_type == 0 ? ay::levels_ay : ay::levels_ym;
     Step = songinfo->is_z80 ? &ay::ayZ80Step : &ay::aySoftStep;
-    int_limit = songinfo->sr / songinfo->int_freq;
-    if(songinfo->is_z80)
-        songinfo->int_limit = songinfo->z80_freq / songinfo->sr;
+    if(!songinfo->is_z80)
+    {
+        int_limit = songinfo->sr / songinfo->int_freq;
+    }
+    else
+    {
+        z80_per_sample = (songinfo->z80_freq / songinfo->sr) / ay_tacts;
+        int_per_z80 = songinfo->z80_freq / songinfo->int_freq;
+
+    }
 }
 
 void ay::ayReset()
@@ -68,6 +75,8 @@ void ay::ayReset()
     //init regs with defaults
     int_limit = 0;
     int_counter = 0;
+    z80_per_sample_counter = 0;
+    int_per_z80_counter = 0;
     memset(regs, 0, sizeof(regs));
     regs[AY_GPIO_A] = regs[AY_GPIO_B] = 0xff;
     chnl_period[0] = chnl_period[1] = chnl_period[2] = 0;
@@ -257,27 +266,28 @@ void ay::aySoftStep(float &s0, float &s1, float &s2)
 
 void ay::ayZ80Step(float &s0, float &s1, float &s2)
 {
-    if(++int_counter > int_limit)
-    {
-        int_counter -= int_limit;
-        songinfo->int_counter += z80ex_int(songinfo->z80ctx);
-        if(++songinfo->timeElapsed >= songinfo->Length)
-        {
-            songinfo->timeElapsed = songinfo->Loop;
-            if(songinfo->e_callback)
-                songinfo->stopping = songinfo->e_callback(songinfo->e_callback_arg);
-        }
-    }
-
-    while(songinfo->int_counter++ < songinfo->int_limit)
-    {
-        songinfo->int_counter += z80ex_step(songinfo->z80ctx);
-    }
-    songinfo->int_counter -= songinfo->int_limit;
-    
-
     for(unsigned long k = 0; k < ay_tacts; k++)
     {
+        while(z80_per_sample_counter < z80_per_sample)
+        {
+            int tstates = z80ex_step(songinfo->z80ctx);
+            z80_per_sample_counter += tstates;
+            int_per_z80_counter += tstates;
+            if(int_per_z80_counter > int_per_z80)
+            {
+                tstates = z80ex_int(songinfo->z80ctx);
+                z80_per_sample_counter += tstates;
+                int_per_z80_counter = tstates;
+                if(++songinfo->timeElapsed >= songinfo->Length)
+                {
+                    songinfo->timeElapsed = songinfo->Loop;
+                    if(songinfo->e_callback)
+                        songinfo->stopping = songinfo->e_callback(songinfo->e_callback_arg);
+                }
+            }
+
+        }
+        z80_per_sample_counter -= z80_per_sample;
 
         if(++chnl_period[0] >= tone_period_init[0])
         {

@@ -111,6 +111,10 @@ private:
     AYSongInfo *songinfo;
     unsigned long int_counter;
     unsigned long int_limit;
+    long z80_per_sample;
+    long int_per_z80;
+    long z80_per_sample_counter;
+    long int_per_z80_counter;
     inline void aySoftStep(float &s0, float &s1, float &s2);
     inline void ayZ80Step(float &s0, float &s1, float &s2);
     typedef void (ay::*stepfunc)(float &s0, float &s1, float &s2);

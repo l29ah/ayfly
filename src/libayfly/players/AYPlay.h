@@ -192,7 +192,7 @@ void AY_GetInfo(AYSongInfo &info)
         ptr += 2;
         GET_PTR(aydata_loc.author);
         GET_PTR(aydata_loc.misc);
-        info.Author = (char *)aydata_loc.author;
+        //info.Author = (char *)aydata_loc.author;
         aydata_loc.num_tracks = 1 + *ptr++;
         aydata_loc.first_track = *ptr++;
         GET_PTR(ptr2);
@@ -218,8 +218,8 @@ void AY_GetInfo(AYSongInfo &info)
             {
                 info.Length = aydata_loc.tracks[0].fadestart;
                 if(!info.Length)
-                    info.Length = 3000 * 50;
-                info.Name = (char *)aydata_loc.tracks[0].name;
+                    info.Length = 3000 * 3;
+                //info.Name = (char *)aydata_loc.tracks[0].name;
             }
 
             delete[] aydata_loc.tracks;
