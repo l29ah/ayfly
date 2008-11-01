@@ -217,7 +217,7 @@ long ay_sys_detect(AYSongInfo &info)
     }
     delete[] tmp_module;
 
-    if((player >= sizeof_array(Players)) && (info.FilePath.compare(TXT(""))))
+    if(player >= sizeof_array(Players))
     {
 #ifndef __SYMBIAN32__
         AY_TXT_TYPE cfp = info.FilePath;
