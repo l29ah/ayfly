@@ -59,6 +59,11 @@
 #else
 #include <qikselectfiledlg.h>
 #include <qikcommand.h>
+#include <qikviewbase.h>
+#include <qiklistboxmodel.h>
+#include <qiklistbox.h>
+#include <qiklistboxData.h>
+#include <mqiklistboxobserver.h>
 #endif
 
 
@@ -71,6 +76,7 @@
 #ifdef UIQ3
 #include "ayfly_uiq3.rsg"
 #include "ayfly_uiq3AppView.h"
+#include "ayfly_uiq3PlayListView.h"
 #else
 #include "ayfly_s60.rsg"
 #include "ayfly_s60AppView.h"

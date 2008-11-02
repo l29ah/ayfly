@@ -10,6 +10,9 @@ NAME AYFL // 4 letter ID
 #include "ayfly_s60.hrh"
 #include "ayfly_s60.rls"
 #include <appinfo.rh>
+#include <QikListBox.rh>
+#include <QikListBoxStandardLayouts.hrh>
+
 
 //  RESOURCE DEFINITIONS
 // -----------------------------------------------------------------------------
@@ -31,7 +34,7 @@ RESOURCE RSS_SIGNATURE
 //
 RESOURCE TBUF
     {
-    buf="ayfly_uiq3";
+        buf="ayfly_uiq3";
     }
 
 RESOURCE EIK_APP_INFO
@@ -48,26 +51,29 @@ RESOURCE EIK_APP_INFO
 // The application supports the reference UI Configurations that are supported
 // in the UIQ 3 SDK. Use the UiqEnv tool, to change the UI Configuration in the
 // emulator in order to develop and test the application with varying phone styles.
-RESOURCE QIK_VIEW_CONFIGURATIONS r_ayfly_ui_configurations
+RESOURCE QIK_VIEW_CONFIGURATIONS r_ayfly_listbox_configurations
     {
-    configurations =
-        {
-        QIK_VIEW_CONFIGURATION
+        configurations =
             {
-            ui_config_mode = KQikPenStyleTouchPortrait;
-            command_list = r_menu;
-            },
-        QIK_VIEW_CONFIGURATION
-            {
-            ui_config_mode = KQikSoftkeyStyleTouchPortrait;
-            command_list = r_menu;
-            },
-        QIK_VIEW_CONFIGURATION
-            {
-            ui_config_mode = KQikSoftkeyStylePortrait;
-            command_list = r_menu;
-            }
-        };
+                QIK_VIEW_CONFIGURATION
+                    {
+                        ui_config_mode = KQikPenStyleTouchPortrait;
+                        command_list = r_menu;
+                        view = r_ayfly_listbox_layout;
+                    },
+                QIK_VIEW_CONFIGURATION
+                    {
+                        ui_config_mode = KQikSoftkeyStyleTouchPortrait;
+                        command_list = r_menu;
+                        view = r_ayfly_listbox_layout;
+                    },
+                QIK_VIEW_CONFIGURATION
+                    {
+                        ui_config_mode = KQikSoftkeyStylePortrait;
+                        command_list = r_menu;
+                        view = r_ayfly_listbox_layout;
+                    }
+            };
     }
 // -----------------------------------------------------------------------------
 //
@@ -78,40 +84,104 @@ RESOURCE QIK_VIEW_CONFIGURATIONS r_ayfly_ui_configurations
 //
 RESOURCE QIK_COMMAND_LIST r_menu
     {
-    items =
-        {
-        // added the new Options menu command here
-        QIK_COMMAND
+        items =
             {
-            id = EAddFile;
-            type = EQikCommandTypeScreen;
-            text = qtn_addfile;
-            },
-        QIK_COMMAND
+                // added the new Options menu command here
+                QIK_COMMAND
+                    {
+                        id = EAddFile;
+                        type = EQikCommandTypeScreen;
+                        text = qtn_addfile;
+                    },
+                QIK_COMMAND
+                    {
+                        id = EAddFolder;
+                        type = EQikCommandTypeScreen;
+                        text = qtn_addfolder;
+                    },
+                QIK_COMMAND
+                    {
+                        id = EStartPlayer;
+                        type = EQikCommandTypeScreen;
+                        text = qtn_startplayer;
+                    },
+                QIK_COMMAND
+                    {
+                        id = EStopPlayer;
+                        type = EQikCommandTypeScreen;
+                        text = qtn_stopplayer;
+                    },
+                QIK_COMMAND
+                    {
+                        id = EAbout;
+                        type = EQikCommandTypeScreen;
+                        text = qtn_about;
+                    },
+                QIK_COMMAND
+                    {
+                        id = EEikCmdExit;
+                        type = EQikCommandTypeScreen;
+                        text = qtn_exit;
+                    }
+            };
+    }
+
+RESOURCE QIK_VIEW r_ayfly_listbox_layout
+    {
+        pages = r_ayfly_listbox_layout_pages;
+    }
+
+RESOURCE QIK_VIEW_PAGES r_ayfly_listbox_layout_pages
+    {
+        pages =
             {
-            id = EStartPlayer;
-            type = EQikCommandTypeScreen;
-            text = qtn_startplayer;
-            },
-        QIK_COMMAND
+                QIK_VIEW_PAGE
+                    {
+                        page_id = EAyflyListBox;
+                        page_content = r_ayfly_listbox_page_control;
+                    }
+            };
+    }
+
+// The page contains a List Box that fills the entire application space.
+RESOURCE QIK_CONTAINER_SETTINGS r_ayfly_listbox_page_control
+    {
+        layout_manager_type = EQikRowLayoutManager;
+        layout_manager = r_row_layout_default;
+        controls =
             {
-            id = EStopPlayer;
-            type = EQikCommandTypeScreen;
-            text = qtn_stopplayer;
-            },
-        QIK_COMMAND
-            {
-            id = EAbout;
-            type = EQikCommandTypeScreen;
-            text = qtn_about;
-            },
-        QIK_COMMAND
-            {
-            id = EEikCmdExit;
-            type = EQikCommandTypeScreen;
-            text = qtn_exit;
-            }
-        };
+                QIK_CONTAINER_ITEM_CI_LI
+                    {
+                        unique_handle = EAyflyListViewListCtrl;
+                        type = EQikCtListBox;
+                        control = r_ayfly_listbox_listbox;
+                        // This makes the List Box fill the entire application space.
+                        layout_data = r_row_layout_data_fill;
+                    }
+            };
+    }
+
+RESOURCE QIK_LISTBOX r_ayfly_listbox_listbox
+    {
+        layouts =
+            {   r_ayfly_listbox_normal_layout_pair};
+    }
+
+RESOURCE QIK_LISTBOX_LAYOUT_PAIR r_ayfly_listbox_normal_layout_pair
+    {
+        standard_normal_layout = EQikListBoxLine;
+    }
+
+RESOURCE QIK_ROW_LAYOUT_MANAGER r_row_layout_default
+    {
+        default_layout_data = QIK_ROW_LAYOUT_DATA
+            {};
+    }
+
+RESOURCE QIK_ROW_LAYOUT_DATA r_row_layout_data_fill
+    {
+        vertical_alignment = EQikLayoutVAlignFill;
+        vertical_excess_grab_weight = 1;
     }
 
 // -----------------------------------------------------------------------------
@@ -121,13 +191,13 @@ RESOURCE QIK_COMMAND_LIST r_menu
 // -----------------------------------------------------------------------------
 //
 RESOURCE TBUF32 r_caption_string
-    {buf=qtn_caption_string;}
+    {   buf=qtn_caption_string;}
 RESOURCE TBUF32 r_about_dialog_title
-    {buf=qtn_about_dialog_title;}
+    {   buf=qtn_about_dialog_title;}
 RESOURCE TBUF r_about_dialog_text
-    {buf=qtn_about_dialog_text;}
+    {   buf=qtn_about_dialog_text;}
 RESOURCE TBUF r_command1_text
-    {buf=qtn_command1_text;}
+    {   buf=qtn_command1_text;}
 
 // ---------------------------------------------------------------------------- 
 //
@@ -137,13 +207,13 @@ RESOURCE TBUF r_command1_text
 //
 RESOURCE LOCALISABLE_APP_INFO r_localisable_app_info
     {
-    short_caption = qtn_caption_string;
-    caption_and_icon = CAPTION_AND_ICON_INFO
-        {
-        caption = qtn_caption_string;
+        short_caption = qtn_caption_string;
+        caption_and_icon = CAPTION_AND_ICON_INFO
+            {
+                caption = qtn_caption_string;
 
-        number_of_icons = 0;
-        };
+                number_of_icons = 0;
+            };
     }
 
 // End of File

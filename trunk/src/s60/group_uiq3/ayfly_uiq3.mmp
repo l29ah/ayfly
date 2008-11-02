@@ -21,9 +21,9 @@ EPOCSTACKSIZE		0x5000
 SOURCEPATH		..\src
 SOURCE			ayfly_s60.cpp
 SOURCE			ayfly_s60Application.cpp
-SOURCE			ayfly_uiq3AppView.cpp
 SOURCE			ayfly_s60AppUi.cpp
 SOURCE			ayfly_s60Document.cpp
+SOURCE          ayfly_uiq3PlayListView.cpp
 
 SOURCEPATH		..\..\libayfly
 SOURCE			z80ex\z80ex.c speccy.cpp formats.cpp ay.cpp common.cpp AbstractAudio.cpp lha.cpp s60\ayfly_s60Audio.cpp
@@ -66,4 +66,3 @@ SECUREID		  _UID3
 CAPABILITY	  	  ReadUserData
 // End of File
 
-SRCDBG

@@ -241,7 +241,7 @@ void Cayfly_s60PlayListView::UpVolume()
 
 void Cayfly_s60PlayListView::DownVolume()
 {
-    if(currentSong)
+    if(currentSong && player)
     {
         player->DownDeviceVolume();
     }

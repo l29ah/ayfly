@@ -19,7 +19,7 @@
 
 // FORWARD DECLARATIONS
 #ifdef UIQ3
-class Cayfly_s60AppView;
+class Cayfly_uiq3PlayListView;
 #else //S60
 class Cayfly_s60PlayListView;
 #endif
@@ -94,7 +94,7 @@ private:
 	 * Owned by Cayfly_s60AppUi
 	 */
 #ifdef UIQ3
-	Cayfly_s60AppView* iAppView;
+    Cayfly_uiq3PlayListView* iAppView;
 #else //S60
 	Cayfly_s60PlayListView* iAppView;
 #endif

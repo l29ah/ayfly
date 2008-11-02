@@ -51,7 +51,7 @@ void Cayfly_s60AppUi::ConstructL()
 #endif
     // Create view object
 #ifdef UIQ3
-    iAppView = Cayfly_s60AppView::NewL(*this);
+    iAppView = Cayfly_uiq3PlayListView::NewL(*this, KNullViewId);
 #else
     iAppView = Cayfly_s60PlayListView::NewL(ClientRect());
 #endif
@@ -81,12 +81,6 @@ Cayfly_s60AppUi::Cayfly_s60AppUi()
 //
 Cayfly_s60AppUi::~Cayfly_s60AppUi()
 {
-    if(iAppView)
-    {
-        RemoveFromStack(iAppView);
-        delete iAppView;
-        iAppView = NULL;
-    }
 
 }
 // -----------------------------------------------------------------------------
