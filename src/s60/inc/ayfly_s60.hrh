@@ -27,6 +27,18 @@ enum Tayfly_s60Ids
 	EHelp,
 	EAbout
 	};
+
+enum TListBoxControl
+    {
+        EAyflyListBox,
+        EAyflyViewPage,
+        EAyflyViewNumberOfControls,
+        EAyflyListViewListCtrl
+    };
+
+/**
+Unique controls in list and detail view.
+*/
 	
 #endif
 
