@@ -62,7 +62,7 @@
 #include <qikviewbase.h>
 #include <qiklistboxmodel.h>
 #include <qiklistbox.h>
-#include <qiklistboxData.h>
+#include <qiklistboxdata.h>
 #include <mqiklistboxobserver.h>
 #include <qikselectfolderdlg.h>
 #include <qikmediafilefolderutils.h>
