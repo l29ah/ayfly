@@ -90,17 +90,17 @@ Cayfly_s60AppUi::~Cayfly_s60AppUi()
 //
 void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 {
-    switch(aCommand)
+    switch (aCommand)
     {
-        case EEikCmdExit:
+    case EEikCmdExit:
 #ifndef UIQ3 //S60
         case EAknSoftkeyExit:
 #endif
         {
             Exit();
         }
-            break;
-        case EAddFile:
+        break;
+    case EAddFile:
         {
 #ifndef UIQ3
             TFileName FileName = PathInfo::MemoryCardRootPath();
@@ -129,23 +129,23 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
             delete dlg;
 
 #else //UIQ3
-            TFileName FileName = _L("E:\\");
+            TFileName FileName= _L("E:\\");
             CDesCArray* mime = new (ELeave) CDesCArrayFlat(1);
             CleanupStack::PushL(mime);
             CDesCArray* file = new(ELeave) CDesCArrayFlat(1);
             CleanupStack::PushL(file);
             TBool bRet = CQikSelectFileDlg::RunDlgLD(*mime, *file);
-            if(bRet)
-            FileName = (*file) [0];
+            if (bRet)
+                FileName = (*file) [0];
             CleanupStack::PopAndDestroy(2);
 #endif
-            if(bRet)
+            if (bRet)
             {
                 iAppView->AddFile(FileName);
             }
         }
-            break;
-        case EAddFolder:
+        break;
+    case EAddFolder:
         {
 #ifndef UIQ3 
             TFileName FolderName = PathInfo::MemoryCardRootPath();
@@ -204,44 +204,75 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
             }
 
 #else //UIQ3
+            TFileName FolderName= _L("");
+            TQikDefaultFolderDescription defFolder;
+            defFolder.SetDefaultFolder(EQikFileHandlingDefaultFolderNotSelected);
+            TBool err = CQikSelectFolderDlg::RunDlgLD(FolderName, defFolder, 0);
+            if (err != EFalse)
+            {
+                RFs session;
+                session.Connect();
+                CDirScan* scan = CDirScan::NewL(session);
+                CDir* files;
+                scan->SetScanDataL(FolderName, KEntryAttNormal, ESortByName | EAscending, CDirScan::EScanDownTree);
+                scan->NextL(files);
+                while (files)
+                {
+                    for (TInt i = 0; i < files->Count(); i++)
+                    {
+                        TEntry file = (*files)[i];
+                        if (ay_format_supported(file.iName.Right(4)))
+                        {
+                            TFileName FileName= _L("");
+                            FileName.Append(scan->FullPath());
+                            FileName.Append(file.iName);
+                            iAppView->AddFile(FileName);
+                        }
+                    }
+                    delete files;
+                    scan->NextL(files);
+                }
+                delete scan;
+                session.Close();
+            }
 #endif
         }
-            break;
-        case EStartPlayer:
-            iAppView->StartPlayer();
-            break;
-        case EStopPlayer:
-            iAppView->StopPlayer();
-            break;
-        case EHelp:
+        break;
+    case EStartPlayer:
+        iAppView->StartPlayer();
+        break;
+    case EStopPlayer:
+        iAppView->StopPlayer();
+        break;
+    case EHelp:
         {
 
         }
-            break;
+        break;
 #ifdef EKA2
 #ifndef UIQ3
-            case EAbout:
-            {
+        case EAbout:
+        {
 
-                CAknMessageQueryDialog* dlg = new (ELeave)CAknMessageQueryDialog();
-                dlg->PrepareLC(R_ABOUT_QUERY_DIALOG);
-                HBufC* title= iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TITLE);
-                dlg->QueryHeading()->SetTextL(*title);
-                CleanupStack::PopAndDestroy(); //title
-                HBufC* msg= iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TEXT);
-                dlg->SetMessageTextL(*msg);
-                CleanupStack::PopAndDestroy(); //msg
-                dlg->RunLD();
-            }
-            break;
+            CAknMessageQueryDialog* dlg = new (ELeave)CAknMessageQueryDialog();
+            dlg->PrepareLC(R_ABOUT_QUERY_DIALOG);
+            HBufC* title= iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TITLE);
+            dlg->QueryHeading()->SetTextL(*title);
+            CleanupStack::PopAndDestroy(); //title
+            HBufC* msg= iEikonEnv->AllocReadResourceLC(R_ABOUT_DIALOG_TEXT);
+            dlg->SetMessageTextL(*msg);
+            CleanupStack::PopAndDestroy(); //msg
+            dlg->RunLD();
+        }
+        break;
 #endif
 #endif
-        default:
+    default:
         {
             //CEikonEnv::InfoWinL(_L("DeviceMessage"), _L("!!!"));
             //Panic(Eayfly_s60Ui);
         }
-            break;
+        break;
     }
 }
 
@@ -253,7 +284,7 @@ void Cayfly_s60AppUi::HandleCommandL(TInt aCommand)
 //
 void Cayfly_s60AppUi::HandleStatusPaneSizeChange()
 {
-    if(iAppView)
+    if (iAppView)
         iAppView->SetRect(ClientRect());
 }
 
