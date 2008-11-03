@@ -96,24 +96,6 @@ void writePort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, Z80EX_BYTE value, void *user
             //sound_beeper(value & 0x10);
             break;
     }
-
-    /*switch(h)
-     {
-     case 0xf6:
-     switch(a&0xc0)
-     {
-     case 0x80:
-     sound_ay_write(ay_current_reg,cpc_f4,tstates);
-     break;
-     
-     case 0xc0: 
-     ay_current_reg=(cpc_f4&15);
-     break;
-     }
-     break;
-
-     break;
-     }*/
 }
 
 Z80EX_BYTE readInt(Z80EX_CONTEXT *cpu, void *user_data)
