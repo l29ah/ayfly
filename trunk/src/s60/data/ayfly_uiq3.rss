@@ -10,8 +10,8 @@ NAME AYFL // 4 letter ID
 #include "ayfly_s60.hrh"
 #include "ayfly_s60.rls"
 #include <appinfo.rh>
-#include <QikListBox.rh>
-#include <QikListBoxStandardLayouts.hrh>
+#include <qiklistbox.rh>
+#include <qiklistboxstandardlayouts.hrh>
 
 
 //  RESOURCE DEFINITIONS
