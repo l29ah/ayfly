@@ -186,7 +186,7 @@ void ay::updateEnvelope()
                 env_trigger = env_attack ? 1 : -1;
                 env_tick = 32; //end processing;
             }
-            else if((env_tick == 15) && !(env_type & 0x8)) //do not continue
+            else if((env_tick == 31) && !(env_type & 0x8)) //do not continue
             {
                 env_tick = 32;
                 env_vol = 0;

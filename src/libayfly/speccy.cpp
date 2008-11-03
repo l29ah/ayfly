@@ -20,85 +20,85 @@
 
 #include "ayfly.h"
 
-Z80EX_BYTE readMemory(Z80EX_CONTEXT *cpu, Z80EX_WORD addr, int m1_state, void *user_data)
+inline Z80EX_BYTE readMemory(Z80EX_CONTEXT *cpu, Z80EX_WORD addr, int m1_state, void *user_data)
 {
     unsigned char *mem = ((AYSongInfo *)user_data)->module;
     return mem[addr];
 }
 
-void writeMemory(Z80EX_CONTEXT *cpu, Z80EX_WORD addr, Z80EX_BYTE value, void *user_data)
+inline void writeMemory(Z80EX_CONTEXT *cpu, Z80EX_WORD addr, Z80EX_BYTE value, void *user_data)
 {
     unsigned char *mem = ((AYSongInfo *)user_data)->module;
     mem[addr] = value;
 
 }
-Z80EX_BYTE readPort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, void *user_data)
+inline Z80EX_BYTE readPort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, void *user_data)
 {
     /*AYSongInfo *info = (AYSongInfo *)user_data;
-    if((port == 0xfffd) || ((port & 0xc000) == 0xc000)) //ay control port
-    {
-        if(info->ay_reg == 16)
-        {
-            if(info->chip_type == 0)
-                return 0x10;
-            else
-                return 0xff;
-        }
-        else
-            return info->ay8910[0].ayRead(info->ay_reg);
-    }
-    unsigned char *io = ((AYSongInfo *)user_data)->z80IO;
-    return io[port];*/
+     if((port == 0xfffd) || ((port & 0xc000) == 0xc000)) //ay control port
+     {
+     if(info->ay_reg == 16)
+     {
+     if(info->chip_type == 0)
+     return 0x10;
+     else
+     return 0xff;
+     }
+     else
+     return info->ay8910[0].ayRead(info->ay_reg);
+     }
+     unsigned char *io = ((AYSongInfo *)user_data)->z80IO;
+     return io[port];*/
     return 0xff;
 }
 
-void writePort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, Z80EX_BYTE value, void *user_data)
+inline void writePort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, Z80EX_BYTE value, void *user_data)
 {
 
     AYSongInfo *info = (AYSongInfo *)user_data;
-    unsigned char *io = info->z80IO;
-    /*if ((port == 0xfffd) || ((port & 0xc000) == 0xc000)) //ay control port
-     {
-     info->ay_reg = value;
-     }
-     else if ((port == 0xbffd) || ((port & 0xc000) == 0x8000)) // ay data port
-     {
-     info->ay8910 [0].ayWrite(info->ay_reg, value);
-     io [65533] = value;
-     }
-     else
-     {
-     io [port] = value;
-     }*/
-    unsigned char l = port & 0xff;
-    unsigned char h = (port >> 8) & 0xff;
-    switch(l)
+    //unsigned char *io = info->z80IO;
+    if((port == 0xfffd) || ((port & 0xc000) == 0xc000)) //ay control port
     {
-        case 0xfd:
-            switch(h)
-            {
-                case 0xff:
-                    write_reg: info->ay_reg = (value & 15);
-                    break;
-                case 0xbf:
-                    write_dat: info->ay8910 [0].ayWrite(info->ay_reg, value);
-                    break;
-                default:
-                    if((h & 0xc0) == 0xc0)
-                        goto write_reg;
-                    if((h & 0xc0) == 0x80)
-                        goto write_dat;
-            }
-            break;
-
-        case 0xfe:
-            value = 0;
-            //sound_beeper(value & 0x10);
-            break;
+        info->ay_reg = value;
     }
+    else if((port == 0xbffd) || ((port & 0xc000) == 0x8000)) // ay data port
+    {
+        info->ay8910[0].ayWrite(info->ay_reg, value);
+        //io[65533] = value;
+    }
+    else
+    {
+        //io[port] = value;
+    }
+    /* unsigned char l = port & 0xff;
+     unsigned char h = (port >> 8) & 0xff;
+     switch(l)
+     {
+     case 0xfd:
+     switch(h)
+     {
+     case 0xff:
+     write_reg: info->ay_reg = (value & 15);
+     break;
+     case 0xbf:
+     write_dat: info->ay8910 [0].ayWrite(info->ay_reg, value);
+     break;
+     default:
+     if((h & 0xc0) == 0xc0)
+     goto write_reg;
+     if((h & 0xc0) == 0x80)
+     goto write_dat;
+     }
+     break;
+
+     case 0xfe:
+     value = 0;
+     //sound_beeper(value & 0x10);
+     break;
+     }*/
 }
 
-Z80EX_BYTE readInt(Z80EX_CONTEXT *cpu, void *user_data)
+inline Z80EX_BYTE readInt(Z80EX_CONTEXT *cpu, void *user_data)
 {
     return 0xff;
 }
