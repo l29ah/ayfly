@@ -64,6 +64,8 @@
 #include <qiklistbox.h>
 #include <qiklistboxData.h>
 #include <mqiklistboxobserver.h>
+#include <qikselectfolderdlg.h>
+#include <qikmediafilefolderutils.h>
 #endif
 
 

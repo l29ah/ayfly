@@ -103,6 +103,8 @@ void Cayfly_uiq3PlayListView::StartPlayer()
 
 void Cayfly_uiq3PlayListView::StopPlayer()
 {
+    if(currentSong && ay_songstarted(currentSong))
+        ay_stopsong(currentSong);
 
 }
 
@@ -154,6 +156,16 @@ TKeyResponse Cayfly_uiq3PlayListView::OfferKeyEventL(const TKeyEvent& aKeyEvent,
             DownVolume();
             return EKeyWasConsumed;
         }
+        else if(aKeyEvent.iScanCode == EStdKeyNkp4)
+        {
+            PrevSong();
+            return EKeyWasConsumed;
+        }
+        else if(aKeyEvent.iScanCode == EStdKeyNkp6)
+        {
+            NextSong();
+            return EKeyWasConsumed;
+        }
         else if(aKeyEvent.iScanCode == EStdKeyBackspace)
         {
             MQikListBoxModel& model(listBox->Model());
@@ -197,6 +209,27 @@ void Cayfly_uiq3PlayListView::NextSong()
         }
         if (currentIndex < 0)
             currentIndex = 0;
+        listBox->SetCurrentItemIndexL(currentIndex, ETrue, ENoDrawNow);
+        listBox->DrawDeferred();
+        StartSong(currentIndex);
+    }
+}
+
+void Cayfly_uiq3PlayListView::PrevSong()
+{
+    if (currentSong)
+    {
+        CQikListBox* listBox = LocateControlByUniqueHandle<CQikListBox>(EAyflyListViewListCtrl);
+        ay_stopsong(currentSong);
+        ay_closesong(&currentSong);
+        currentIndex--;
+        if(currentIndex < 0)
+        {
+            currentIndex = 0;
+            return;
+        }
+        listBox->SetCurrentItemIndexL(currentIndex, ETrue, ENoDrawNow);
+        listBox->DrawDeferred();
         StartSong(currentIndex);
     }
 }

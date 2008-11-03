@@ -56,7 +56,7 @@ LIBRARY		   euser.lib apparc.lib cone.lib eikcore.lib eikcoctl.lib
 LIBRARY        fbscli.lib eikdlg.lib efsrv.lib estor.lib
 LIBRARY 	   qikcore.lib
 LIBRARY        qiklbx.lib
-LIBRARY        quiconfigclient.lib
+LIBRARY        quiconfigclient.lib qikutils.lib
 LIBRARY        bafl.lib
 LIBRARY        qikdlg.lib mediaclientaudiostream.lib estlib.lib
 

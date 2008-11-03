@@ -17,6 +17,7 @@ public:
     void AddFile(TFileName filePath);
     void StartPlayer();
     void StopPlayer();
+    void PrevSong();
     void NextSong();
     void UpVolume();
     void DownVolume();
