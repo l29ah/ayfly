@@ -110,10 +110,10 @@ struct PT3_SongInfo
     PT3_Channel_Parameters PT3_A, PT3_B, PT3_C;
 };
 
-#define PT3_A ((PT3_SongInfo *)info.data)->PT3_A
-#define PT3_B ((PT3_SongInfo *)info.data)->PT3_B
-#define PT3_C ((PT3_SongInfo *)info.data)->PT3_C
-#define PT3 ((PT3_SongInfo *)info.data)->PT3
+#define PT3_A ((PT3_SongInfo *)data)->PT3_A
+#define PT3_B ((PT3_SongInfo *)data)->PT3_B
+#define PT3_C ((PT3_SongInfo *)data)->PT3_C
+#define PT3 ((PT3_SongInfo *)data)->PT3
 
 void PT3_Init(AYSongInfo &info)
 {
@@ -126,6 +126,11 @@ void PT3_Init(AYSongInfo &info)
         delete (PT3_SongInfo *)info.data;
         info.data = 0;
     }
+    if(info.data1)
+    {
+        delete (PT3_SongInfo *)info.data1;
+        info.data1 = 0;
+    }
     info.data = (void *)new PT3_SongInfo;
     if(!info.data)
         return;
@@ -133,53 +138,69 @@ void PT3_Init(AYSongInfo &info)
     PT3.DelayCounter = 1;
     PT3.Delay = header->PT3_Delay;
     i = header->PT3_PositionList[0];
-    b = 0x20;
-    if(b != 0x20)
-    {
-        i = b * 3 - 3 - i;
-    }
-    PT3_A.Address_In_Pattern = ay_sys_getword(&module[PT3_PatternsPointer + i * 2]);
-    PT3_B.Address_In_Pattern = ay_sys_getword(&module[PT3_PatternsPointer + i * 2 + 2]);
-    PT3_C.Address_In_Pattern = ay_sys_getword(&module[PT3_PatternsPointer + i * 2 + 4]);
-
-    PT3_A.OrnamentPointer = PT3_OrnamentsPointers(0);
-    PT3_A.Loop_Ornament_Position = module[PT3_A.OrnamentPointer];
-    PT3_A.OrnamentPointer++;
-    PT3_A.Ornament_Length = module[PT3_A.OrnamentPointer];
-    PT3_A.OrnamentPointer++;
-    PT3_A.SamplePointer = PT3_SamplesPointers(1);
-    PT3_A.Loop_Sample_Position = module[PT3_A.SamplePointer];
-    PT3_A.SamplePointer++;
-    PT3_A.Sample_Length = module[PT3_A.SamplePointer];
-    PT3_A.SamplePointer++;
-    PT3_A.Volume = 15;
-    PT3_A.Note_Skip_Counter = 1;
-
-    PT3_B.OrnamentPointer = PT3_A.OrnamentPointer;
-    PT3_B.Loop_Ornament_Position = PT3_A.Loop_Ornament_Position;
-    PT3_B.Ornament_Length = PT3_A.Ornament_Length;
-    PT3_B.SamplePointer = PT3_A.SamplePointer;
-    PT3_B.Loop_Sample_Position = PT3_A.Loop_Sample_Position;
-    PT3_B.Sample_Length = PT3_A.Sample_Length;
-    PT3_B.Volume = 15;
-    PT3_B.Note_Skip_Counter = 1;
-
-    PT3_C.OrnamentPointer = PT3_A.OrnamentPointer;
-    PT3_C.Loop_Ornament_Position = PT3_A.Loop_Ornament_Position;
-    PT3_C.Ornament_Length = PT3_A.Ornament_Length;
-    PT3_C.SamplePointer = PT3_A.SamplePointer;
-    PT3_C.Loop_Sample_Position = PT3_A.Loop_Sample_Position;
-    PT3_C.Sample_Length = PT3_A.Sample_Length;
-    PT3_C.Volume = 15;
-    PT3_C.Note_Skip_Counter = 1;
-
     PT3.Version = 6;
     if((header->PT3_MusicName[13] >= '0') && (header->PT3_MusicName[13] <= '9'))
     {
         PT3.Version = header->PT3_MusicName[13] - 0x30;
     }
+    if(PT3.Version >= 7)
+    {
+        unsigned char ts = header->PT3_MusicName[0x62];
+        if(ts != 0x20)
+        {
+            info.is_ts = true;
+        }
+    }
+    b = header->PT3_MusicName[0x62];
+    if(b != 0x20)
+    {
+        i = b * 3 - 3 - i;
+    }
+    void *data = info.data;
+
+    for(unsigned long y = 0; y < 2; y++)
+    {
+        PT3_A.Address_In_Pattern = ay_sys_getword(&module[PT3_PatternsPointer + i * 2]);
+        PT3_B.Address_In_Pattern = ay_sys_getword(&module[PT3_PatternsPointer + i * 2 + 2]);
+        PT3_C.Address_In_Pattern = ay_sys_getword(&module[PT3_PatternsPointer + i * 2 + 4]);
+
+        PT3_A.OrnamentPointer = PT3_OrnamentsPointers(0);
+        PT3_A.Loop_Ornament_Position = module[PT3_A.OrnamentPointer];
+        PT3_A.OrnamentPointer++;
+        PT3_A.Ornament_Length = module[PT3_A.OrnamentPointer];
+        PT3_A.OrnamentPointer++;
+        PT3_A.SamplePointer = PT3_SamplesPointers(1);
+        PT3_A.Loop_Sample_Position = module[PT3_A.SamplePointer];
+        PT3_A.SamplePointer++;
+        PT3_A.Sample_Length = module[PT3_A.SamplePointer];
+        PT3_A.SamplePointer++;
+        PT3_A.Volume = 15;
+        PT3_A.Note_Skip_Counter = 1;
+
+        PT3_B.OrnamentPointer = PT3_A.OrnamentPointer;
+        PT3_B.Loop_Ornament_Position = PT3_A.Loop_Ornament_Position;
+        PT3_B.Ornament_Length = PT3_A.Ornament_Length;
+        PT3_B.SamplePointer = PT3_A.SamplePointer;
+        PT3_B.Loop_Sample_Position = PT3_A.Loop_Sample_Position;
+        PT3_B.Sample_Length = PT3_A.Sample_Length;
+        PT3_B.Volume = 15;
+        PT3_B.Note_Skip_Counter = 1;
+
+        PT3_C.OrnamentPointer = PT3_A.OrnamentPointer;
+        PT3_C.Loop_Ornament_Position = PT3_A.Loop_Ornament_Position;
+        PT3_C.Ornament_Length = PT3_A.Ornament_Length;
+        PT3_C.SamplePointer = PT3_A.SamplePointer;
+        PT3_C.Loop_Sample_Position = PT3_A.Loop_Sample_Position;
+        PT3_C.Sample_Length = PT3_A.Sample_Length;
+        PT3_C.Volume = 15;
+        PT3_C.Note_Skip_Counter = 1;
+        if(!info.is_ts)
+            break;
+        data = info.data1;
+    }
 
     ay_resetay(&info, 0);
+    ay_resetay(&info, 1);
 }
 
 int PT3_GetNoteFreq(AYSongInfo &info, unsigned char j)
@@ -951,6 +972,11 @@ void PT3_Cleanup(AYSongInfo &info)
     {
         delete (PT3_SongInfo *)info.data;
         info.data = 0;
+    }
+    if(info.data1)
+    {
+        delete (PT3_SongInfo *)info.data1;
+        info.data1 = 0;
     }
 }
 

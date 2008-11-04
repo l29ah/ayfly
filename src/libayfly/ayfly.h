@@ -171,7 +171,9 @@ struct AYSongInfo
     PLAYER_PLAY_PROC play_proc; /* play for soft player */
     PLAYER_CLEANUP_PROC cleanup_proc; /* play for soft player */
     void *data; /* used for players */
+    void *data1; /* used for players */
     unsigned char *module; /* z80 memory or raw song data */
+    unsigned char *module1; /* z80 memory or raw song data */
     unsigned char *file_data; /* z80 memory or raw song data */
     unsigned char z80IO [65536]; /* z80 ports */
     unsigned long file_len; /* file length */
@@ -195,6 +197,7 @@ struct AYSongInfo
     bool stopping;
     ay ay8910 [NUMBER_OF_AYS];
     long player_num;
+    bool is_ts; /* 2xay - turbo sound */
     ~AYSongInfo();
 };
 
@@ -494,7 +497,7 @@ AYFLY_API const unsigned char *ay_getregs(void *info, unsigned char chip_num = 0
  * with size @buffer_length bytes
  */
 
-AYFLY_API unsigned long ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned char chip_num = 0);
+AYFLY_API unsigned long ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length);
 
 /*
  * Returns z80 frequency

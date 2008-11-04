@@ -33,6 +33,7 @@ AYSongInfo *ay_sys_getnewinfo()
     info->play_proc = 0;
     info->cleanup_proc = 0;
     info->data = 0;
+    info->data1 = 0;
     info->file_len = 0;
     info->module_len = 0;
     info->z80ctx = 0;
@@ -44,7 +45,7 @@ AYSongInfo *ay_sys_getnewinfo()
     info->z80_freq = Z80_FREQ;
     info->ay_freq = info->z80_freq / 2;
     info->int_freq = INT_FREQ;
-    info->file_data = info->module = 0;
+    info->file_data = info->module = info->module1 = 0;
     info->sr = 44100;
     info->player = 0;
     info->chip_type = 0;
@@ -52,7 +53,8 @@ AYSongInfo *ay_sys_getnewinfo()
     info->stopping = false;
     info->player_num = -1;
     info->int_counter = 0;
-    info->int_limit = 0; 
+    info->int_limit = 0;
+    info->is_ts = false;
     for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
     {
         info->ay8910[i].SetParameters(info);
@@ -354,7 +356,8 @@ AYFLY_API void ay_stopsong(void *info)
     if(ay_songstarted(info))
     {
         ((AYSongInfo *)info)->player->Stop();
-        while(((AYSongInfo *)info)->player->Started()); //very bad :(
+        while(((AYSongInfo *)info)->player->Started())
+            ; //very bad :(
     }
 }
 
@@ -378,10 +381,16 @@ AYFLY_API const unsigned char *ay_getregs(void *info, unsigned char chip_num)
     return ((AYSongInfo *)info)->ay8910[chip_num].GetRegs();
 }
 
-AYFLY_API unsigned long ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length, unsigned char chip_num)
+AYFLY_API unsigned long ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length)
 {
-    ay_stopsong(info);
-    return ((AYSongInfo *)info)->ay8910[chip_num].ayProcess(buffer, buffer_length);
+    switch(((AYSongInfo *)info)->is_ts)
+    {
+        case true:
+            return ((AYSongInfo *)info)->ay8910[0].ayProcessTS(buffer, buffer_length);
+        default:
+            return ((AYSongInfo *)info)->ay8910[0].ayProcess(buffer, buffer_length);
+    }
+
 }
 
 AYFLY_API unsigned long ay_getz80freq(void *info)
@@ -501,7 +510,7 @@ AYFLY_API void ay_softexec(void *info)
 
 AYFLY_API void ay_z80exec(void *info)
 {
-    AYSongInfo *song = (AYSongInfo *)info;    
+    AYSongInfo *song = (AYSongInfo *)info;
     song->int_counter += z80ex_step(song->z80ctx);
     //printf("counter = %d\n", song->int_counter);    
     if(song->int_counter > song->int_limit)

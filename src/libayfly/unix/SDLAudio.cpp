@@ -81,7 +81,8 @@ void SDLAudio::Play(void *udata, Uint8 *stream, int len)
         memset(stream, 0, len);
         return;
     }
-    audio->songinfo->ay8910 [0].ayProcess(stream, len);
+    ay_rendersongbuffer(audio->songinfo, stream, len);
+    //audio->songinfo->ay8910 [0].ayProcess(stream, len);
 }
 
 int SDLAudio::StoppingThread(void *arg)
