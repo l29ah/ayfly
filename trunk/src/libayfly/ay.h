@@ -53,6 +53,8 @@ public:
     unsigned char ayRead(unsigned char reg);
     unsigned long ayProcess(unsigned char *stream, unsigned long len);
     unsigned long ayProcessMono(unsigned char *stream, unsigned long len);
+    unsigned long ayProcessTS(unsigned char *stream, unsigned long len);
+    unsigned long ayProcessTSMono(unsigned char *stream, unsigned long len);
     inline void chnlMute(unsigned long chnl, bool mute)
     {
         chnl_mute[chnl] = !mute;
@@ -117,6 +119,7 @@ private:
     long int_per_z80_counter;
     inline void aySoftStep(float &s0, float &s1, float &s2);
     inline void ayZ80Step(float &s0, float &s1, float &s2);
+    inline void ayCommonStep(float &s0, float &s1, float &s2);
     typedef void (ay::*stepfunc)(float &s0, float &s1, float &s2);
     ay::stepfunc Step;
 };

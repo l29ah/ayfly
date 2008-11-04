@@ -64,7 +64,7 @@ void ay::SetParameters(AYSongInfo *_songinfo)
     }
     else
     {
-        z80_per_sample = (songinfo->z80_freq / songinfo->sr) / ay_tacts;
+        z80_per_sample = songinfo->z80_freq / songinfo->sr;
         int_per_z80 = songinfo->z80_freq / songinfo->int_freq;
 
     }
@@ -266,29 +266,73 @@ void ay::aySoftStep(float &s0, float &s1, float &s2)
 
 void ay::ayZ80Step(float &s0, float &s1, float &s2)
 {
+    while(z80_per_sample_counter < z80_per_sample)
+    {
+        int tstates = z80ex_step(songinfo->z80ctx);
+        z80_per_sample_counter += tstates;
+        int_per_z80_counter += tstates;
+        if(int_per_z80_counter > int_per_z80)
+        {
+            tstates = z80ex_int(songinfo->z80ctx);
+            z80_per_sample_counter += tstates;
+            int_per_z80_counter = tstates;
+            if(++songinfo->timeElapsed >= songinfo->Length)
+            {
+                songinfo->timeElapsed = songinfo->Loop;
+                if(songinfo->e_callback)
+                    songinfo->stopping = songinfo->e_callback(songinfo->e_callback_arg);
+            }
+        }
+
+    }
+    z80_per_sample_counter -= z80_per_sample;
+    
     for(unsigned long k = 0; k < ay_tacts; k++)
     {
-        while(z80_per_sample_counter < z80_per_sample)
+        if(++chnl_period[0] >= tone_period_init[0])
         {
-            int tstates = z80ex_step(songinfo->z80ctx);
-            z80_per_sample_counter += tstates;
-            int_per_z80_counter += tstates;
-            if(int_per_z80_counter > int_per_z80)
-            {
-                tstates = z80ex_int(songinfo->z80ctx);
-                z80_per_sample_counter += tstates;
-                int_per_z80_counter = tstates;
-                if(++songinfo->timeElapsed >= songinfo->Length)
-                {
-                    songinfo->timeElapsed = songinfo->Loop;
-                    if(songinfo->e_callback)
-                        songinfo->stopping = songinfo->e_callback(songinfo->e_callback_arg);
-                }
-            }
-
+            chnl_period[0] -= tone_period_init[0];
+            chnl_trigger[0] ^= 1;
         }
-        z80_per_sample_counter -= z80_per_sample;
+        if(++chnl_period[1] >= tone_period_init[1])
+        {
+            chnl_period[1] -= tone_period_init[1];
+            chnl_trigger[1] ^= 1;
+        }
+        if(++chnl_period[2] >= tone_period_init[2])
+        {
+            chnl_period[2] -= tone_period_init[2];
+            chnl_trigger[2] ^= 1;
+        }
 
+        if(++noise_period >= noise_period_init)
+        {
+            noise_period = 0;
+            if((noise_reg + 1) & 2)
+                noise_trigger ^= 1;
+            if(noise_reg & 1)
+                noise_reg ^= 0x24000;
+            noise_reg >>= 1;
+        }
+        updateEnvelope();
+
+        if((chnl_trigger[0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)) & !chnl_mute[0])
+            s0 += (CHNL_ENVELOPE(0) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(0) * 2]) * volume[0];
+        if((chnl_trigger[1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)) & !chnl_mute[1])
+            s1 += (CHNL_ENVELOPE(1) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(1) * 2]) * volume[1];
+        if((chnl_trigger[2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)) & !chnl_mute[2])
+            s2 += (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2) * 2]) * volume[2];
+    }
+
+    s0 = s0 / (float)ay_tacts;
+    s1 = (s1 / (float)ay_tacts) / 1.42;
+    s2 = s2 / (float)ay_tacts;
+}
+
+void ay::ayCommonStep(float &s0, float &s1, float &s2)
+{ 
+    for(unsigned long k = 0; k < ay_tacts; k++)
+    {
         if(++chnl_period[0] >= tone_period_init[0])
         {
             chnl_period[0] -= tone_period_init[0];
@@ -338,7 +382,7 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
     {
         s0 = s1 = s2 = 0;
         if(songinfo->stopping == false)
-            (this ->* Step)(s0, s1, s2);
+            (this ->*Step)(s0, s1, s2);
         else
             return (i << 2);
         stream16[i * 2] = s0 + s1;
@@ -359,6 +403,50 @@ unsigned long ay::ayProcessMono(unsigned char *stream, unsigned long len)
         else
             return (i << 2);
         stream16[i] = s0 + s1 + s2;
+    }
+    return len;
+
+}
+
+unsigned long ay::ayProcessTS(unsigned char *stream, unsigned long len)
+{
+    unsigned long work_len = (len >> 2);
+    float s0, s1, s2;
+    float s3, s4, s5;
+    short *stream16 = (short *)stream;
+    for(unsigned long i = 0; i < work_len; i++)
+    {
+        s0 = s1 = s2 = 0;
+        if(songinfo->stopping == false)
+        {
+            (this ->* Step)(s0, s1, s2);
+            songinfo->ay8910[1].ayCommonStep(s3, s4, s5);
+        }
+        else
+            return (i << 2);
+        stream16[i * 2] = (s0 + s1 + s3 + s4) / 2;
+        stream16[i * 2 + 1] = (s2 + s1 + s5 + s4) / 2;
+    }
+    return len;
+}
+
+unsigned long ay::ayProcessTSMono(unsigned char *stream, unsigned long len)
+{
+    unsigned long work_len = (len >> 2);
+    float s0, s1, s2;
+    float s3, s4, s5;
+    short *stream16 = (short *)stream;
+    for(unsigned long i = 0; i < work_len; i++)
+    {
+        s0 = s1 = s2 = 0;
+        if(songinfo->stopping == false)
+        {
+            (this ->* Step)(s0, s1, s2);
+            songinfo->ay8910[1].ayCommonStep(s3, s4, s5);
+        }
+        else
+            return (i << 2);
+        stream16[i] = (s0 + s1 + s2 + s3 + s4 + s5) / 2;
     }
     return len;
 

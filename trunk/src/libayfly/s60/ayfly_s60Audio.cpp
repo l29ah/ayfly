@@ -101,8 +101,10 @@ void Cayfly_s60Sound::MaoscOpenComplete(TInt aError)
     // Mix 2 buffers ready
     if(stereo)
     {
-        songinfo->ay8910 [0].ayProcess(iBuffer1, MIX_BUFFER_LENGTH);
-        songinfo->ay8910 [0].ayProcess(iBuffer2, MIX_BUFFER_LENGTH);
+        ay_rendersongbuffer(songinfo, iBuffer1, MIX_BUFFER_LENGTH);
+        ay_rendersongbuffer(songinfo, iBuffer2, MIX_BUFFER_LENGTH);
+        //songinfo->ay8910 [0].ayProcess(iBuffer1, MIX_BUFFER_LENGTH);
+        //songinfo->ay8910 [0].ayProcess(iBuffer2, MIX_BUFFER_LENGTH);
     }
     else
     {
@@ -139,14 +141,16 @@ TInt Cayfly_s60Sound::MixLoop(TAny *t)
         if(s->iBufferToMix == 0)
         {
             if(s->stereo)
-                s->songinfo->ay8910 [0].ayProcess((unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
+                ay_rendersongbuffer(s->songinfo, (unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);                        
+                //s->songinfo->ay8910 [0].ayProcess((unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
             else
                 s->songinfo->ay8910 [0].ayProcessMono((unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
         }
         else
         {
             if(s->stereo)
-                s->songinfo->ay8910 [0].ayProcess((unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
+                ay_rendersongbuffer(s->songinfo, (unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);                      
+                //s->songinfo->ay8910 [0].ayProcess((unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
             else
                 s->songinfo->ay8910 [0].ayProcessMono((unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
         }
