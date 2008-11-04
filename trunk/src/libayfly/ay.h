@@ -120,6 +120,7 @@ private:
     void aySoftStep(float &s0, float &s1, float &s2);
     void ayZ80Step(float &s0, float &s1, float &s2);
     void ayCommonStep(float &s0, float &s1, float &s2);
+    void ayStep(float &s0, float &s1, float &s2);
     typedef void (ay::*stepfunc)(float &s0, float &s1, float &s2);
     ay::stepfunc Step;
 };
