@@ -169,7 +169,7 @@ void ay::setEnvelope()
 
 }
 
-void ay::updateEnvelope()
+inline void ay::updateEnvelope()
 {
     env_period++;
     if(env_period >= env_period_init)
@@ -329,7 +329,7 @@ void ay::ayZ80Step(float &s0, float &s1, float &s2)
     s2 = s2 / (float)ay_tacts;
 }
 
-void ay::ayCommonStep(float &s0, float &s1, float &s2)
+inline void ay::ayCommonStep(float &s0, float &s1, float &s2)
 { 
     for(unsigned long k = 0; k < ay_tacts; k++)
     {
@@ -417,6 +417,7 @@ unsigned long ay::ayProcessTS(unsigned char *stream, unsigned long len)
     for(unsigned long i = 0; i < work_len; i++)
     {
         s0 = s1 = s2 = 0;
+        s3 = s4 = s5 = 0;
         if(songinfo->stopping == false)
         {
             (this ->* Step)(s0, s1, s2);
@@ -439,6 +440,7 @@ unsigned long ay::ayProcessTSMono(unsigned char *stream, unsigned long len)
     for(unsigned long i = 0; i < work_len; i++)
     {
         s0 = s1 = s2 = 0;
+        s3 = s4 = s5 = 0;
         if(songinfo->stopping == false)
         {
             (this ->* Step)(s0, s1, s2);

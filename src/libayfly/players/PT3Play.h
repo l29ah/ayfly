@@ -115,6 +115,47 @@ struct PT3_SongInfo
 #define PT3_C ((PT3_SongInfo *)data)->PT3_C
 #define PT3 ((PT3_SongInfo *)data)->PT3
 
+#define GET_COMMON_VARS(x) \
+    unsigned char *module;\
+    PT3_File *header;\
+    void *data;\
+    if(!info.is_ts || x == 0)\
+    {\
+        module = info.module;\
+        header = (PT3_File *)module;\
+        data = info.data;\
+    }\
+    else\
+    {\
+        module = info.module1;\
+        header = (PT3_File *)info.module1;\
+        data = info.data1;\
+    }
+
+bool PT3_Detect(unsigned char *module, unsigned long length);
+
+unsigned char *PT3_FindSig(unsigned char *buffer, long length)
+{
+    char sig[] =
+    { 0x50, 0x72, 0x6f, 0x54, 0x72, 0x61, 0x63, 0x6b, 0x65, 0x72, 0x20, 0x33, 0x2e };
+    char sig1[] =
+    { 0x56, 0x6f, 0x72, 0x74, 0x65, 0x78, 0x20, 0x54, 0x72, 0x61, 0x63, 0x6b, 0x65, 0x72, 0x20, 0x49, 0x49 };
+    if(length < sizeof(sig) || length < sizeof(sig1))
+        return 0;
+    unsigned char *ptr = buffer;
+    unsigned long remaining = length - sizeof(sig);
+    while(remaining > sizeof(sig))
+    {
+        if(!memcmp(ptr, sig, sizeof(sig)) || !memcmp(ptr, sig1, sizeof(sig1))) //found
+        {
+            return ptr;
+        }
+        ptr++;
+        remaining--;
+    }
+    return 0;
+}
+
 void PT3_Init(AYSongInfo &info)
 {
     int i;
@@ -135,31 +176,42 @@ void PT3_Init(AYSongInfo &info)
     if(!info.data)
         return;
     memset(info.data, 0, sizeof(PT3_SongInfo));
-    PT3.DelayCounter = 1;
-    PT3.Delay = header->PT3_Delay;
-    i = header->PT3_PositionList[0];
-    PT3.Version = 6;
+
+    int version = 6;
+
     if((header->PT3_MusicName[13] >= '0') && (header->PT3_MusicName[13] <= '9'))
     {
-        PT3.Version = header->PT3_MusicName[13] - 0x30;
+        version = header->PT3_MusicName[13] - 0x30;
     }
-    if(PT3.Version >= 7)
+    unsigned char *ptr = PT3_FindSig(module + 0x63, info.module_len - 0x63);
+    if(ptr > 0)
     {
-        unsigned char ts = header->PT3_MusicName[0x62];
-        if(ts != 0x20)
+        info.is_ts = true;
+        info.module1 = ptr;
+        info.data1 = (void *)new PT3_SongInfo;
+        if(!info.data1)
         {
-            info.is_ts = true;
+            delete (PT3_SongInfo *)info.data;
+            info.data = 0;
+            return;
         }
+        memset(info.data1, 0, sizeof(PT3_SongInfo));
     }
-    b = header->PT3_MusicName[0x62];
-    if(b != 0x20)
-    {
-        i = b * 3 - 3 - i;
-    }
+
     void *data = info.data;
+    module = info.module;
 
     for(unsigned long y = 0; y < 2; y++)
     {
+        i = header->PT3_PositionList[0];
+        b = header->PT3_MusicName[0x62];
+        if(b != 0x20)
+        {
+            i = b * 3 - 3 - i;
+        }
+        PT3.Version = version;
+        PT3.DelayCounter = 1;
+        PT3.Delay = header->PT3_Delay;
         PT3_A.Address_In_Pattern = ay_sys_getword(&module[PT3_PatternsPointer + i * 2]);
         PT3_B.Address_In_Pattern = ay_sys_getword(&module[PT3_PatternsPointer + i * 2 + 2]);
         PT3_C.Address_In_Pattern = ay_sys_getword(&module[PT3_PatternsPointer + i * 2 + 4]);
@@ -197,16 +249,16 @@ void PT3_Init(AYSongInfo &info)
         if(!info.is_ts)
             break;
         data = info.data1;
+        module = info.module1;
     }
 
     ay_resetay(&info, 0);
     ay_resetay(&info, 1);
 }
 
-int PT3_GetNoteFreq(AYSongInfo &info, unsigned char j)
+int PT3_GetNoteFreq(AYSongInfo &info, unsigned char j, unsigned long chip_num)
 {
-    unsigned char *module = info.module;
-    PT3_File *header = (PT3_File *)module;
+    GET_COMMON_VARS(chip_num);
     switch(header->PT3_TonTableId)
     {
         case 0:
@@ -229,10 +281,9 @@ int PT3_GetNoteFreq(AYSongInfo &info, unsigned char j)
     }
 }
 
-void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
+void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan, unsigned long chip_num)
 {
-    unsigned char *module = info.module;
-    PT3_File *header = (PT3_File *)module;
+    GET_COMMON_VARS(chip_num);
     bool quit;
     unsigned char flag9, flag8, flag5, flag4, flag3, flag2, flag1;
     unsigned char counter;
@@ -294,7 +345,7 @@ void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
         else if(val >= 0xb2 && val <= 0xbf)
         {
             chan.Envelope_Enabled = true;
-            ay_writeay(&info, AY_ENV_SHAPE, val - 0xb1);
+            ay_writeay(&info, AY_ENV_SHAPE, val - 0xb1, chip_num);
             chan.Address_In_Pattern++;
             PT3.Env_Base_hi = module[chan.Address_In_Pattern];
             chan.Address_In_Pattern++;
@@ -347,7 +398,7 @@ void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
                 chan.Envelope_Enabled = false;
             else
             {
-                ay_writeay(&info, AY_ENV_SHAPE, val - 0x10);
+                ay_writeay(&info, AY_ENV_SHAPE, val - 0x10, chip_num);
                 chan.Address_In_Pattern++;
                 PT3.Env_Base_hi = module[chan.Address_In_Pattern];
                 chan.Address_In_Pattern++;
@@ -426,7 +477,7 @@ void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
             chan.Address_In_Pattern += 3;
             chan.Ton_Slide_Step = abs(short(ay_sys_getword(&module[chan.Address_In_Pattern])));
             chan.Address_In_Pattern += 2;
-            chan.Ton_Delta = PT3_GetNoteFreq(info, chan.Note) - PT3_GetNoteFreq(info, prnote);
+            chan.Ton_Delta = PT3_GetNoteFreq(info, chan.Note, chip_num) - PT3_GetNoteFreq(info, prnote, chip_num);
             chan.Slide_To_Note = chan.Note;
             chan.Note = prnote;
             if(PT3.Version >= 6)
@@ -472,9 +523,9 @@ void PT3_PatternIntterpreter(AYSongInfo &info, PT3_Channel_Parameters &chan)
     chan.Note_Skip_Counter = chan.Number_Of_Notes_To_Skip;
 }
 
-void PT3_ChangeRegisters(AYSongInfo &info, PT3_Channel_Parameters &chan, char &AddToEnv, unsigned char &TempMixer)
+void PT3_ChangeRegisters(AYSongInfo &info, PT3_Channel_Parameters &chan, char &AddToEnv, unsigned char &TempMixer, unsigned long chip_num)
 {
-    unsigned char *module = info.module;
+    GET_COMMON_VARS(chip_num);
     unsigned char j, b1, b0;
     unsigned short w;
     if(chan.Enabled)
@@ -492,7 +543,7 @@ void PT3_ChangeRegisters(AYSongInfo &info, PT3_Channel_Parameters &chan, char &A
             j = 0;
         else if(j > 95)
             j = 95;
-        w = PT3_GetNoteFreq(info, j);
+        w = PT3_GetNoteFreq(info, j, chip_num);
         chan.Ton = (chan.Ton + chan.Current_Ton_Sliding + w) & 0xfff;
         if(chan.Ton_Slide_Count > 0)
         {
@@ -577,10 +628,9 @@ void PT3_ChangeRegisters(AYSongInfo &info, PT3_Channel_Parameters &chan, char &A
     }
 }
 
-void PT3_Play(AYSongInfo &info)
+void PT3_Play_Chip(AYSongInfo &info, unsigned long chip_num)
 {
-    unsigned char *module = info.module;
-    PT3_File *header = (PT3_File *)module;
+    GET_COMMON_VARS(chip_num);
     unsigned char TempMixer;
     char AddToEnv;
 
@@ -600,39 +650,39 @@ void PT3_Play(AYSongInfo &info)
                 PT3_C.Address_In_Pattern = ay_sys_getword(&module[PT3_PatternsPointer + header->PT3_PositionList[PT3.CurrentPosition] * 2 + 4]);
                 PT3.Noise_Base = 0;
             }
-            PT3_PatternIntterpreter(info, PT3_A);
+            PT3_PatternIntterpreter(info, PT3_A, chip_num);
         }
         PT3_B.Note_Skip_Counter--;
         if(PT3_B.Note_Skip_Counter == 0)
-            PT3_PatternIntterpreter(info, PT3_B);
+            PT3_PatternIntterpreter(info, PT3_B, chip_num);
         PT3_C.Note_Skip_Counter--;
         if(PT3_C.Note_Skip_Counter == 0)
-            PT3_PatternIntterpreter(info, PT3_C);
+            PT3_PatternIntterpreter(info, PT3_C, chip_num);
         PT3.DelayCounter = PT3.Delay;
     }
 
     AddToEnv = 0;
     TempMixer = 0;
-    PT3_ChangeRegisters(info, PT3_A, AddToEnv, TempMixer);
-    PT3_ChangeRegisters(info, PT3_B, AddToEnv, TempMixer);
-    PT3_ChangeRegisters(info, PT3_C, AddToEnv, TempMixer);
+    PT3_ChangeRegisters(info, PT3_A, AddToEnv, TempMixer, chip_num);
+    PT3_ChangeRegisters(info, PT3_B, AddToEnv, TempMixer, chip_num);
+    PT3_ChangeRegisters(info, PT3_C, AddToEnv, TempMixer, chip_num);
 
-    ay_writeay(&info, AY_MIXER, TempMixer);
+    ay_writeay(&info, AY_MIXER, TempMixer, chip_num);
 
-    ay_writeay(&info, AY_CHNL_A_FINE, PT3_A.Ton & 0xff);
-    ay_writeay(&info, AY_CHNL_A_COARSE, (PT3_A.Ton >> 8) & 0xf);
-    ay_writeay(&info, AY_CHNL_B_FINE, PT3_B.Ton & 0xff);
-    ay_writeay(&info, AY_CHNL_B_COARSE, (PT3_B.Ton >> 8) & 0xf);
-    ay_writeay(&info, AY_CHNL_C_FINE, PT3_C.Ton & 0xff);
-    ay_writeay(&info, AY_CHNL_C_COARSE, (PT3_C.Ton >> 8) & 0xf);
-    ay_writeay(&info, AY_CHNL_A_VOL, PT3_A.Amplitude);
-    ay_writeay(&info, AY_CHNL_B_VOL, PT3_B.Amplitude);
-    ay_writeay(&info, AY_CHNL_C_VOL, PT3_C.Amplitude);
+    ay_writeay(&info, AY_CHNL_A_FINE, PT3_A.Ton & 0xff, chip_num);
+    ay_writeay(&info, AY_CHNL_A_COARSE, (PT3_A.Ton >> 8) & 0xf, chip_num);
+    ay_writeay(&info, AY_CHNL_B_FINE, PT3_B.Ton & 0xff, chip_num);
+    ay_writeay(&info, AY_CHNL_B_COARSE, (PT3_B.Ton >> 8) & 0xf, chip_num);
+    ay_writeay(&info, AY_CHNL_C_FINE, PT3_C.Ton & 0xff, chip_num);
+    ay_writeay(&info, AY_CHNL_C_COARSE, (PT3_C.Ton >> 8) & 0xf, chip_num);
+    ay_writeay(&info, AY_CHNL_A_VOL, PT3_A.Amplitude, chip_num);
+    ay_writeay(&info, AY_CHNL_B_VOL, PT3_B.Amplitude, chip_num);
+    ay_writeay(&info, AY_CHNL_C_VOL, PT3_C.Amplitude, chip_num);
 
-    ay_writeay(&info, AY_NOISE_PERIOD, (PT3.Noise_Base + PT3.AddToNoise) & 31);
+    ay_writeay(&info, AY_NOISE_PERIOD, (PT3.Noise_Base + PT3.AddToNoise) & 31, chip_num);
     unsigned short cur_env = ay_sys_getword(&PT3.Env_Base_lo) + AddToEnv + PT3.Cur_Env_Slide;
-    ay_writeay(&info, AY_ENV_FINE, cur_env & 0xff);
-    ay_writeay(&info, AY_ENV_COARSE, (cur_env >> 8) & 0xff);
+    ay_writeay(&info, AY_ENV_FINE, cur_env & 0xff, chip_num);
+    ay_writeay(&info, AY_ENV_COARSE, (cur_env >> 8) & 0xff, chip_num);
 
     if(PT3.Cur_Env_Delay > 0)
     {
@@ -643,6 +693,13 @@ void PT3_Play(AYSongInfo &info)
             PT3.Cur_Env_Slide += PT3.Env_Slide_Add;
         }
     }
+}
+
+void PT3_Play(AYSongInfo &info)
+{
+    PT3_Play_Chip(info, 0);
+    if(info.is_ts)
+        PT3_Play_Chip(info, 1);
 }
 
 void PT3_GetInfo(AYSongInfo &info)
@@ -1003,8 +1060,8 @@ bool PT3_Detect(unsigned char *module, unsigned long length)
         return false;
     if(j - (int)(PT3_PatternsPointer) <= 0)
         return false;
-    if(((j - (int)(PT3_PatternsPointer)) % 6) != 0)
-        return false;
+    /*if(((j - (int)(PT3_PatternsPointer)) % 6) != 0)
+     return false;*/
 
     j1 = 0;
     j2 = 0;
@@ -1027,7 +1084,7 @@ bool PT3_Detect(unsigned char *module, unsigned long length)
     if(F_Length > length + 1)
         return false;
 
-    header->PT3_NumberOfPositions = j2;
+    //header->PT3_NumberOfPositions = j2;
     return true;
 }
 
