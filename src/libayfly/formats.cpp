@@ -65,6 +65,8 @@ struct _Players
 static const _Players Players[] =
 {
 { TXT(".ay"), AY_Init, AY_Play, AY_Cleanup, AY_GetInfo, AY_Detect, true },
+{ TXT(".vtx"), VTX_Init, VTX_Play, VTX_Cleanup, VTX_GetInfo, VTX_Detect, false },
+{ TXT(".psg"), PSG_Init, PSG_Play, PSG_Cleanup, PSG_GetInfo, PSG_Detect, false },
 { TXT(".asc"), ASC_Init, ASC_Play, ASC_Cleanup, ASC_GetInfo, ASC_Detect, false },
 { TXT(".pt2"), PT2_Init, PT2_Play, PT2_Cleanup, PT2_GetInfo, PT2_Detect, true },
 { TXT(".pt3"), PT3_Init, PT3_Play, PT3_Cleanup, PT3_GetInfo, PT3_Detect, false },
@@ -72,9 +74,7 @@ static const _Players Players[] =
 { TXT(".stp"), STP_Init, STP_Play, STP_Cleanup, STP_GetInfo, STP_Detect, true },
 { TXT(".psc"), PSC_Init, PSC_Play, PSC_Cleanup, PSC_GetInfo, PSC_Detect, false },
 { TXT(".sqt"), SQT_Init, SQT_Play, SQT_Cleanup, SQT_GetInfo, SQT_Detect, false },
-{ TXT(".psg"), PSG_Init, PSG_Play, PSG_Cleanup, PSG_GetInfo, PSG_Detect, false },
-{ TXT(".pt1"), PT1_Init, PT1_Play, PT1_Cleanup, PT1_GetInfo, PT1_Detect, false },
-{ TXT(".vtx"), VTX_Init, VTX_Play, VTX_Cleanup, VTX_GetInfo, VTX_Detect, false } };
+{ TXT(".pt1"), PT1_Init, PT1_Play, PT1_Cleanup, PT1_GetInfo, PT1_Detect, false } };
 
 #ifndef __SYMBIAN32__
 bool ay_sys_format_supported(AY_TXT_TYPE filePath)
