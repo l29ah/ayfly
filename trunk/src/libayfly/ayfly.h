@@ -188,7 +188,7 @@ struct AYSongInfo
     unsigned short ay_reg; /* current AY register */
     unsigned long z80_freq; /* z80 cpu frequency */
     unsigned long ay_freq; /* AY chip frequency */
-    unsigned long int_freq; /* interrupts frequency */    
+    float int_freq; /* interrupts frequency */    
     unsigned long sr; /* sample rate */
     unsigned char chip_type; /* chip type: AY = 0 or YM = 1 */
     long int_counter;
@@ -528,13 +528,13 @@ AYFLY_API void ay_setayfreq(void *info, unsigned long ay_freq);
  * Gets Z80 interrupt frequency
  */
 
-AYFLY_API unsigned long ay_getintfreq(void *info);
+AYFLY_API float ay_getintfreq(void *info);
 
 /*
  * Sets Z80 interrupt frequency to @int_freq
  */
 
-AYFLY_API void ay_setintfreq(void *info, unsigned long int_freq);
+AYFLY_API void ay_setintfreq(void *info, float int_freq);
 
 /*
  * Gets song sample rate

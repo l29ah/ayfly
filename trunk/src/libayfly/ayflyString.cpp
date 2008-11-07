@@ -175,6 +175,3 @@ int CayflyString::rcompare(const AY_CHAR *str)
     return strcmp(&m_str [mylen - len], str);
 #endif
 }
-
-
-
