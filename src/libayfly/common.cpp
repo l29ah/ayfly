@@ -408,12 +408,12 @@ AYFLY_API void ay_setayfreq(void *info, unsigned long ay_freq)
         ((AYSongInfo *)info)->ay8910[i].SetParameters((AYSongInfo *)info);
     }
 }
-AYFLY_API unsigned long ay_getintfreq(void *info)
+AYFLY_API float ay_getintfreq(void *info)
 {
     return ((AYSongInfo *)info)->int_freq;
 }
 
-AYFLY_API void ay_setintfreq(void *info, unsigned long int_freq)
+AYFLY_API void ay_setintfreq(void *info, float int_freq)
 {
     ((AYSongInfo *)info)->int_freq = int_freq;
     for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)

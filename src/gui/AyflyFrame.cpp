@@ -220,7 +220,7 @@ AyflyFrame::AyflyFrame(const wxString &title, wxArrayString &filenames) :
     wxBoxSizer* intfreqSizer;
     intfreqSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    intfreqSlider = new wxSlider(this, wxID_INTFREQSLIDER, 50, 10, 300, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+    intfreqSlider = new wxSlider(this, wxID_INTFREQSLIDER, 500, 100, 3000, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
     intfreqSizer->Add(intfreqSlider, 1, wxALL | wxEXPAND, 5);
 
     txtintfreq = new wxStaticText(this, wxID_ANY, wxT("INT freq = 0"), wxDefaultPosition, wxDefaultSize, 0);
@@ -273,7 +273,7 @@ AyflyFrame::AyflyFrame(const wxString &title, wxArrayString &filenames) :
     freq_str.Printf(wxT("AY freq = %u"), ayfreqSlider->GetValue());
     txtayfreq->SetLabel(freq_str);
 
-    freq_str.Printf(wxT("INT freq = %u"), intfreqSlider->GetValue());
+    freq_str.Printf(wxT("INT freq = %u"), (int)((float)intfreqSlider->GetValue() / (float)10));
     txtintfreq->SetLabel(freq_str);
 
     RecreateToolbar();
@@ -366,7 +366,7 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
         ay_chnlmute(currentSong->info, 1, toolBar->GetToolState(wxID_BMUTE));
         ay_chnlmute(currentSong->info, 2, toolBar->GetToolState(wxID_CMUTE));
         ay_setayfreq(currentSong->info, ayfreqSlider->GetValue());
-        ay_setintfreq(currentSong->info, intfreqSlider->GetValue());
+        ay_setintfreq(currentSong->info, (int)(intfreqSlider->GetValue() / (float)10));
     }
     else
     {
@@ -673,9 +673,9 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
             break;
         case wxID_INTFREQSLIDER:
         {
-            unsigned long freq = event.GetPosition();
+            float freq = (float)event.GetPosition() / 10;
             wxString freq_str;
-            freq_str.Printf(wxT("INT freq = %u"), freq);
+            freq_str.Printf(wxT("INT freq = %.1f"), freq);
             txtintfreq->SetLabel(freq_str);
             if(currentSong && currentSong->info)
             {
@@ -986,7 +986,7 @@ bool AyflyFrame::OpenFile()
             {
                 chipTypeAY->SetValue(ay_getchiptype(currentSong->info) ? 0 : 1);
                 chipTypeYM->SetValue(ay_getchiptype(currentSong->info) ? 1 : 0);
-                ayfreqSlider->SetValue(ay_getayfreq(currentSong->info));
+                ayfreqSlider->SetValue((int)(ay_getayfreq(currentSong->info) * 10));
                 wxScrollEvent evt;
                 evt.SetId(wxID_AYFREQSLIDER);
                 evt.SetPosition(ay_getayfreq(currentSong->info));
