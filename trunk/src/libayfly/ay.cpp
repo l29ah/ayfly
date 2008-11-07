@@ -65,7 +65,10 @@ void ay::SetParameters(AYSongInfo *_songinfo)
     else
     {
         z80_per_sample = songinfo->z80_freq / songinfo->sr;
-        int_per_z80 = songinfo->z80_freq / songinfo->int_freq;
+        float int_per_z80_f = (float)songinfo->z80_freq / (float)songinfo->int_freq;
+		int_per_z80 = int_per_z80_f;
+		if((int_per_z80_f - int_per_z80) >= 0.5)
+			int_per_z80++;
 
     }
 }

@@ -273,7 +273,7 @@
 				EnableIntrinsicFunctions="false"
 				AdditionalIncludeDirectories="..\..\..\src\libayfly;..\..\..\src\libayfly\z80ex;..\..\..\src\libayfly\z80ex\include"
 				PreprocessorDefinitions="WIN32;DEBUG;_WINDOWS;_USRDLL;AYFLY_EXPORTS"
-				RuntimeLibrary="0"
+				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -290,7 +290,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
+				AdditionalDependencies="winmm.lib dsound.lib dxguid.lib"
 				OutputFile="$(OutDir)\ayfly.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"

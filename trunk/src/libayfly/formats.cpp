@@ -368,6 +368,25 @@ void ay_sys_rewindsong(AYSongInfo &info, long new_position)
 
     if(info.is_z80)
     {
+        int z80_per_sample_counter = 0;
+        int int_per_z80_counter = 0;
+        float int_per_z80_f = (float)info.z80_freq / (float)info.int_freq;
+        unsigned long int_per_z80 = int_per_z80_f;
+        if((int_per_z80_f - int_per_z80) >= 0.5)
+            int_per_z80++;
+        while(info.timeElapsed != new_position)
+        {
+            int tstates = z80ex_step(info.z80ctx);
+            z80_per_sample_counter += tstates;
+            int_per_z80_counter += tstates;
+            if(int_per_z80_counter > int_per_z80)
+            {
+                tstates = z80ex_int(info.z80ctx);
+                z80_per_sample_counter += tstates;
+                int_per_z80_counter = tstates;
+                info.timeElapsed++;
+            }
+        }
     }
     else
     {
