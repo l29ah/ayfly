@@ -287,15 +287,9 @@ AYFLY_API void ay_resetsong(void *info)
         song->player->Stop();
     song->timeElapsed = 0;
     ay_sys_initsong(*song);
-    if(song->is_z80)
-    {
-        ay_sys_resetz80(*song);
-    }
-    else
-    {
-        if(song->init_proc)
-            song->init_proc(*song);
-    }
+
+    if(song->init_proc)
+	    song->init_proc(*song);
 }
 
 AYFLY_API void ay_closesong(void **info)
@@ -488,6 +482,8 @@ AYFLY_API unsigned char ay_readay(void *info, unsigned char reg, unsigned char c
 AYFLY_API void ay_resetay(void *info, unsigned char chip_num)
 {
     ((AYSongInfo *)info)->ay8910[chip_num].ayReset();
+    ((AYSongInfo *)info)->ay8910[chip_num].SetParameters((AYSongInfo *)info);
+
 }
 
 AYFLY_API void ay_softexec(void *info)

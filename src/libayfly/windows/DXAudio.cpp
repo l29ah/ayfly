@@ -119,7 +119,9 @@ HRESULT DXAudio::CreateBasicBuffer()
     wfx.nBlockAlign = 4;
     wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
     wfx.wBitsPerSample = 16;
+	wfx.cbSize = sizeof(wfx);
 
+		
     // Set up DSBUFFERDESC structure.
 
     memset(&dsbdesc, 0, sizeof(DSBUFFERDESC));
