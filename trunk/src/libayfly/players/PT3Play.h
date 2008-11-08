@@ -704,7 +704,7 @@ void PT3_Play(AYSongInfo &info)
 
 void PT3_GetInfo(AYSongInfo &info)
 {
-    unsigned char *module = info.file_data;
+    unsigned char *module = info.file_data;    
     unsigned short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
     long c1, c2, c3, c4, c5, c8;
@@ -1021,6 +1021,10 @@ void PT3_GetInfo(AYSongInfo &info)
 
     }
     info.Length = tm;
+    unsigned char *ptr = module + 0x1e;
+    info.Name = ay_sys_getstr(ptr, 32);
+    ptr = module + 0x42;
+    info.Author = ay_sys_getstr(ptr, 32);
 }
 
 void PT3_Cleanup(AYSongInfo &info)
