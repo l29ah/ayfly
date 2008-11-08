@@ -38,14 +38,34 @@ int main(int argc, char **argv)
 {
     fwprintf(stderr,L"AY 891x file converter v. " AYFLY_VERSION_TEXT L", ");
     fwprintf(stderr, L"Deryabin Andrew, 2008. GNU GPL v2 license.\n");
-    if(argc < 2)
+    if(argc < 3)
     {
-        fwprintf(stderr, L"\tusage: ayfly_converter ay_file > raw_pcm_file\n");
+        fwprintf(stderr, L"\tusage: ayfly_converter <input_file> <output_file>\n");
+        fwprintf(stderr, L"\t       if <input_file> = - then stdin is used.\n");
+        fwprintf(stderr, L"\t       if <output_file> = - then stdout is used.\n");
         exit(1);
     }
 
     end = false;
-    void *song = 0;    
+    void *song = 0; 
+    
+    FILE *fout = 0;
+    bool is_stdout = false;
+    if((strlen(argv [2]) == 1) && (*argv [2] == '-'))
+    {
+        fout = stdout;
+        is_stdout = true;
+    }
+    else
+    {
+        fout = fopen(argv [2], "wb");
+    }
+    if(fout == 0)
+    {
+        fwprintf(stderr, L"Can't open output file!\n");
+       exit(1);
+    }
+    
     if((strlen(argv [1]) == 1) && (*argv [1] == '-')) // stdin
     {
         std::vector<unsigned char> module_vect;
@@ -74,33 +94,11 @@ int main(int argc, char **argv)
         }
     }
     else
-    {
-        wchar_t song_name [65536];
-        mbstate_t mbstate;
-        ::memset((void*)&mbstate, 0, sizeof(mbstate));
-        fprintf(stderr, "Reading from file..\n");
-        const char *strc = argv [1];
-        wchar_t *wstrc = song_name;
-        size_t lenc = 0;
-        size_t len = strlen(argv [1]);
-        while(lenc < len)
-        {
-            size_t conv_res = mbrtowc(wstrc, strc, 1, &mbstate);
-            switch(conv_res)
-            {
-                case 0:
-                break;
-                default:
-                lenc++;
-                strc++;
-                wstrc++;
-                break;
-            }
-        }
-        song_name [lenc] = 0;
+    {        
+        CayflyString song_name(argv [1]);        
         unsigned char buffer [65536];
         memset(buffer, 0, sizeof(buffer));
-        song = ay_initsong(song_name, 44100);
+        song = ay_initsong(song_name.c_str(), 44100);
     }
     if(!song)
     {
@@ -114,9 +112,11 @@ int main(int argc, char **argv)
     while(!end)
     {
         unsigned long written = ay_rendersongbuffer(song, buffer, sizeof(buffer));
-        fwrite(buffer, 1, written, stdout);
+        fwrite(buffer, 1, written, fout);
     }
 
     ay_closesong(&song);
-
+    if(!is_stdout)
+        fclose(fout);
+    return 0;
 }

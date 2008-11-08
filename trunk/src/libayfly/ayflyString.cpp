@@ -116,6 +116,13 @@ CayflyString& CayflyString::operator =(const char *str)
 }
 #endif
 
+#ifdef UNICODE
+CayflyString::CayflyString(const char *str)
+{
+    this->operator=(str);                         
+}
+#endif
+
 size_t CayflyString::length()
 {
 #ifdef UNICODE

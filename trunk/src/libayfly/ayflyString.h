@@ -30,6 +30,9 @@ public:
     ~CayflyString();
     CayflyString(const AY_CHAR *str);
     CayflyString(const CayflyString &str);
+#ifdef UNICODE
+    CayflyString(const char *str);
+#endif
     CayflyString& operator =(const CayflyString &str);
     CayflyString& operator =(const AY_CHAR *str);
 #ifdef UNICODE
