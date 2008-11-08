@@ -579,6 +579,10 @@ void PSC_GetInfo(AYSongInfo &info)
         }
     }
     info.Length = tm;
+    unsigned char *ptr = module + 0x19;
+    info.Name = ay_sys_getstr(ptr, 20);
+    ptr = module + 0x31;
+    info.Author = ay_sys_getstr(ptr, 20);
 }
 
 void PSC_Cleanup(AYSongInfo &info)
