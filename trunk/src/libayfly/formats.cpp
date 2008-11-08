@@ -30,6 +30,57 @@ void ay_sys_writeword(unsigned char *p, unsigned short val)
     *p = (unsigned char)(val & 0xff);
     *(p + 1) = (unsigned char)((val >> 8) & 0xff);
 }
+#ifdef __SYMBIAN32__
+TFileName ay_sys_getstr(const unsigned char *str)
+{
+    CCnvCharacterSetConverter *aCharacterSetConverter = CCnvCharacterSetConverter::NewL();
+    RFs aFileServerSession;
+    TUint aForeignCharacterSet = KCharacterSetIdentifierAscii;
+    // check to see if the character set is supported - if not then leave
+    if (aCharacterSetConverter->PrepareToConvertToOrFromL(aForeignCharacterSet,
+                    aFileServerSession) != CCnvCharacterSetConverter::EAvailable)
+    User::Leave(KErrNotSupported);
+    // Create a small output buffer 
+    TBuf16<20> outputBuffer;
+    TFileName endBuffer;
+    // Create a buffer for the unconverted text - initialised with the input descriptor
+    TPtrC8 remainderOfForeignText(str);
+    // Create a "state" variable and initialise it with CCnvCharacterSetConverter::KStateDefault
+    // After initialisation the state variable must not be tampered with.
+    // Simply pass into each subsequent call of ConvertToUnicode()
+    TInt state=CCnvCharacterSetConverter::KStateDefault;
+    for(;;) // conversion loop
+
+    {
+        // Start conversion. When the output buffer is full, return the number
+        // of characters that were not converted
+        const TInt returnValue=aCharacterSetConverter->ConvertToUnicode(outputBuffer, remainderOfForeignText, state);
+        // check to see that the descriptor isn’t corrupt - leave if it is
+        if (returnValue==CCnvCharacterSetConverter::EErrorIllFormedInput)
+        User::Leave(KErrCorrupt);
+        else if (returnValue<0) // future-proof against "TError" expanding
+        User::Leave(KErrGeneral);
+
+        // Do something here to store the contents of the output buffer.
+        // Finish conversion if there are no unconverted 
+        // characters in the remainder buffer
+        endBuffer += outputBuffer;
+        if (returnValue==0)
+        break;
+        
+        // Remove converted source text from the remainder buffer.
+        // The remainder buffer is then fed back into loop
+        remainderOfForeignText.Set(remainderOfForeignText.Right(returnValue));
+    }
+    delete aCharacterSetConverter;
+}
+    
+#else
+const char *ay_sys_getstr(const unsigned char *str)
+{
+    return (const char *str);
+}
+#endif
 
 void ay_sys_initz80module(AYSongInfo &info, unsigned long player_base, const unsigned char *player_ptr, unsigned long player_length, unsigned long player_init_proc, unsigned long player_play_proc);
 
