@@ -52,7 +52,6 @@ IMPLEMENT_APP(AyflyApp)
 #define SLIDER_VOLB_ID 1021
 #define SLIDER_VOLC_ID 1022
 #define wxID_POSSLIDER 1030
-#define wxID_AYFREQSLIDER 1050
 #define wxID_INTFREQSLIDER 1051
 #define wxID_CHIPTYPE_AY 1052
 #define wxID_CHIPTYPE_YM 1052
@@ -81,7 +80,6 @@ EVT_TIMER(TIMER_ID, AyflyFrame::OnTimer)
 EVT_COMMAND_SCROLL(SLIDER_VOLA_ID, AyflyFrame::OnScroll)
 EVT_COMMAND_SCROLL(SLIDER_VOLB_ID, AyflyFrame::OnScroll)
 EVT_COMMAND_SCROLL(SLIDER_VOLC_ID, AyflyFrame::OnScroll)
-EVT_COMMAND_SCROLL(wxID_AYFREQSLIDER, AyflyFrame::OnScroll)
 EVT_COMMAND_SCROLL(wxID_INTFREQSLIDER, AyflyFrame::OnScroll)
 EVT_COMMAND_SCROLL_THUMBTRACK(wxID_POSSLIDER, AyflyFrame::OnScroll)
 EVT_COMMAND_SCROLL_THUMBRELEASE(wxID_POSSLIDER, AyflyFrame::OnScroll)
@@ -205,18 +203,6 @@ AyflyFrame::AyflyFrame(const wxString &title, wxArrayString &filenames) :
 
     allSizer->Add(volumeAllSizer, 0, wxEXPAND, 5);
 
-    wxBoxSizer* ayfreqSizer;
-    ayfreqSizer = new wxBoxSizer(wxHORIZONTAL);
-
-    ayfreqSlider = new wxSlider(this, wxID_AYFREQSLIDER, Z80_FREQ / 2, Z80_FREQ / 4, Z80_FREQ, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
-    ayfreqSizer->Add(ayfreqSlider, 1, wxALL | wxEXPAND, 5);
-
-    txtayfreq = new wxStaticText(this, wxID_ANY, wxT("AY freq = 0"), wxDefaultPosition, wxDefaultSize, 0);
-    txtayfreq->Wrap(-1);
-    ayfreqSizer->Add(txtayfreq, 0, wxALL, 5);
-
-    allSizer->Add(ayfreqSizer, 0, wxEXPAND, 5);
-
     wxBoxSizer* intfreqSizer;
     intfreqSizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -259,20 +245,19 @@ AyflyFrame::AyflyFrame(const wxString &title, wxArrayString &filenames) :
     wxRect sz = playListView->GetRect();
 
     wxListItem itemCol;
-    itemCol.SetText(wxT("Song Name"));
+    itemCol.SetText(wxT("File Name"));
     playListView->InsertColumn(0, itemCol);
-    long col0_width = (sz.GetWidth() * 80) / 100;
-    playListView->SetColumnWidth(0, col0_width);
+    playListView->SetColumnWidth(0, 150);
+    itemCol.SetText(wxT("Song Name"));
+    playListView->InsertColumn(1, itemCol);
+    playListView->SetColumnWidth(1, 400);
 
     itemCol.SetText(wxT("Length"));
     itemCol.SetAlign(wxLIST_FORMAT_RIGHT);
-    playListView->InsertColumn(1, itemCol);
-    playListView->SetColumnWidth(1, sz.GetWidth() - col0_width);
+    playListView->InsertColumn(2, itemCol);
+    playListView->SetColumnWidth(2, 100);
 
     wxString freq_str;
-    freq_str.Printf(wxT("AY freq = %u"), ayfreqSlider->GetValue());
-    txtayfreq->SetLabel(freq_str);
-
     freq_str.Printf(wxT("INT freq = %u"), (int)((float)intfreqSlider->GetValue() / (float)10));
     txtintfreq->SetLabel(freq_str);
 
@@ -365,7 +350,6 @@ void AyflyFrame::OnPlay(wxCommandEvent &event)
         ay_chnlmute(currentSong->info, 0, toolBar->GetToolState(wxID_AMUTE));
         ay_chnlmute(currentSong->info, 1, toolBar->GetToolState(wxID_BMUTE));
         ay_chnlmute(currentSong->info, 2, toolBar->GetToolState(wxID_CMUTE));
-        ay_setayfreq(currentSong->info, ayfreqSlider->GetValue());
         ay_setintfreq(currentSong->info, (int)(intfreqSlider->GetValue() / (float)10));
     }
     else
@@ -657,18 +641,6 @@ void AyflyFrame::OnScroll(wxScrollEvent &event)
             vol_str.Printf(wxT("%d dB"), sliderc->GetValue());
             txtc->SetLabel(vol_str);
 
-        }
-            break;
-        case wxID_AYFREQSLIDER:
-        {
-            unsigned long freq = event.GetPosition();
-            wxString freq_str;
-            freq_str.Printf(wxT("AY freq = %u"), freq);
-            txtayfreq->SetLabel(freq_str);
-            if(currentSong && currentSong->info)
-            {
-                ay_setayfreq(currentSong->info, freq);
-            }
         }
             break;
         case wxID_INTFREQSLIDER:
@@ -986,11 +958,6 @@ bool AyflyFrame::OpenFile()
             {
                 chipTypeAY->SetValue(ay_getchiptype(currentSong->info) ? 0 : 1);
                 chipTypeYM->SetValue(ay_getchiptype(currentSong->info) ? 1 : 0);
-                ayfreqSlider->SetValue((int)(ay_getayfreq(currentSong->info) * 10));
-                wxScrollEvent evt;
-                evt.SetId(wxID_AYFREQSLIDER);
-                evt.SetPosition(ay_getayfreq(currentSong->info));
-                OnScroll(evt);
             }
             else
                 ay_setchiptype(currentSong->info, chipTypeAY->GetValue() ? 0 : 1);
@@ -1030,20 +997,22 @@ bool AyflyFrame::AddFile(const wxString &filePath)
 
     playListView->InsertItem(index, buf);
     float seconds_f = info->Length / info->int_freq;
-    ay_closesong((void **)&info);
     unsigned long seconds = seconds_f;
     if((float)seconds != seconds_f)
         seconds++;
     unsigned long minutes = seconds / 60;
-    seconds = seconds % 60;
-    buf.Printf(wxT("00:%.2lu:%.2lu"), minutes, seconds);
+    seconds = seconds % 60;    
     CurrentSong *song = new CurrentSong;
     song->FilePath = filePath;
     song->info = 0;
     playListView->SetItemData(index, (long)song);
+    buf = info->Name.c_str();
     playListView->SetItem(index, 1, buf);
+    buf.Printf(wxT("00:%.2lu:%.2lu"), minutes, seconds);
+    playListView->SetItem(index, 2, buf);
     toolBar->EnableTool(wxID_PLAY, true);
     toolBar->EnableTool(wxID_REWIND, true);
     toolBar->EnableTool(wxID_STOP, true);
+    ay_closesong((void **)&info);
     return true;
 }

@@ -235,6 +235,12 @@ bool ay_sys_format_supported(AY_TXT_TYPE filePath);
 bool ay_sys_format_supported(const TFileName filePath);
 #endif
 void ay_sys_decodelha(AYSongInfo &info, unsigned long offset);
+#ifdef __SYMBIAN32__
+TFileName ay_sys_getstr(const unsigned char *str, unsigned long length);
+#else
+CayflyString ay_sys_getstr(const unsigned char *str, unsigned long length);
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {

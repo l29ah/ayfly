@@ -55,7 +55,7 @@ CayflyString::CayflyString(const AY_CHAR *str)
 }
 
 CayflyString::CayflyString(const CayflyString & str)
-{
+{    
     size_t len = ayfly_strlen(str.c_str());
     m_str = new AY_CHAR [len + 1];
     memcpy(m_str, str.c_str(), len * sizeof(AY_CHAR));
@@ -119,6 +119,7 @@ CayflyString& CayflyString::operator =(const char *str)
 #ifdef UNICODE
 CayflyString::CayflyString(const char *str)
 {
+    m_str = 0;
     this->operator=(str);                         
 }
 #endif

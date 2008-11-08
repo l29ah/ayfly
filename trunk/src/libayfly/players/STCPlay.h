@@ -28,6 +28,7 @@ void STC_Init(AYSongInfo &info)
 void STC_GetInfo(AYSongInfo &info)
 {
     unsigned char *module = info.file_data;
+    STC_File *header = (STC_File *)module;
     unsigned long tm = 0;
     long j, j1, j2, i;
     unsigned char stDelay = module[0];
@@ -71,6 +72,24 @@ void STC_GetInfo(AYSongInfo &info)
     while(j != module[stPosPt]);
     tm *= stDelay;
     info.Length = tm;
+    
+    unsigned char *st_name = (unsigned char *)header->ST_Name;
+    
+    if(!memcmp(st_name, "SONG BY ST COMPILE", 18) ||
+    !memcmp(st_name, "SONG BY MB COMPILE", 18) ||
+    !memcmp(st_name, "SONG BY ST-COMPILE", 18) ||
+    !memcmp(st_name, "SOUND TRACKER v1.1", 18) ||
+    !memcmp(st_name, "S.T.FULL EDITION ", 17) || 
+    !memcmp(st_name, "SOUND TRACKER v1.3", 18))
+        return;
+    unsigned long len = 18;
+    if(st_name [18] >= 32 && st_name [18] <= 127)
+    {
+        len++;
+        if(st_name [19] >= 32 && st_name [19] <= 127)
+            len++;
+    }
+    info.Name = ay_sys_getstr(st_name, len);
 }
 
 void STC_Play(AYSongInfo &info)

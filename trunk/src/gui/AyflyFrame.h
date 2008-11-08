@@ -65,8 +65,6 @@ private:
     wxListView* playListView;
     wxSlider* posslider;
     wxListCtrl* playListCtrl;
-    wxSlider* ayfreqSlider;
-    wxStaticText* txtayfreq;
     wxSlider* intfreqSlider;
     wxStaticText* txtintfreq;
     wxRadioButton* chipTypeAY;
