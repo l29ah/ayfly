@@ -47,8 +47,8 @@ int main(int argc, char **argv)
     }
 
     end = false;
-    void *song = 0; 
-    
+    void *song = 0;
+
     FILE *fout = 0;
     bool is_stdout = false;
     if((strlen(argv [2]) == 1) && (*argv [2] == '-'))
@@ -63,10 +63,10 @@ int main(int argc, char **argv)
     if(fout == 0)
     {
         fwprintf(stderr, L"Can't open output file!\n");
-       exit(1);
+        exit(1);
     }
-    
-    if((strlen(argv [1]) == 1) && (*argv [1] == '-')) // stdin
+
+    if((strlen(argv [1]) == 1) && (*argv [1] == '-'))
     {
         std::vector<unsigned char> module_vect;
         std::vector<unsigned char>::iterator iter;
@@ -80,8 +80,8 @@ int main(int argc, char **argv)
             }
         }
         unsigned long size = module_vect.size();
-        if(size > 0)
-        {                        
+        if(size> 0)
+        {
             unsigned char *module = new unsigned char [size];
             unsigned long i = 0;
             for (iter = module_vect.begin(); iter != module_vect.end(); iter++ )
@@ -94,8 +94,8 @@ int main(int argc, char **argv)
         }
     }
     else
-    {        
-        CayflyString song_name(argv [1]);        
+    {
+        CayflyString song_name(argv [1]);
         unsigned char buffer [65536];
         memset(buffer, 0, sizeof(buffer));
         song = ay_initsong(song_name.c_str(), 44100);
