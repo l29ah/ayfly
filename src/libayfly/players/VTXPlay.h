@@ -57,31 +57,21 @@ void VTX_Init(AYSongInfo &info)
         info.module = new unsigned char[info.module_len];
         memset(info.module, 0, info.module_len);
     }
-    char *p = (char *)info.file_data + sizeof(VTX_File);
-#ifndef __SYMBIAN32__
-    info.Name = p;
-#endif
-    p += strlen(p) + 1;
-#ifndef __SYMBIAN32__
-    info.Author = p;
-#endif
-    p += strlen(p) + 1;
+    unsigned char *p = info.file_data + sizeof(VTX_File);
+    int len = strlen((const char *)p);
+    p += len + 1;
+    len = strlen((const char *)p);
+    p += len + 1;
     if((VTX_Id == 0x7961) || (VTX_Id == 0x6d79))
     {
-#ifndef __SYMBIAN32__
-        info.PrgName = p;
-#endif
-        p += strlen(p) + 1;
-#ifndef __SYMBIAN32__
-        info.TrackName = p;
-#endif
-        p += strlen(p) + 1;
-#ifndef __SYMBIAN32__
-        info.CompName = p;
-#endif
-        p += strlen(p) + 1;
+        len = strlen((const char *)p);
+        p += len + 1;
+        len = strlen((const char *)p);
+        p += len + 1;
+        len = strlen((const char *)p);
+        p += len + 1;
     }
-    ay_sys_decodelha(info, (unsigned char *)p - info.file_data);
+    ay_sys_decodelha(info, p - info.file_data);
 }
 
 void VTX_Play(AYSongInfo &info)
@@ -140,6 +130,25 @@ void VTX_GetInfo(AYSongInfo &info)
     VTX_File *header = (VTX_File *)module;
     info.Length = VTX_UnpackSize / 14;
     info.Loop = VTX_Loop;
+    unsigned char *p = info.file_data + sizeof(VTX_File);
+    int len = strlen((const char *)p);
+    info.Name = ay_sys_getstr(p, len);
+    p += len + 1;
+    len = strlen((const char *)p);
+    info.Author = ay_sys_getstr(p, len);
+    p += len + 1;
+    if((VTX_Id == 0x7961) || (VTX_Id == 0x6d79))
+    {
+        len = strlen((const char *)p);
+        info.PrgName = ay_sys_getstr(p, len);
+        p += len + 1;
+        len = strlen((const char *)p);
+        info.TrackName = ay_sys_getstr(p, len);
+        p += len + 1;
+        len = strlen((const char *)p);
+        info.CompName = ay_sys_getstr(p, len);
+        p += len + 1;
+    }
 }
 
 bool VTX_Detect(unsigned char *module, unsigned long length)

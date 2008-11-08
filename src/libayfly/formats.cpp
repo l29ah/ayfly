@@ -31,7 +31,7 @@ void ay_sys_writeword(unsigned char *p, unsigned short val)
     *(p + 1) = (unsigned char)((val >> 8) & 0xff);
 }
 #ifdef __SYMBIAN32__
-TFileName ay_sys_getstr(const unsigned char *str)
+TFileName ay_sys_getstr(const unsigned char *str, unsigned long length)
 {
     CCnvCharacterSetConverter *aCharacterSetConverter = CCnvCharacterSetConverter::NewL();
     RFs aFileServerSession;
@@ -44,7 +44,7 @@ TFileName ay_sys_getstr(const unsigned char *str)
     TBuf16<20> outputBuffer;
     TFileName endBuffer;
     // Create a buffer for the unconverted text - initialised with the input descriptor
-    TPtrC8 remainderOfForeignText(str);
+    TPtrC8 remainderOfForeignText(str, length);
     // Create a "state" variable and initialise it with CCnvCharacterSetConverter::KStateDefault
     // After initialisation the state variable must not be tampered with.
     // Simply pass into each subsequent call of ConvertToUnicode()
@@ -55,7 +55,7 @@ TFileName ay_sys_getstr(const unsigned char *str)
         // Start conversion. When the output buffer is full, return the number
         // of characters that were not converted
         const TInt returnValue=aCharacterSetConverter->ConvertToUnicode(outputBuffer, remainderOfForeignText, state);
-        // check to see that the descriptor isn’t corrupt - leave if it is
+        // check to see that the descriptor isnï¿½t corrupt - leave if it is
         if (returnValue==CCnvCharacterSetConverter::EErrorIllFormedInput)
         User::Leave(KErrCorrupt);
         else if (returnValue<0) // future-proof against "TError" expanding
@@ -76,9 +76,16 @@ TFileName ay_sys_getstr(const unsigned char *str)
 }
     
 #else
-const char *ay_sys_getstr(const unsigned char *str)
+CayflyString ay_sys_getstr(const unsigned char *str, unsigned long length)
 {
-    return (const char *str);
+    char *str_new = new char [length + 1];
+    if(!str_new)
+        return CayflyString(TXT(""));
+    memset(str_new, 0, length + 1);
+    memcpy(str_new, str, length);        
+    CayflyString cstr(str_new);
+    delete str_new;
+    return cstr;
 }
 #endif
 
