@@ -250,12 +250,15 @@ AyflyFrame::AyflyFrame(const wxString &title, wxArrayString &filenames) :
     playListView->SetColumnWidth(0, 150);
     itemCol.SetText(wxT("Song Name"));
     playListView->InsertColumn(1, itemCol);
-    playListView->SetColumnWidth(1, 400);
+    playListView->SetColumnWidth(1, 300);
+    itemCol.SetText(wxT("Author"));
+    playListView->InsertColumn(2, itemCol);
+    playListView->SetColumnWidth(2, 150);
 
     itemCol.SetText(wxT("Length"));
     itemCol.SetAlign(wxLIST_FORMAT_RIGHT);
-    playListView->InsertColumn(2, itemCol);
-    playListView->SetColumnWidth(2, 100);
+    playListView->InsertColumn(3, itemCol);
+    playListView->SetColumnWidth(3, 70);
 
     wxString freq_str;
     freq_str.Printf(wxT("INT freq = %u"), (int)((float)intfreqSlider->GetValue() / (float)10));
@@ -1008,8 +1011,10 @@ bool AyflyFrame::AddFile(const wxString &filePath)
     playListView->SetItemData(index, (long)song);
     buf = info->Name.c_str();
     playListView->SetItem(index, 1, buf);
-    buf.Printf(wxT("00:%.2lu:%.2lu"), minutes, seconds);
+    buf = info->Author.c_str();
     playListView->SetItem(index, 2, buf);
+    buf.Printf(wxT("00:%.2lu:%.2lu"), minutes, seconds);
+    playListView->SetItem(index, 3, buf);
     toolBar->EnableTool(wxID_PLAY, true);
     toolBar->EnableTool(wxID_REWIND, true);
     toolBar->EnableTool(wxID_STOP, true);
