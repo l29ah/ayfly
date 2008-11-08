@@ -184,7 +184,7 @@ void PT3_Init(AYSongInfo &info)
         version = header->PT3_MusicName[13] - 0x30;
     }
     unsigned char *ptr = PT3_FindSig(module + 0x63, info.module_len - 0x63);
-    if(ptr > 0)
+    if((unsigned long)ptr > 0)
     {
         info.is_ts = true;
         info.module1 = ptr;
