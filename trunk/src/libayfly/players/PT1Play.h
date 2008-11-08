@@ -338,6 +338,8 @@ void PT1_GetInfo(AYSongInfo &info)
         }
     }
     info.Length = tm;
+    unsigned char *ptr = module + 69;
+    info.Name = ay_sys_getstr(ptr, 30);
 }
 
 void PT1_Cleanup(AYSongInfo &info)
