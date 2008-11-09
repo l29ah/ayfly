@@ -13,6 +13,8 @@ struct STP_File
     unsigned char STP_Init_Id;
 };
 
+const char *KsaId = "KSA SOFTWARE COMPILATION OF ";
+
 #define STP_PositionsPointer (header->STP_PositionsPointer0 | (header->STP_PositionsPointer1 << 8))
 #define STP_OrnamentsPointer (header->STP_OrnamentsPointer0 | (header->STP_OrnamentsPointer1 << 8))
 #define STP_PatternsPointer (header->STP_PatternsPointer0 | (header->STP_PatternsPointer1 << 8))
@@ -60,6 +62,8 @@ void STP_GetInfo(AYSongInfo &info)
     }
     tm *= stDelay;
     info.Length = tm;
+    if(!memcmp(&module [10], KsaId, 28))
+            info.Name = ay_sys_getstr(&module [38], 25);
 }
 
 void STP_Play(AYSongInfo &info)
@@ -108,8 +112,7 @@ bool STP_Detect(unsigned char *module, unsigned long length)
     j3 = header->STP_Init_Id;
     if(j3 == 0)
     {
-        j2 = ay_sys_getword(&module[STP_PatternsPointer]);
-        const char *KsaId = "KSA SOFTWARE COMPILATION OF ";
+        j2 = ay_sys_getword(&module[STP_PatternsPointer]);        
         if(!strncmp((char *)&module [10], KsaId, strlen(KsaId)))
         j2 -= 0xa + 53;
         else

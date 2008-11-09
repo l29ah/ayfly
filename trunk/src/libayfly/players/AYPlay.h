@@ -219,7 +219,8 @@ void AY_GetInfo(AYSongInfo &info)
                 info.Length = aydata_loc.tracks[0].fadestart;
                 if(!info.Length)
                     info.Length = 3000 * 3;
-                //info.Name = (char *)aydata_loc.tracks[0].name;
+                info.Name = ay_sys_getstr(aydata_loc.tracks[0].name, strlen((char *)aydata_loc.tracks[0].name));
+                info.Author = ay_sys_getstr(aydata_loc.author, strlen((char *)aydata_loc.author));
             }
 
             delete[] aydata_loc.tracks;
