@@ -163,12 +163,12 @@ void ay::setEnvelope()
     if(env_type != env_type_old)
     {
         env_type_old = env_type;
-        env_period = 0;
+        //env_period -= env_period_init;
         env_tick = 0;
         bool env_attack = (env_type & 0x4) ? true : false;
         env_vol = env_attack ? 0 : 31;
         env_trigger = env_attack ? 1 : -1;
-    }
+   }
 
 }
 
@@ -177,10 +177,10 @@ inline void ay::updateEnvelope()
     env_period++;
     if(env_period >= env_period_init)
     {
-        env_period = 0;
+        env_period -= env_period_init;
         if(env_tick < 32) //if >=32 - no more processing
         {
-            if((env_tick == 31) && (env_type & 0x1) && (env_type && 0x8)) //hold + continue
+            if((env_tick == 31) && (env_type & 0x1) && (env_type & 0x8)) //hold + continue
             {
                 bool env_attack = (env_type & 0x4) ? true : false;
                 if(env_type & 0x2) //alternate;
@@ -196,7 +196,7 @@ inline void ay::updateEnvelope()
             }
             else
             {
-                env_tick = ++env_tick % 32;
+                env_tick = ++env_tick & 0x1f;
                 if(env_tick == 0) //new cycle
                 {
                     if(env_type & 0x2) //alternate
