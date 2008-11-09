@@ -406,6 +406,54 @@
 						RelativePath="..\..\..\src\libayfly\ayflyString.h"
 						>
 					</File>
+					<Filter
+						Name="players"
+						>
+						<File
+							RelativePath="..\..\..\src\libayfly\players\ASCPlay.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\..\src\libayfly\players\AYPlay.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\..\src\libayfly\players\PSCPlay.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\..\src\libayfly\players\PSGPlay.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\..\src\libayfly\players\PT1Play.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\..\src\libayfly\players\PT2Play.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\..\src\libayfly\players\PT3Play.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\..\src\libayfly\players\SQTPlay.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\..\src\libayfly\players\STCPlay.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\..\src\libayfly\players\STPPlay.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\..\src\libayfly\players\VTXPlay.h"
+							>
+						</File>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="gui"

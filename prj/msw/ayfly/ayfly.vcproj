@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib dsound.lib dxguid.lib Rpcrt4.lib winmm.lib"
+				AdditionalDependencies="comctl32.lib dsound.lib dxguid.lib Rpcrt4.lib winmm.lib uuid.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
