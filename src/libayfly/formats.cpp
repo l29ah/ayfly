@@ -415,8 +415,12 @@ bool ay_sys_getsonginfo(AYSongInfo &info)
 
 void ay_sys_rewindsong(AYSongInfo &info, long new_position)
 {
+    bool started = false;
     if(info.player && info.player->Started())
+    {
         info.player->Stop();
+        started = true;
+    }
 
     if(info.timeElapsed > new_position)
     {
@@ -454,5 +458,9 @@ void ay_sys_rewindsong(AYSongInfo &info, long new_position)
             info.timeElapsed++;
         }
     }
+    
+    if(started)
+        info.player.Start();
+        
 }
 

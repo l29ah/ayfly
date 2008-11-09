@@ -947,7 +947,7 @@ bool AyflyFrame::OpenFile()
 
         currentPath = currentSong->FilePath;
 
-        if(currentSong->info = (AYSongInfo *)ay_initsong(currentPath.wc_str(), 44100))
+        if(currentSong->info = (AYSongInfo *)ay_initsong(currentPath.wc_str(), 96000))
         {
             wxString fileName;
             wxString fileExt;
