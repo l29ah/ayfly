@@ -122,7 +122,7 @@ struct PT3_SongInfo
     if(!info.is_ts || x == 0)\
     {\
         module = info.module;\
-        header = (PT3_File *)module;\
+        header = (PT3_File *)info.module;\
         data = info.data;\
     }\
     else\
@@ -250,6 +250,7 @@ void PT3_Init(AYSongInfo &info)
             break;
         data = info.data1;
         module = info.module1;
+        header = (PT3_File *)module;
     }
 
     ay_resetay(&info, 0);

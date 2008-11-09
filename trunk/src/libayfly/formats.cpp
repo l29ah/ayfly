@@ -460,7 +460,7 @@ void ay_sys_rewindsong(AYSongInfo &info, long new_position)
     }
     
     if(started)
-        info.player.Start();
+        info.player->Start();
         
 }
 
