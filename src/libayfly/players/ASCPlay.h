@@ -586,6 +586,13 @@ void ASC_GetInfo(AYSongInfo &info)
         }
     }
     info.Length = tm;
+    unsigned short pp = ay_sys_getword(&module [2]);
+    unsigned char np = module [8];
+    if(pp - np == 72)
+    {
+        info.Name = ay_sys_getstr(&module [pp - 44], 20);
+        info.Author = ay_sys_getstr(&module [pp - 20], 20);
+    }
 }
 
 void ASC_Cleanup(AYSongInfo &info)

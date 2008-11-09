@@ -170,6 +170,8 @@ void PT2_GetInfo(AYSongInfo &info)
         while(true);
     }
     info.Length = tm;
+    unsigned char *ptr = module + 101;
+    info.Name = ay_sys_getstr(ptr, 30);
 }
 
 void PT2_Play(AYSongInfo &info)
