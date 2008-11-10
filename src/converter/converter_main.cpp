@@ -34,15 +34,21 @@ bool elapsed_callback(void *)
     return end;
 }
 
+void usage()
+{
+    fwprintf(stderr, L"\tusage: ayfly_converter [-s <metafile>] <input_file> <output_file>\n");
+    fwprintf(stderr, L"\t       if <input_file> = - then stdin is used.\n");
+    fwprintf(stderr, L"\t       if <output_file> = - then stdout is used.\n");
+    
+}
+
 int main(int argc, char **argv)
 {
     fwprintf(stderr,L"AY 891x file converter v. " AYFLY_VERSION_TEXT L", ");
     fwprintf(stderr, L"Deryabin Andrew, 2008. GNU GPL v2 license.\n");
     if(argc < 3)
     {
-        fwprintf(stderr, L"\tusage: ayfly_converter <input_file> <output_file>\n");
-        fwprintf(stderr, L"\t       if <input_file> = - then stdin is used.\n");
-        fwprintf(stderr, L"\t       if <output_file> = - then stdout is used.\n");
+        usage();
         exit(1);
     }
 
@@ -50,15 +56,27 @@ int main(int argc, char **argv)
     void *song = 0;
 
     FILE *fout = 0;
+    FILE *metafile = 0;
     bool is_stdout = false;
-    if((strlen(argv [2]) == 1) && (*argv [2] == '-'))
+    int k = 1;
+    if(!strcmp(argv [1], "-s"))
+    {
+        if(argc < 5)
+        {
+            usage();
+            exit(1);
+        }
+        metafile = fopen(argv [2], "wb");
+        k = 3;
+    }
+    if((strlen(argv [k + 1]) == 1) && (*argv [k + 1] == '-'))
     {
         fout = stdout;
         is_stdout = true;
     }
     else
     {
-        fout = fopen(argv [2], "wb");
+        fout = fopen(argv [k + 1], "wb");
     }
     if(fout == 0)
     {
@@ -66,7 +84,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    if((strlen(argv [1]) == 1) && (*argv [1] == '-'))
+    if((strlen(argv [k]) == 1) && (*argv [k] == '-'))
     {
         std::vector<unsigned char> module_vect;
         std::vector<unsigned char>::iterator iter;
@@ -95,7 +113,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        CayflyString song_name(argv [1]);
+        CayflyString song_name(argv [k]);
         unsigned char buffer [65536];
         memset(buffer, 0, sizeof(buffer));
         song = ay_initsong(song_name.c_str(), 44100);
@@ -104,6 +122,21 @@ int main(int argc, char **argv)
     {
         fwprintf(stderr, L"Can't open song!\n");
         exit(1);
+    }
+    
+    if(metafile)
+    {
+        CayflyString str;
+        str = ay_getsongname(song);
+        fwrite("Name: ", 1, 1, metafile);
+        fwrite(str.c_str(), 1, str.length() * sizeof(AY_CHAR), metafile);
+        fwrite("\n", 1, 1, metafile);
+        str = ay_getsongauthor(song);
+        fwrite("Author: ", 1, 1, metafile);
+        fwrite(str.c_str(), 1, str.length() * sizeof(AY_CHAR), metafile);
+        fwrite("\n", 1, 1, metafile);
+        fclose(metafile);
+        
     }
 
     ay_setelapsedcallback(song, elapsed_callback, 0);
