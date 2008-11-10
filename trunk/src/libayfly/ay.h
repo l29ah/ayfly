@@ -100,11 +100,10 @@ private:
     unsigned long noise_reg;
     long env_period_init;
     long env_period;
-    unsigned long env_type;
-    unsigned long env_type_old;
-    long env_tick;
-    unsigned long env_vol;
-    long env_trigger;
+    long env_type;
+    long env_type_old;
+    long env_vol;
+    unsigned char env_step;
     bool chnl_mute[3];
     unsigned long ay_tacts;
     void setEnvelope();
@@ -117,12 +116,8 @@ private:
     long int_per_z80;
     long z80_per_sample_counter;
     long int_per_z80_counter;
-    void aySoftStep(float &s0, float &s1, float &s2);
-    void ayZ80Step(float &s0, float &s1, float &s2);
     void ayCommonStep(float &s0, float &s1, float &s2);
     void ayStep(float &s0, float &s1, float &s2);
-    typedef void (ay::*stepfunc)(float &s0, float &s1, float &s2);
-    ay::stepfunc Step;
 };
 
 #endif /*AY_H_*/

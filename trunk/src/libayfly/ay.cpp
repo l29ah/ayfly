@@ -21,7 +21,8 @@
 #include "ayfly.h"
 
 const float ay::init_levels_ay[] =
-{ 0x0000, 0x0000, 0x0385, 0x0385, 0x053D, 0x053D, 0x0770, 0x0770, 0x0AD7, 0x0AD7, 0x0FD5, 0x0FD5, 0x15B0, 0x15B0, 0x230C, 0x230C, 0x2B4C, 0x2B4C, 0x43C1, 0x43C1, 0x5A4B, 0x5A4B, 0x732F, 0x732F, 0x9204, 0x9204, 0xAFF1, 0xAFF1, 0xD921, 0xD921, 0xFFFF, 0xFFFF };
+{0, 836, 1212, 1773, 2619, 3875, 5397, 8823, 10392, 16706, 23339,
+    29292, 36969, 46421, 55195, 65535};
 
 const float ay::init_levels_ym[] =
 { 0, 0, 0xF8, 0x1C2, 0x29E, 0x33A, 0x3F2, 0x4D7, 0x610, 0x77F, 0x90A, 0xA42, 0xC3B, 0xEC2, 0x1137, 0x13A7, 0x1750, 0x1BF9, 0x20DF, 0x2596, 0x2C9D, 0x3579, 0x3E55, 0x4768, 0x54FF, 0x6624, 0x773B, 0x883F, 0xA1DA, 0xC0FC, 0xE094, 0xFFFF };
@@ -37,7 +38,7 @@ ay::ay()
 {
     for(unsigned long i = 0; i < sizeof_array(ay::levels_ay); i++)
     {
-        ay::levels_ay[i] = ay::init_levels_ay[i] / 4;
+        ay::levels_ay[i] = ay::init_levels_ay[i / 2] / 4;
         ay::levels_ym[i] = ay::init_levels_ym[i] / 4;
     }
 
@@ -57,7 +58,6 @@ void ay::SetParameters(AYSongInfo *_songinfo)
     if((ay_tacts_f - ay_tacts) >= 0.5)
         ay_tacts++;
     levels = songinfo->chip_type == 0 ? ay::levels_ay : ay::levels_ym;
-    Step = songinfo->is_z80 ? &ay::ayZ80Step : &ay::aySoftStep;
     if(!songinfo->is_z80)
     {
         int_limit = songinfo->sr / songinfo->int_freq;
@@ -66,9 +66,9 @@ void ay::SetParameters(AYSongInfo *_songinfo)
     {
         z80_per_sample = songinfo->z80_freq / songinfo->sr;
         float int_per_z80_f = (float)songinfo->z80_freq / (float)songinfo->int_freq;
-		int_per_z80 = int_per_z80_f;
-		if((int_per_z80_f - int_per_z80) >= 0.5)
-			int_per_z80++;
+        int_per_z80 = int_per_z80_f;
+        if((int_per_z80_f - int_per_z80) >= 0.5)
+            int_per_z80++;
 
     }
 }
@@ -102,7 +102,8 @@ void ay::ayReset()
     noise_period = 0;
 
     volume[0] = volume[1] = volume[2] = 1;
-    env_type_old = 0;
+    env_type_old = -1;
+    env_step = 0;
 
     setEnvelope();
 }
@@ -160,15 +161,63 @@ unsigned char ay::ayRead(unsigned char reg)
 void ay::setEnvelope()
 {
     env_type = regs[AY_ENV_SHAPE];
-    if(env_type != env_type_old)
+    if(env_type == env_type_old)
+        return;
+    env_type_old = env_type;
+    switch(env_type)
     {
-        env_type_old = env_type;
-        //env_period -= env_period_init;
-        env_tick = 0;
-        bool env_attack = (env_type & 0x4) ? true : false;
-        env_vol = env_attack ? 0 : 31;
-        env_trigger = env_attack ? 1 : -1;
-   }
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            env_step = 0;
+            env_vol = 31;
+            break;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+            env_step = 1;
+            env_vol = 0;
+            break;
+        case 8:
+            env_step = 2;
+            env_vol = 31;
+            break;
+        case 9:
+            env_step = 0;
+            env_vol = 31;
+            break;
+        case 10:
+            env_step = 3;
+            env_vol = 31;
+            break;
+        case 11:
+            env_step = 4;
+            env_vol = 31;
+            break;
+        case 12:
+            env_step = 5;
+            env_vol = 0;
+            break;
+        case 13:
+            env_step = 6;
+            env_vol = 0;
+            break;
+        case 14:
+            env_step = 7;
+            env_vol = 0;
+            break;
+        case 15:
+            env_step = 1;
+            env_vol = 0;
+            break;
+        default:
+            env_step = 8;
+            env_vol = 0;
+            break;
+    }
+    
 
 }
 
@@ -177,159 +226,58 @@ inline void ay::updateEnvelope()
     env_period++;
     if(env_period >= env_period_init)
     {
-        env_period -= env_period_init;
-        if(env_tick < 32) //if >=32 - no more processing
+        env_period = 0;
+        switch(env_step)
         {
-            if((env_tick == 31) && (env_type & 0x1) && (env_type & 0x8)) //hold + continue
-            {
-                bool env_attack = (env_type & 0x4) ? true : false;
-                if(env_type & 0x2) //alternate;
-                    env_attack = !env_attack;
-                env_vol = env_attack ? 31 : 0;
-                env_trigger = env_attack ? 1 : -1;
-                env_tick = 32; //end processing;
-            }
-            else if((env_tick == 31) && !(env_type & 0x8)) //do not continue
-            {
-                env_tick = 32;
-                env_vol = 0;
-            }
-            else
-            {
-                env_tick = ++env_tick & 0x1f;
-                if(env_tick == 0) //new cycle
+            case 0:
+                if(--env_vol == 0)
+                    env_step = 8;
+                break;
+            case 1:
+                if(++env_vol == 32)
                 {
-                    if(env_type & 0x2) //alternate
-                        env_trigger = -env_trigger;
-                    else //restart
-                    {
-                        bool env_attack = (env_type & 0x4) ? true : false;
-                        env_vol = env_attack ? 0 : 31;
-                        env_trigger = env_attack ? 1 : -1;
-                    }
+                    env_vol = 0;
+                    env_step = 8;
                 }
-                else
-                    env_vol += env_trigger;
-            }
+                break;
+            case 2:
+                if(--env_vol == -1)
+                    env_vol = 31;
+                break;
+            case 3:
+                if(--env_vol == -1)
+                {
+                    env_vol = 0;
+                    env_step = 7;
+                }
+                break;
+            case 4:
+                if(--env_vol == -1)
+                {
+                    env_vol = 31;
+                    env_step = 8;
+                }
+                break;
+            case 5:
+                if(++env_vol == 32)
+                    env_vol = 0;
+                break;
+            case 6:
+                if(++env_vol == 31)
+                    env_step = 8;
+                break;
+            case 7:
+                if(++env_vol == 32)
+                {
+                    env_vol = 31;
+                    env_step = 3;
+                }
+                break;
+            default:
+                break;
+                    
         }
     }
-}
-
-void ay::aySoftStep(float &s0, float &s1, float &s2)
-{
-
-    if(++int_counter > int_limit)
-    {
-        int_counter = 0;
-        ay_softexec(songinfo);
-    }
-
-    for(unsigned long k = 0; k < ay_tacts; k++)
-    {
-
-        if(++chnl_period[0] >= tone_period_init[0])
-        {
-            chnl_period[0] -= tone_period_init[0];
-            chnl_trigger[0] ^= 1;
-        }
-        if(++chnl_period[1] >= tone_period_init[1])
-        {
-            chnl_period[1] -= tone_period_init[1];
-            chnl_trigger[1] ^= 1;
-        }
-        if(++chnl_period[2] >= tone_period_init[2])
-        {
-            chnl_period[2] -= tone_period_init[2];
-            chnl_trigger[2] ^= 1;
-        }
-
-        if(++noise_period >= noise_period_init)
-        {
-            noise_period = 0;
-            if((noise_reg + 1) & 2)
-                noise_trigger ^= 1;
-            if(noise_reg & 1)
-                noise_reg ^= 0x24000;
-            noise_reg >>= 1;
-        }
-        updateEnvelope();
-
-        if((chnl_trigger[0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)) & !chnl_mute[0])
-            s0 += (CHNL_ENVELOPE(0) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(0) * 2]) * volume[0];
-        if((chnl_trigger[1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)) & !chnl_mute[1])
-            s1 += (CHNL_ENVELOPE(1) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(1) * 2]) * volume[1];
-        if((chnl_trigger[2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)) & !chnl_mute[2])
-            s2 += (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2) * 2]) * volume[2];
-    }
-
-    s0 = s0 / (float)ay_tacts;
-    s1 = (s1 / (float)ay_tacts) / 1.42;
-    s2 = s2 / (float)ay_tacts;
-}
-
-void ay::ayZ80Step(float &s0, float &s1, float &s2)
-{
-    while(z80_per_sample_counter < z80_per_sample)
-    {
-        int tstates = z80ex_step(songinfo->z80ctx);
-        z80_per_sample_counter += tstates;
-        int_per_z80_counter += tstates;
-        if(int_per_z80_counter > int_per_z80)
-        {
-            tstates = z80ex_int(songinfo->z80ctx);
-            z80_per_sample_counter += tstates;
-            int_per_z80_counter = tstates;
-            if(++songinfo->timeElapsed >= songinfo->Length)
-            {
-                songinfo->timeElapsed = songinfo->Loop;
-                if(songinfo->e_callback)
-                    songinfo->stopping = songinfo->e_callback(songinfo->e_callback_arg);
-            }
-        }
-
-    }
-    z80_per_sample_counter -= z80_per_sample;
-
-    for(unsigned long k = 0; k < ay_tacts; k++)
-    {
-        if(++chnl_period[0] >= tone_period_init[0])
-        {
-            chnl_period[0] -= tone_period_init[0];
-            chnl_trigger[0] ^= 1;
-        }
-        if(++chnl_period[1] >= tone_period_init[1])
-        {
-            chnl_period[1] -= tone_period_init[1];
-            chnl_trigger[1] ^= 1;
-        }
-        if(++chnl_period[2] >= tone_period_init[2])
-        {
-            chnl_period[2] -= tone_period_init[2];
-            chnl_trigger[2] ^= 1;
-        }
-
-        if(++noise_period >= noise_period_init)
-        {
-            noise_period = 0;
-            if((noise_reg + 1) & 2)
-                noise_trigger ^= 1;
-            if(noise_reg & 1)
-                noise_reg ^= 0x24000;
-            noise_reg >>= 1;
-        }
-        updateEnvelope();
-
-        if((chnl_trigger[0] | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)) & !chnl_mute[0])
-            s0 += (CHNL_ENVELOPE(0) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(0) * 2]) * volume[0];
-        if((chnl_trigger[1] | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)) & !chnl_mute[1])
-            s1 += (CHNL_ENVELOPE(1) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(1) * 2]) * volume[1];
-        if((chnl_trigger[2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)) & !chnl_mute[2])
-            s2 += (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2) * 2]) * volume[2];
-    }
-
-    s0 = s0 / (float)ay_tacts;
-    s1 = (s1 / (float)ay_tacts) / 1.42;
-    s2 = s2 / (float)ay_tacts;
 }
 
 inline void ay::ayCommonStep(float &s0, float &s1, float &s2)
@@ -403,7 +351,7 @@ inline void ay::ayCommonStep(float &s0, float &s1, float &s2)
     }
 
     s0 = s0 / (float)ay_tacts;
-    s1 = (s1 / (float)ay_tacts) / 1.42;
+    s1 = (s1 / (float)ay_tacts) / 1.5;
     s2 = s2 / (float)ay_tacts;
 }
 
@@ -447,7 +395,7 @@ inline void ay::ayStep(float &s0, float &s1, float &s2)
     }
 
     s0 = s0 / (float)ay_tacts;
-    s1 = (s1 / (float)ay_tacts) / 1.42;
+    s1 = (s1 / (float)ay_tacts) / 1.5;
     s2 = s2 / (float)ay_tacts;
 }
 
@@ -460,7 +408,6 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
     {
         s0 = s1 = s2 = 0;
         if(songinfo->stopping == false)
-            //(this ->* Step)(s0, s1, s2);
             ayCommonStep(s0, s1, s2);
         else
             return (i << 2);
@@ -478,7 +425,6 @@ unsigned long ay::ayProcessMono(unsigned char *stream, unsigned long len)
     {
         s0 = s1 = s2 = 0;
         if(songinfo->stopping == false)
-            //(this ->* Step)(s0, s1, s2);
             ayCommonStep(s0, s1, s2);
         else
             return (i << 2);
@@ -500,7 +446,6 @@ unsigned long ay::ayProcessTS(unsigned char *stream, unsigned long len)
         s3 = s4 = s5 = 0;
         if(songinfo->stopping == false)
         {
-            //(this ->* Step)(s0, s1, s2);
             ayCommonStep(s0, s1, s2);
             songinfo->ay8910[1].ayStep(s3, s4, s5);
         }
@@ -524,7 +469,6 @@ unsigned long ay::ayProcessTSMono(unsigned char *stream, unsigned long len)
         s3 = s4 = s5 = 0;
         if(songinfo->stopping == false)
         {
-            //(this ->* Step)(s0, s1, s2);
             ayCommonStep(s0, s1, s2);
             songinfo->ay8910[1].ayStep(s3, s4, s5);
         }
