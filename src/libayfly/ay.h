@@ -106,6 +106,8 @@ private:
     unsigned char env_step;
     bool chnl_mute[3];
     unsigned long ay_tacts;
+    unsigned long ay_tacts_counter;
+    float volume_divider;
     void setEnvelope();
     void updateEnvelope();
     float volume[3];
