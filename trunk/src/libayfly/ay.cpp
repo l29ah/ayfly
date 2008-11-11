@@ -43,6 +43,7 @@ ay::ay()
         ay::levels_ay[i] = ay::init_levels_ay[i / 2] / 4;
         ay::levels_ym[i] = ay::init_levels_ym[i] / 4;
     }
+    songinfo == 0;
 
     ayReset();
 }
@@ -57,6 +58,8 @@ void ay::SetParameters(AYSongInfo *_songinfo)
         return;
     if((_songinfo != songinfo) && (_songinfo != 0))
         songinfo = _songinfo;
+    if(songinfo->sr == 0 || songinfo->int_freq == 0)
+        return;
     float ay_tacts_f = ((float)songinfo->ay_freq * TACTS_MULT) / (float)songinfo->sr / (float)8;
     ay_tacts = ay_tacts_f;
     if((ay_tacts_f - ay_tacts) >= 0.5)
