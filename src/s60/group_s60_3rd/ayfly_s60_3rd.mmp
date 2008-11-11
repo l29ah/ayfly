@@ -63,7 +63,7 @@ LIBRARY		   euser.lib apparc.lib cone.lib eikcore.lib eikcoctl.lib
 LIBRARY        avkon.lib fbscli.lib eikdlg.lib efsrv.lib estor.lib
 LIBRARY        commondialogs.lib mediaclientaudiostream.lib bafl.lib
 LIBRARY	       commonengine.lib egul.lib eikctl.lib platformenv.lib estlib.lib
-LIBRARY        mmfcontrollerframework.lib form.lib ecom.lib 
+LIBRARY        mmfcontrollerframework.lib form.lib ecom.lib charconv.lib
 
 LANG SC
 

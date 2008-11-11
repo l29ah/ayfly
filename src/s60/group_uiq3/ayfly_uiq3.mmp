@@ -58,7 +58,7 @@ LIBRARY 	   qikcore.lib
 LIBRARY        qiklbx.lib
 LIBRARY        quiconfigclient.lib qikutils.lib
 LIBRARY        bafl.lib
-LIBRARY        qikdlg.lib mediaclientaudiostream.lib estlib.lib
+LIBRARY        qikdlg.lib mediaclientaudiostream.lib estlib.lib charconv.lib
 
 
 VENDORID	  	  0
