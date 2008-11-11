@@ -43,7 +43,7 @@ ay::ay()
         ay::levels_ay[i] = ay::init_levels_ay[i / 2] / 4;
         ay::levels_ym[i] = ay::init_levels_ym[i] / 4;
     }
-    songinfo == 0;
+    songinfo = 0;
 
     ayReset();
 }
