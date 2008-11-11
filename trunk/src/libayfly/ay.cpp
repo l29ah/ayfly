@@ -61,7 +61,6 @@ void ay::SetParameters(AYSongInfo *_songinfo)
     ay_tacts = ay_tacts_f;
     if((ay_tacts_f - ay_tacts) >= 0.5)
         ay_tacts++;
-    fwprintf(stderr, L"tacts = %d\n", ay_tacts);
     levels = songinfo->chip_type == 0 ? ay::levels_ay : ay::levels_ym;
     if(!songinfo->is_z80)
     {
@@ -69,8 +68,6 @@ void ay::SetParameters(AYSongInfo *_songinfo)
         int_limit = int_limit_f;
         if(int_limit_f - int_limit >= 0.5)
             int_limit++;
-        fwprintf(stderr, L"int_limit = %d\n", int_limit);
-        
     }
     else
     {
