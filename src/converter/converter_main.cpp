@@ -36,10 +36,11 @@ bool elapsed_callback(void *)
 
 void usage()
 {
-    fwprintf(stderr, L"\tusage: ayfly_converter [-s <metafile>] <input_file> <output_file>\n");
+    fwprintf(stderr,L"\tusage: ayfly_converter [-s <metafile>] [ -r <sample_rate>]<input_file> <output_file>\n" );
     fwprintf(stderr, L"\t       if <input_file> = - then stdin is used.\n");
     fwprintf(stderr, L"\t       if <output_file> = - then stdout is used.\n");
-    
+    fwprintf(stderr, L"\t       default sample rate = 44100 Hz\n");
+
 }
 
 int main(int argc, char **argv)
@@ -58,17 +59,41 @@ int main(int argc, char **argv)
     FILE *fout = 0;
     FILE *metafile = 0;
     bool is_stdout = false;
-    int k = 1;
-    if(!strcmp(argv [1], "-s"))
+    unsigned long sample_rate = 44100;
+
+    int k;
+    for(k = 1; k < argc; k++)
     {
-        if(argc < 5)
+        if(!strcmp(argv [k], "-s"))
         {
-            usage();
-            exit(1);
+            if(k + 1 >= argc)
+            {
+                usage();
+                exit(1);
+            }
+            metafile = fopen(argv [k + 1], "wb");
+            k++;
         }
-        metafile = fopen(argv [2], "wb");
-        k = 3;
+        else if(!strcmp(argv [k], "-r"))
+        {
+            if(k + 1 >= argc)
+            {
+                usage();
+                exit(1);
+            }
+            sample_rate = atol(argv [k + 1]);
+            k++;
+        }
+        else
+            break;
     }
+    
+    if(k + 1 >= argc)
+    {
+        usage();
+        exit(1);
+    }
+
     if((strlen(argv [k + 1]) == 1) && (*argv [k + 1] == '-'))
     {
         fout = stdout;
@@ -106,7 +131,7 @@ int main(int argc, char **argv)
             {
                 module [i++] = *iter;
             }
-            song = ay_initsongindirect(module, 44100, size);
+            song = ay_initsongindirect(module, sample_rate, size);
 
             delete [] module;
         }
@@ -116,14 +141,14 @@ int main(int argc, char **argv)
         CayflyString song_name(argv [k]);
         unsigned char buffer [65536];
         memset(buffer, 0, sizeof(buffer));
-        song = ay_initsong(song_name.c_str(), 44100);
+        song = ay_initsong(song_name.c_str(), sample_rate);
     }
     if(!song)
     {
         fwprintf(stderr, L"Can't open song!\n");
         exit(1);
     }
-    
+
     if(metafile)
     {
         CayflyString str;
@@ -136,7 +161,7 @@ int main(int argc, char **argv)
         fwrite(str.c_str(), 1, str.length() * sizeof(AY_CHAR), metafile);
         fwrite("\n", 1, 1, metafile);
         fclose(metafile);
-        
+
     }
 
     ay_setelapsedcallback(song, elapsed_callback, 0);
@@ -150,6 +175,6 @@ int main(int argc, char **argv)
 
     ay_closesong(&song);
     if(!is_stdout)
-        fclose(fout);
+    fclose(fout);
     return 0;
 }
