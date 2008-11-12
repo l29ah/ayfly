@@ -103,6 +103,7 @@ int main(int argc, char **argv)
     {
         fout = fopen(argv [k + 1], "wb");
     }
+    
     if(fout == 0)
     {
         fwprintf(stderr, L"Can't open output file!\n");
