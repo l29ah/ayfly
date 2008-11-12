@@ -103,8 +103,6 @@ void Cayfly_s60Sound::MaoscOpenComplete(TInt aError)
     {
         ay_rendersongbuffer(songinfo, iBuffer1, MIX_BUFFER_LENGTH);
         ay_rendersongbuffer(songinfo, iBuffer2, MIX_BUFFER_LENGTH);
-        //songinfo->ay8910 [0].ayProcess(iBuffer1, MIX_BUFFER_LENGTH);
-        //songinfo->ay8910 [0].ayProcess(iBuffer2, MIX_BUFFER_LENGTH);
     }
     else
     {
@@ -142,17 +140,15 @@ TInt Cayfly_s60Sound::MixLoop(TAny *t)
         {
             if(s->stereo)
                 ay_rendersongbuffer(s->songinfo, (unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);                        
-                //s->songinfo->ay8910 [0].ayProcess((unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
-            else
-                s->songinfo->ay8910 [0].ayProcessMono((unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
+            /*else
+                s->songinfo->ay8910 [0].ayProcessMono((unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);*/
         }
         else
         {
             if(s->stereo)
                 ay_rendersongbuffer(s->songinfo, (unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);                      
-                //s->songinfo->ay8910 [0].ayProcess((unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
-            else
-                s->songinfo->ay8910 [0].ayProcessMono((unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
+            /*else
+                s->songinfo->ay8910 [0].ayProcessMono((unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);*/
         }
 
         /* Initialize mixing on the other buffer */
@@ -174,9 +170,9 @@ TInt Cayfly_s60Sound::MixLoop(TAny *t)
         }
 
         if(s->stereo)
-            s->songinfo->ay8910 [0].ayProcess((unsigned char*)(mix_buffer + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES);
-        else
-            s->songinfo->ay8910 [0].ayProcessMono((unsigned char*)(mix_buffer + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES);
+            ay_rendersongbuffer(s->songinfo, (unsigned char*)(mix_buffer + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES);    
+        /*else
+            s->songinfo->ay8910 [0].ayProcessMono((unsigned char*)(mix_buffer + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES);*/
 
         s->iMixStep++;
 
