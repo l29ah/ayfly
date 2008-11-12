@@ -9,7 +9,7 @@
 ;Language - standard language definitions
 &EN
 ; standard SIS file header
-#{"ayfly_s60"},(0xEA0B66F6),0,0,20
+#{"ayfly_s60"},(0xEA0B66F6),0,0,21
 
 ;Localised Vendor name
 %{"Vendor-EN"}
