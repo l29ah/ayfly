@@ -23,8 +23,7 @@
 #define TACTS_MULT (float)800
 
 const float ay::init_levels_ay[] =
-{0, 836, 1212, 1773, 2619, 3875, 5397, 8823, 10392, 16706, 23339,
-    29292, 36969, 46421, 55195, 65535};
+{ 0, 836, 1212, 1773, 2619, 3875, 5397, 8823, 10392, 16706, 23339, 29292, 36969, 46421, 55195, 65535 };
 
 const float ay::init_levels_ym[] =
 { 0, 0, 0xF8, 0x1C2, 0x29E, 0x33A, 0x3F2, 0x4D7, 0x610, 0x77F, 0x90A, 0xA42, 0xC3B, 0xEC2, 0x1137, 0x13A7, 0x1750, 0x1BF9, 0x20DF, 0x2596, 0x2C9D, 0x3579, 0x3E55, 0x4768, 0x54FF, 0x6624, 0x773B, 0x883F, 0xA1DA, 0xC0FC, 0xE094, 0xFFFF };
@@ -65,14 +64,11 @@ void ay::SetParameters(AYSongInfo *_songinfo)
     if((ay_tacts_f - ay_tacts) >= 0.5)
         ay_tacts++;
     levels = songinfo->chip_type == 0 ? ay::levels_ay : ay::levels_ym;
-    if(!songinfo->is_z80)
-    {
-        float int_limit_f = ((float)songinfo->sr * TACTS_MULT) / (float)songinfo->int_freq;
-        int_limit = int_limit_f;
-        if(int_limit_f - int_limit >= 0.5)
-            int_limit++;
-    }
-    else
+    float int_limit_f = ((float)songinfo->sr * TACTS_MULT) / (float)songinfo->int_freq;
+    int_limit = int_limit_f;
+    if(int_limit_f - int_limit >= 0.5)
+        int_limit++;
+    if(songinfo->is_z80)
     {
         float z80_per_sample_f = ((float)songinfo->z80_freq * TACTS_MULT) / songinfo->sr;
         z80_per_sample = z80_per_sample_f;
@@ -121,7 +117,7 @@ void ay::ayReset()
 
     SetParameters(0);
     setEnvelope();
-    
+
 }
 
 void ay::ayWrite(unsigned char reg, unsigned char val)
@@ -233,7 +229,6 @@ void ay::setEnvelope()
             env_vol = 0;
             break;
     }
-    
 
 }
 
@@ -291,15 +286,17 @@ inline void ay::updateEnvelope()
                 break;
             default:
                 break;
-                    
+
         }
     }
 }
 
 inline void ay::ayCommonStep(float &s0, float &s1, float &s2)
 {
+
     if(songinfo->is_z80)
     {
+#ifndef __SYMBIAN32__
         while(z80_per_sample_counter < z80_per_sample)
         {
             int tstates = z80ex_step(songinfo->z80ctx) * TACTS_MULT;
@@ -320,6 +317,28 @@ inline void ay::ayCommonStep(float &s0, float &s1, float &s2)
 
         }
         z80_per_sample_counter -= z80_per_sample;
+#else
+        int_counter += TACTS_MULT;
+        if(int_counter > int_limit)
+        {
+            int_counter -= int_limit;
+            do
+            {
+                //int tstates = z80ex_step(songinfo->z80ctx) * TACTS_MULT;
+                z80ex_step(songinfo->z80ctx);
+                //int_per_z80_counter += tstates;
+                
+            }while(z80ex_get_reg(songinfo->z80ctx, regPC) != 0x4);
+            
+            if(++songinfo->timeElapsed >= songinfo->Length)
+            {
+                songinfo->timeElapsed = songinfo->Loop;
+                if(songinfo->e_callback)
+                songinfo->stopping = songinfo->e_callback(songinfo->e_callback_arg);
+            }
+            int_per_z80_counter -= int_per_z80;
+        }
+#endif
     }
     else
     {
@@ -330,7 +349,6 @@ inline void ay::ayCommonStep(float &s0, float &s1, float &s2)
             ay_softexec(songinfo);
         }
     }
-    //for(unsigned long k = 0; k < ay_tacts; k++)
     volume_divider = 0;
     while(ay_tacts_counter < ay_tacts)
     {
@@ -418,7 +436,7 @@ inline void ay::ayStep(float &s0, float &s1, float &s2)
         if((chnl_trigger[2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)) & !chnl_mute[2])
             s2 += (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2) * 2]) * volume[2];
     }
-    
+
     ay_tacts_counter -= ay_tacts;
 
     s0 = s0 / volume_divider;

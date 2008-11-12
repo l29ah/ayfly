@@ -13,6 +13,8 @@ static const unsigned char intz[] =
 };
 
 static const unsigned char intnz[] =
+#ifndef __SYMBIAN32__
+
 { 0xf3, /* di */
 0xcd, 0, 0, /* call init */
 0xed, 0x56, /* loop: im 1 */
@@ -21,6 +23,19 @@ static const unsigned char intnz[] =
 0xcd, 0, 0, /* call interrupt */
 0x18, 0xf7 /* jr loop */
 };
+
+#else
+
+{ 0xf3, /* di */
+0xcd, 0, 0, /* call init */
+0x0, 0x0, /* loop: nop, nop */
+0x0, /* nop */
+0x0, /* nop */
+0xcd, 0, 0, /* call interrupt */
+0x18, 0xf7 /* jr loop */
+};
+
+#endif
 
 //for .ay format
 struct ayTrack
