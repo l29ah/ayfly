@@ -8,7 +8,7 @@ Content detector added
 ayfly_converter is now able to read from stdin and change sample rate
 Metadata (Name and Author) support added
 Symbian version optimized 
-
+Multiple sample rates support in libayfly added
 
 24.10.2008 - 0.0.20
 Minor changes:
