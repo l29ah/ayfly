@@ -73,6 +73,7 @@ TFileName ay_sys_getstr(const unsigned char *str, unsigned long length)
         remainderOfForeignText.Set(remainderOfForeignText.Right(returnValue));
     }
     delete aCharacterSetConverter;
+    return endBuffer;
 }
     
 #else
