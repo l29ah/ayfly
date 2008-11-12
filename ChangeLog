@@ -5,8 +5,9 @@ Turbo sound support added
 Digital AY support added
 ay code optimized
 Content detector added
-ayfly_converter is now able to read from stdin
+ayfly_converter is now able to read from stdin and change sample rate
 Metadata (Name and Author) support added
+Symbian version optimized 
 
 
 24.10.2008 - 0.0.20

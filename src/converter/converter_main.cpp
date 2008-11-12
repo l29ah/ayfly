@@ -152,13 +152,18 @@ int main(int argc, char **argv)
     if(metafile)
     {
         CayflyString str;
+        char mb_str [512];
+        memset(mb_str, 0, sizeof(mb_str));
         str = ay_getsongname(song);
-        fwrite("Name: ", 1, 1, metafile);
-        fwrite(str.c_str(), 1, str.length() * sizeof(AY_CHAR), metafile);
+        wcstombs(mb_str, str.c_str(), sizeof(mb_str) - 1);
+        fwrite("Name: ", 1, 6, metafile);
+        fwrite(mb_str, 1, strlen(mb_str), metafile);
         fwrite("\n", 1, 1, metafile);
+        memset(mb_str, 0, sizeof(mb_str));
         str = ay_getsongauthor(song);
-        fwrite("Author: ", 1, 1, metafile);
-        fwrite(str.c_str(), 1, str.length() * sizeof(AY_CHAR), metafile);
+        wcstombs(mb_str, str.c_str(), sizeof(mb_str) - 1);
+        fwrite("Author: ", 1, 8, metafile);
+        fwrite(mb_str, 1, strlen(mb_str), metafile);
         fwrite("\n", 1, 1, metafile);
         fclose(metafile);
 
