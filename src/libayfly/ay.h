@@ -55,27 +55,27 @@ public:
     unsigned long ayProcessMono(unsigned char *stream, unsigned long len);
     unsigned long ayProcessTS(unsigned char *stream, unsigned long len);
     unsigned long ayProcessTSMono(unsigned char *stream, unsigned long len);
-    inline void chnlMute(unsigned long chnl, bool mute)
+    void chnlMute(unsigned long chnl, bool mute)
     {
         chnl_mute[chnl] = !mute;
     }
     ;
-    inline bool chnlMuted(unsigned long chnl)
+    bool chnlMuted(unsigned long chnl)
     {
         return chnl_mute[chnl];
     }
     ;
-    inline float GetVolume(unsigned long chnl)
+    float GetVolume(unsigned long chnl)
     {
         return volume[chnl];
     }
     ;
-    inline void SetVolume(unsigned long chnl, float new_volume)
+    void SetVolume(unsigned long chnl, float new_volume)
     {
         volume[chnl] = new_volume > 1 ? 1 : (new_volume < 0 ? 0 : new_volume);
     }
     ;
-    inline const unsigned char *GetRegs()
+    const unsigned char *GetRegs()
     {
         return regs;
     };
