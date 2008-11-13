@@ -194,6 +194,7 @@ bool MakeTable(lha_params &params, int nChar, unsigned char *BitLen, int TableBi
         }
         Start[Len] = NextCode;
     }
+    return true;
 }
 
 void ReadPtLen(lha_params &params, int Nn, int nBit, int Ispecial)
@@ -436,6 +437,4 @@ void ay_sys_decodelha(AYSongInfo &info, unsigned long offset)
     BWrite (params, p, a);
     l -= a;
   }
-  unsigned long size = params.OutPtr - info.module;
-  size == 0;
 }

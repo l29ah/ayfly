@@ -153,7 +153,7 @@ void VTX_GetInfo(AYSongInfo &info)
 
 bool VTX_Detect(unsigned char *module, unsigned long length)
 {
-    if((((module[0] == 'a') && (module[1] == 'y')) || ((module[0] == 'y') && (module[1] == 'm')) || ((module[0] == 'A') && (module[1] == 'Y')) || ((module[0] == 'Y') && (module[1] == 'M'))) && (module[2] >= 0 && module[2] <= 6))
+    if((((module[0] == 'a') && (module[1] == 'y')) || ((module[0] == 'y') && (module[1] == 'm')) || ((module[0] == 'A') && (module[1] == 'Y')) || ((module[0] == 'Y') && (module[1] == 'M'))) && (module[2] <= 6))
         return true;
     return false;
 
