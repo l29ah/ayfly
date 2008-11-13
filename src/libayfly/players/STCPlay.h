@@ -110,7 +110,6 @@ bool STC_Detect(unsigned char *module, unsigned long length)
 {
     STC_File *header = (STC_File *)module;
     int j, j1, j2;
-    bool FoundST = false;
     if(length < 6)
         return false;
     if(ST_PositionsPointer> length)
