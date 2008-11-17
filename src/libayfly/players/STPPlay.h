@@ -13,7 +13,7 @@ struct STP_File
     unsigned char STP_Init_Id;
 };
 
-const char *KsaId = "KSA SOFTWARE COMPILATION OF ";
+static const char KsaId [] = "KSA SOFTWARE COMPILATION OF ";
 
 #define STP_PositionsPointer (header->STP_PositionsPointer0 | (header->STP_PositionsPointer1 << 8))
 #define STP_OrnamentsPointer (header->STP_OrnamentsPointer0 | (header->STP_OrnamentsPointer1 << 8))

@@ -20,6 +20,7 @@ TARGETPATH \system\apps\ayfly_s60
 
 
 OPTION GCC    -O3 --fast-math -DZ80EX_OPSTEP_FAST_AND_ROUGH=1
+//OPTION GCC -save-temps
 
 //COMPRESSTARGET
 
