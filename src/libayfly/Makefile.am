@@ -1,4 +1,4 @@
-INCLUDES = -I$(top_srcdir)/src/libayfly -I$(top_srcdir)/src/libayfly/z80ex -I$(top_srcdir)/src/libayfly/z80ex/include $(SDL_CFLAGS) $(DX_CFLAGS) $(all_includes)
+INCLUDES = -I$(top_srcdir)/src/libsamplerate-current/src -I$(top_srcdir)/src/libayfly -I$(top_srcdir)/src/libayfly/z80ex -I$(top_srcdir)/src/libayfly/z80ex/include $(SDL_CFLAGS) $(DX_CFLAGS) $(all_includes)
 SUBDIRS = z80ex
 noinst_LIBRARIES = libayfly.a
 libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp lha.cpp common.cpp ayflyString.cpp
@@ -15,7 +15,10 @@ endif
 
 SUBDIRS += $(EXTRASUBDIRS)
 
-EXTRALIBS = 
+EXTRALIBS = $(top_builddir)/src/libsamplerate-current/src/samplerate.o \
+            $(top_builddir)/src/libsamplerate-current/src/src_linear.o \
+            $(top_builddir)/src/libsamplerate-current/src/src_sinc.o \
+            $(top_builddir)/src/libsamplerate-current/src/src_zoh.o
 
 if ENABLE_AUDIO
 if IS_WINDOWS

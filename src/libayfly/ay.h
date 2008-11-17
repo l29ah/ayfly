@@ -23,6 +23,8 @@
 #ifndef AY_H_
 #define AY_H_
 
+#define AY_TEMP_BUFFER_SIZE 4096
+
 enum
 {
     AY_CHNL_A_FINE = 0,
@@ -52,9 +54,6 @@ public:
     void ayWrite(unsigned char reg, unsigned char val);
     unsigned char ayRead(unsigned char reg);
     unsigned long ayProcess(unsigned char *stream, unsigned long len);
-    unsigned long ayProcessMono(unsigned char *stream, unsigned long len);
-    unsigned long ayProcessTS(unsigned char *stream, unsigned long len);
-    unsigned long ayProcessTSMono(unsigned char *stream, unsigned long len);
     void chnlMute(unsigned long chnl, bool mute)
     {
         chnl_mute[chnl] = !mute;
@@ -106,6 +105,7 @@ private:
     unsigned char env_step;
     bool chnl_mute[3];
     unsigned long ay_tacts;
+    double ay_tacts_f;
     unsigned long ay_tacts_counter;
     float volume_divider;
     void setEnvelope();
@@ -120,6 +120,13 @@ private:
     long int_per_z80_counter;
     void ayCommonStep(float &s0, float &s1, float &s2);
     void ayStep(float &s0, float &s1, float &s2);
+#ifndef __SYMBIAN32__
+    void *src_state;
+    float src_ratio;
+    float ay_temp_buffer_in [AY_TEMP_BUFFER_SIZE];
+    float ay_temp_buffer_out [AY_TEMP_BUFFER_SIZE];
+    unsigned long src_remaining;
+#endif
 };
 
 #endif /*AY_H_*/

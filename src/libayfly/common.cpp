@@ -377,11 +377,7 @@ AYFLY_API const unsigned char *ay_getregs(void *info, unsigned char chip_num)
 
 AYFLY_API unsigned long ay_rendersongbuffer(void *info, unsigned char *buffer, unsigned long buffer_length)
 {
-    if(((AYSongInfo *)info)->is_ts)
-        return ((AYSongInfo *)info)->ay8910[0].ayProcessTS(buffer, buffer_length);
-    else
-        return ((AYSongInfo *)info)->ay8910[0].ayProcess(buffer, buffer_length);
-
+    return ((AYSongInfo *)info)->ay8910[0].ayProcess(buffer, buffer_length);
 }
 
 AYFLY_API unsigned long ay_getz80freq(void *info)
