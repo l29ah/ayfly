@@ -26,7 +26,7 @@
 
 /* preferred order of sample rate selection */
 static const TInt sampleRateConversionTable[] =
-{ 44100, TMdaAudioDataSettings::ESampleRate44100Hz, 32000, TMdaAudioDataSettings::ESampleRate32000Hz, 22050, TMdaAudioDataSettings::ESampleRate22050Hz, 16000, TMdaAudioDataSettings::ESampleRate16000Hz, 11025, TMdaAudioDataSettings::ESampleRate11025Hz, 48000, TMdaAudioDataSettings::ESampleRate48000Hz, 8000, TMdaAudioDataSettings::ESampleRate8000Hz };
+{ 32000, TMdaAudioDataSettings::ESampleRate32000Hz, 22050, TMdaAudioDataSettings::ESampleRate22050Hz, 16000, TMdaAudioDataSettings::ESampleRate16000Hz, 11025, TMdaAudioDataSettings::ESampleRate11025Hz, 48000, TMdaAudioDataSettings::ESampleRate48000Hz, 8000, TMdaAudioDataSettings::ESampleRate8000Hz };
 
 Cayfly_s60Sound* Cayfly_s60Sound::NewL()
 {
@@ -99,11 +99,6 @@ void Cayfly_s60Sound::MaoscOpenComplete(TInt aError)
         songinfo->ay8910 [0].ayProcess(iBuffer1, MIX_BUFFER_LENGTH);
         songinfo->ay8910 [0].ayProcess(iBuffer2, MIX_BUFFER_LENGTH);
     }
-    else
-    {
-        songinfo->ay8910 [0].ayProcessMono(iBuffer1, MIX_BUFFER_LENGTH);
-        songinfo->ay8910 [0].ayProcessMono(iBuffer2, MIX_BUFFER_LENGTH);
-    }
     
     if(iVolume < 0)
         iVolume = 0;
@@ -135,15 +130,11 @@ TInt Cayfly_s60Sound::MixLoop(TAny *t)
         {
             if(s->stereo)
                 s->songinfo->ay8910 [0].ayProcess((unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
-            else
-                s->songinfo->ay8910 [0].ayProcessMono((unsigned char*)(s->iBuffer1 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
         }
         else
         {
             if(s->stereo)
                 s->songinfo->ay8910 [0].ayProcess((unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
-            else
-                s->songinfo->ay8910 [0].ayProcessMono((unsigned char*)(s->iBuffer2 + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), samplesLeft);
         }
 
         /* Initialize mixing on the other buffer */
@@ -166,8 +157,6 @@ TInt Cayfly_s60Sound::MixLoop(TAny *t)
 
         if(s->stereo)
             s->songinfo->ay8910 [0].ayProcess((unsigned char*)(mix_buffer + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES);
-        else
-            s->songinfo->ay8910 [0].ayProcessMono((unsigned char*)(mix_buffer + ((MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES) * s->iMixStep)), MIX_BUFFER_LENGTH / MIX_BUFFER_TIMES);
 
         s->iMixStep++;
 
