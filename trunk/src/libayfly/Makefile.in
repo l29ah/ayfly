@@ -175,6 +175,7 @@ psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target = @target@
 target_alias = @target_alias@
@@ -183,12 +184,17 @@ target_os = @target_os@
 target_vendor = @target_vendor@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-INCLUDES = -I$(top_srcdir)/src/libayfly -I$(top_srcdir)/src/libayfly/z80ex -I$(top_srcdir)/src/libayfly/z80ex/include $(SDL_CFLAGS) $(DX_CFLAGS) $(all_includes)
+INCLUDES = -I$(top_srcdir)/src/libsamplerate-current/src -I$(top_srcdir)/src/libayfly -I$(top_srcdir)/src/libayfly/z80ex -I$(top_srcdir)/src/libayfly/z80ex/include $(SDL_CFLAGS) $(DX_CFLAGS) $(all_includes)
 SUBDIRS = z80ex $(EXTRASUBDIRS)
 noinst_LIBRARIES = libayfly.a
 libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp lha.cpp common.cpp ayflyString.cpp
 EXTRASUBDIRS = $(am__append_1) $(am__append_2)
-EXTRALIBS = $(am__append_3) $(am__append_4)
+EXTRALIBS =  \
+	$(top_builddir)/src/libsamplerate-current/src/samplerate.o \
+	$(top_builddir)/src/libsamplerate-current/src/src_linear.o \
+	$(top_builddir)/src/libsamplerate-current/src/src_sinc.o \
+	$(top_builddir)/src/libsamplerate-current/src/src_zoh.o \
+	$(am__append_3) $(am__append_4)
 libayfly_a_LIBADD = $(EXTRALIBS) $(top_builddir)/src/libayfly/z80ex/z80ex.o
 all: all-recursive
 
@@ -203,9 +209,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  src/libayfly/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  src/libayfly/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  src/libayfly/Makefile
+	  $(AUTOMAKE) --foreign  src/libayfly/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

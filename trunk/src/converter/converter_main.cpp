@@ -173,10 +173,12 @@ int main(int argc, char **argv)
     ay_setelapsedcallback(song, elapsed_callback, 0);
     unsigned char buffer [8192];
 
+    unsigned long length = ay_getsonglength(song);
     while(!end)
     {
         unsigned long written = ay_rendersongbuffer(song, buffer, sizeof(buffer));
         fwrite(buffer, 1, written, fout);
+        fwprintf(stderr, L"%d/%d\r", ay_getelapsedtime(song), length);
     }
 
     ay_closesong(&song);
