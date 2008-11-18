@@ -194,7 +194,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\src\libayfly;..\..\..\src\libayfly\z80ex;..\..\..\src\libayfly\z80ex\include;&quot;C:\Projects\ayfly\src\libsamplerate-current\Win32&quot;;&quot;C:\Projects\ayfly\src\libsamplerate-current\src&quot;"
+				AdditionalIncludeDirectories="..\..\..\src\libayfly;..\..\..\src\libayfly\z80ex;..\..\..\src\libayfly\z80ex\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;AYFLY_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -271,7 +271,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				EnableIntrinsicFunctions="false"
-				AdditionalIncludeDirectories="..\..\..\src\libayfly;..\..\..\src\libayfly\z80ex;..\..\..\src\libayfly\z80ex\include;&quot;C:\Projects\ayfly\src\libsamplerate-current\Win32&quot;;&quot;C:\Projects\ayfly\src\libsamplerate-current\src&quot;"
+				AdditionalIncludeDirectories="..\..\..\src\libayfly;..\..\..\src\libayfly\z80ex;..\..\..\src\libayfly\z80ex\include"
 				PreprocessorDefinitions="WIN32;DEBUG;_WINDOWS;_USRDLL;AYFLY_EXPORTS"
 				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="false"
@@ -350,6 +350,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\src\libayfly\Filter3.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\src\libayfly\formats.cpp"
 					>
 				</File>
@@ -378,26 +382,6 @@
 					</File>
 				</Filter>
 			</Filter>
-			<Filter
-				Name="libsamplerate-current"
-				>
-				<File
-					RelativePath="..\..\..\src\libsamplerate-current\src\samplerate.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\libsamplerate-current\src\src_linear.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\libsamplerate-current\src\src_sinc.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\libsamplerate-current\src\src_zoh.c"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -424,6 +408,10 @@
 					</File>
 					<File
 						RelativePath="..\..\..\src\libayfly\ayflyString.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\src\libayfly\Filter3.h"
 						>
 					</File>
 					<Filter
@@ -519,38 +507,6 @@
 						</File>
 					</Filter>
 				</Filter>
-			</Filter>
-			<Filter
-				Name="libsamplerate-current"
-				>
-				<File
-					RelativePath="..\..\..\src\libsamplerate-current\src\common.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\libsamplerate-current\Win32\config.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\libsamplerate-current\src\fastest_coeffs.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\libsamplerate-current\src\float_cast.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\libsamplerate-current\src\high_qual_coeffs.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\libsamplerate-current\src\mid_qual_coeffs.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\libsamplerate-current\src\samplerate.h"
-					>
-				</File>
 			</Filter>
 		</Filter>
 		<Filter
