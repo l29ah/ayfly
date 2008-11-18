@@ -53,7 +53,7 @@ libayfly_a_DEPENDENCIES = $(EXTRALIBS) \
 	$(top_builddir)/src/libayfly/z80ex/z80ex.o
 am_libayfly_a_OBJECTS = AbstractAudio.$(OBJEXT) ay.$(OBJEXT) \
 	formats.$(OBJEXT) speccy.$(OBJEXT) lha.$(OBJEXT) \
-	common.$(OBJEXT) ayflyString.$(OBJEXT)
+	common.$(OBJEXT) ayflyString.$(OBJEXT) Filter3.$(OBJEXT)
 libayfly_a_OBJECTS = $(am_libayfly_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -175,7 +175,6 @@ psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target = @target@
 target_alias = @target_alias@
@@ -187,7 +186,7 @@ top_srcdir = @top_srcdir@
 INCLUDES = -I$(top_srcdir)/src/libsamplerate-current/src -I$(top_srcdir)/src/libayfly -I$(top_srcdir)/src/libayfly/z80ex -I$(top_srcdir)/src/libayfly/z80ex/include $(SDL_CFLAGS) $(DX_CFLAGS) $(all_includes)
 SUBDIRS = z80ex $(EXTRASUBDIRS)
 noinst_LIBRARIES = libayfly.a
-libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp lha.cpp common.cpp ayflyString.cpp
+libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp lha.cpp common.cpp ayflyString.cpp Filter3.cpp
 EXTRASUBDIRS = $(am__append_1) $(am__append_2)
 EXTRALIBS =  \
 	$(top_builddir)/src/libsamplerate-current/src/samplerate.o \
@@ -244,6 +243,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AbstractAudio.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Filter3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ay.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ayflyString.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/common.Po@am__quote@

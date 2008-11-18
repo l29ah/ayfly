@@ -18,7 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "common.h"
+#include "ayfly.h"
+#include <math.h>
 
 #ifndef PI
 #define PI 3.1415926535

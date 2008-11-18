@@ -1,3 +1,3 @@
-SUBDIRS = libsamplerate-current libayfly converter gui
+SUBDIRS = libayfly converter gui
 
 datarootdir = @datarootdir@
