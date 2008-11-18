@@ -143,6 +143,7 @@ typedef void (*PLAYER_CLEANUP_PROC)(AYSongInfo &info);
 typedef bool (*PLAYER_DETECT_PROC)(unsigned char *module, unsigned long length);
 
 #include "ayflyString.h"
+#include "Filter3.h"
 #include "ay.h"
 #include "AbstractAudio.h"
 

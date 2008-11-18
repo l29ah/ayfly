@@ -121,11 +121,12 @@ private:
     void ayCommonStep(float &s0, float &s1, float &s2);
     void ayStep(float &s0, float &s1, float &s2);
 #ifndef __SYMBIAN32__
-    void *src_state;
-    float src_ratio;
+    Filter3 flt;
+    unsigned long flt_state;
+    unsigned long flt_state_limit;
+    unsigned long src_remaining;
     float ay_temp_buffer_in [AY_TEMP_BUFFER_SIZE];
     float ay_temp_buffer_out [AY_TEMP_BUFFER_SIZE];
-    unsigned long src_remaining;
 #endif
 };
 

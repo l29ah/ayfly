@@ -1,7 +1,7 @@
 INCLUDES = -I$(top_srcdir)/src/libsamplerate-current/src -I$(top_srcdir)/src/libayfly -I$(top_srcdir)/src/libayfly/z80ex -I$(top_srcdir)/src/libayfly/z80ex/include $(SDL_CFLAGS) $(DX_CFLAGS) $(all_includes)
 SUBDIRS = z80ex
 noinst_LIBRARIES = libayfly.a
-libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp lha.cpp common.cpp ayflyString.cpp
+libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp lha.cpp common.cpp ayflyString.cpp Filter3.cpp
 
 EXTRASUBDIRS = 
 
