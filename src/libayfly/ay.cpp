@@ -452,7 +452,14 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
     if(src_remaining> 0)
     {
         short *stream16 = (short *)stream;
-        src_float_to_short_array(ay_temp_buffer_out, stream16, src_remaining);
+        unsigned long remaining = src_remaining > to_process ? to_process : src_remaining;
+        src_float_to_short_array(ay_temp_buffer_out, stream16, remaining);
+        if(src_remaining > to_process)
+        {
+            memcpy(ay_temp_buffer_out + remaining, ay_temp_buffer_out, src_remaining - to_process);
+            src_remaining -= to_process;
+            return (to_process << 1);
+        }
         to_process -= src_remaining;
         p += src_remaining;
     }
