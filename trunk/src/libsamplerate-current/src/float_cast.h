@@ -132,6 +132,11 @@
 	**	Win32 doesn't seem to have these functions.
 	**	Therefore implement inline versions of these functions here.
 	*/
+    __inline __int64
+	llrint (double flt)
+    {
+        return (__int64)flt;
+    }
 
 	__inline long int
 	lrint (double flt)
