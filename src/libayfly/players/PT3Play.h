@@ -703,9 +703,8 @@ void PT3_Play(AYSongInfo &info)
         PT3_Play_Chip(info, 1);
 }
 
-void PT3_GetInfo(AYSongInfo &info)
+unsigned long PT3_GetTime(unsigned char *module, unsigned long &Loop)
 {
-    unsigned char *module = info.file_data;    
     unsigned short a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
     long c1, c2, c3, c4, c5, c8;
@@ -723,7 +722,7 @@ void PT3_GetInfo(AYSongInfo &info)
     {
         if(i == ptLoopPos)
         {
-            info.Loop = tm;
+            Loop = tm;
         }
         j1 = ay_sys_getword(&module[ptPatPt + ptPosList[i] * 2]);
         j2 = ay_sys_getword(&module[ptPatPt + ptPosList[i] * 2 + 2]);
@@ -1021,8 +1020,26 @@ void PT3_GetInfo(AYSongInfo &info)
         while(true);
 
     }
-    info.Length = tm;
-    unsigned char *ptr = module + 0x1e;
+    return tm;
+}
+
+void PT3_GetInfo(AYSongInfo &info)
+{
+    unsigned char *module = info.file_data;
+    unsigned long loop = 0;
+    unsigned long length = PT3_GetTime(module, loop);
+    info.Length = length;
+    info.Loop = loop;
+    unsigned char *ptr = PT3_FindSig(module + 0x63, info.module_len - 0x63);
+    if((unsigned long)ptr > 0)
+    {
+        length = PT3_GetTime(ptr, loop);
+        if(length > info.Length)
+            info.Length = length;
+        if(loop < info.Loop)
+            info.Loop = loop;
+    }
+    ptr = module + 0x1e;
     info.Name = ay_sys_getstr(ptr, 32);
     ptr = module + 0x42;
     info.Author = ay_sys_getstr(ptr, 32);

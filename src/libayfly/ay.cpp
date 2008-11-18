@@ -441,7 +441,7 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
         }
         if(src_remaining > to_process)
         {
-            memmove(ay_temp_buffer_out, ay_temp_buffer_out + remaining, src_remaining - to_process);
+            memmove(ay_temp_buffer_out, ay_temp_buffer_out + remaining, (src_remaining - to_process) * sizeof(float));
             src_remaining -= to_process;
             return (remaining << 1);
         }
@@ -569,7 +569,7 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
     }
     if(src_remaining > 0)
     {
-        memcpy(ay_temp_buffer_out, ay_temp_buffer_out + k - src_remaining, src_remaining * sizeof(float));
+        memmove(ay_temp_buffer_out, ay_temp_buffer_out + k - src_remaining, src_remaining * sizeof(float));
     }
     return len;
 }

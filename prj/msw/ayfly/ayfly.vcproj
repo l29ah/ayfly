@@ -194,6 +194,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\src\libayfly\Filter3.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\src\libayfly\formats.cpp"
 					>
 				</File>
@@ -265,6 +269,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\src\libayfly\ayflyString.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\src\libayfly\Filter3.h"
 					>
 				</File>
 				<Filter
