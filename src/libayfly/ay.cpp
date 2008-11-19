@@ -35,12 +35,24 @@ const float ay::init_levels_ym[] =
 #define CHNL_ENVELOPE(ch) (regs [AY_CHNL_A_VOL + (ch)] & 0x10)
 #define ENVELOPE_PERIOD (((regs [AY_ENV_COARSE]) << 8) | regs [AY_ENV_FINE])
 
+
+
+const init_mix_levels  ay::mix_levels [] = 
+{
+    {1.0, 0.33, 0.67, 0.67, 0.33, 1.0}, //AY ABC
+    {1.0, 0.33, 0.33, 1.0, 0.67, 0.67}, //AY ACB
+    {0.67, 0.67, 1.0, 0.33, 0.33, 1.0}, //AY BAC
+    {0.33, 1.0, 1.0, 0.33, 0.67, 0.67}, //AY BCA
+    {0.67, 0.67, 0.33, 1.0, 1.0, 0.33}, //AY CAB
+    {0.33, 1.0, 0.67, 0.67, 1.0, 0.33}  //AY CBA
+};
+
 ay::ay()
 {
     for(unsigned long i = 0; i < sizeof_array(ay::levels_ay); i++)
     {
-        ay::levels_ay[i] = (ay::init_levels_ay[i / 2]) / (float)4;
-        ay::levels_ym[i] = (ay::init_levels_ym[i]) / (float)4;
+        ay::levels_ay[i] = (ay::init_levels_ay[i / 2]) / (float)6;
+        ay::levels_ym[i] = (ay::init_levels_ym[i]) / (float)6;
     }
     songinfo = 0;
     ayReset();
@@ -102,6 +114,12 @@ void ay::SetParameters(AYSongInfo *_songinfo)
     fopts.type = LPF;
     flt.Init(&fopts);
 #endif
+    a_left = ay::mix_levels [songinfo->mix_levels_nr].a_left;
+    a_right = ay::mix_levels [songinfo->mix_levels_nr].a_right;
+    b_left = ay::mix_levels [songinfo->mix_levels_nr].b_left;
+    b_right = ay::mix_levels [songinfo->mix_levels_nr].b_right;
+    c_left = ay::mix_levels [songinfo->mix_levels_nr].c_left;
+    c_right = ay::mix_levels [songinfo->mix_levels_nr].c_right;
 }
 
 void ay::ayReset()
@@ -123,11 +141,11 @@ void ay::ayReset()
     noise_enable[0] = false;
     noise_enable[1] = false;
     noise_enable[2] = false;
-    tone_period_init[0] = tone_period_init[1] = tone_period_init[2] = 1;
+    tone_period_init[0] = tone_period_init[1] = tone_period_init[2] = 0;
     chnl_mute[0] = chnl_mute[1] = chnl_mute[2] = false;
     env_type = 0;
     env_vol = 0;
-    chnl_trigger[0] = chnl_trigger[1] = chnl_trigger[2] = 1;
+    chnl_trigger[0] = chnl_trigger[1] = chnl_trigger[2] = 0;
     noise_reg = 0x1;
     noise_trigger = 1;
     noise_period = 0;
@@ -150,20 +168,14 @@ void ay::ayWrite(unsigned char reg, unsigned char val)
         case AY_CHNL_A_COARSE:
         case AY_CHNL_A_FINE:
             tone_period_init[0] = TONE_PERIOD(0);
-            if(!tone_period_init[0])
-                tone_period_init[0] = 4096;
             break;
         case AY_CHNL_B_COARSE:
         case AY_CHNL_B_FINE:
             tone_period_init[1] = TONE_PERIOD(1);
-            if(!tone_period_init[1])
-                tone_period_init[1] = 4096;
             break;
         case AY_CHNL_C_COARSE:
         case AY_CHNL_C_FINE:
             tone_period_init[2] = TONE_PERIOD(2);
-            if(!tone_period_init[2])
-                tone_period_init[2] = 4096;
             break;
         case AY_NOISE_PERIOD:
             noise_period_init = NOISE_PERIOD * 2;
@@ -518,7 +530,6 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
                 s1 = (CHNL_ENVELOPE(1) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(1) * 2]) * volume[1];
             if((chnl_trigger[2] | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)) & !chnl_mute[2])
                 s2 = (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2) * 2]) * volume[2];
-            s1 /= 1.50;
 
             if(songinfo->is_ts)
             {
@@ -529,8 +540,8 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
                 s2 = (s2 + s5) / 2;
             }
 
-            ay_temp_buffer_in[i] = s0 + s1;
-            ay_temp_buffer_in[i + 1] = s2 + s1;
+            ay_temp_buffer_in[i] = s0 * a_left + s1 * b_left + s2 * c_left;
+            ay_temp_buffer_in[i + 1] = s0 * a_right + s1 * b_right + s2 * c_right;
             if(songinfo->stopping)
                 break;
             flt.Process2(ay_temp_buffer_in [i], ay_temp_buffer_in [i + 1]);

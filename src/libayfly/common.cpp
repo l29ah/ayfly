@@ -55,6 +55,7 @@ AYSongInfo *ay_sys_getnewinfo()
     info->int_counter = 0;
     info->int_limit = 0;
     info->is_ts = false;
+    info->mix_levels_nr = 0;
     for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
     {
         info->ay8910[i].SetParameters(info);
