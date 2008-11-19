@@ -45,6 +45,16 @@ enum
     AY_GPIO_B
 };
 
+struct init_mix_levels
+{
+    float a_left;
+    float a_right;
+    float b_left;
+    float b_right;
+    float c_left;
+    float c_right;
+};
+
 class ay
 {
 public:
@@ -120,6 +130,9 @@ private:
     long int_per_z80_counter;
     void ayCommonStep(float &s0, float &s1, float &s2);
     void ayStep(float &s0, float &s1, float &s2);
+    static const init_mix_levels mix_levels [];
+    unsigned long mix_levels_nr;
+    float a_left, a_right, b_left, b_right, c_left, c_right;
 #ifndef __SYMBIAN32__
     Filter3 flt;
     unsigned long flt_state;

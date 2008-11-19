@@ -193,6 +193,7 @@ struct AYSongInfo
     float int_freq; /* interrupts frequency */    
     unsigned long sr; /* sample rate */
     unsigned char chip_type; /* chip type: AY = 0 or YM = 1 */
+    unsigned long mix_levels_nr; /* mix cheme */
     long int_counter;
     long int_limit;
     bool own_player; /* is player ws created during initialization by the library */
