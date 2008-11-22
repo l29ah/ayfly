@@ -43,16 +43,11 @@ private:
     LPDIRECTSOUND8 lpds;
     LPDIRECTSOUNDBUFFER8 pDsb8;
     int buffer_size;
-    HANDLE hNotifyEvent1;
-    HANDLE hNotifyEvent2;
-    HANDLE hSyncEvent;
-    HANDLE hPlayingThread;
     bool dx_created;
     HRESULT CreateBasicBuffer();
-    HRESULT SetNotificationPositions();
     static void CALLBACK TimerProc(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
     void FillBuffer(DWORD dwSoundBytes);
-    void ClearBuffer();
+	void ClearBuffer();
     void DXProcess();
     HWND hWndMain;
     MMRESULT m_nIDTimer;
