@@ -56,6 +56,7 @@ AYSongInfo *ay_sys_getnewinfo()
     info->int_limit = 0;
     info->is_ts = false;
     info->mix_levels_nr = 0;
+    info->ay_oversample = 2;
     for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
     {
         info->ay8910[i].SetParameters(info);
@@ -290,7 +291,7 @@ AYFLY_API void ay_resetsong(void *info)
     ay_sys_initsong(*song);
 
     if(song->init_proc)
-	    song->init_proc(*song);
+        song->init_proc(*song);
 }
 
 AYFLY_API void ay_closesong(void **info)
@@ -557,6 +558,20 @@ bool ay_format_supported(const TFileName filePath)
 #endif
 {
     return ay_sys_format_supported(filePath);
+}
+
+void ay_setoversample(void *info, unsigned long factor)
+{
+    ((AYSongInfo *)info)->ay_oversample = factor;
+    for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
+    {
+        ((AYSongInfo *)info)->ay8910[i].SetParameters((AYSongInfo *)info);
+    }
+}
+
+unsigned long ay_getoversample(void *info)
+{
+    return ((AYSongInfo *)info)->ay_oversample;
 }
 
 #ifdef WINDOWS

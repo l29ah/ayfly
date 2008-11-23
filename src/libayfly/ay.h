@@ -128,7 +128,6 @@ private:
     long int_per_z80;
     long z80_per_sample_counter;
     long int_per_z80_counter;
-    void ayCommonStep(float &s0, float &s1, float &s2);
     void ayStep(float &s0, float &s1, float &s2);
     static const init_mix_levels mix_levels [];
     unsigned long mix_levels_nr;

@@ -201,6 +201,7 @@ struct AYSongInfo
     ay ay8910 [NUMBER_OF_AYS];
     long player_num;
     bool is_ts; /* 2xay - turbo sound */
+    unsigned long ay_oversample; /* higher - better, default = 2 */
     ~AYSongInfo();
 };
 
@@ -600,6 +601,17 @@ bool ay_format_supported(AY_TXT_TYPE filePath);
 bool ay_format_supported(const TFileName filePath);
 #endif
 
+/* 
+ * Sets oversample factor
+ */
+
+void ay_setoversample(void *info, unsigned long factor);
+
+/*
+ * Gets oversample factor
+ */
+
+unsigned long ay_getoversample(void *info);
 
 /*
  * Sets window handle, used for directx init procedure
