@@ -36,10 +36,11 @@ bool elapsed_callback(void *)
 
 void usage()
 {
-    fwprintf(stderr,L"\tusage: ayfly_converter [-s <metafile>] [ -r <sample_rate>]<input_file> <output_file>\n" );
+    fwprintf(stderr,L"\tusage: ayfly_converter [-s <metafile>] [ -r <sample_rate>] [-os <oversample_factor>] <input_file> <output_file>\n" );
     fwprintf(stderr, L"\t       if <input_file> = - then stdin is used.\n");
     fwprintf(stderr, L"\t       if <output_file> = - then stdout is used.\n");
     fwprintf(stderr, L"\t       default sample rate = 44100 Hz\n");
+    fwprintf(stderr, L"\t       default oversample factor = 2 Hz\n");
 
 }
 
@@ -60,6 +61,7 @@ int main(int argc, char **argv)
     FILE *metafile = 0;
     bool is_stdout = false;
     unsigned long sample_rate = 44100;
+    unsigned long oversample = 2;
 
     int k;
     for(k = 1; k < argc; k++)
@@ -84,10 +86,20 @@ int main(int argc, char **argv)
             sample_rate = atol(argv [k + 1]);
             k++;
         }
+        else if(!strcmp(argv [k], "-os"))
+        {
+            if(k + 1 >= argc)
+            {
+                usage();
+                exit(1);
+            }
+            oversample = atol(argv [k + 1]);
+            k++;
+        }
         else
-            break;
+        break;
     }
-    
+
     if(k + 1 >= argc)
     {
         usage();
@@ -103,7 +115,7 @@ int main(int argc, char **argv)
     {
         fout = fopen(argv [k + 1], "wb");
     }
-    
+
     if(fout == 0)
     {
         fwprintf(stderr, L"Can't open output file!\n");
@@ -169,6 +181,8 @@ int main(int argc, char **argv)
         fclose(metafile);
 
     }
+    
+    ay_setoversample(song, oversample);
 
     ay_setelapsedcallback(song, elapsed_callback, 0);
     unsigned char buffer [8192];
