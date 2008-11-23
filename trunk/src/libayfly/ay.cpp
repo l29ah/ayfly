@@ -21,6 +21,7 @@
 #include "ayfly.h"
 
 #define TACTS_MULT (float)800
+#define AY_OVERSAMPLE 2
 
 const float ay::init_levels_ay[] =
 { 0, 836, 1212, 1773, 2619, 3875, 5397, 8823, 10392, 16706, 23339, 29292, 36969, 46421, 55195, 65535 };
@@ -71,8 +72,8 @@ void ay::SetParameters(AYSongInfo *_songinfo)
     if(songinfo->sr == 0 || songinfo->int_freq == 0)
         return;
 #ifndef __SYMBIAN32__
-    ay_tacts_f = ((double)songinfo->ay_freq) / (double)songinfo->sr / (double)8;
-    flt_state_limit = ((double)songinfo->ay_freq * TACTS_MULT) / (double)songinfo->sr / (double)8;
+    ay_tacts_f = ((double)songinfo->ay_freq * AY_OVERSAMPLE) / (double)songinfo->sr / (double)8;
+    flt_state_limit = ((double)songinfo->ay_freq * TACTS_MULT * AY_OVERSAMPLE) / (double)songinfo->sr / (double)8;
 #else
     ay_tacts_f = ((double)songinfo->ay_freq * TACTS_MULT) / (double)songinfo->sr / (double)8;
 #endif
@@ -108,7 +109,7 @@ void ay::SetParameters(AYSongInfo *_songinfo)
 	flt_state = flt_state_limit + TACTS_MULT;
     src_remaining = 0;
     FilterOpts fopts;
-    fopts.Fs = songinfo->ay_freq / 8;
+    fopts.Fs = songinfo->ay_freq * AY_OVERSAMPLE / 8;
     fopts.f0 = (float)songinfo->sr / (float)4;
     fopts.Q = 1;
     fopts.type = LPF;
@@ -167,18 +168,18 @@ void ay::ayWrite(unsigned char reg, unsigned char val)
     {
         case AY_CHNL_A_COARSE:
         case AY_CHNL_A_FINE:
-            tone_period_init[0] = TONE_PERIOD(0);
+            tone_period_init[0] = TONE_PERIOD(0) * AY_OVERSAMPLE;
             break;
         case AY_CHNL_B_COARSE:
         case AY_CHNL_B_FINE:
-            tone_period_init[1] = TONE_PERIOD(1);
+            tone_period_init[1] = TONE_PERIOD(1) * AY_OVERSAMPLE;
             break;
         case AY_CHNL_C_COARSE:
         case AY_CHNL_C_FINE:
-            tone_period_init[2] = TONE_PERIOD(2);
+            tone_period_init[2] = TONE_PERIOD(2) * AY_OVERSAMPLE;
             break;
         case AY_NOISE_PERIOD:
-            noise_period_init = NOISE_PERIOD * 2;
+            noise_period_init = NOISE_PERIOD * 2 * AY_OVERSAMPLE;
             break;
         case AY_MIXER:
             break;
@@ -191,7 +192,7 @@ void ay::ayWrite(unsigned char reg, unsigned char val)
             break;
         case AY_ENV_FINE:
         case AY_ENV_COARSE:
-            env_period_init = ENVELOPE_PERIOD;
+            env_period_init = ENVELOPE_PERIOD * AY_OVERSAMPLE;
             break;
         default:
             break;
