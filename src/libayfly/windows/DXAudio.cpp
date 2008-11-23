@@ -21,7 +21,7 @@
 #include "ayfly.h"
 
 const UINT DefBufferLength      = 200;
-const UINT DefBufferServiceInterval  = (DefBufferLength / 8);
+const UINT DefBufferServiceInterval  = (DefBufferLength / 4);
 
 DXAudio::DXAudio(AYSongInfo *info) :
 AbstractAudio(info)
