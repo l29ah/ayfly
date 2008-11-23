@@ -141,6 +141,7 @@ typedef void (*PLAYER_INIT_PROC)(AYSongInfo &info);
 typedef void (*PLAYER_PLAY_PROC)(AYSongInfo &info);
 typedef void (*PLAYER_CLEANUP_PROC)(AYSongInfo &info);
 typedef bool (*PLAYER_DETECT_PROC)(unsigned char *module, unsigned long length);
+typedef void (*EMPTY_CALLBACK)(void *song);
 
 #include "ayflyString.h"
 #include "Filter3.h"
@@ -202,6 +203,8 @@ struct AYSongInfo
     long player_num;
     bool is_ts; /* 2xay - turbo sound */
     unsigned long ay_oversample; /* higher - better, default = 2 */
+	bool empty_song; /* true, if empty song */
+	EMPTY_CALLBACK empty_callback;
     ~AYSongInfo();
 };
 
@@ -612,6 +615,12 @@ void ay_setoversample(void *info, unsigned long factor);
  */
 
 unsigned long ay_getoversample(void *info);
+
+/*
+* Init empty song (for use in trackers)
+*/
+
+void *ay_initemptysong(unsigned long sr, EMPTY_CALLBACK callback);
 
 /*
  * Sets window handle, used for directx init procedure
