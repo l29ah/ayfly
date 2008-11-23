@@ -57,6 +57,8 @@ AYSongInfo *ay_sys_getnewinfo()
     info->is_ts = false;
     info->mix_levels_nr = 0;
     info->ay_oversample = 2;
+	info->empty_song = false;
+	info->empty_callback = 0;
     for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
     {
         info->ay8910[i].SetParameters(info);
@@ -572,6 +574,22 @@ void ay_setoversample(void *info, unsigned long factor)
 unsigned long ay_getoversample(void *info)
 {
     return ((AYSongInfo *)info)->ay_oversample;
+}
+
+
+void *ay_initemptysong(unsigned long sr, EMPTY_CALLBACK callback)
+{
+	AYSongInfo *info = ay_sys_getnewinfo();
+	if(!info)
+		return 0;
+	info->empty_song = true;
+	info->sr = sr;
+	info->empty_callback = callback;
+	for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
+    {
+        info->ay8910[i].SetParameters(info);
+    }
+	return info;
 }
 
 #ifdef WINDOWS
