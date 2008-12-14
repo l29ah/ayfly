@@ -83,6 +83,6 @@ fi
 CFLAGS="$CFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1 -DUNICODE=1 -D_UNICODE=1"
 CXXFLAGS="$CXXFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1 -DUNICODE=1 -D_UNICODE=1"
 
-AC_CONFIG_FILES([Makefile src/Makefile src/gui/Makefile src/converter/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/gui/Makefile src/converter/Makefile src/dumper/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile])
 AC_OUTPUT
 

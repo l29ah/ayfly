@@ -143,9 +143,13 @@ typedef void (*PLAYER_CLEANUP_PROC)(AYSongInfo &info);
 typedef bool (*PLAYER_DETECT_PROC)(unsigned char *module, unsigned long length);
 typedef void (*EMPTY_CALLBACK)(void *song);
 
+#ifndef __SYMBIAN32__
 #include "ayflyString.h"
 #include "Filter3.h"
 #include "ay.h"
+#else
+#include "ay_s60.h"
+#endif
 #include "AbstractAudio.h"
 
 #define NUMBER_OF_AYS 2

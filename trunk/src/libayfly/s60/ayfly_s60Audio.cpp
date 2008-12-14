@@ -104,11 +104,6 @@ void Cayfly_s60Sound::MaoscOpenComplete(TInt aError)
         ay_rendersongbuffer(songinfo, iBuffer1, MIX_BUFFER_LENGTH);
         ay_rendersongbuffer(songinfo, iBuffer2, MIX_BUFFER_LENGTH);
     }
-    else
-    {
-        songinfo->ay8910 [0].ayProcessMono(iBuffer1, MIX_BUFFER_LENGTH);
-        songinfo->ay8910 [0].ayProcessMono(iBuffer2, MIX_BUFFER_LENGTH);
-    }
     
     if(iVolume < 0)
         iVolume = 0;
