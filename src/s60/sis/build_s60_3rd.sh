@@ -1,5 +1,5 @@
 #/bin/sh
-export EPOCROOT=/home/andrew/symbian-sdks/s60_32/
+export EPOCROOT=/home/ander/symbian-sdks/s60_32/
 cd ../group_s60_3rd
 bldmake bldfiles
 abld build gcce urel

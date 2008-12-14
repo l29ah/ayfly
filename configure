@@ -4461,7 +4461,7 @@ fi
 CFLAGS="$CFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1 -DUNICODE=1 -D_UNICODE=1"
 CXXFLAGS="$CXXFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1 -DUNICODE=1 -D_UNICODE=1"
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/gui/Makefile src/converter/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/gui/Makefile src/converter/Makefile src/dumper/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -5095,6 +5095,7 @@ do
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "src/gui/Makefile") CONFIG_FILES="$CONFIG_FILES src/gui/Makefile" ;;
     "src/converter/Makefile") CONFIG_FILES="$CONFIG_FILES src/converter/Makefile" ;;
+    "src/dumper/Makefile") CONFIG_FILES="$CONFIG_FILES src/dumper/Makefile" ;;
     "src/libayfly/Makefile") CONFIG_FILES="$CONFIG_FILES src/libayfly/Makefile" ;;
     "src/libayfly/z80ex/Makefile") CONFIG_FILES="$CONFIG_FILES src/libayfly/z80ex/Makefile" ;;
     "src/libayfly/unix/Makefile") CONFIG_FILES="$CONFIG_FILES src/libayfly/unix/Makefile" ;;
