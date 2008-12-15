@@ -554,7 +554,7 @@ AYSongInfo::~AYSongInfo()
 }
 
 #ifndef __SYMBIAN32__
-bool ay_format_supported(AY_TXT_TYPE filePath)
+AYFLY_API bool ay_format_supported(AY_TXT_TYPE filePath)
 #else
 bool ay_format_supported(const TFileName filePath)
 #endif
@@ -562,7 +562,7 @@ bool ay_format_supported(const TFileName filePath)
     return ay_sys_format_supported(filePath);
 }
 
-void ay_setoversample(void *info, unsigned long factor)
+AYFLY_API void ay_setoversample(void *info, unsigned long factor)
 {
     ((AYSongInfo *)info)->ay_oversample = factor;
     for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
@@ -571,13 +571,13 @@ void ay_setoversample(void *info, unsigned long factor)
     }
 }
 
-unsigned long ay_getoversample(void *info)
+AYFLY_API unsigned long ay_getoversample(void *info)
 {
     return ((AYSongInfo *)info)->ay_oversample;
 }
 
 
-void *ay_initemptysong(unsigned long sr, EMPTY_CALLBACK callback)
+AYFLY_API void *ay_initemptysong(unsigned long sr, EMPTY_CALLBACK callback)
 {
 	AYSongInfo *info = ay_sys_getnewinfo();
 	if(!info)
@@ -585,6 +585,18 @@ void *ay_initemptysong(unsigned long sr, EMPTY_CALLBACK callback)
 	info->empty_song = true;
 	info->sr = sr;
 	info->empty_callback = callback;
+	#ifndef __SYMBIAN32__
+#ifndef DISABLE_AUDIO
+#ifdef WINDOWS
+        info->player = new DXAudio(info);
+#else
+
+        info->player = new SDLAudio(info);
+#endif
+#endif        
+#else
+        info->player = new Cayfly_s60Audio(info);
+#endif
 	for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
     {
         info->ay8910[i].SetParameters(info);

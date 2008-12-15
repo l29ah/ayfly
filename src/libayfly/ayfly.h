@@ -603,7 +603,7 @@ AYFLY_API void ay_resetay(void *info, unsigned char chip_num = 0);
 
 
 #ifndef __SYMBIAN32__
-bool ay_format_supported(AY_TXT_TYPE filePath);
+AYFLY_API bool ay_format_supported(AY_TXT_TYPE filePath);
 #else
 bool ay_format_supported(const TFileName filePath);
 #endif
@@ -612,19 +612,19 @@ bool ay_format_supported(const TFileName filePath);
  * Sets oversample factor
  */
 
-void ay_setoversample(void *info, unsigned long factor);
+AYFLY_API void ay_setoversample(void *info, unsigned long factor);
 
 /*
  * Gets oversample factor
  */
 
-unsigned long ay_getoversample(void *info);
+AYFLY_API unsigned long ay_getoversample(void *info);
 
 /*
 * Init empty song (for use in trackers)
 */
 
-void *ay_initemptysong(unsigned long sr, EMPTY_CALLBACK callback);
+AYFLY_API void *ay_initemptysong(unsigned long sr, EMPTY_CALLBACK callback);
 
 /*
  * Sets window handle, used for directx init procedure

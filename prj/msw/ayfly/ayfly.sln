@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ayfly_dll", "..\ayfly_dll\a
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ayfly_cmdline", "..\ayfly_cmdline\ayfly_cmdline.vcproj", "{B9741492-C4B9-4081-90CE-F47F50E9A462}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_ay", "..\..\..\..\..\Documents and Settings\Andrew\Мои документы\Visual Studio 2008\Projects\test_ay\test_ay.vcproj", "{36CFA310-CB66-43D1-AE01-FE7F58247125}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -43,6 +45,14 @@ Global
 		{B9741492-C4B9-4081-90CE-F47F50E9A462}.Debug|Win32.Build.0 = Debug|Win32
 		{B9741492-C4B9-4081-90CE-F47F50E9A462}.Release|Win32.ActiveCfg = Release|Win32
 		{B9741492-C4B9-4081-90CE-F47F50E9A462}.Release|Win32.Build.0 = Release|Win32
+		{36CFA310-CB66-43D1-AE01-FE7F58247125}.ANSI Debug|Win32.ActiveCfg = Debug|Win32
+		{36CFA310-CB66-43D1-AE01-FE7F58247125}.ANSI Debug|Win32.Build.0 = Debug|Win32
+		{36CFA310-CB66-43D1-AE01-FE7F58247125}.ANSI Release|Win32.ActiveCfg = Release|Win32
+		{36CFA310-CB66-43D1-AE01-FE7F58247125}.ANSI Release|Win32.Build.0 = Release|Win32
+		{36CFA310-CB66-43D1-AE01-FE7F58247125}.Debug|Win32.ActiveCfg = Debug|Win32
+		{36CFA310-CB66-43D1-AE01-FE7F58247125}.Debug|Win32.Build.0 = Debug|Win32
+		{36CFA310-CB66-43D1-AE01-FE7F58247125}.Release|Win32.ActiveCfg = Release|Win32
+		{36CFA310-CB66-43D1-AE01-FE7F58247125}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
