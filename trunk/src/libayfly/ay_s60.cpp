@@ -267,6 +267,7 @@ inline void ay::updateEnvelope()
 
 inline void ay::ayStep(short &s0, short &s1, short &s2)
 {
+    s0 = s1 = s2 = 0;
     while(ay_tacts_counter < ay_tacts)
     {
         ay_tacts_counter += TACTS_MULT;
@@ -322,26 +323,15 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
         {
             if(songinfo->is_z80)
             {
-                while(z80_per_sample_counter < z80_per_sample)
+                int_counter += TACTS_MULT;
+                if(int_counter > int_limit)
                 {
-                    int tstates = z80ex_step(songinfo->z80ctx) * TACTS_MULT;
-                    z80_per_sample_counter += tstates;
-                    int_per_z80_counter += tstates;
-                    if(int_per_z80_counter > int_per_z80)
+                    do
                     {
-                        tstates = z80ex_int(songinfo->z80ctx) * TACTS_MULT;
-                        z80_per_sample_counter += tstates;
-                        int_per_z80_counter = tstates;
-                        if(++songinfo->timeElapsed >= songinfo->Length)
-                        {
-                            songinfo->timeElapsed = songinfo->Loop;
-                            if(songinfo->e_callback)
-                                songinfo->stopping = songinfo->e_callback(songinfo->e_callback_arg);
-                        }
+                        z80ex_step(info.z80ctx);
                     }
-
+                    while(z80ex_get_reg(info.z80ctx, regPC) != 4);
                 }
-                z80_per_sample_counter -= z80_per_sample;
             }
             else
             {

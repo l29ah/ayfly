@@ -16,8 +16,13 @@ static const unsigned char intnz[] =
 { 0xf3, /* di */
 0xcd, 0, 0, /* call init */
 0xed, 0x56, /* loop: im 1 */
+#ifndef __SYMBIAN32__
 0xfb, /* ei */
 0x76, /* halt */
+#else
+0x00,
+0x00,
+#endif
 0xcd, 0, 0, /* call interrupt */
 0x18, 0xf7 /* jr loop */
 };
