@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib"
+				AdditionalDependencies="winmm.lib dxguid.lib"
 				OutputFile="$(OutDir)\ayfly.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
