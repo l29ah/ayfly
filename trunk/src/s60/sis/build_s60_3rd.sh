@@ -5,5 +5,5 @@ bldmake bldfiles
 abld build gcce urel
 cd ../sis
 makesis ayfly_s60_3rd.pkg
-signsis ayfly_s60_3rd.sis ayfly_s60_3rd_0.0.21.sisx gensign.cer gensign.key
+signsis ayfly_s60_3rd.sis ayfly_s60_3rd_0.0.22.sisx gensign.cer gensign.key
 rm ayfly_s60_3rd.sis
