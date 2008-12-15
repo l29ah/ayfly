@@ -326,11 +326,12 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
                 int_counter += TACTS_MULT;
                 if(int_counter > int_limit)
                 {
+                    int_counter -= int_limit;
                     do
                     {
-                        z80ex_step(info.z80ctx);
+                        z80ex_step(songinfo->z80ctx);
                     }
-                    while(z80ex_get_reg(info.z80ctx, regPC) != 4);
+                    while(z80ex_get_reg(songinfo->z80ctx, regPC) != 4);
                 }
             }
             else

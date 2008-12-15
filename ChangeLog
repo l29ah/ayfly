@@ -1,5 +1,13 @@
 Changelog:
 
+15.12.2008 - 0.0.22
+Added filtering and oversampling to ay synth in pc version
+AY synth moved to integers in symbian versions
+Removed filtering in symbian versions for more efficiency
+Improoved Directx driver stability
+Added ay_dumper programm for converting ay modules to register data
++ a lot of small optimizations 
+
 10.10.2008 - 0.0.21
 Turbo sound support added
 Digital AY support added
