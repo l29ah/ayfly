@@ -332,6 +332,12 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
                         z80ex_step(songinfo->z80ctx);
                     }
                     while(z80ex_get_reg(songinfo->z80ctx, regPC) != 4);
+                    if(++songinfo->timeElapsed >= songinfo->Length)
+                    {
+                        songinfo->timeElapsed = songinfo->Loop;
+                        if(songinfo->e_callback)
+                            songinfo->stopping = songinfo->e_callback(songinfo->e_callback_arg);
+                    }
                 }
             }
             else
