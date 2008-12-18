@@ -33,10 +33,6 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-@ENABLE_AUDIO_TRUE@@IS_WINDOWS_TRUE@am__append_1 = windows
-@ENABLE_AUDIO_TRUE@@IS_WINDOWS_FALSE@am__append_2 = unix
-@ENABLE_AUDIO_TRUE@@IS_WINDOWS_TRUE@am__append_3 = $(top_builddir)/src/libayfly/windows/DXAudio.o
-@ENABLE_AUDIO_TRUE@@IS_WINDOWS_FALSE@am__append_4 = $(top_builddir)/src/libayfly/unix/SDLAudio.o
 subdir = src/libayfly
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -76,7 +72,7 @@ RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = z80ex windows unix
+DIST_SUBDIRS = z80ex unix windows
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -183,17 +179,14 @@ target_os = @target_os@
 target_vendor = @target_vendor@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-INCLUDES = -I$(top_srcdir)/src/libsamplerate-current/src -I$(top_srcdir)/src/libayfly -I$(top_srcdir)/src/libayfly/z80ex -I$(top_srcdir)/src/libayfly/z80ex/include $(SDL_CFLAGS) $(DX_CFLAGS) $(all_includes)
+INCLUDES = -I$(top_srcdir)/src/libayfly -I$(top_srcdir)/src/libayfly/z80ex -I$(top_srcdir)/src/libayfly/z80ex/include $(SDL_CFLAGS) $(DX_CFLAGS) $(all_includes)
 SUBDIRS = z80ex $(EXTRASUBDIRS)
 noinst_LIBRARIES = libayfly.a
 libayfly_a_SOURCES = AbstractAudio.cpp ay.cpp formats.cpp speccy.cpp lha.cpp common.cpp ayflyString.cpp Filter3.cpp
-EXTRASUBDIRS = $(am__append_1) $(am__append_2)
-EXTRALIBS =  \
-	$(top_builddir)/src/libsamplerate-current/src/samplerate.o \
-	$(top_builddir)/src/libsamplerate-current/src/src_linear.o \
-	$(top_builddir)/src/libsamplerate-current/src/src_sinc.o \
-	$(top_builddir)/src/libsamplerate-current/src/src_zoh.o \
-	$(am__append_3) $(am__append_4)
+@ENABLE_AUDIO_TRUE@@IS_WINDOWS_FALSE@EXTRASUBDIRS = unix
+@ENABLE_AUDIO_TRUE@@IS_WINDOWS_TRUE@EXTRASUBDIRS = windows
+@ENABLE_AUDIO_TRUE@@IS_WINDOWS_FALSE@EXTRALIBS = $(top_builddir)/src/libayfly/unix/SDLAudio.o
+@ENABLE_AUDIO_TRUE@@IS_WINDOWS_TRUE@EXTRALIBS = $(top_builddir)/src/libayfly/windows/DXAudio.o
 libayfly_a_LIBADD = $(EXTRALIBS) $(top_builddir)/src/libayfly/z80ex/z80ex.o
 all: all-recursive
 
