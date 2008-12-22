@@ -248,7 +248,7 @@ void STC_GetRegisters(AYSongInfo &info, STC_Channel_Parameters &chan, unsigned c
     }
     if(chan.Sample_Tik_Counter >= 0)
     {
-        i = ((chan.Position_In_Sample - 1) and 0x1f) * 3 + chan.SamplePointer;
+        i = ((chan.Position_In_Sample - 1) & 0x1f) * 3 + chan.SamplePointer;
         if((module[i + 1] & 0x80) != 0)
             TempMixer = TempMixer | 64;
         else
