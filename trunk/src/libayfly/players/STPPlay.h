@@ -97,7 +97,7 @@ void STP_Init(AYSongInfo &info)
     STP_A.Note_Skip_Counter = 0;
     STP_A.Volume = 0;
     STP_A.Ton = 0;
-    
+
     STP_B.Envelope_Enabled = false;
     STP_B.Glissade = 0;
     STP_B.Current_Ton_Sliding = 0;
@@ -106,7 +106,7 @@ void STP_Init(AYSongInfo &info)
     STP_B.Note_Skip_Counter = 0;
     STP_B.Volume = 0;
     STP_B.Ton = 0;
-    
+
     STP_C.Envelope_Enabled = false;
     STP_C.Glissade = 0;
     STP_C.Current_Ton_Sliding = 0;
@@ -156,6 +156,83 @@ void STP_GetInfo(AYSongInfo &info)
         info.Name = ay_sys_getstr(&module[38], 25);
 }
 
+void STP_PatternInterpreter(AYSongInfo &info, STP_Channel_Parameters &chan)
+{
+    unsigned char *module = info.module;
+    STP_File *header = (STP_File *)module;
+    bool quit = false;
+
+    do
+    {
+        unsigned char val = module[Address_In_Pattern];
+        if(val >= 1 && val <= 0x60)
+        {
+            chan.Note = module[Address_In_Pattern] - 1;
+            chan.Position_In_Sample = 0;
+            chan.Position_In_Ornament = 0;
+            chan.Current_Ton_Sliding = 0;
+            chan.Enabled = true;
+            quit = true;
+        }
+        else if(val >= 0x61 && val <= 0x6f)
+        {
+            chan.SamplePointer = ay_sys_getword(&module[STP_SamplesPointer + (module[chan.Address_In_Pattern] - 0x61) * 2]);
+            chan.Loop_Sample_Position = module[chan.SamplePointer];
+            chan.SamplePointer++;
+            chan.Sample_Length = module[chan.SamplePointer];
+            chan.SamplePointer++;
+        }
+        else if(val >= 0x70 && val <= 0x7f)
+        {
+            chan.OrnamentPointer = ay_sys_getword(&module[STP_OrnamentsPointer + (module[chan.Address_In_Pattern] - 0x70) * 2]);
+            chan.Loop_Ornament_Position = module[chan.OrnamentPointer];
+            chan.OrnamentPointer++;
+            chan.Ornament_Length = module[chan.OrnamentPointer];
+            chan.OrnamentPointer++;
+            chan.Envelope_Enabled = false;
+            chan.Glissade = 0;
+        }
+        else if(val >= 0x80 && val <= 0xbf)
+        {
+            chan.Number_Of_Notes_To_Skip = module[chan.Address_In_Pattern] - 0x80;
+        }
+        else if(val >= 0xc0 && val <= 0xcf)
+        {
+            if(module[Address_In_Pattern] != 0xc0)
+            {
+                ay_writeay(&info, AY_ENV_SHAPE, module[Address_In_Pattern] - 0xc0);
+                chan.Address_In_Pattern++;
+                ay_writeay(&info, AY_ENV_FINE, module[Address_In_Pattern]);
+            }
+            chan.Envelope_Enabled = true;
+            chan.Loop_Ornament_Position = 0;
+            chan.Glissade = 0;
+            chan.Ornament_Length = 1;
+        }
+        else if(val >= 0xd0 && val <= 0xdf)
+        {
+            chan.Enabled = false;
+            quit = true;
+        }
+        else if(val >= 0xe0 && val <= 0xef)
+        {
+            quit = true;
+        }
+        else if(val == 0xf0)
+        {
+            chan.Address_In_Pattern++;
+            chan.Glissade = module[Address_In_Pattern];
+        }
+        else if(val >= 0xf1)
+        {
+            chan.Volume = module[Address_In_Pattern] - 0xf1;
+        }
+        chan.Address_In_Pattern++;
+    }
+    while(!quit);
+    chan.Note_Skip_Counter = chan.Number_Of_Notes_To_Skip;
+}
+
 void STP_Play(AYSongInfo &info)
 {
     do
@@ -167,7 +244,11 @@ void STP_Play(AYSongInfo &info)
 
 void STP_Cleanup(AYSongInfo &info)
 {
-    ay_sys_shutdownz80(info);
+    if(info.data)
+    {
+        delete (STP_SongInfo *)info.data;
+        info.data = 0;
+    }
 }
 
 bool STP_Detect(unsigned char *module, unsigned long length)
