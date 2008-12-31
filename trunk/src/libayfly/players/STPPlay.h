@@ -400,11 +400,11 @@ bool STP_Detect(unsigned char *module, unsigned long length)
         }
     }
 
-    for(j1 = 0; j1 < j3; j1++)
+    /*for(j1 = 0; j1 < j3; j1++)
     {
         j = ay_sys_getword(&module[STP_PatternsPointer + j1 * 2]);
         j += j2;
         ay_sys_writeword(&module[STP_PatternsPointer + j1 * 2], j);
-    }
+    }*/
 
 }
