@@ -30,10 +30,10 @@ struct STP_SongInfo
     STP_Channel_Parameters STP_A, STP_B, STP_C;
 };
 
-#define STP_A ((STP_SongInfo *)info.data)->STP_A
-#define STP_B ((STP_SongInfo *)info.data)->STP_B
-#define STP_C ((STP_SongInfo *)info.data)->STP_C
-#define STP ((STP_SongInfo *)info.data)->STP
+#define STP_A (((STP_SongInfo *)info.data)->STP_A)
+#define STP_B (((STP_SongInfo *)info.data)->STP_B)
+#define STP_C (((STP_SongInfo *)info.data)->STP_C)
+#define STP (((STP_SongInfo *)info.data)->STP)
 
 static const char KsaId[] = "KSA SOFTWARE COMPILATION OF ";
 
