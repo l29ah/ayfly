@@ -20,7 +20,7 @@
 
 #include "ayfly.h"
 
-#define TACTS_MULT (float)800
+#define TACTS_MULT (unsigned long)800
 
 const float ay::init_levels_ay[] =
 { 0, 836, 1212, 1773, 2619, 3875, 5397, 8823, 10392, 16706, 23339, 29292, 36969, 46421, 55195, 65535 };
