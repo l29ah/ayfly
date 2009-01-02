@@ -100,7 +100,10 @@ public:
     void SetParameters(AYSongInfo *_songinfo = 0);
 private:
     static const unsigned short init_levels_ay[32];
-    short levels_ay[16];
+    static const unsigned short init_levels_ym[32];
+    short levels_ay[32];
+    short levels_ym[32];
+    short *levels;
     unsigned char regs[16];
     long noise_period;
     long chnl_period0, chnl_period1, chnl_period2;
@@ -129,8 +132,6 @@ private:
     long int_per_z80;
     long z80_per_sample_counter;
     long int_per_z80_counter;
-    unsigned char reg_mixer;
-    unsigned char a_vol, b_vol, c_vol;
     void ayStep(short &s0, short &s1, short &s2);
 };
 
