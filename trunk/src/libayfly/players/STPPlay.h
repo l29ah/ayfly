@@ -14,9 +14,9 @@ struct STP_Channel_Parameters
 {
     unsigned short OrnamentPointer, SamplePointer, Address_In_Pattern, Ton;
     unsigned char Position_In_Ornament, Loop_Ornament_Position, Ornament_Length, Position_In_Sample, Loop_Sample_Position, Sample_Length, Volume, Number_Of_Notes_To_Skip, Note, Amplitude;
-    short Current_Ton_Sliding;
+    signed short Current_Ton_Sliding;
     bool Envelope_Enabled, Enabled;
-    char Glissade, Note_Skip_Counter;
+    signed char Glissade, Note_Skip_Counter;
 };
 
 struct STP_Parameters
