@@ -15,7 +15,7 @@ struct STC_Channel_Parameters
 {
     unsigned short Address_In_Pattern, SamplePointer, OrnamentPointer, Ton;
     unsigned char Amplitude, Note, Position_In_Sample, Number_Of_Notes_To_Skip;
-    char Sample_Tik_Counter, Note_Skip_Counter;
+    signed char Sample_Tik_Counter, Note_Skip_Counter;
     bool Envelope_Enabled;
 };
 
@@ -100,10 +100,10 @@ void STC_GetInfo(AYSongInfo &info)
     unsigned char *module = info.file_data;
     STC_File *header = (STC_File *)module;
     unsigned long tm = 0;
-    long j, j1, j2, i;
+    signed long j, j1, j2, i;
     unsigned char stDelay = module[0];
-    unsigned short stPosPt = *(unsigned short *)&module[1];
-    unsigned short stPatPt = *(unsigned short *)&module[5];
+    unsigned short stPosPt = ay_sys_getword(&module[1]);
+    unsigned short stPatPt = ay_sys_getword(&module[5]);
     unsigned char a;
 
     j = -1;
