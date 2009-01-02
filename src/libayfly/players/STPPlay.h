@@ -226,7 +226,7 @@ void STP_PatternInterpreter(AYSongInfo &info, STP_Channel_Parameters &chan)
             chan.Address_In_Pattern++;
             chan.Glissade = module[chan.Address_In_Pattern];
         }
-        else if(val >= 0xf1)
+        else if(val >= 0xf1 && val <= 0xff)
         {
             chan.Volume = val - 0xf1;
         }
@@ -304,11 +304,11 @@ void STP_Play(AYSongInfo &info)
             }
             STP_PatternInterpreter(info, STP_A);
         }
-        STC_B.Note_Skip_Counter--;
-        if(STC_B.Note_Skip_Counter < 0)
+        STP_B.Note_Skip_Counter--;
+        if(STP_B.Note_Skip_Counter < 0)
             STP_PatternInterpreter(info, STP_B);
-        STC_C.Note_Skip_Counter--;
-        if(STC_C.Note_Skip_Counter < 0)
+        STP_C.Note_Skip_Counter--;
+        if(STP_C.Note_Skip_Counter < 0)
             STP_PatternInterpreter(info, STP_C);
     }
 

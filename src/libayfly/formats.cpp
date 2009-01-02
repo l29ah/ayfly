@@ -262,15 +262,15 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
 long ay_sys_detect(AYSongInfo &info)
 {
     long player = -1;
-    /*unsigned char *tmp_module = new unsigned char[info.file_len];
+    unsigned char *tmp_module = new unsigned char[info.file_len];
     if(!tmp_module)
         return -1;
-    memcpy(tmp_module, info.file_data, info.file_len);*/
+    memcpy(tmp_module, info.file_data, info.file_len);
     for(player = 0; player < sizeof_array(Players); player++)
     {
         if(Players[player].detect != 0)
         {
-            if(Players[player].detect(info.file_data, info.file_len))
+            if(Players[player].detect(tmp_module, info.file_len))
                 break;
         }
     }
