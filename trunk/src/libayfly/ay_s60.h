@@ -129,6 +129,8 @@ private:
     long int_per_z80;
     long z80_per_sample_counter;
     long int_per_z80_counter;
+    unsigned char reg_mixer;
+    unsigned char a_vol, b_vol, c_vol;
     void ayStep(short &s0, short &s1, short &s2);
 };
 
