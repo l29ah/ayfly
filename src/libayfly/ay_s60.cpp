@@ -37,10 +37,9 @@ const unsigned short ay::init_levels_ym[] =
 
 ay::ay()
 {
-    for(unsigned long i = 0; i < sizeof_array(ay::levels_ay); i++)
+    for(unsigned long i = 0; i < 16; i++)
     {
-        ay::levels_ay[i] = (ay::init_levels_ay[i / 2]) / 6;
-        ay::levels_ym[i] = (ay::init_levels_ym[i]) / 6;
+        levels_ay[i] = (ay::init_levels_ay[i]) / 6;
     }
     songinfo = 0;
     ayReset();
@@ -62,7 +61,6 @@ void ay::SetParameters(AYSongInfo *_songinfo)
     ay_tacts = ay_tacts_f;
     if((ay_tacts_f - ay_tacts) >= 0.5)
         ay_tacts++;
-    levels = songinfo->chip_type == 0 ? ay::levels_ay : ay::levels_ym;
     float int_limit_f = ((float)songinfo->sr * TACTS_MULT) / (float)songinfo->int_freq;
     int_limit = int_limit_f;
     if(int_limit_f - int_limit >= 0.5)
@@ -303,11 +301,11 @@ inline void ay::ayStep(short &s0, short &s1, short &s2)
     ay_tacts_counter -= ay_tacts;
 
     if((chnl_trigger0 | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)))
-        s0 = (CHNL_ENVELOPE(0) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(0) * 2]);
+        s0 = (CHNL_ENVELOPE(0) ? levels_ay[env_vol] : levels_ay[CHNL_VOLUME(0)]);
     if((chnl_trigger1 | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)))
-        s1 = (CHNL_ENVELOPE(1) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(1) * 2]);
+        s1 = (CHNL_ENVELOPE(1) ? levels_ay[env_vol] : levels_ay[CHNL_VOLUME(1)]);
     if((chnl_trigger2 | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)))
-        s2 = (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2) * 2]);
+        s2 = (CHNL_ENVELOPE(2) ? levels_ay[env_vol] : levels_ay[CHNL_VOLUME(2)]);
     s1 = s1 / 2;
 }
 
@@ -378,17 +376,16 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
                     noise_reg >>= 1;
                 }
                 updateEnvelope();
-
             }
 
             ay_tacts_counter -= ay_tacts;
 
             if((chnl_trigger0 | TONE_ENABLE(0)) & (noise_trigger | NOISE_ENABLE(0)))
-                s0 = (CHNL_ENVELOPE(0) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(0) * 2]);
+                s0 = (CHNL_ENVELOPE(0) ? levels_ay[env_vol] : levels_ay[CHNL_VOLUME(0)]);
             if((chnl_trigger1 | TONE_ENABLE(1)) & (noise_trigger | NOISE_ENABLE(1)))
-                s1 = (CHNL_ENVELOPE(1) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(1) * 2]);
+                s1 = (CHNL_ENVELOPE(1) ? levels_ay[env_vol] : levels_ay[CHNL_VOLUME(1)]);
             if((chnl_trigger2 | TONE_ENABLE(2)) & (noise_trigger | NOISE_ENABLE(2)))
-                s2 = (CHNL_ENVELOPE(2) ? ay::levels[env_vol] : ay::levels[CHNL_VOLUME(2) * 2]);
+                s2 = (CHNL_ENVELOPE(2) ? levels_ay[env_vol] : levels_ay[CHNL_VOLUME(2)]);
             s1 = s1 / 2;
 
             if(songinfo->is_ts)

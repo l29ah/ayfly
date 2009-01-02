@@ -100,10 +100,7 @@ public:
     void SetParameters(AYSongInfo *_songinfo = 0);
 private:
     static const unsigned short init_levels_ay[32];
-    static const unsigned short init_levels_ym[32];
-    short levels_ay[32];
-    short levels_ym[32];
-    short *levels;
+    short levels_ay[16];
     unsigned char regs[16];
     long noise_period;
     long chnl_period0, chnl_period1, chnl_period2;
