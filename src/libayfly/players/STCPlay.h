@@ -119,9 +119,9 @@ void STC_GetInfo(AYSongInfo &info)
             j1 = stPatPt + 7 * i;
         }
         while(module[j1] != j2);
-        j1 = *(unsigned short *)&module[j1 + 1];
+        j1 = ay_sys_getword(&module[j1 + 1]);
         a = 1;
-        while(*(unsigned char *)&module[j1] != 255)
+        while(module[j1] != 255)
         {
             unsigned char val = module[j1];
             if((val <= 0x5f) || (val == 0x80) || (val == 0x81))
