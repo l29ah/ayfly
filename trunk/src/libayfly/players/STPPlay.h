@@ -127,17 +127,17 @@ void STP_GetInfo(AYSongInfo &info)
     unsigned char a = 1;
     unsigned long i, j1;
     unsigned char stDelay = module[0];
-    unsigned short stPosPt = *(unsigned short *)&module[1];
-    unsigned long stPatPt = *(unsigned short *)&module[3];
+    unsigned short stPosPt = ay_sys_getword(&module[1]);
+    unsigned long stPatPt = ay_sys_getword(&module[3]);
 
-    for(i = 0; i < (unsigned char)module[stPosPt]; i++)
+    for(i = 0; i < module[stPosPt]; i++)
     {
         if(i == module[stPosPt + 1])
             info.Loop = tm * stDelay;
-        j1 = *(unsigned short *)&module[stPatPt + module[stPosPt + 2 + i * 2]];
-        while(*(unsigned char *)&module[j1] != 0)
+        j1 = ay_sys_getword(&module[stPatPt + module[stPosPt + 2 + i * 2]]);
+        while(module[j1] != 0)
         {
-            unsigned char val = *(unsigned char *)&module[j1];
+            unsigned char val = module[j1];
             if((val >= 1 && val <= 0x60) || (val >= 0xd0 && val <= 0xef))
             {
                 tm += a;
