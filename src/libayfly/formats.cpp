@@ -94,6 +94,7 @@ void ay_sys_initz80module(AYSongInfo &info, unsigned long player_base, const uns
 
 #include "players/AYPlay.h"
 #include "players/ASCPlay.h"
+#include "players/PT1Play.h"
 #include "players/PT2Play.h"
 #include "players/PT3Play.h"
 #include "players/STCPlay.h"
@@ -101,7 +102,6 @@ void ay_sys_initz80module(AYSongInfo &info, unsigned long player_base, const uns
 #include "players/PSCPlay.h"
 #include "players/SQTPlay.h"
 #include "players/PSGPlay.h"
-#include "players/PT1Play.h"
 #include "players/VTXPlay.h"
 
 typedef void (*GETINFO_CALLBACK)(AYSongInfo &info);
