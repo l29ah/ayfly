@@ -86,7 +86,7 @@ void PT2_Init(AYSongInfo &info)
     PT2_A.Note_Skip_Counter = 0;
     PT2_A.Volume = 15;
     PT2_A.Ton = 0;
-    
+
     PT2_B.OrnamentPointer = PT2_A.OrnamentPointer;
     PT2_B.Loop_Ornament_Position = PT2_A.Loop_Ornament_Position;
     PT2_B.Ornament_Length = PT2_A.Ornament_Length;
@@ -102,7 +102,7 @@ void PT2_Init(AYSongInfo &info)
     PT2_B.Note_Skip_Counter = 0;
     PT2_B.Volume = 15;
     PT2_B.Ton = 0;
-    
+
     PT2_C.OrnamentPointer = PT2_A.OrnamentPointer;
     PT2_C.Loop_Ornament_Position = PT2_A.Loop_Ornament_Position;
     PT2_C.Ornament_Length = PT2_A.Ornament_Length;
@@ -118,9 +118,9 @@ void PT2_Init(AYSongInfo &info)
     PT2_C.Note_Skip_Counter = 0;
     PT2_C.Volume = 15;
     PT2_C.Ton = 0;
-    
+
     ay_resetay(&info, 0);
-    
+
 }
 
 void PT2_GetInfo(AYSongInfo &info)
@@ -274,7 +274,7 @@ void PT2_GetInfo(AYSongInfo &info)
 
 void PT2_Play(AYSongInfo &info)
 {
-    
+
 }
 
 void PT2_PatternInterpreter(AYSongInfo &info, PT2_Channel_Parameters &chan)
@@ -387,6 +387,55 @@ void PT2_PatternInterpreter(AYSongInfo &info, PT2_Channel_Parameters &chan)
             chan.Glissade = -chan.Glissade;
     }
     chan.Note_Skip_Counter = chan.Number_Of_Notes_To_Skip;
+}
+
+void PT2_GetRegisters(AYSongInfo &info, PT2_Channel_Parameters &chan, unsigned char &TempMixer)
+{
+    unsigned char j, b0, b1;
+    unsigned char *module = info.module;
+    PT2_File *header = (PT2_File *)module;
+    if(chan.Enabled)
+    {
+        b0 = module[chan.SamplePointer + chan.Position_In_Sample * 3];
+        b1 = module[chan.SamplePointer + chan.Position_In_Sample * 3 + 1];
+        chan.Ton = module[chan.SamplePointer + chan.Position_In_Sample * 3 + 2] + (unsigned short)((b1 & 15) << 8);
+        if((b0 & 4) == 0)
+            Ton = -Ton;
+        j = chan.Note + module[chan.OrnamentPointer + chan.Position_In_Ornament];
+        if(j > 95)
+            j = 95;
+        chan.Ton = (chan.Ton + chan.Current_Ton_Sliding + PT2_Table[j]) & 0xfff;
+        if(chan.GlissType == 2)
+        {
+            chan.Ton_Delta = chan.Ton_Delta - abs(chan.Glissade);
+            if(chan.Ton_Delta < 0)
+            {
+                chan.Note = chan.Slide_To_Note;
+                chan.GlissType = 0;
+                chan.Current_Ton_Sliding = 0;
+            }
+        }
+        if(chan.GlissType != 0)
+            chan.Current_Ton_Sliding += Glissade;
+        chan.Amplitude = round((chan.Volume * 17 + (unsigned char)(chan.Volume > 7)) * (b1 >> 4) / 256);
+        if(chan.Envelope_Enabled)
+            chan.Amplitude = chan.Amplitude | 16;
+        if((module[chan.SamplePointer + chan.Position_In_Sample * 3] & 1) != 0)
+            TempMixer = TempMixer | 64;
+        else
+            ay_writeay(&info, AY_NOISE_PERIOD, ((b0 >> 3) + chan.Addition_To_Noise) & 31);
+        if((b0 & 2) != 0)
+            TempMixer = TempMixer | 8;
+        chan.Position_In_Sample++;
+        if(chan.Position_In_Sample == chan.Sample_Length)
+            chan.Position_In_Sample = chan.Loop_Sample_Position;
+        chan.Position_In_Ornament++;
+        if(chan.Position_In_Ornament == chan.Ornament_Length)
+            chan.Position_In_Ornament = chan.Loop_Ornament_Position;
+    }
+    else
+        chan.Amplitude = 0;
+    TempMixer = TempMixer >> 1;
 }
 
 void PT2_Cleanup(AYSongInfo &info)
