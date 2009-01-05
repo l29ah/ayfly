@@ -61,6 +61,7 @@
 #    ifndef __SYMBIAN32__
 #    include <wchar.h>
 #    include <ctype.h>
+#    include <math.h>
 #    else
 #ifdef EKA2
 #    include <e32cmn.h>

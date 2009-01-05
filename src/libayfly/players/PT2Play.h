@@ -45,6 +45,8 @@ struct PT2_SongInfo
 #define PT2_PositionList(x) (header->PT2_PositionList [(x)])
 #define PT2_PatternsPointer (header->PT2_PatternsPointer0 | (header->PT2_PatternsPointer1 << 8))
 #define PT2_Delay (header->PT2_Delay)
+#define PT2_NumberOfPositions (header->PT2_NumberOfPositions)
+#define PT2_LoopPosition (header->PT2_LoopPosition)
 
 void PT2_Init(AYSongInfo &info)
 {
@@ -81,7 +83,7 @@ void PT2_Init(AYSongInfo &info)
     PT2_A.Glissade = 0;
     PT2_A.Current_Ton_Sliding=0;
     PT2_A.GlissType = 0;
-    PT2_A.Enabled = False;
+    PT2_A.Enabled = false;
     PT2_A.Number_Of_Notes_To_Skip = 0;
     PT2_A.Note_Skip_Counter = 0;
     PT2_A.Volume = 15;
@@ -272,15 +274,10 @@ void PT2_GetInfo(AYSongInfo &info)
     info.Name = ay_sys_getstr(ptr, 30);
 }
 
-void PT2_Play(AYSongInfo &info)
-{
-
-}
-
 void PT2_PatternInterpreter(AYSongInfo &info, PT2_Channel_Parameters &chan)
 {
     unsigned char *module = info.module;
-    PT2_File *header = (STC_File *)module;
+    PT2_File *header = (PT2_File *)module;
     bool quit, gliss;
     quit = false;
     gliss = false;
@@ -330,15 +327,15 @@ void PT2_PatternInterpreter(AYSongInfo &info, PT2_Channel_Parameters &chan)
             chan.Envelope_Enabled = true;
             ay_writeay(&info, AY_ENV_SHAPE, val - 0x70);
             chan.Address_In_Pattern++;
-            ay_writeay(&info, AY_ENV_FINE, module[Address_In_Pattern]);
+            ay_writeay(&info, AY_ENV_FINE, module[chan.Address_In_Pattern]);
             chan.Address_In_Pattern++;
-            ay_writeay(&info, AY_ENV_COARSE, module[Address_In_Pattern]);
+            ay_writeay(&info, AY_ENV_COARSE, module[chan.Address_In_Pattern]);
         }
         else if(val == 0x70)
             quit = true;
         else if(val >= 0x60 && val <= 0x6f)
         {
-            chan.OrnamentPointer = PT2_OrnamentsPointers[val - 0x60];
+            chan.OrnamentPointer = PT2_OrnamentsPointers(val - 0x60);
             chan.Ornament_Length = module[chan.OrnamentPointer];
             chan.OrnamentPointer++;
             chan.Loop_Ornament_Position = module[chan.OrnamentPointer];
@@ -348,11 +345,11 @@ void PT2_PatternInterpreter(AYSongInfo &info, PT2_Channel_Parameters &chan)
         else if(val >= 0x20 && val <= 0x5f)
             chan.Number_Of_Notes_To_Skip = val - 0x20;
         else if(val >= 0x10 && val <= 0x1f)
-            Volume = val - 0x10;
+            chan.Volume = val - 0x10;
         else if(val == 0xf)
         {
             chan.Address_In_Pattern++;
-            PT2_Delay = module[Address_In_Pattern];
+            PT2_Delay = module[chan.Address_In_Pattern];
         }
         else if(val == 0xe)
         {
@@ -364,7 +361,7 @@ void PT2_PatternInterpreter(AYSongInfo &info, PT2_Channel_Parameters &chan)
         else if(val == 0xd)
         {
             chan.Address_In_Pattern++;
-            chan.Glissade = abs((signed char)(module[Address_In_Pattern]));
+            chan.Glissade = abs((signed char)(module[chan.Address_In_Pattern]));
             chan.Address_In_Pattern += 2; //Not use precalculated Ton_Delta
             //to avoide error with first note of pattern
             chan.GlissType = 2;
@@ -400,7 +397,7 @@ void PT2_GetRegisters(AYSongInfo &info, PT2_Channel_Parameters &chan, unsigned c
         b1 = module[chan.SamplePointer + chan.Position_In_Sample * 3 + 1];
         chan.Ton = module[chan.SamplePointer + chan.Position_In_Sample * 3 + 2] + (unsigned short)((b1 & 15) << 8);
         if((b0 & 4) == 0)
-            Ton = -Ton;
+            chan.Ton = -chan.Ton;
         j = chan.Note + module[chan.OrnamentPointer + chan.Position_In_Ornament];
         if(j > 95)
             j = 95;
@@ -416,7 +413,7 @@ void PT2_GetRegisters(AYSongInfo &info, PT2_Channel_Parameters &chan, unsigned c
             }
         }
         if(chan.GlissType != 0)
-            chan.Current_Ton_Sliding += Glissade;
+            chan.Current_Ton_Sliding += chan.Glissade;
         chan.Amplitude = round((chan.Volume * 17 + (unsigned char)(chan.Volume > 7)) * (b1 >> 4) / 256);
         if(chan.Envelope_Enabled)
             chan.Amplitude = chan.Amplitude | 16;
@@ -436,6 +433,56 @@ void PT2_GetRegisters(AYSongInfo &info, PT2_Channel_Parameters &chan, unsigned c
     else
         chan.Amplitude = 0;
     TempMixer = TempMixer >> 1;
+}
+
+void PT2_Play(AYSongInfo &info)
+{
+    unsigned char TempMixer;
+    unsigned char *module = info.module;
+    PT2_File *header = (PT2_File *)module;
+    PT2.DelayCounter--;
+    if(PT2.DelayCounter == 0)
+    {
+        PT2_A.Note_Skip_Counter--;
+        if(PT2_A.Note_Skip_Counter < 0)
+        {
+            if(module[PT2_A.Address_In_Pattern] == 0)
+            {
+                PT2.CurrentPosition++;
+                if(PT2.CurrentPosition == PT2_NumberOfPositions)
+                    PT2.CurrentPosition = PT2_LoopPosition;
+                PT2_A.Address_In_Pattern = ay_sys_getword(&module[PT2_PatternsPointer+ PT2_PositionList(PT2.CurrentPosition) * 6]);
+                PT2_B.Address_In_Pattern = ay_sys_getword(&module[PT2_PatternsPointer + PT2_PositionList(PT2.CurrentPosition) * 6 + 2]);
+                PT2_C.Address_In_Pattern = ay_sys_getword(&module[PT2_PatternsPointer + PT2_PositionList(PT2.CurrentPosition) * 6 + 4]);
+            }
+            PT2_PatternInterpreter(info, PT2_A);
+        }
+        PT2_B.Note_Skip_Counter--;
+        if(PT2_B.Note_Skip_Counter < 0)
+        PT2_PatternInterpreter(info, PT2_B);
+        PT2_C.Note_Skip_Counter--;
+        if(PT2_C.Note_Skip_Counter < 0)
+        PT2_PatternInterpreter(info, PT2_C);
+        PT2.DelayCounter = PT2.Delay;
+    }
+
+    TempMixer = 0;
+    PT2_GetRegisters(info, PT2_A, TempMixer);
+    PT2_GetRegisters(info, PT2_B, TempMixer);
+    PT2_GetRegisters(info, PT2_C, TempMixer);
+
+    ay_writeay(&info, AY_MIXER, TempMixer);
+
+    ay_writeay(&info, AY_CHNL_A_FINE, PT2_A.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_A_COARSE, (PT2_A.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_B_FINE, PT2_B.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_B_COARSE, (PT2_B.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_C_FINE, PT2_C.Ton & 0xff);
+    ay_writeay(&info, AY_CHNL_C_COARSE, (PT2_C.Ton >> 8) & 0xf);
+    ay_writeay(&info, AY_CHNL_A_VOL, PT2_A.Amplitude);
+    ay_writeay(&info, AY_CHNL_B_VOL, PT2_B.Amplitude);
+    ay_writeay(&info, AY_CHNL_C_VOL, PT2_C.Amplitude);
+
 }
 
 void PT2_Cleanup(AYSongInfo &info)
@@ -490,7 +537,7 @@ bool PT2_Detect0(unsigned char *module, unsigned long length)
     if(F_Length > length + 1)
         return false;
 
-    header->PT2_NumberOfPositions = j2;
+    PT2_NumberOfPositions = j2;
     return true;
 }
 
@@ -545,7 +592,7 @@ bool PT2_Detect1(unsigned char *module, unsigned long length)
     if(F_Length > length + 1)
         return false;
 
-    header->PT2_NumberOfPositions = j2;
+    PT2_NumberOfPositions = j2;
     for(j = 0; j < 32; j++)
     {
         ay_sys_writeword(&header->PT2_SamplesPointers0[j * 2], PT2_SamplesPointers(j) - j3);
