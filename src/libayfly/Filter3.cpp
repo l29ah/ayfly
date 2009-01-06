@@ -27,6 +27,7 @@
 
 Filter3::Filter3()
 {
+    Fs = f0 = Q = 0;
 }
 
 Filter3::~Filter3()
@@ -36,9 +37,11 @@ Filter3::~Filter3()
 
 void Filter3::Init(const FilterOpts *opts)
 {
-    float Fs = opts->Fs;
-    float f0 = opts->f0;
-    float Q = opts->Q;
+    if(Fs == opts->Fs && f0 == opts->f0 && Q == opts->Q)
+        return;
+    Fs = opts->Fs;
+    f0 = opts->f0;
+    Q = opts->Q;
     float w0 = 2 * PI * f0 / Fs;
 
     in_delay00 = in_delay01 = in_delay10 = in_delay11 = in_delay20 = in_delay21 = 0;

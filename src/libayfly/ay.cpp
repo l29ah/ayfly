@@ -427,9 +427,11 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
             s1 = (s1 + s4) / 2;
             s2 = (s2 + s5) / 2;
         }
+        
+        float beeper = songinfo->beeper;
 
-        float left = s0 * a_left + s1 * b_left + s2 * c_left;
-        float right = s0 * a_right + s1 * b_right + s2 * c_right;
+        float left = s0 * a_left + s1 * b_left + s2 * c_left + beeper;
+        float right = s0 * a_right + s1 * b_right + s2 * c_right + beeper;
         if(songinfo->stopping)
             break;
         flt.Process2(left, right);

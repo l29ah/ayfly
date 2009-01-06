@@ -59,6 +59,9 @@ AYSongInfo *ay_sys_getnewinfo()
     info->ay_oversample = 2;
 	info->empty_song = false;
 	info->empty_callback = 0;
+	info->beeper = 0;
+	info->beeper_old = false;
+	info->beeper_timeElapsed = 0;
     for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
     {
         info->ay8910[i].SetParameters(info);

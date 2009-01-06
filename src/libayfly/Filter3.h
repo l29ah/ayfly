@@ -99,4 +99,7 @@ private:
     float a1_a0, a2_a0;
     float in_delay00, in_delay01, in_delay10, in_delay11, in_delay20, in_delay21;
     float out_delay00, out_delay01, out_delay10, out_delay11, out_delay20, out_delay21;
+    float Fs;;
+    float f0;
+    float Q;
 };
