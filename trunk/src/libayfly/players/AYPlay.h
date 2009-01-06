@@ -63,6 +63,7 @@ void AY_initayfmt(AYSongInfo &info, ayData &aydata, unsigned char track)
 #define GET_WORD(x) (((*(x))<<8)|(*(x+1)))
 
     memset(info.module, 0, info.module_len);
+
     init = GET_WORD(aydata.tracks[track].data_points+2);
     interrupt = GET_WORD(aydata.tracks[track].data_points+4);
     ay_1st_block = GET_WORD(aydata.tracks[track].data_memblocks);

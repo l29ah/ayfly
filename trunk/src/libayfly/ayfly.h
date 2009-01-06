@@ -210,6 +210,13 @@ struct AYSongInfo
     unsigned long ay_oversample; /* higher - better, default = 2 */
 	bool empty_song; /* true, if empty song */
 	EMPTY_CALLBACK empty_callback;
+#ifndef __SYMBIAN32__
+	float beeper;
+#else
+	short beeper;
+#endif
+	bool beeper_old;
+	unsigned long beeper_timeElapsed;
     ~AYSongInfo();
 };
 
