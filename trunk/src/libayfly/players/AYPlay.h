@@ -68,8 +68,13 @@ void AY_initayfmt(AYSongInfo &info, ayData &aydata, unsigned char track)
     interrupt = GET_WORD(aydata.tracks[track].data_points+4);
     ay_1st_block = GET_WORD(aydata.tracks[track].data_memblocks);
 
+    rand();
+    for(unsigned long i = 0x100; i < 0x4000; i++)
+    {
+        info.module [i] = random() % 256;
+    }
     memset(info.module + 0x0000, 0xc9, 0x0100);
-    memset(info.module + 0x0100, 0xff, 0x3f00);
+    //memset(info.module + 0x0100, 0xff, 0x3f00);
     memset(info.module + 0x4000, 0x00, 0xc000);
     info.module[0x38] = 0xfb; /* ei */
 
@@ -176,6 +181,7 @@ void AY_Init(AYSongInfo &info)
             aydata.tracks = 0;
         }
     }
+    ay_resetay(&info);
 }
 
 void AY_Play(AYSongInfo &info)
@@ -203,7 +209,6 @@ void AY_GetInfo(AYSongInfo &info)
         ptr += 2;
         GET_PTR(aydata_loc.author);
         GET_PTR(aydata_loc.misc);
-        //info.Author = (char *)aydata_loc.author;
         aydata_loc.num_tracks = 1 + *ptr++;
         aydata_loc.first_track = *ptr++;
         GET_PTR(ptr2);

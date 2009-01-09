@@ -21,6 +21,7 @@
 #include "ayfly.h"
 
 #define TACTS_MULT (unsigned long)800
+#define VOL_BEEPER (15000)
 
 const float ay::init_levels_ay[] =
 { 0, 836, 1212, 1773, 2619, 3875, 5397, 8823, 10392, 16706, 23339, 29292, 36969, 46421, 55195, 65535 };
@@ -78,6 +79,7 @@ void ay::SetParameters(AYSongInfo *_songinfo)
     int_limit = int_limit_f;
     if(int_limit_f - int_limit >= 0.5)
         int_limit++;
+    frame_size = songinfo->sr / songinfo->int_freq;
     if(songinfo->is_z80)
     {
         float z80_per_sample_f = ((float)songinfo->z80_freq * TACTS_MULT) / songinfo->sr / ay_tacts_f;
@@ -123,12 +125,15 @@ void ay::ayReset()
     chnl_trigger0 = chnl_trigger1 = chnl_trigger2 = 0;
     noise_reg = 0x1;
     noise_trigger = 1;
-    noise_period = 0;
+    noise_period = 1;
 
     volume0 = volume1 = volume2 = 1;
     env_type_old = -1;
     env_step = 0;
     ay_tacts_counter = 0;
+
+    beeper_volume = 0;
+    beeper_oldval = false;
 
     SetParameters(0);
     setEnvelope();
@@ -185,19 +190,23 @@ void ay::setEnvelope()
     switch(env_type)
     {
         case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 9:
             env_step = 0;
             env_vol = 31;
             break;
         case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 15:
             env_step = 1;
             env_vol = 0;
             break;
         case 8:
             env_step = 2;
-            env_vol = 31;
-            break;
-        case 9:
-            env_step = 0;
             env_vol = 31;
             break;
         case 10:
@@ -218,10 +227,6 @@ void ay::setEnvelope()
             break;
         case 14:
             env_step = 7;
-            env_vol = 0;
-            break;
-        case 15:
-            env_step = 1;
             env_vol = 0;
             break;
         default:
@@ -384,7 +389,7 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
 					int_counter -= int_limit;
 					songinfo->empty_callback(songinfo);
 				}
-				
+
 			}
 		}
 
@@ -427,13 +432,13 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
             s1 = (s1 + s4) / 2;
             s2 = (s2 + s5) / 2;
         }
-        
-        float beeper = songinfo->beeper;
 
-        float left = s0 * a_left + s1 * b_left + s2 * c_left + beeper;
-        float right = s0 * a_right + s1 * b_right + s2 * c_right + beeper;
         if(songinfo->stopping)
             break;
+
+        float left = s0 * a_left + s1 * b_left + s2 * c_left + beeper_volume;
+        float right = s0 * a_right + s1 * b_right + s2 * c_right + beeper_volume;
+
         flt.Process2(left, right);
         if(flt_state > flt_state_limit)
         {
@@ -447,3 +452,13 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
     }
     return (i << 1);
 }
+
+void ay::ayBeeper(bool on)
+{
+    if(beeper_oldval == on)
+        return;    
+    beeper_volume = on ? VOL_BEEPER : 0;
+    beeper_oldval = on;
+}
+
+
