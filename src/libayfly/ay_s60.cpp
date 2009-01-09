@@ -21,6 +21,7 @@
 #include "ayfly.h"
 
 #define TACTS_MULT (unsigned long)800
+#define VOL_BEEPER (15000)
 
 const unsigned short ay::init_levels_ay[] =
 { 0, 836, 1212, 1773, 2619, 3875, 5397, 8823, 10392, 16706, 23339, 29292, 36969, 46421, 55195, 65535 };
@@ -103,6 +104,9 @@ void ay::ayReset()
     env_type_old = -1;
     env_step = 0;
     ay_tacts_counter = 0;
+    
+    beeper_volume = 0;
+    beeper_oldval = false;
 
     SetParameters(0);
     setEnvelope();
@@ -402,8 +406,16 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
         }
         else
             return (i << 2);
-        stream16[i * 2] = s1 + s0;
-        stream16[i * 2 + 1] = s1 + s2;
+        stream16[i * 2] = s1 + s0 + beeper_volume;
+        stream16[i * 2 + 1] = s1 + s2 + beeper_volume;
     }
     return len;
+}
+
+void ay::ayBeeper(bool on)
+{
+    if(beeper_oldval == on)
+        return;    
+    beeper_volume = on ? VOL_BEEPER : 0;
+    beeper_oldval = on;
 }

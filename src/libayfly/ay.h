@@ -137,6 +137,7 @@ public:
     ;
 
     void SetParameters(AYSongInfo *_songinfo = 0);
+    void ayBeeper(bool on);
 private:
     static const float init_levels_ay[32];
     static const float init_levels_ym[32];
@@ -172,6 +173,7 @@ private:
     long int_per_z80;
     long z80_per_sample_counter;
     long int_per_z80_counter;
+    unsigned long frame_size;
     void ayStep(float &s0, float &s1, float &s2);
     static const init_mix_levels mix_levels[];
     unsigned long mix_levels_nr;
@@ -182,6 +184,10 @@ private:
     unsigned long src_remaining;
     float ay_temp_buffer_in[AY_TEMP_BUFFER_SIZE];
     float ay_temp_buffer_out[AY_TEMP_BUFFER_SIZE];
+    
+    //beeper stuff
+    float beeper_volume;
+    bool beeper_oldval;
 };
 
 #endif /*AY_H_*/

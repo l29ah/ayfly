@@ -57,21 +57,12 @@ inline void writePort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, Z80EX_BYTE value, voi
 
     AYSongInfo *info = (AYSongInfo *)user_data;
     //unsigned char *io = info->z80IO;
-    if((port & 0xfe) == 0xfe)
+    /*if((port & 0xfe) == 0xfe)
     {
-        bool beeper_new = value & 0x10;
-        if(beeper_new != info->beeper_old)
-        {
-            
-            if(beeper_new)
-                info->beeper = 10000;
-            else
-                info->beeper = 0;
-            
-            info->beeper_old = beeper_new;
-        }
+        info->ay8910 [0].ayBeeper(value & 0x10);
     }
-    else if((port == 0xfffd) || ((port & 0xc000) == 0xc000)) //ay control port
+    
+    if((port == 0xfffd) || ((port & 0xc000) == 0xc000)) //ay control port
     {
         info->ay_reg = value;
     }
@@ -79,6 +70,37 @@ inline void writePort(Z80EX_CONTEXT *cpu, Z80EX_WORD port, Z80EX_BYTE value, voi
     {
         info->ay8910[0].ayWrite(info->ay_reg, value);
         //io[65533] = value;
+    }*/
+    unsigned char l = port & 0xff;
+    unsigned char h = (port >> 8) & 0xff; 
+    
+    switch(l)
+    {
+        case 0xfd:
+            switch(h)
+            {
+                case 0xff:
+                    write_reg: info->ay_reg = value;
+                    break;
+                case 0xbf:
+                    write_dat: info->ay8910[0].ayWrite(info->ay_reg, value);
+                    break;
+                default:
+                    /* ok, since we do at least have low byte=FDh,
+                     * do bitmask for top byte to allow for
+                     * crappy .ay conversions. But don't disable
+                     * CPC autodetect, just in case.
+                     */
+                    if((h & 0xc0) == 0xc0)
+                        goto write_reg;
+                    if((h & 0xc0) == 0x80)
+                        goto write_dat;
+            }
+            break;
+
+        case 0xfe:
+            info->ay8910[0].ayBeeper(value & 0x10);
+            break;
     }
 
 }

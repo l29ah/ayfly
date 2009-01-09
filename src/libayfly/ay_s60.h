@@ -98,6 +98,7 @@ public:
     ;
 
     void SetParameters(AYSongInfo *_songinfo = 0);
+    void ayBeeper(bool on);
 private:
     static const unsigned short init_levels_ay[32];
     static const unsigned short init_levels_ym[32];
@@ -133,6 +134,10 @@ private:
     long z80_per_sample_counter;
     long int_per_z80_counter;
     void ayStep(short &s0, short &s1, short &s2);
+    
+    //beeper stuff
+    short beeper_volume;
+    bool beeper_oldval;
 };
 
 #endif /*AY_H_*/
