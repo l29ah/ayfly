@@ -59,10 +59,10 @@ void AY_initayfmt(AYSongInfo &info, ayData &aydata, unsigned char track)
     ay_1st_block = GET_WORD(aydata.tracks[track].data_memblocks);
 
 #ifndef __SYMBIAN32__
-    rand();
+	srand(time(0));
     for(unsigned long i = 0x100; i < 0x4000; i++)
     {
-        info.module [i] = random() % 256;
+        info.module [i] = rand() % 256;
     }
 #else
     memset(info.module + 0x0100, 0xff, 0x3f00);
