@@ -56,7 +56,7 @@ AYSongInfo *ay_sys_getnewinfo()
     info->int_limit = 0;
     info->is_ts = false;
     info->mix_levels_nr = 0;
-    info->ay_oversample = 2;
+    info->ay_oversample = 1;
 	info->empty_song = false;
 	info->empty_callback = 0;
     for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)

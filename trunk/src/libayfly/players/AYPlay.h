@@ -7,13 +7,8 @@ static const unsigned char intz[] =
 { 0xf3, /* di */
 0xcd, 0, 0, /* call init */
 0xed, 0x5e, /* loop: im 2 */
-#ifndef __SYMBIAN32__
 0xfb, /* ei */
 0x76, /* halt */
-#else
-0x00,
-0x00,
-#endif
 0x18, 0xfa /* jr loop */
 };
 
@@ -21,13 +16,8 @@ static const unsigned char intnz[] =
 { 0xf3, /* di */
 0xcd, 0, 0, /* call init */
 0xed, 0x56, /* loop: im 1 */
-#ifndef __SYMBIAN32__
 0xfb, /* ei */
 0x76, /* halt */
-#else
-0x00,
-0x00,
-#endif
 0xcd, 0, 0, /* call interrupt */
 0x18, 0xf7 /* jr loop */
 };
@@ -68,13 +58,16 @@ void AY_initayfmt(AYSongInfo &info, ayData &aydata, unsigned char track)
     interrupt = GET_WORD(aydata.tracks[track].data_points+4);
     ay_1st_block = GET_WORD(aydata.tracks[track].data_memblocks);
 
+#ifndef __SYMBIAN32__
     rand();
     for(unsigned long i = 0x100; i < 0x4000; i++)
     {
         info.module [i] = random() % 256;
     }
+#else
+    memset(info.module + 0x0100, 0xff, 0x3f00);
+#endif
     memset(info.module + 0x0000, 0xc9, 0x0100);
-    //memset(info.module + 0x0100, 0xff, 0x3f00);
     memset(info.module + 0x4000, 0x00, 0xc000);
     info.module[0x38] = 0xfb; /* ei */
 
