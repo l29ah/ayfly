@@ -57,11 +57,11 @@
 #    include <stdio.h>
 #    include <stdlib.h>
 #    include <string.h>
+#    include <math.h>
 
 #    ifndef __SYMBIAN32__
 #    include <wchar.h>
 #    include <ctype.h>
-#    include <math.h>
 #    else
 #ifdef EKA2
 #    include <e32cmn.h>
@@ -73,6 +73,7 @@
 #    include <mda/common/audio.h>
 #    include <mdaaudiooutputstream.h>
 #    include <charconv.h>
+#    include <random.h>
 #    endif
 
 /* this turns off full timings support in z80ex */

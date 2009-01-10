@@ -318,11 +318,8 @@ inline void ay::ayStep(float &s0, float &s1, float &s2)
     if(++noise_period >= noise_period_init)
     {
         noise_period = 0;
-        if((noise_reg + 1) & 2)
-            noise_trigger ^= 1;
-        if(noise_reg & 1)
-            noise_reg ^= 0x24000;
-        noise_reg >>= 1;
+        noise_reg = (noise_reg >> 1) ^ ((noise_reg & 1) ? 0x14000 : 0);
+        noise_trigger = noise_reg & 1;
     }
     updateEnvelope();
 
@@ -344,54 +341,54 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
     while(i < to_process)
     {
         s0 = s1 = s2 = 0;
-		if(!songinfo->empty_song)
-		{
-			if(songinfo->is_z80)
-			{
-				while(z80_per_sample_counter < z80_per_sample)
-				{
-					int tstates = z80ex_step(songinfo->z80ctx) * TACTS_MULT;
-					z80_per_sample_counter += tstates;
-					int_per_z80_counter += tstates;
-					if(int_per_z80_counter > int_per_z80)
-					{
-						tstates = z80ex_int(songinfo->z80ctx) * TACTS_MULT;
-						z80_per_sample_counter += tstates;
-						int_per_z80_counter = tstates;
-						if(++songinfo->timeElapsed >= songinfo->Length)
-						{
-							songinfo->timeElapsed = songinfo->Loop;
-							if(songinfo->e_callback)
-								songinfo->stopping = songinfo->e_callback(songinfo->e_callback_arg);
-						}
-					}
+        if(!songinfo->empty_song)
+        {
+            if(songinfo->is_z80)
+            {
+                while(z80_per_sample_counter < z80_per_sample)
+                {
+                    int tstates = z80ex_step(songinfo->z80ctx) * TACTS_MULT;
+                    z80_per_sample_counter += tstates;
+                    int_per_z80_counter += tstates;
+                    if(int_per_z80_counter > int_per_z80)
+                    {
+                        tstates = z80ex_int(songinfo->z80ctx) * TACTS_MULT;
+                        z80_per_sample_counter += tstates;
+                        int_per_z80_counter = tstates;
+                        if(++songinfo->timeElapsed >= songinfo->Length)
+                        {
+                            songinfo->timeElapsed = songinfo->Loop;
+                            if(songinfo->e_callback)
+                                songinfo->stopping = songinfo->e_callback(songinfo->e_callback_arg);
+                        }
+                    }
 
-				}
-				z80_per_sample_counter -= z80_per_sample;
-			}
-			else
-			{
-				int_counter += TACTS_MULT;
-				if(int_counter > int_limit)
-				{
-					int_counter -= int_limit;
-					ay_softexec(songinfo);
-				}
-			}
-		}
-		else
-		{
-			if(songinfo->empty_callback)
-			{
-				int_counter += TACTS_MULT;
-				if(int_counter > int_limit)
-				{
-					int_counter -= int_limit;
-					songinfo->empty_callback(songinfo);
-				}
+                }
+                z80_per_sample_counter -= z80_per_sample;
+            }
+            else
+            {
+                int_counter += TACTS_MULT;
+                if(int_counter > int_limit)
+                {
+                    int_counter -= int_limit;
+                    ay_softexec(songinfo);
+                }
+            }
+        }
+        else
+        {
+            if(songinfo->empty_callback)
+            {
+                int_counter += TACTS_MULT;
+                if(int_counter > int_limit)
+                {
+                    int_counter -= int_limit;
+                    songinfo->empty_callback(songinfo);
+                }
 
-			}
-		}
+            }
+        }
 
         if(++chnl_period0 >= tone_period_init0)
         {
@@ -456,9 +453,8 @@ unsigned long ay::ayProcess(unsigned char *stream, unsigned long len)
 void ay::ayBeeper(bool on)
 {
     if(beeper_oldval == on)
-        return;    
-    beeper_volume = on ? VOL_BEEPER : 0;
+        return;
+    beeper_volume = on ? -VOL_BEEPER : 0;
     beeper_oldval = on;
 }
-
 
