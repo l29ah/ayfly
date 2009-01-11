@@ -3,7 +3,7 @@ Changelog:
 11.01.2008 - 0.0.24
 Rewritten PT2 player in c++. Now the only emulated format is .AY
 Added beeper emulation support
-Improoved z80 emulation in Symbian versions
+Improved z80 emulation in Symbian versions
 Added full z80 emulation for Symbian builds
 In next pc version  I'll migrate to fox-toolkit from wx-widgets
 
