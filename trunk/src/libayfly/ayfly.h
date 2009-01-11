@@ -74,7 +74,6 @@
 #    include <mda/common/audio.h>
 #    include <mdaaudiooutputstream.h>
 #    include <charconv.h>
-#    include <random.h>
 #    endif
 
 /* this turns off full timings support in z80ex */

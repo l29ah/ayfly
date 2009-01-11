@@ -20,7 +20,6 @@
 
 #include "ayfly.h"
 #include <stdio.h>
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -61,7 +60,7 @@ int main(int argc, char **argv)
     FILE *metafile = 0;
     bool is_stdout = false;
     unsigned long sample_rate = 44100;
-    unsigned long oversample = 2;
+    unsigned long oversample = 1;
 
     int k;
     for(k = 1; k < argc; k++)
