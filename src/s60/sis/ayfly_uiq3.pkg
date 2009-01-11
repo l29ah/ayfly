@@ -10,7 +10,7 @@
 &EN
 
 ; standard SIS file header
-#{"ayfly_uiq3"},(0xEA0B66F6),0,0,23
+#{"ayfly_uiq3"},(0xEA0B66F6),0,0,24
 
 
 ;Localised Vendor name
