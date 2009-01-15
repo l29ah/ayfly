@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ayfly_cmdline", "..\ayfly_c
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ayfly_converter", "..\ayfly_converter\ayfly_converter.vcproj", "{4947D95A-04D0-4E74-9CD0-64245075D505}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ayfly_fym_converter", "..\ayfly_fym_converter\ayfly_fym_converter.vcproj", "{969D06EF-20B5-4BA7-BE0A-785809E9E062}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		ANSI Debug|Win32 = ANSI Debug|Win32
@@ -49,6 +51,14 @@ Global
 		{4947D95A-04D0-4E74-9CD0-64245075D505}.Debug|Win32.Build.0 = Debug|Win32
 		{4947D95A-04D0-4E74-9CD0-64245075D505}.Release|Win32.ActiveCfg = Release|Win32
 		{4947D95A-04D0-4E74-9CD0-64245075D505}.Release|Win32.Build.0 = Release|Win32
+		{969D06EF-20B5-4BA7-BE0A-785809E9E062}.ANSI Debug|Win32.ActiveCfg = Debug|Win32
+		{969D06EF-20B5-4BA7-BE0A-785809E9E062}.ANSI Debug|Win32.Build.0 = Debug|Win32
+		{969D06EF-20B5-4BA7-BE0A-785809E9E062}.ANSI Release|Win32.ActiveCfg = Release|Win32
+		{969D06EF-20B5-4BA7-BE0A-785809E9E062}.ANSI Release|Win32.Build.0 = Release|Win32
+		{969D06EF-20B5-4BA7-BE0A-785809E9E062}.Debug|Win32.ActiveCfg = Debug|Win32
+		{969D06EF-20B5-4BA7-BE0A-785809E9E062}.Debug|Win32.Build.0 = Debug|Win32
+		{969D06EF-20B5-4BA7-BE0A-785809E9E062}.Release|Win32.ActiveCfg = Release|Win32
+		{969D06EF-20B5-4BA7-BE0A-785809E9E062}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
