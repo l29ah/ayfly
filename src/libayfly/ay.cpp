@@ -176,6 +176,8 @@ void ay::ayWrite(unsigned char reg, unsigned char val)
         default:
             break;
     }
+	if(songinfo->aywrite_callback)
+		songinfo->aywrite_callback(songinfo, reg, val);
 }
 
 unsigned char ay::ayRead(unsigned char reg)

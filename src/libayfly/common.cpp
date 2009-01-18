@@ -59,6 +59,7 @@ AYSongInfo *ay_sys_getnewinfo()
     info->ay_oversample = 1;
 	info->empty_song = false;
 	info->empty_callback = 0;
+	info->aywrite_callback = 0;
     for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
     {
         info->ay8910[i].SetParameters(info);
@@ -604,9 +605,17 @@ AYFLY_API void *ay_initemptysong(unsigned long sr, EMPTY_CALLBACK callback)
 	return info;
 }
 
-#ifdef WINDOWS
+AYFLY_API void ay_setaywritecallback(void *info, AYWRITE_CALLBACK callback)
+{
+	((AYSongInfo *)info)->aywrite_callback = callback;
+
+}
+
+#ifdef WINDOWS 
+#ifndef DISABLE_AUDIO
 AYFLY_API void ay_sethwnd(void *info, HWND hWnd)
 {
     ((DXAudio *)((AYSongInfo *)info)->player)->SetHWND(hWnd);
 }
+#endif
 #endif
