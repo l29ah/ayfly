@@ -72,17 +72,12 @@ AM_CONDITIONAL(ENABLE_GUI, test "$with_gui" = "yes")
 AM_CONDITIONAL(ENABLE_AUDIO, test "$with_audio" = "yes")
 
 if test "$with_gui" = "yes"; then
-	AC_SUBST(GUI_CXXFLAGS, `wx-config --cxxflags`)
-	AC_SUBST(GUI_LIBS, `wx-config --libs`)
-
-	if test "x$GUI_LIBS" = x0; then
-		AC_ERROR([wxWidgets libraries cannot be found...!])
-	fi	
+    PKG_CHECK_MODULES([GUI], [fox >= 1.6.34]) 
 fi
 
 CFLAGS="$CFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1 -DUNICODE=1 -D_UNICODE=1"
 CXXFLAGS="$CXXFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1 -DUNICODE=1 -D_UNICODE=1"
 
-AC_CONFIG_FILES([Makefile src/Makefile src/gui/Makefile src/converter/Makefile src/dumper/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/gui_new/Makefile src/converter/Makefile src/dumper/Makefile src/libayfly/Makefile src/libayfly/z80ex/Makefile src/libayfly/unix/Makefile src/libayfly/windows/Makefile])
 AC_OUTPUT
 
