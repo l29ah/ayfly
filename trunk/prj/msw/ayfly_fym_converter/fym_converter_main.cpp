@@ -27,6 +27,7 @@
 bool end;
 char *out_dir;
 FILE *fxml;
+bool is_reg13;
 
 bool elapsed_callback(void *)
 {
@@ -40,8 +41,22 @@ void usage()
 
 }
 
+void trimr(char *str)
+{
+	long i = strlen(str);
+	if(i == 0)
+		return;
+	i -= 1;
+	while (str [i] == ' ')
+	{
+		i--;
+	}
+	str [i + 1] = 0;
+}
+
 void replace_for_xml(char *str)
 {
+	trimr(str);
 	size_t len = strlen(str);
 	size_t i = 0;
 	while (i < len)
@@ -49,9 +64,43 @@ void replace_for_xml(char *str)
 		if(str [i] == '<' || str [i] == '<' || str [i] == '&')
 			str [i] = ' ';
 		else if(str [i] == '!')
-			str [i] = '1';
+			str [i] = 'i';
 		else if(str [i] == '"')
-			str [i] = '\'';
+			str [i] = '_';
+		else if(str [i] == '\'')
+			str [i] = '_';
+		else if(str [i] == '@')
+			str [i] = 'e';
+		else if(str [i] == '+')
+			str [i] = 't';
+		else
+			str [i] = tolower(str [i]);
+		i++;
+	}
+}
+
+void replace_for_xml_lite(char *str)
+{
+	trimr(str);
+	size_t len = strlen(str);
+	size_t i = 0;
+	while (i < len)
+	{
+		if(str [i] == '<')
+		{
+			str [i] = '(';
+		}
+		else if(str [i] == '>')
+		{
+			str [i] = ')';
+		}		
+		else if(str [i] == '"')
+		{
+			memmove(&str [i + 2], &str [i + 1], len - i);
+			memcpy(&str [i], "''", 2);
+			len = strlen(str);
+			i += 1;
+		}
 		i++;
 	}
 }
@@ -69,7 +118,13 @@ void write_z(unsigned char **dst, const void *src, unsigned long len, unsigned l
 	*ptr += len;
 }
 
-void ProcessDir(char *dir)
+void aywrite_callback(void *info, unsigned char reg, unsigned char val)
+{
+	if(reg == 13)
+		is_reg13 = true;
+}
+
+void ProcessDir(char *dir, char *short_dir)
 {
 	WIN32_FIND_DATA dt;
 	char mask [(MAX_PATH + 4) * sizeof(char)];
@@ -77,7 +132,12 @@ void ProcessDir(char *dir)
 	std::vector<unsigned char> regs [14];
 	unsigned char regs_old [14];
 	void *song;
-
+	char xml_entry [4096];
+	if(strcmp(short_dir, ""))
+	{
+		sprintf(xml_entry, "\t<fym name=\"%s\" />\r\n", short_dir);
+		fwrite(xml_entry, 1, strlen(xml_entry), fxml);
+	}
 	HANDLE hf = FindFirstFile(mask, &dt);
 	if(hf != INVALID_HANDLE_VALUE)
 	{
@@ -90,7 +150,7 @@ void ProcessDir(char *dir)
 				{
 					char next_dir [MAX_PATH + 1];
 					sprintf(next_dir, "%s\\%s", dir, dt.cFileName);
-					ProcessDir(next_dir);
+					ProcessDir(next_dir, dt.cFileName);
 				}
 				else
 				{
@@ -118,6 +178,8 @@ void ProcessDir(char *dir)
 						FILE *f = fopen(res_path, "wb");						
 						ay_setelapsedcallback(song, elapsed_callback, 0);
 						ay_seeksong(song, ay_getelapsedtime(song) + 1);
+						is_reg13 = false;
+						ay_setaywritecallback(song, aywrite_callback);
 						const char *songname = ay_getsongname(song);
 						const char *songauthor = ay_getsongauthor(song);
 						unsigned long head_len = strlen(songname) + strlen(songauthor) + 2 + 5 * 4;
@@ -126,12 +188,13 @@ void ProcessDir(char *dir)
 							const unsigned char *regs_raw = ay_getregs(song);
 							for(unsigned char i = 0; i < 14; i++)
 							{
-								if((i == 13) && (regs_old [i] == regs_raw [i]))
+								if((i == 13) && !is_reg13)
 									regs [i].push_back(255);
 								else
 								{
 									regs [i].push_back(regs_raw [i]);
-									regs_old [i] = regs_raw [i];										
+									if(i == 13)
+										is_reg13 = false;
 								}
 							}
 							ay_seeksong(song, ay_getelapsedtime(song) + 1);
@@ -158,7 +221,6 @@ void ProcessDir(char *dir)
 						fwrite(comp_buffer, 1, dstlen, f);
 						fclose(f);
 
-						char xml_entry [4096];
 						unsigned long time = ay_getsonglength(song);
 						float seconds_f = time / framefreq;
 						unsigned long seconds = seconds_f;
@@ -168,9 +230,9 @@ void ProcessDir(char *dir)
 						seconds = seconds % 60;
 
 						sprintf((char *)temp_buffer, "%s", songname);
-						replace_for_xml((char *)temp_buffer);
+						replace_for_xml_lite((char *)temp_buffer);
 
-						sprintf(xml_entry, "\t<fym url=\"%s.fym\" name=\"%s\" time=\"%.2u:%.2u\" size=\"%.2f kb\" />\r\n", fname, temp_buffer, minutes, seconds, (float)dstlen / 1024);
+						sprintf(xml_entry, "\t\t<fym url=\"%s.fym\" name=\"%s\" time=\"%u:%.2u\" size=\"%.2f kb\" />\r\n", fname, temp_buffer, minutes, seconds, (float)dstlen / 1024);
 						fwrite(xml_entry, 1, strlen(xml_entry), fxml);
 
 						ay_closesong(&song);
@@ -216,7 +278,7 @@ int main(int argc, char **argv)
 	str = "<fyms>\r\n";
 	fwrite(str, 1, strlen(str), fxml);
 
-	ProcessDir(argv [1]);
+	ProcessDir(argv [1], "");
 
 	str = "</fyms>\r\n";
 	fwrite(str, 1, strlen(str), fxml);

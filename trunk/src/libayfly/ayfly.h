@@ -144,6 +144,7 @@ typedef void (*PLAYER_PLAY_PROC)(AYSongInfo &info);
 typedef void (*PLAYER_CLEANUP_PROC)(AYSongInfo &info);
 typedef bool (*PLAYER_DETECT_PROC)(unsigned char *module, unsigned long length);
 typedef void (*EMPTY_CALLBACK)(void *song);
+typedef void (*AYWRITE_CALLBACK)(void *song, unsigned char reg, unsigned char val);
 
 #ifndef __SYMBIAN32__
 #include "ayflyString.h"
@@ -211,6 +212,7 @@ struct AYSongInfo
     unsigned long ay_oversample; /* higher - better, default = 2 */
 	bool empty_song; /* true, if empty song */
 	EMPTY_CALLBACK empty_callback;
+	AYWRITE_CALLBACK aywrite_callback;
     ~AYSongInfo();
 };
 
@@ -631,6 +633,8 @@ AYFLY_API void *ay_initemptysong(unsigned long sr, EMPTY_CALLBACK callback);
 /*
  * Sets window handle, used for directx init procedure
  */
+
+AYFLY_API void ay_setaywritecallback(void *info, AYWRITE_CALLBACK callback);
 
 #ifdef WINDOWS
 AYFLY_API void ay_sethwnd(void *info, HWND hWnd);
