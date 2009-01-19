@@ -106,7 +106,7 @@
 #        define TXT(x) _S(x)
 #        define AUDIO_FREQ 32000
 #    endif
-#    define Z80_FREQ 3546900
+#    define Z80_FREQ 3500000
 #    define INT_FREQ 50
 #ifndef sizeof_array
 #    define sizeof_array(x) sizeof(x) / sizeof(x [0])
