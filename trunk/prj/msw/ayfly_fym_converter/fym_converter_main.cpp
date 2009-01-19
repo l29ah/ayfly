@@ -147,17 +147,18 @@ void ProcessDir(char *dir, char *short_dir)
 	char mask [(MAX_PATH + 4) * sizeof(char)];
 	sprintf(mask, "%s\\*.*", dir);
 	std::vector<unsigned char> regs [14];
-	unsigned char regs_old [14];
 	void *song;
 	char xml_entry [4096];
-	if(strcmp(short_dir, ""))
-	{
-		sprintf(xml_entry, "\t<fym name=\"%s\" />\r\n", short_dir);
-		fwrite(xml_entry, 1, strlen(xml_entry), fxml);
-	}
+	bool first = true;	
 	HANDLE hf = FindFirstFile(mask, &dt);
 	if(hf != INVALID_HANDLE_VALUE)
 	{
+		if(strcmp(short_dir, "") && first)
+		{
+			sprintf(xml_entry, "\t<fym name=\"%s\" />\r\n", short_dir);
+			fwrite(xml_entry, 1, strlen(xml_entry), fxml);
+			first = false;
+		}
 		bool ret = TRUE;
 		while(ret == TRUE)
 		{
@@ -189,8 +190,6 @@ void ProcessDir(char *dir, char *short_dir)
 						{
 							regs [i].clear();
 						}
-						memset(regs_old, 255, 14);
-
 						unsigned long ptr = 0;
 						unsigned char *temp_buffer = (unsigned char *)malloc (1024);
 						unsigned long dstlen = 1024;						
@@ -269,7 +268,7 @@ void ProcessDir(char *dir, char *short_dir)
 
 void convert(char *srcdir, char *dstdir)
 {
-	
+
 	out_dir = dstdir;
 
 	if(!CreateDirectory(out_dir, 0))
@@ -280,7 +279,7 @@ void convert(char *srcdir, char *dstdir)
 			return;
 		}
 	}
-	
+
 	char tmp_buf [MAX_PATH];
 	sprintf(tmp_buf, "%s\\list.xml", out_dir);
 
@@ -314,76 +313,76 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		{
 			CreateWindow("STATIC",
-						 "Source Path:",
-						 WS_CHILD | WS_VISIBLE,
-						 5, 7, 90, 20,
-						 hwnd, 
-						 0, 
-						 (HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
-                          NULL);       // pointer not needed 
+				"Source Path:",
+				WS_CHILD | WS_VISIBLE,
+				5, 7, 90, 20,
+				hwnd, 
+				0, 
+				(HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
+				NULL);       // pointer not needed 
 
 			editsrc = CreateWindow("EDIT",      // predefined class 
-                                    NULL,        // no window title 
-                                    WS_CHILD | WS_VISIBLE | ES_LEFT | WS_BORDER, 
-                                    100, 5, 260, 20,  // set size in WM_SIZE message 
-                                    hwnd,        // parent window 
-                                    (HMENU) ID_EDITSRC,   // edit control ID 
-                                    (HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
-                                    NULL);       // pointer not needed 
+				NULL,        // no window title 
+				WS_CHILD | WS_VISIBLE | ES_LEFT | WS_BORDER, 
+				100, 5, 260, 20,  // set size in WM_SIZE message 
+				hwnd,        // parent window 
+				(HMENU) ID_EDITSRC,   // edit control ID 
+				(HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
+				NULL);       // pointer not needed 
 
 			CreateWindow("BUTTON",
-						 "...",
-						 WS_CHILD | WS_VISIBLE,
-						 365, 5, 25, 20,
-						 hwnd, 
-						 (HMENU) ID_GETSRC, 
-						 (HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
-                          NULL);       // pointer not needed 
+				"...",
+				WS_CHILD | WS_VISIBLE,
+				365, 5, 25, 20,
+				hwnd, 
+				(HMENU) ID_GETSRC, 
+				(HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
+				NULL);       // pointer not needed 
 
 			CreateWindow("STATIC",
-						 "Dst Path:",
-						 WS_CHILD | WS_VISIBLE,
-						 5, 37, 90, 20,
-						 hwnd, 
-						 0, 
-						 (HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
-                          NULL);       // pointer not needed 
+				"Dst Path:",
+				WS_CHILD | WS_VISIBLE,
+				5, 37, 90, 20,
+				hwnd, 
+				0, 
+				(HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
+				NULL);       // pointer not needed 
 
 			editdst = CreateWindow("EDIT",      // predefined class 
-                                    NULL,        // no window title 
-                                    WS_CHILD | WS_VISIBLE | ES_LEFT | WS_BORDER, 
-                                    100, 35, 260, 20,  // set size in WM_SIZE message 
-                                    hwnd,        // parent window 
-                                    (HMENU) ID_EDITDST,   // edit control ID 
-                                    (HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
-                                    NULL);       // pointer not needed 
+				NULL,        // no window title 
+				WS_CHILD | WS_VISIBLE | ES_LEFT | WS_BORDER, 
+				100, 35, 260, 20,  // set size in WM_SIZE message 
+				hwnd,        // parent window 
+				(HMENU) ID_EDITDST,   // edit control ID 
+				(HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
+				NULL);       // pointer not needed 
 
 			CreateWindow("BUTTON",
-						 "...",
-						 WS_CHILD | WS_VISIBLE,
-						 365, 35, 25, 20,
-						 hwnd, 
-						 (HMENU) ID_GETDST, 
-						 (HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
-                          NULL);       // pointer not needed 
+				"...",
+				WS_CHILD | WS_VISIBLE,
+				365, 35, 25, 20,
+				hwnd, 
+				(HMENU) ID_GETDST, 
+				(HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
+				NULL);       // pointer not needed 
 
 			msglist = CreateWindow("LISTBOX",      // predefined class 
-                                    NULL,        // no window title 
-									WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL, 
-                                    5, 65, 385, 160,  // set size in WM_SIZE message 
-                                    hwnd,        // parent window 
-                                    (HMENU) ID_MSGLIST,   // edit control ID 
-                                    (HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
-                                    NULL);       // pointer not needed
+				NULL,        // no window title 
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL, 
+				5, 65, 385, 160,  // set size in WM_SIZE message 
+				hwnd,        // parent window 
+				(HMENU) ID_MSGLIST,   // edit control ID 
+				(HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
+				NULL);       // pointer not needed
 
 			convertbtn = CreateWindow("BUTTON",
-						 "Convert !",
-						 WS_CHILD | WS_VISIBLE,
-						 320, 220, 70, 20,
-						 hwnd, 
-						 (HMENU) ID_CONVERT, 
-						 (HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
-                          NULL);       // pointer not needed
+				"Convert !",
+				WS_CHILD | WS_VISIBLE,
+				320, 220, 70, 20,
+				hwnd, 
+				(HMENU) ID_CONVERT, 
+				(HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
+				NULL);       // pointer not needed
 
 		}
 		return 0;
@@ -418,7 +417,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					else
 						SetWindowText(editdst, buffer);
 				}
-				
+
 			}
 			else if(LOWORD(wParam) == ID_CONVERT)
 			{				
@@ -462,12 +461,12 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	a = RegisterClassEx(&wcex);
 	HWND hWnd = CreateWindow((LPCSTR)a, "Ayfly to FYM converter v." AYFLY_VERSION_TEXT, 
-							 WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_SYSMENU, 
-							 CW_USEDEFAULT, CW_USEDEFAULT, 400, 270, 0, 0, 
-							 hInstance, 0);
+		WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_SYSMENU, 
+		CW_USEDEFAULT, CW_USEDEFAULT, 400, 270, 0, 0, 
+		hInstance, 0);
 	ShowWindow(hWnd, SW_SHOW);
 	UpdateWindow(hWnd);
-	
+
 	MSG msg;
 	while(GetMessage(&msg, hWnd, 0, 0))
 	{
@@ -476,5 +475,5 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	}
 	return 0;
 
-	
+
 }
