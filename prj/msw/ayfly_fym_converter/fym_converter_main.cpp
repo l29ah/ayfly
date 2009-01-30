@@ -90,6 +90,13 @@ void replace_for_xml(char *str)
 			str [i] = 'e';
 		else if(str [i] == '+')
 			str [i] = 't';
+		else if(((unsigned char)str [i]) < 32)
+		{
+			len = strlen(&str [i]);
+			memmove(&str [i], &str [i + 1], len);
+			i--;
+			len = strlen(str);
+		}
 		else
 			str [i] = tolower(str [i]);
 		i++;
@@ -196,7 +203,7 @@ void ProcessDir(char *dir, char *short_dir)
 						FILE *f = fopen(res_path, "wb");						
 						ay_setelapsedcallback(song, elapsed_callback, 0);
 						ay_seeksong(song, ay_getelapsedtime(song) + 1);
-						is_reg13 = false;
+						is_reg13 = true;
 						ay_setaywritecallback(song, aywrite_callback);
 						const char *songname = ay_getsongname(song);
 						const char *songauthor = ay_getsongauthor(song);
@@ -233,7 +240,7 @@ void ProcessDir(char *dir, char *short_dir)
 							std::vector<unsigned char>::pointer ptr_reg = &regs [i] [0];
 							write_z(&temp_buffer, ptr_reg, len, &dstlen, &ptr);
 						}
-						unsigned char *comp_buffer = (unsigned char *)malloc(ptr + 1);
+						unsigned char *comp_buffer = (unsigned char *)malloc(ptr * 2);
 						dstlen = ptr + 1;
 						compress2(comp_buffer, &dstlen, temp_buffer, ptr, 9);
 						fwrite(comp_buffer, 1, dstlen, f);
@@ -283,7 +290,7 @@ void convert(char *srcdir, char *dstdir)
 	char tmp_buf [MAX_PATH];
 	sprintf(tmp_buf, "%s\\list.xml", out_dir);
 
-	fxml = fopen(tmp_buf, "wb");
+	fxml = fopen(tmp_buf, "wbc");
 	char *str = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n";
 	fwrite(str, 1, strlen(str), fxml);
 	str = "<fyms>\r\n";
@@ -293,6 +300,7 @@ void convert(char *srcdir, char *dstdir)
 
 	str = "</fyms>\r\n";
 	fwrite(str, 1, strlen(str), fxml);
+	fclose(fxml);
 }
 
 DWORD WINAPI ThreadProc(LPVOID lpParameter)
@@ -312,14 +320,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 		{
-			CreateWindow("STATIC",
+			/*CreateWindow("STATIC",
 				"Source Path:",
-				WS_CHILD | WS_VISIBLE,
+				WS_VISIBLE | WS_CHILD,
 				5, 7, 90, 20,
 				hwnd, 
 				0, 
 				(HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
 				NULL);       // pointer not needed 
+				*/
 
 			editsrc = CreateWindow("EDIT",      // predefined class 
 				NULL,        // no window title 
@@ -339,7 +348,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				(HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
 				NULL);       // pointer not needed 
 
-			CreateWindow("STATIC",
+			/*CreateWindow("STATIC",
 				"Dst Path:",
 				WS_CHILD | WS_VISIBLE,
 				5, 37, 90, 20,
@@ -347,6 +356,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				0, 
 				(HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE), 
 				NULL);       // pointer not needed 
+				*/
 
 			editdst = CreateWindow("EDIT",      // predefined class 
 				NULL,        // no window title 
@@ -385,12 +395,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				NULL);       // pointer not needed
 
 		}
-		return 0;
+		break;
 	case WM_DESTROY:
 		exit(0);
 		break;
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
+		break;
+	case WM_PAINT:
+		{
+			HDC hdc;
+			PAINTSTRUCT ps;
+			hdc = BeginPaint(hwnd, &ps);
+			RECT rt = {5, 7, 90, 25};
+			SetBkMode(hdc, TRANSPARENT);
+			DrawText(hdc, "Source path:", 12, &rt, 0);
+			rt.left = 5;
+			rt.top = 37;
+			rt.right = 90;
+			rt.bottom = 25 + 37;
+			DrawText(hdc, "Dst path:", 9, &rt, 0);
+			EndPaint(hwnd, &ps);
+		}
 		break;
 	case WM_COMMAND:
 		switch(HIWORD(wParam))
@@ -428,19 +454,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				EnableWindow(convertbtn, FALSE);
 				CreateThread(0, 0, ThreadProc, 0, 0, 0);
 			}
-			return 0;
 			break;
 		default:
 			break;
 		}
 	default:
-		break;
+		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
-	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	return 0;
 }
 
 
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	CoInitialize(0);
 	INITCOMMONCONTROLSEX ccex;
@@ -451,7 +476,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	WNDCLASSEX wcex;
 	memset(&wcex, 0, sizeof(wcex));
 	wcex.cbSize = sizeof(wcex);
-	wcex.hbrBackground = (HBRUSH)COLOR_WINDOW;
+	wcex.hbrBackground = (HBRUSH)(COLOR_BACKGROUND);
 	wcex.hCursor = LoadCursor(0, IDC_ARROW);
 	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(101));
 	wcex.hIconSm = wcex.hIcon;
@@ -462,7 +487,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	a = RegisterClassEx(&wcex);
 	HWND hWnd = CreateWindow((LPCSTR)a, "Ayfly to FYM converter v." AYFLY_VERSION_TEXT, 
 		WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_SYSMENU, 
-		CW_USEDEFAULT, CW_USEDEFAULT, 400, 270, 0, 0, 
+		CW_USEDEFAULT, CW_USEDEFAULT, 400, 280, 0, 0, 
 		hInstance, 0);
 	ShowWindow(hWnd, SW_SHOW);
 	UpdateWindow(hWnd);
