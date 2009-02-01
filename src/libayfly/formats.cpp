@@ -25,6 +25,11 @@ unsigned short ay_sys_getword(unsigned char *p)
     return *p | ((*(p + 1)) << 8);
 }
 
+unsigned long ay_sys_getdword(unsigned char *p)
+{
+    return *p | ((*(p + 1)) << 8) | ((*(p + 2)) << 16) | ((*(p + 3)) << 24);
+}
+
 void ay_sys_writeword(unsigned char *p, unsigned short val)
 {
     *p = (unsigned char)(val & 0xff);
@@ -103,6 +108,7 @@ void ay_sys_initz80module(AYSongInfo &info, unsigned long player_base, const uns
 #include "players/SQTPlay.h"
 #include "players/PSGPlay.h"
 #include "players/VTXPlay.h"
+#include "players/YMPlay.h"
 
 typedef void (*GETINFO_CALLBACK)(AYSongInfo &info);
 
@@ -125,6 +131,7 @@ static const _Players Players[] =
 {
 { TXT(".ay"), AY_Init, AY_Play, AY_Cleanup, AY_GetInfo, AY_Detect, true },
 { TXT(".vtx"), VTX_Init, VTX_Play, VTX_Cleanup, VTX_GetInfo, VTX_Detect, false },
+{ TXT(".ym"), YM_Init, YM6_Play, YM_Cleanup, YM_GetInfo, YM_Detect, false },
 { TXT(".psg"), PSG_Init, PSG_Play, PSG_Cleanup, PSG_GetInfo, PSG_Detect, false },
 { TXT(".asc"), ASC_Init, ASC_Play, ASC_Cleanup, ASC_GetInfo, ASC_Detect, false },
 { TXT(".pt2"), PT2_Init, PT2_Play, PT2_Cleanup, PT2_GetInfo, PT2_Detect, false },
