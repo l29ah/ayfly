@@ -345,7 +345,7 @@ void PT2_PatternInterpreter(AYSongInfo &info, PT2_Channel_Parameters &chan)
         else if(val == 0xf)
         {
             chan.Address_In_Pattern++;
-            PT2_Delay = module[chan.Address_In_Pattern];
+            PT2.Delay = module[chan.Address_In_Pattern];
         }
         else if(val == 0xe)
         {
