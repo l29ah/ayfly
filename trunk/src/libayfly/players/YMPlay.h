@@ -150,11 +150,11 @@ void YM6i_Play(AYSongInfo &info)
     ay_writeay(&info, AY_MIXER, mx);
     k += info.Length;
     
-    ay_writeay(&info, AY_CHNL_A_VOL, module [k] & 15);
+    ay_writeay(&info, AY_CHNL_A_VOL, module [k] & 31);
     k += info.Length;
-    ay_writeay(&info, AY_CHNL_B_VOL, module [k] & 15);
+    ay_writeay(&info, AY_CHNL_B_VOL, module [k] & 31);
     k += info.Length;
-    ay_writeay(&info, AY_CHNL_C_VOL, module [k] & 15);
+    ay_writeay(&info, AY_CHNL_C_VOL, module [k] & 31);
     k += info.Length;
     
     ay_writeay(&info, AY_ENV_FINE, module [k]);
