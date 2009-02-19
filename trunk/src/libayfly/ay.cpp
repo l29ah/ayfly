@@ -54,6 +54,7 @@ ay::ay()
         ay::levels_ym[i] = (ay::init_levels_ym[i]) / (float)6;
     }
     songinfo = 0;
+	chip_nr = 0;
     ayReset();
 }
 
@@ -177,7 +178,7 @@ void ay::ayWrite(unsigned char reg, unsigned char val)
             break;
     }
 	if(songinfo->aywrite_callback)
-		songinfo->aywrite_callback(songinfo, reg, val);
+		songinfo->aywrite_callback(songinfo, chip_nr, reg, val);
 }
 
 unsigned char ay::ayRead(unsigned char reg)

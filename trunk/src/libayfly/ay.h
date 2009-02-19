@@ -138,6 +138,7 @@ public:
 
     void SetParameters(AYSongInfo *_songinfo = 0);
     void ayBeeper(bool on);
+	unsigned long chip_nr;
 private:
     static const float init_levels_ay[32];
     static const float init_levels_ym[32];
