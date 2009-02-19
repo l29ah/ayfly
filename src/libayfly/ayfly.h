@@ -144,7 +144,7 @@ typedef void (*PLAYER_PLAY_PROC)(AYSongInfo &info);
 typedef void (*PLAYER_CLEANUP_PROC)(AYSongInfo &info);
 typedef bool (*PLAYER_DETECT_PROC)(unsigned char *module, unsigned long length);
 typedef void (*EMPTY_CALLBACK)(void *song);
-typedef void (*AYWRITE_CALLBACK)(void *song, unsigned char reg, unsigned char val);
+typedef void (*AYWRITE_CALLBACK)(void *song, unsigned long chip, unsigned char reg, unsigned char val);
 
 #ifndef __SYMBIAN32__
 #include "ayflyString.h"
@@ -635,6 +635,8 @@ AYFLY_API void *ay_initemptysong(unsigned long sr, EMPTY_CALLBACK callback);
  */
 
 AYFLY_API void ay_setaywritecallback(void *info, AYWRITE_CALLBACK callback);
+
+AYFLY_API bool ay_ists(void *info);
 
 #ifdef WINDOWS
 AYFLY_API void ay_sethwnd(void *info, HWND hWnd);

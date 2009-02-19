@@ -104,13 +104,13 @@ void YM_Init(AYSongInfo &info)
         unsigned char *p = module + ym5_offset;
         int len = strlen((char *)p);
         p += len + 1;
-        k += len;
+        k += len + 1;
         len = strlen((char *)p);
         p += len + 1;
-        k += len;
+        k += len + 1;
         len = strlen((char *)p);
         p += len + 1;
-        k += len;
+        k += len + 1;
         YM->YM_Offset = k + 34;
         
         if((module [19] & 1) != 0)
@@ -219,15 +219,15 @@ void YM_GetInfo(AYSongInfo &info)
     int len = strlen((char *)p);
     info.Name = ay_sys_getstr(p, len);    
     p += len + 1;
-    k += len;
+    k += len + 1;
     len = strlen((char *)p);
     info.Author = ay_sys_getstr(p, len);
     p += len + 1;
-    k += len;
+    k += len + 1;
     len = strlen((char *)p);
     info.CompName = ay_sys_getstr(p, len);
     p += len + 1;
-    k += len;
+    k += len + 1;
 }
 
 void YM_Cleanup(AYSongInfo &info)

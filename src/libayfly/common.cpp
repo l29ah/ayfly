@@ -62,7 +62,8 @@ AYSongInfo *ay_sys_getnewinfo()
 	info->aywrite_callback = 0;
     for(unsigned char i = 0; i < NUMBER_OF_AYS; i++)
     {
-        info->ay8910[i].SetParameters(info);
+		info->ay8910 [i].chip_nr = i;
+        info->ay8910 [i].SetParameters(info);
     }
     memset(info->z80IO, 0, 65536);
     return info;
@@ -609,6 +610,11 @@ AYFLY_API void ay_setaywritecallback(void *info, AYWRITE_CALLBACK callback)
 {
 	((AYSongInfo *)info)->aywrite_callback = callback;
 
+}
+
+AYFLY_API bool ay_ists(void *info)
+{
+	return ((AYSongInfo *)info)->is_ts;
 }
 
 #ifdef WINDOWS 

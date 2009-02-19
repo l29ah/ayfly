@@ -30,7 +30,7 @@
 bool end;
 char *out_dir;
 FILE *fxml;
-bool is_reg13;
+bool is_reg13 [2];
 
 HWND editsrc;
 HWND editdst;
@@ -125,6 +125,13 @@ void replace_for_xml_lite(char *str)
 			len = strlen(str);
 			i += 1;
 		}
+		else if(((unsigned char)str [i]) == '#')
+		{
+			len = strlen(&str [i]);
+			memmove(&str [i], &str [i + 1], len);
+			i--;
+			len = strlen(str);
+		}
 		i++;
 	}
 }
@@ -142,18 +149,20 @@ void write_z(unsigned char **dst, const void *src, unsigned long len, unsigned l
 	*ptr += len;
 }
 
-void aywrite_callback(void *info, unsigned char reg, unsigned char val)
+void aywrite_callback(void *info, unsigned long chip_nr, unsigned char reg, unsigned char val)
 {
 	if(reg == 13)
-		is_reg13 = true;
+		is_reg13 [chip_nr] = true;
 }
 
 void ProcessDir(char *dir, char *short_dir)
 {
+	if(!strcmp(out_dir, dir))
+		return;
 	WIN32_FIND_DATA dt;
 	char mask [(MAX_PATH + 4) * sizeof(char)];
 	sprintf(mask, "%s\\*.*", dir);
-	std::vector<unsigned char> regs [14];
+	std::vector<unsigned char> regs [28];
 	void *song;
 	char xml_entry [4096];
 	bool first = true;	
@@ -196,55 +205,76 @@ void ProcessDir(char *dir, char *short_dir)
 						for(unsigned char i = 0; i < 14; i++)
 						{
 							regs [i].clear();
+							regs [i + 14].clear();
 						}
 						unsigned long ptr = 0;
 						unsigned char *temp_buffer = (unsigned char *)malloc (1024);
 						unsigned long dstlen = 1024;						
-						FILE *f = fopen(res_path, "wb");						
+						FILE *f = fopen(res_path, "wb");
 						ay_setelapsedcallback(song, elapsed_callback, 0);
 						ay_seeksong(song, ay_getelapsedtime(song) + 1);
-						is_reg13 = true;
+						is_reg13 [0] = is_reg13 [1] = true;
 						ay_setaywritecallback(song, aywrite_callback);
 						const char *songname = ay_getsongname(song);
 						const char *songauthor = ay_getsongauthor(song);
 						unsigned long head_len = strlen(songname) + strlen(songauthor) + 2 + 5 * 4;
 						while(ay_getsonglength(song) > ay_getelapsedtime(song))
 						{
-							const unsigned char *regs_raw = ay_getregs(song);
-							for(unsigned char i = 0; i < 14; i++)
+							unsigned long chip_nr = 0;
+							while(chip_nr < 2)
 							{
-								if((i == 13) && !is_reg13)
-									regs [i].push_back(255);
-								else
+								const unsigned char *regs_raw = ay_getregs(song, chip_nr);
+								for(unsigned char i = 0; i < 14; i++)
 								{
-									regs [i].push_back(regs_raw [i]);
-									if(i == 13)
-										is_reg13 = false;
+									if((i == 13) && !is_reg13 [chip_nr])
+										regs [i + chip_nr * 14].push_back(255);
+									else
+									{
+										regs [i + chip_nr * 14].push_back(regs_raw [i]);
+										if(i == 13)
+											is_reg13 [chip_nr] = false;
+									}
 								}
+								if(!ay_ists(song))
+									break;
+								chip_nr++;
 							}
 							ay_seeksong(song, ay_getelapsedtime(song) + 1);
 						}
-						unsigned long len = regs [0].size();
-						write_z(&temp_buffer, &head_len, 4, &dstlen, &ptr);
-						write_z(&temp_buffer, &len, 4, &dstlen, &ptr);
-						unsigned long loop = ay_getsongloop(song);
-						write_z(&temp_buffer, &loop, 4, &dstlen, &ptr);
-						unsigned long chipfreq = ay_getayfreq(song);
-						write_z(&temp_buffer, &chipfreq, 4, &dstlen, &ptr);
+						unsigned long chip_nr = 0;
+
 						unsigned long framefreq = ay_getintfreq(song);
-						write_z(&temp_buffer, &framefreq, 4, &dstlen, &ptr);
-						write_z(&temp_buffer, songname, strlen(songname) + 1, &dstlen, &ptr);
-						write_z(&temp_buffer, songauthor, strlen(songauthor) + 1, &dstlen, &ptr);
-						for(unsigned long i = 0; i < 14; i++)
+						while(chip_nr < 2)
 						{
-							std::vector<unsigned char>::pointer ptr_reg = &regs [i] [0];
-							write_z(&temp_buffer, ptr_reg, len, &dstlen, &ptr);
+							unsigned long len = regs [chip_nr * 14].size();
+							write_z(&temp_buffer, &head_len, 4, &dstlen, &ptr);
+							write_z(&temp_buffer, &len, 4, &dstlen, &ptr);
+							unsigned long loop = ay_getsongloop(song);
+							write_z(&temp_buffer, &loop, 4, &dstlen, &ptr);
+							unsigned long chipfreq = ay_getayfreq(song);
+							write_z(&temp_buffer, &chipfreq, 4, &dstlen, &ptr);							
+							write_z(&temp_buffer, &framefreq, 4, &dstlen, &ptr);
+							write_z(&temp_buffer, songname, strlen(songname) + 1, &dstlen, &ptr);
+							write_z(&temp_buffer, songauthor, strlen(songauthor) + 1, &dstlen, &ptr);
+							for(unsigned long i = 0; i < 14; i++)
+							{
+								std::vector<unsigned char>::pointer ptr_reg = &regs [i + chip_nr * 14] [0];
+								write_z(&temp_buffer, ptr_reg, len, &dstlen, &ptr);
+							}
+							
+
+							if(!ay_ists(song))
+								break;
+							chip_nr++;
 						}
+
 						unsigned char *comp_buffer = (unsigned char *)malloc(ptr * 2);
-						dstlen = ptr + 1;
+						dstlen = ptr * 2;
 						compress2(comp_buffer, &dstlen, temp_buffer, ptr, 9);
 						fwrite(comp_buffer, 1, dstlen, f);
+						free(comp_buffer);
 						fclose(f);
+						
 
 						unsigned long time = ay_getsonglength(song);
 						float seconds_f = time / framefreq;
@@ -254,15 +284,18 @@ void ProcessDir(char *dir, char *short_dir)
 						unsigned long minutes = seconds / 60;
 						seconds = seconds % 60;
 
-						sprintf((char *)temp_buffer, "%s", songname);
+						
+						if(ay_ists(song))
+							sprintf((char *)temp_buffer, "[ts] %s", songname);
+						else
+							sprintf((char *)temp_buffer, "%s", songname);
 						replace_for_xml_lite((char *)temp_buffer);
-
 						sprintf(xml_entry, "\t\t<fym url=\"%s.fym\" name=\"%s\" time=\"%u:%.2u\" size=\"%.2f kb\" />\r\n", fname, temp_buffer, minutes, seconds, (float)dstlen / 1024);
 						fwrite(xml_entry, 1, strlen(xml_entry), fxml);
 
 						ay_closesong(&song);
 						free(temp_buffer);
-						free(comp_buffer);
+						
 
 					}
 				}
@@ -436,10 +469,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				PIDLIST_ABSOLUTE pidl = SHBrowseForFolder(&info);
 				if(pidl)
 				{
+					char tmp_dir [MAX_PATH * 2];
 					char buffer [MAX_PATH * 2];
 					SHGetPathFromIDList(pidl, buffer);
 					if(LOWORD(wParam) == ID_GETSRC)
 						SetWindowText(editsrc, buffer);
+						memset(tmp_dir, 0, sizeof(tmp_dir));
+						GetWindowText(editdst, tmp_dir, sizeof(srcdir));
+						if(strlen(tmp_dir) == 0)
+						{
+							strcat(buffer, "\\fym");
+							SetWindowText(editdst, buffer);
+
+						}
 					else
 						SetWindowText(editdst, buffer);
 				}
