@@ -710,11 +710,12 @@ unsigned long PT3_GetTime(unsigned char *module, unsigned long &Loop)
     long c1, c2, c3, c4, c5, c8;
     long i, j, tm = 0;
     unsigned char b;
-    unsigned char ptDelay = module[100];
-    unsigned char ptNumPos = module[101];
-    unsigned short ptLoopPos = module[102];
-    unsigned short ptPatPt = ay_sys_getword(&module[103]);
-    const unsigned char *ptPosList = (unsigned char *)&module[201];
+    PT3_File *header = (PT3_File *)module;
+    unsigned char ptDelay = header->PT3_Delay;
+    unsigned char ptNumPos = header->PT3_NumberOfPositions;
+    unsigned short ptLoopPos = header->PT3_LoopPosition;
+    unsigned short ptPatPt = PT3_PatternsPointer;
+    const unsigned char *ptPosList = (unsigned char *)&header->PT3_PositionList;
 
     b = ptDelay;
     a11 = a22 = a33 = 1;

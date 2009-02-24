@@ -1,3 +1,3 @@
-SUBDIRS = libayfly converter dumper gui_new
+SUBDIRS = libayfly converter dumper gui
 
 datarootdir = @datarootdir@
