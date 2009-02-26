@@ -72,7 +72,12 @@ AM_CONDITIONAL(ENABLE_GUI, test "$with_gui" = "yes")
 AM_CONDITIONAL(ENABLE_AUDIO, test "$with_audio" = "yes")
 
 if test "$with_gui" = "yes"; then
-    PKG_CHECK_MODULES([GUI], [fox >= 1.6.34]) 
+    AC_SUBST(GUI_CXXFLAGS, `wx-config --cxxflags`)
+    AC_SUBST(GUI_LIBS, `wx-config --libs`)
+
+    if test "x$GUI_LIBS" = x0; then
+        AC_ERROR([wxWidgets libraries cannot be found...!])
+    fi  
 fi
 
 CFLAGS="$CFLAGS -DZ80EX_OPSTEP_FAST_AND_ROUGH=1 -DUNICODE=1 -D_UNICODE=1"

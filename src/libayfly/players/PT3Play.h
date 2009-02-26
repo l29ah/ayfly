@@ -705,9 +705,9 @@ void PT3_Play(AYSongInfo &info)
 
 unsigned long PT3_GetTime(unsigned char *module, unsigned long &Loop)
 {
-    unsigned short a1, a2, a3, a11, a22, a33;
+    char a1, a2, a3, a11, a22, a33;
     unsigned long j1, j2, j3;
-    long c1, c2, c3, c4, c5, c8;
+    int c1, c2, c3, c4, c5, c8;
     long i, j, tm = 0;
     unsigned char b;
     PT3_File *header = (PT3_File *)module;
@@ -715,7 +715,7 @@ unsigned long PT3_GetTime(unsigned char *module, unsigned long &Loop)
     unsigned char ptNumPos = header->PT3_NumberOfPositions;
     unsigned short ptLoopPos = header->PT3_LoopPosition;
     unsigned short ptPatPt = PT3_PatternsPointer;
-    const unsigned char *ptPosList = (unsigned char *)&header->PT3_PositionList;
+    const unsigned char *ptPosList = (unsigned char *)&header->PT3_PositionList[0];
 
     b = ptDelay;
     a11 = a22 = a33 = 1;
@@ -827,193 +827,193 @@ unsigned long PT3_GetTime(unsigned char *module, unsigned long &Loop)
                     }
                     j--;
                 }
-                a2--;
-                if(a2 == 0)
+            }
+            a2--;
+            if(a2 == 0)
+            {
+                j = c1 = c2 = c3 = c4 = c5 = c8 = 0;
+                do
                 {
-                    j = c1 = c2 = c3 = c4 = c5 = c8 = 0;
-                    do
+                    unsigned char val = module[j2];
+                    if(val == 0xd0 || val == 0xc0 || (val >= 0x50 && val <= 0xaf))
                     {
-                        unsigned char val = module[j2];
-                        if(val == 0xd0 || val == 0xc0 || (val >= 0x50 && val <= 0xaf))
-                        {
-                            a2 = a22;
-                            j2++;
-                            break;
-                        }
-                        else if(val == 0x10 || val >= 0xf0)
-                        {
-                            j2++;
-                        }
-                        else if(val >= 0xb2 && val <= 0xbf)
-                        {
-                            j2 += 2;
-                        }
-                        else if(val == 0xb1)
-                        {
-                            j2++;
-                            a22 = module[j2];
-                        }
-                        else if(val >= 0x11 && val <= 0x1f)
-                        {
-                            j2 += 3;
-                        }
-                        else
-                        {
-                            switch(val)
-                            {
-                                case 1:
-                                    j++;
-                                    c1 = j;
-                                    break;
-                                case 2:
-                                    j++;
-                                    c2 = j;
-                                    break;
-                                case 3:
-                                    j++;
-                                    c3 = j;
-                                    break;
-                                case 4:
-                                    j++;
-                                    c4 = j;
-                                    break;
-                                case 5:
-                                    j++;
-                                    c5 = j;
-                                    break;
-                                case 8:
-                                    j++;
-                                    c8 = j;
-                                    break;
-                                case 9:
-                                    j++;
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
+                        a2 = a22;
+                        j2++;
+                        break;
+                    }
+                    else if(val == 0x10 || val >= 0xf0)
+                    {
                         j2++;
                     }
-                    while(true);
-                    while(j > 0)
+                    else if(val >= 0xb2 && val <= 0xbf)
                     {
-                        if(j == c1 || j == c8)
-                        {
-                            j2 += 3;
-                        }
-                        else if(j == c2)
-                        {
-                            j2 += 5;
-                        }
-                        else if(j == c3 || j == c4)
-                        {
-                            j2++;
-                        }
-                        else if(j == c5)
-                        {
-                            j2 += 2;
-                        }
-                        else
-                        {
-                            b = module[j2];
-                            j2++;
-                        }
-                        j--;
+                        j2 += 2;
                     }
-                }
-                a3--;
-                if(a3 == 0)
-                {
-                    j = c1 = c2 = c3 = c4 = c5 = c8 = 0;
-                    do
+                    else if(val == 0xb1)
                     {
-                        unsigned char val = module[j3];
-                        if(val == 0xd0 || val == 0xc0 || (val >= 0x50 && val <= 0xaf))
+                        j2++;
+                        a22 = module[j2];
+                    }
+                    else if(val >= 0x11 && val <= 0x1f)
+                    {
+                        j2 += 3;
+                    }
+                    else
+                    {
+                        switch(val)
                         {
-                            a3 = a33;
-                            j3++;
-                            break;
+                            case 1:
+                                j++;
+                                c1 = j;
+                                break;
+                            case 2:
+                                j++;
+                                c2 = j;
+                                break;
+                            case 3:
+                                j++;
+                                c3 = j;
+                                break;
+                            case 4:
+                                j++;
+                                c4 = j;
+                                break;
+                            case 5:
+                                j++;
+                                c5 = j;
+                                break;
+                            case 8:
+                                j++;
+                                c8 = j;
+                                break;
+                            case 9:
+                                j++;
+                                break;
+                            default:
+                                break;
                         }
-                        else if(val == 0x10 || val >= 0xf0)
-                        {
-                            j3++;
-                        }
-                        else if(val >= 0xb2 && val <= 0xbf)
-                        {
-                            j3 += 2;
-                        }
-                        else if(val == 0xb1)
-                        {
-                            j3++;
-                            a33 = module[j3];
-                        }
-                        else if(val >= 0x11 && val <= 0x1f)
-                        {
-                            j3 += 3;
-                        }
-                        else
-                        {
-                            switch(val)
-                            {
-                                case 1:
-                                    j++;
-                                    c1 = j;
-                                    break;
-                                case 2:
-                                    j++;
-                                    c2 = j;
-                                    break;
-                                case 3:
-                                    j++;
-                                    c3 = j;
-                                    break;
-                                case 4:
-                                    j++;
-                                    c4 = j;
-                                    break;
-                                case 5:
-                                    j++;
-                                    c5 = j;
-                                    break;
-                                case 8:
-                                    j++;
-                                    c8 = j;
-                                    break;
-                                case 9:
-                                    j++;
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
+                    }
+                    j2++;
+                }
+                while(true);
+                while(j > 0)
+                {
+                    if(j == c1 || j == c8)
+                    {
+                        j2 += 3;
+                    }
+                    else if(j == c2)
+                    {
+                        j2 += 5;
+                    }
+                    else if(j == c3 || j == c4)
+                    {
+                        j2++;
+                    }
+                    else if(j == c5)
+                    {
+                        j2 += 2;
+                    }
+                    else
+                    {
+                        b = module[j2];
+                        j2++;
+                    }
+                    j--;
+                }
+            }
+            a3--;
+            if(a3 == 0)
+            {
+                j = c1 = c2 = c3 = c4 = c5 = c8 = 0;
+                do
+                {
+                    unsigned char val = module[j3];
+                    if(val == 0xd0 || val == 0xc0 || (val >= 0x50 && val <= 0xaf))
+                    {
+                        a3 = a33;
+                        j3++;
+                        break;
+                    }
+                    else if(val == 0x10 || val >= 0xf0)
+                    {
                         j3++;
                     }
-                    while(true);
-                    while(j > 0)
+                    else if(val >= 0xb2 && val <= 0xbf)
                     {
-                        if(j == c1 || j == c8)
-                        {
-                            j3 += 3;
-                        }
-                        else if(j == c2)
-                        {
-                            j3 += 5;
-                        }
-                        else if(j == c3 || j == c4)
-                        {
-                            j3++;
-                        }
-                        else if(j == c5)
-                        {
-                            j3 += 2;
-                        }
-                        else
-                        {
-                            b = module[j3];
-                            j3++;
-                        }
-                        j--;
+                        j3 += 2;
                     }
+                    else if(val == 0xb1)
+                    {
+                        j3++;
+                        a33 = module[j3];
+                    }
+                    else if(val >= 0x11 && val <= 0x1f)
+                    {
+                        j3 += 3;
+                    }
+                    else
+                    {
+                        switch(val)
+                        {
+                            case 1:
+                                j++;
+                                c1 = j;
+                                break;
+                            case 2:
+                                j++;
+                                c2 = j;
+                                break;
+                            case 3:
+                                j++;
+                                c3 = j;
+                                break;
+                            case 4:
+                                j++;
+                                c4 = j;
+                                break;
+                            case 5:
+                                j++;
+                                c5 = j;
+                                break;
+                            case 8:
+                                j++;
+                                c8 = j;
+                                break;
+                            case 9:
+                                j++;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    j3++;
+                }
+                while(true);
+                while(j > 0)
+                {
+                    if(j == c1 || j == c8)
+                    {
+                        j3 += 3;
+                    }
+                    else if(j == c2)
+                    {
+                        j3 += 5;
+                    }
+                    else if(j == c3 || j == c4)
+                    {
+                        j3++;
+                    }
+                    else if(j == c5)
+                    {
+                        j3 += 2;
+                    }
+                    else
+                    {
+                        b = module[j3];
+                        j3++;
+                    }
+                    j--;
                 }
             }
             tm += b;
