@@ -995,6 +995,8 @@ bool AyflyFrame::AddFile(const wxString &filePath)
         ay_closesong((void **)&info);
         return false;
     }
+    
+    printf("len=%d\n", info->Length);
 
     long index = playListView->GetItemCount();
 
