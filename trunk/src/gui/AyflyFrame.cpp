@@ -309,7 +309,7 @@ void AyflyFrame::OnQuit(wxCommandEvent &event)
 void AyflyFrame::OnOpen(wxCommandEvent &event)
 {
     wxString caption = wxT("Select AY file");
-    wxString filter = wxT("All AY files (*.vtx;*.asc;*.sqt;*psg;*.stc;*.stp;*.pt1;*.pt2;*.pt3;*.psc;*.ay)|*.vtx;*.asc;*.sqt;*psg;*.stc;*.stp;*.pt1;*.pt2;*.pt3;*.psc;*.ay");
+    wxString filter = wxT("All AY files (*.vtx;*.asc;*.sqt;*psg;*.stc;*.stp;*.pt1;*.pt2;*.pt3;*.psc;*.ay;*.ym)|*.vtx;*.asc;*.sqt;*psg;*.stc;*.stp;*.pt1;*.pt2;*.pt3;*.psc;*.ay");
 
     wxFileDialog dialog(this, caption, defaultDir, defaultFileName, filter, wxFD_OPEN | wxFD_MULTIPLE);
 
