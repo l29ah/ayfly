@@ -99,6 +99,7 @@ public:
 
     void SetParameters(AYSongInfo *_songinfo = 0);
     void ayBeeper(bool on);
+    unsigned long chip_nr;
 private:
     static const unsigned short init_levels_ay[32];
     static const unsigned short init_levels_ym[32];
