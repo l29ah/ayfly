@@ -1,11 +1,18 @@
 Changelog:
 
+28.02.2008 - 0.0.25
+YM format support added
+Fixed bug in PT3_GetTime function - now time for pt3 modules calculated correctly
+Added ayfly_fym_convertor project for converting modules to FYM AY player written in flashbt SAGE studio.
+Some bug fixes
+Ayfly library: added 2 functions ay_setaywritecallback to trace writes to ay chip and ay_ists to determine if current module uses 2xay mode.
+
+
 11.01.2008 - 0.0.24
 Rewritten PT2 player in c++. Now the only emulated format is .AY
 Added beeper emulation support
 Improved z80 emulation in Symbian versions
 Added full z80 emulation for Symbian builds
-In next pc version  I'll migrate to fox-toolkit from wx-widgets
 
 
 02.01.2008 - 0.0.23

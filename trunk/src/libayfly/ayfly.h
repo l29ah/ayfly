@@ -630,13 +630,15 @@ AYFLY_API unsigned long ay_getoversample(void *info);
 
 AYFLY_API void *ay_initemptysong(unsigned long sr, EMPTY_CALLBACK callback);
 
-/*
- * Sets window handle, used for directx init procedure
- */
 
 AYFLY_API void ay_setaywritecallback(void *info, AYWRITE_CALLBACK callback);
 
 AYFLY_API bool ay_ists(void *info);
+
+
+/*
+ * Sets window handle, used for directx init procedure
+ */
 
 #ifdef WINDOWS
 AYFLY_API void ay_sethwnd(void *info, HWND hWnd);
@@ -649,7 +651,7 @@ AYFLY_API void ay_sethwnd(void *info, HWND hWnd);
 
 #    define AYFLY_VERSION_MAJOR 0
 #    define AYFLY_VERSION_MINOR 0
-#    define AYFLY_VERSION_PATCH 24
+#    define AYFLY_VERSION_PATCH 25
 
 #    define AYFLY_MAKE_VERSION ((AYFLY_VERSION_MAJOR << 16) | (AYFLY_VERSION_MINOR << 8) | AYFLY_VERSION_PATCH)
 #    define AYFLY_VERSION AYFLY_VERSION_MAJOR.AYFLY_VERSION_MINOR.AYFLY_VERSION_PATCH
