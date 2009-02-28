@@ -26,6 +26,8 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <shlobj.h>
+#include <string>
+#include <map>
 
 bool end;
 char *out_dir;
@@ -45,6 +47,8 @@ HWND convertbtn;
 
 char srcdir [MAX_PATH * 2];
 char dstdir [MAX_PATH * 2];
+
+typedef std::pair<std::string, std::string> str_pair;
 
 bool elapsed_callback(void *)
 {
@@ -90,7 +94,7 @@ void replace_for_xml(char *str)
 			str [i] = 'e';
 		else if(str [i] == '+')
 			str [i] = 't';
-		else if(((unsigned char)str [i]) < 32)
+		else if((((unsigned char)str [i]) < 48) || ((((unsigned char)str [i]) > 57) && ((unsigned char)str [i]) < 65) )
 		{
 			len = strlen(&str [i]);
 			memmove(&str [i], &str [i + 1], len);
@@ -125,13 +129,13 @@ void replace_for_xml_lite(char *str)
 			len = strlen(str);
 			i += 1;
 		}
-		else if(((unsigned char)str [i]) == '#')
+		/*else if(((unsigned char)str [i]) == '#')
 		{
 			len = strlen(&str [i]);
 			memmove(&str [i], &str [i + 1], len);
 			i--;
 			len = strlen(str);
-		}
+		}*/
 		i++;
 	}
 }
@@ -155,7 +159,7 @@ void aywrite_callback(void *info, unsigned long chip_nr, unsigned char reg, unsi
 		is_reg13 [chip_nr] = true;
 }
 
-void ProcessDir(char *dir, char *short_dir)
+void ProcessDir(const char *dir, const char *short_dir)
 {
 	if(!strcmp(out_dir, dir))
 		return;
@@ -166,16 +170,13 @@ void ProcessDir(char *dir, char *short_dir)
 	void *song;
 	char xml_entry [4096];
 	bool first = true;	
+	std::map<std::string, std::string> folders;
 	HANDLE hf = FindFirstFile(mask, &dt);
 	if(hf != INVALID_HANDLE_VALUE)
 	{
-		if(strcmp(short_dir, "") && first)
-		{
-			sprintf(xml_entry, "\t<fym name=\"%s\" />\r\n", short_dir);
-			fwrite(xml_entry, 1, strlen(xml_entry), fxml);
-			first = false;
-		}
-		bool ret = TRUE;
+		
+		bool ret = TRUE;		
+		std::map<std::string, std::string> names;
 		while(ret == TRUE)
 		{
 			if(strcmp(dt.cFileName, ".") && strcmp(dt.cFileName, ".."))
@@ -184,7 +185,7 @@ void ProcessDir(char *dir, char *short_dir)
 				{
 					char next_dir [MAX_PATH + 1];
 					sprintf(next_dir, "%s\\%s", dir, dt.cFileName);
-					ProcessDir(next_dir, dt.cFileName);
+					folders.insert(str_pair(&dt.cFileName [0], next_dir));					
 				}
 				else
 				{
@@ -290,12 +291,10 @@ void ProcessDir(char *dir, char *short_dir)
 						else
 							sprintf((char *)temp_buffer, "%s", songname);
 						replace_for_xml_lite((char *)temp_buffer);
-						sprintf(xml_entry, "\t\t<fym url=\"%s.fym\" name=\"%s\" time=\"%u:%.2u\" size=\"%.2f kb\" />\r\n", fname, temp_buffer, minutes, seconds, (float)dstlen / 1024);
-						fwrite(xml_entry, 1, strlen(xml_entry), fxml);
-
+						sprintf(xml_entry, "\t\t<fym url=\"%s.fym\" name=\"%s\" time=\"%u:%.2u\" size=\"%.2f kb\" />\r\n", fname, temp_buffer, minutes, seconds, (float)dstlen / 1024);						
+						names.insert(str_pair(std::string((char *)temp_buffer), std::string(xml_entry)));
 						ay_closesong(&song);
-						free(temp_buffer);
-						
+						free(temp_buffer);					
 
 					}
 				}
@@ -303,6 +302,24 @@ void ProcessDir(char *dir, char *short_dir)
 			ret = FindNextFile(hf, &dt);
 		}
 
+		if(strcmp(short_dir, "") && names.size())
+		{
+			sprintf(xml_entry, "\t<fym name=\"%s\" />\r\n", short_dir);
+			fwrite(xml_entry, 1, strlen(xml_entry), fxml);
+			first = false;
+		}
+
+		std::map<std::string, std::string>::iterator it;
+
+		for(it = names.begin(); it != names.end(); it++)
+		{		
+			fwrite(it->second.c_str(), 1, it->second.length(), fxml);
+		}
+
+		for(it = folders.begin(); it != folders.end(); it++)
+		{
+			ProcessDir(it->second.c_str(), it->first.c_str());
+		}
 	}
 }
 
