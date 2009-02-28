@@ -10,7 +10,7 @@
 &EN
 
 ; standard SIS file header
-#{"ayfly_s60"},(0xEA0B66F6),0,0,24
+#{"ayfly_s60"},(0xEA0B66F6),0,0,25
 
 ;Localised Vendor name
 %{"Andrew Deryabin"}
