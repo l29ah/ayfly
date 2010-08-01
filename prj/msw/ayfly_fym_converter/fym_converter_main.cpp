@@ -190,7 +190,11 @@ void ProcessDir(const char *dir, const char *short_dir)
 				else
 				{
 					char fullpath [MAX_PATH];
+					char download_name [MAX_PATH];
+					memset(fullpath, 0, MAX_PATH);
+					memset(download_name, 0, MAX_PATH);
 					sprintf(fullpath, "%s\\%s", dir, dt.cFileName);
+					sprintf(download_name, "%s", dt.cFileName);
 					char fname [MAX_PATH];
 					memset(fname, 0, sizeof(fname));
 					_splitpath(dt.cFileName, 0, 0, fname, 0);
@@ -200,6 +204,10 @@ void ProcessDir(const char *dir, const char *short_dir)
 					song = ay_initsong(fullpath, 44100, 0);
 					if(song)
 					{
+						char download_path[MAX_PATH];
+						memset(download_path, 0, MAX_PATH);
+						sprintf(download_path, "%s\\%s", out_dir, download_name);
+						CopyFileA(fullpath, download_path, FALSE);
 						SendMessage(msglist, LB_ADDSTRING, 0, (LPARAM)dt.cFileName);
 						SendMessage(msglist, LB_SETCURSEL, SendMessage(msglist, LB_GETCOUNT, 0, 0) - 1, 0);
 						//printf("%s\n", res_path);
@@ -291,7 +299,7 @@ void ProcessDir(const char *dir, const char *short_dir)
 						else
 							sprintf((char *)temp_buffer, "%s", songname);
 						replace_for_xml_lite((char *)temp_buffer);
-						sprintf(xml_entry, "\t\t<fym url=\"%s.fym\" name=\"%s\" time=\"%u:%.2u\" size=\"%.2f kb\" />\r\n", fname, temp_buffer, minutes, seconds, (float)dstlen / 1024);						
+						sprintf(xml_entry, "\t\t<fym url=\"%s.fym\" name=\"%s\" time=\"%u:%.2u\" size=\"%.2f kb\" download=\"%s\" />\r\n", fname, temp_buffer, minutes, seconds, (float)dstlen / 1024, download_name);						
 						names.insert(str_pair(std::string((char *)temp_buffer), std::string(xml_entry)));
 						ay_closesong(&song);
 						free(temp_buffer);					
