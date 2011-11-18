@@ -38,12 +38,12 @@ const float ay::init_levels_ym[] =
 
 const init_mix_levels ay::mix_levels[] =
 {
-{ 1.0, 0.33, 0.67, 0.67, 0.33, 1.0 }, //AY ABC
-{ 1.0, 0.33, 0.33, 1.0, 0.67, 0.67 }, //AY ACB
-{ 0.67, 0.67, 1.0, 0.33, 0.33, 1.0 }, //AY BAC
-{ 0.33, 1.0, 1.0, 0.33, 0.67, 0.67 }, //AY BCA
-{ 0.67, 0.67, 0.33, 1.0, 1.0, 0.33 }, //AY CAB
-{ 0.33, 1.0, 0.67, 0.67, 1.0, 0.33 } //AY CBA
+{ 1.0, 0.33, 0.67, 0.67, 0.33, 1.0 }, //AY_ABC
+{ 1.0, 0.33, 0.33, 1.0, 0.67, 0.67 }, //AY_ACB
+{ 0.67, 0.67, 1.0, 0.33, 0.33, 1.0 }, //AY_BAC
+{ 0.33, 1.0, 1.0, 0.33, 0.67, 0.67 }, //AY_BCA
+{ 0.67, 0.67, 0.33, 1.0, 1.0, 0.33 }, //AY_CAB
+{ 0.33, 1.0, 0.67, 0.67, 1.0, 0.33 }  //AY_CBA
 };
 
 ay::ay()
@@ -60,6 +60,26 @@ ay::ay()
 
 ay::~ay()
 {
+}
+
+void ay::SetMixType(AYMixTypes mixType)
+{
+    if (mixType >= 0 && mixType < sizeof(mix_levels) / sizeof(mix_levels[0]))
+    {
+        a_left = mix_levels[mixType].a_left;
+        a_right = mix_levels[mixType].a_right;
+        b_left = mix_levels[mixType].b_left;
+        b_right = mix_levels[mixType].b_right;
+        c_left = mix_levels[mixType].c_left;
+        c_right = mix_levels[mixType].c_right;
+
+        mix_levels_nr = mixType;
+    }
+}
+
+AYMixTypes ay::GetMixType(void)
+{
+  return mix_levels_nr;
 }
 
 void ay::SetParameters(AYSongInfo *_songinfo)
@@ -101,12 +121,7 @@ void ay::SetParameters(AYSongInfo *_songinfo)
     fopts.Q = 1;
     fopts.type = LPF;
     flt.Init(&fopts);
-    a_left = ay::mix_levels[songinfo->mix_levels_nr].a_left;
-    a_right = ay::mix_levels[songinfo->mix_levels_nr].a_right;
-    b_left = ay::mix_levels[songinfo->mix_levels_nr].b_left;
-    b_right = ay::mix_levels[songinfo->mix_levels_nr].b_right;
-    c_left = ay::mix_levels[songinfo->mix_levels_nr].c_left;
-    c_right = ay::mix_levels[songinfo->mix_levels_nr].c_right;
+    SetMixType(songinfo->mix_levels_nr);
 }
 
 void ay::ayReset()

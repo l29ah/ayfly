@@ -47,6 +47,7 @@
 
 #        include "wx/wx.h"
 #        include "wx/file.h"
+#        include "wx/textfile.h"
 #        include "wx/filedlg.h"
 #        include "wx/toolbar.h"
 #        include "wx/dnd.h"

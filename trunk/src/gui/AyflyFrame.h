@@ -37,6 +37,8 @@ public:
     AyflyFrame(const wxString &title, wxArrayString &filenames);
     ~AyflyFrame();
 
+    bool AddPlaylist(const wxString &filePath, const wxString &pathToFile,
+                     const wxString &fileNameDotExt);
     bool AddFile(const wxString &filePath);
     void Next();
 
@@ -91,6 +93,7 @@ private:
     void OnNext(wxCommandEvent &event);
     void OnStop(wxCommandEvent &event);
     void OnChnlMute(wxCommandEvent &event);
+    void OnChnlCenter(wxCommandEvent &event);
     void OnTimer(wxTimerEvent &event);
     void OnScroll(wxScrollEvent &event);
     void OnSelectSong(wxListEvent &event);

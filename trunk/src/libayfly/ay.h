@@ -53,6 +53,15 @@ struct init_mix_levels
     float c_right;
 };
 
+typedef enum _ay_mix_types {
+  AY_ABC = 0,
+  AY_ACB,
+  AY_BAC,
+  AY_BCA,
+  AY_CAB,
+  AY_CBA
+} AYMixTypes;
+
 class ay
 {
 public:
@@ -136,6 +145,9 @@ public:
     }
     ;
 
+    void SetMixType(AYMixTypes mixType);
+    AYMixTypes GetMixType(void);
+
     void SetParameters(AYSongInfo *_songinfo = 0);
     void ayBeeper(bool on);
 	unsigned long chip_nr;
@@ -177,7 +189,7 @@ private:
     unsigned long frame_size;
     void ayStep(float &s0, float &s1, float &s2);
     static const init_mix_levels mix_levels[];
-    unsigned long mix_levels_nr;
+    AYMixTypes mix_levels_nr;
     float a_left, a_right, b_left, b_right, c_left, c_right;
     Filter3 flt;
     unsigned long flt_state;
