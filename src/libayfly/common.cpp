@@ -55,7 +55,7 @@ AYSongInfo *ay_sys_getnewinfo()
     info->int_counter = 0;
     info->int_limit = 0;
     info->is_ts = false;
-    info->mix_levels_nr = 0;
+    info->mix_levels_nr = AY_ABC;
     info->ay_oversample = 1;
 	info->empty_song = false;
 	info->empty_callback = 0;
@@ -324,6 +324,16 @@ AYFLY_API void ay_chnlmute(void *info, unsigned long chnl, bool mute, unsigned c
 AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl, unsigned char chip_num)
 {
     return ((AYSongInfo *)info)->ay8910[chip_num].chnlMuted(chnl);
+}
+
+AYFLY_API void ay_setmixtype(void *info, AYMixTypes mixType, unsigned char chip_num)
+{
+    ((AYSongInfo *)info)->ay8910[chip_num].SetMixType(mixType);
+}
+
+AYFLY_API AYMixTypes ay_getmixtype(void *info, unsigned char chip_num)
+{
+    ((AYSongInfo *)info)->ay8910[chip_num].GetMixType();
 }
 
 AYFLY_API void ay_setelapsedcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg)

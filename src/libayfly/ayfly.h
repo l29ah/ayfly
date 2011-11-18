@@ -201,7 +201,7 @@ struct AYSongInfo
     float int_freq; /* interrupts frequency */    
     unsigned long sr; /* sample rate */
     unsigned char chip_type; /* chip type: AY = 0 or YM = 1 */
-    unsigned long mix_levels_nr; /* mix cheme */
+    AYMixTypes mix_levels_nr; /* mix scheme */
     long int_counter;
     long int_limit;
     bool own_player; /* is player ws created during initialization by the library */
@@ -461,6 +461,7 @@ AYFLY_API void ay_setvolume(void *info, unsigned long chnl, float volume, unsign
  */
 
 AYFLY_API float ay_getvolume(void *info, unsigned long chnl, unsigned char chip_num = 0);
+
 /*
  * Mutes or enables AY chip @chip channel @chnl. If @mute is true - channel muted.
  */
@@ -471,6 +472,16 @@ AYFLY_API void ay_chnlmute(void *info, unsigned long chnl, bool mute, unsigned c
  */
 
 AYFLY_API bool ay_chnlmuted(void *info, unsigned long chnl, unsigned char chip_num = 0);
+
+/*
+ * Set Left, Right, and Center channels for AY chip @chip_num according to @mixType argument.
+ */
+AYFLY_API void ay_setmixtype(void *info, AYMixTypes mixType, unsigned char chip_num = 0);
+
+/*
+ * Get current mix type for AY chip @chip_num.
+ */
+AYFLY_API AYMixTypes ay_getmixtype(void *info, unsigned char chip_num = 0);
 
 /*
  * Sets callback function for song described by @info to function pointed by

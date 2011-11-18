@@ -73,6 +73,9 @@ EVT_MENU(wxID_STOP, AyflyFrame::OnStop)
 EVT_MENU(wxID_AMUTE, AyflyFrame::OnChnlMute)
 EVT_MENU(wxID_BMUTE, AyflyFrame::OnChnlMute)
 EVT_MENU(wxID_CMUTE, AyflyFrame::OnChnlMute)
+EVT_TOOL_RCLICKED(wxID_AMUTE, AyflyFrame::OnChnlCenter)
+EVT_TOOL_RCLICKED(wxID_BMUTE, AyflyFrame::OnChnlCenter)
+EVT_TOOL_RCLICKED(wxID_CMUTE, AyflyFrame::OnChnlCenter)
 EVT_MENU(wxID_SELECTALL, AyflyFrame::OnSelectAll)
 EVT_MENU(wxID_SETREPEAT, AyflyFrame::OnSetRepeat)
 EVT_MENU(wxID_KEYS, AyflyFrame::OnKeyBindings)
@@ -309,7 +312,7 @@ void AyflyFrame::OnQuit(wxCommandEvent &event)
 void AyflyFrame::OnOpen(wxCommandEvent &event)
 {
     wxString caption = wxT("Select AY file");
-    wxString filter = wxT("All AY files (*.vtx;*.asc;*.sqt;*psg;*.stc;*.stp;*.pt1;*.pt2;*.pt3;*.psc;*.ay;*.ym)|*.vtx;*.asc;*.sqt;*psg;*.stc;*.stp;*.pt1;*.pt2;*.pt3;*.psc;*.ay");
+    wxString filter = wxT("All AY files (*.vtx;*.asc;*.sqt;*psg;*.stc;*.stp;*.pt1;*.pt2;*.pt3;*.psc;*.ay;*.ym;*.ayl)|*.vtx;*.asc;*.sqt;*psg;*.stc;*.stp;*.pt1;*.pt2;*.pt3;*.psc;*.ay;*.ym;*.ayl");
 
     wxFileDialog dialog(this, caption, defaultDir, defaultFileName, filter, wxFD_OPEN | wxFD_MULTIPLE);
 
@@ -526,6 +529,32 @@ void AyflyFrame::OnChnlMute(wxCommandEvent &event)
 
             case wxID_CMUTE:
                 ay_chnlmute(currentSong->info, 2, toolBar->GetToolState(wxID_CMUTE));
+                break;
+
+            default:
+                return;
+        }
+    }
+
+    RecreateToolbar();
+}
+
+void AyflyFrame::OnChnlCenter(wxCommandEvent &event)
+{
+    if(currentSong && currentSong->info)
+    {
+        switch(event.GetId())
+        {
+            case wxID_AMUTE:
+                ay_setmixtype(currentSong->info, AY_BAC);
+                break;
+
+            case wxID_BMUTE:
+                ay_setmixtype(currentSong->info, AY_ABC);
+                break;
+
+            case wxID_CMUTE:
+                ay_setmixtype(currentSong->info, AY_ACB);
                 break;
 
             default:
@@ -794,6 +823,10 @@ void AyflyFrame::RecreateToolbar()
     bool c_on = true;
     bool started = currentSong && currentSong->info ? ay_songstarted(currentSong->info) : false;
 
+    wxBitmap bmpA(A_xpm);
+    wxBitmap bmpB(B_xpm);
+    wxBitmap bmpC(C_xpm);
+
     if(toolBar == 0)
     {
         toolBar = CreateToolBar(wxTB_HORIZONTAL | wxNO_BORDER | wxTB_FLAT);
@@ -831,13 +864,9 @@ void AyflyFrame::RecreateToolbar()
 
         toolBar->AddSeparator();
 
-        wxBitmap bmpA(A_xpm);
-        wxBitmap bmpB(B_xpm);
-        wxBitmap bmpC(C_xpm);
-
-        toolBar->AddTool(wxID_AMUTE, wxT("Mute A"), bmpA, a_on ? wxT("Enable A channel") : wxT("Mute A channel"), wxITEM_CHECK);
-        toolBar->AddTool(wxID_BMUTE, wxT("Mute B"), bmpB, b_on ? wxT("Enable B channel") : wxT("Mute B channel"), wxITEM_CHECK);
-        toolBar->AddTool(wxID_CMUTE, wxT("Mute C"), bmpC, c_on ? wxT("Enable C channel") : wxT("Mute C channel"), wxITEM_CHECK);
+        toolBar->AddTool(wxID_AMUTE, wxT("Mute/Center A"), bmpA, a_on ? wxT("Enable or Center A channel") : wxT("Mute or Center A channel"), wxITEM_CHECK);
+        toolBar->AddTool(wxID_BMUTE, wxT("Mute/Center B"), bmpB, b_on ? wxT("Enable or Center B channel") : wxT("Mute or Center B channel"), wxITEM_CHECK);
+        toolBar->AddTool(wxID_CMUTE, wxT("Mute/Center C"), bmpC, c_on ? wxT("Enable or Center C channel") : wxT("Mute or Center C channel"), wxITEM_CHECK);
 
         toolBar->AddSeparator();
 
@@ -897,15 +926,45 @@ void AyflyFrame::RecreateToolbar()
 
     }
 
-    toolBar->SetToolShortHelp(wxID_AMUTE, !a_on ? wxT("Enable A") : wxT("Mute A"));
+    if (currentSong && currentSong->info)
+    {
+        int prevPos = toolBar->GetToolPos(wxID_REPEAT) + 1;
+        // RemoveTool() + InsertTool(wxToolBarToolBase *) loses wxITEM_CHECK tool kind.
+        // (I consider this a bug of wxWidgets.) So, DeleteTool() + InsertTool(full) are
+        // used as a workaround.
+        toolBar->DeleteTool(wxID_AMUTE);
+        toolBar->DeleteTool(wxID_BMUTE);
+        toolBar->DeleteTool(wxID_CMUTE);
+        AYMixTypes mixType = ay_getmixtype(currentSong->info);
+        for (int i = 0; i < 3; ++i)
+        {
+            if ((i == 0 && (mixType == AY_ABC || mixType == AY_ACB)) ||
+                (i == 1 && mixType == AY_BAC))
+            {
+                toolBar->InsertTool(++prevPos, wxID_AMUTE, wxT("Mute A"), bmpA, wxNullBitmap, wxITEM_CHECK);
+            }
+            else if ((i == 0 && mixType == AY_BAC) ||
+                     (i == 1 && mixType == AY_ABC) ||
+                     (i == 2 && mixType == AY_ACB))
+            {
+                toolBar->InsertTool(++prevPos, wxID_BMUTE, wxT("Mute B"), bmpB, wxNullBitmap, wxITEM_CHECK);
+            }
+            else if ((i == 1 && mixType == AY_ACB) ||
+                     (i == 2 && (mixType == AY_ABC || mixType == AY_BAC)))
+            {
+                toolBar->InsertTool(++prevPos, wxID_CMUTE, wxT("Mute C"), bmpC, wxNullBitmap, wxITEM_CHECK);
+            }
+        }
+    }
 
-    toolBar->SetToolLongHelp(wxID_AMUTE, !a_on ? wxT("Enable A channel") : wxT("Mute A channel"));
+    toolBar->SetToolShortHelp(wxID_AMUTE, !a_on ? wxT("Enable/Center A") : wxT("Mute/Center A"));
+    toolBar->SetToolLongHelp(wxID_AMUTE, !a_on ? wxT("Enable or Center A channel") : wxT("Mute or Center A channel"));
 
-    toolBar->SetToolShortHelp(wxID_BMUTE, !b_on ? wxT("Enable B") : wxT("Mute B"));
-    toolBar->SetToolLongHelp(wxID_BMUTE, !b_on ? wxT("Enable B channel") : wxT("Mute B channel"));
+    toolBar->SetToolShortHelp(wxID_BMUTE, !b_on ? wxT("Enable/Center B") : wxT("Mute/Center B"));
+    toolBar->SetToolLongHelp(wxID_BMUTE, !b_on ? wxT("Enable or Center B channel") : wxT("Mute or Center B channel"));
 
-    toolBar->SetToolShortHelp(wxID_CMUTE, !b_on ? wxT("Enable C") : wxT("Mute C"));
-    toolBar->SetToolLongHelp(wxID_CMUTE, !c_on ? wxT("Enable C channel") : wxT("Mute C channel"));
+    toolBar->SetToolShortHelp(wxID_CMUTE, !c_on ? wxT("Enable/Center C") : wxT("Mute/Center C"));
+    toolBar->SetToolLongHelp(wxID_CMUTE, !c_on ? wxT("Enable or Center C channel") : wxT("Mute or Center C channel"));
 
     toolBar->EnableTool(wxID_PLAY, (playListView->GetItemCount()) ? true : false);
     toolBar->EnableTool(wxID_REWIND, (playListView->GetItemCount()) ? true : false);
@@ -980,12 +1039,60 @@ bool AyflyFrame::OpenFile()
     return false;
 }
 
+// Verify the first line of .ayl playlist file and add files from the list using AddFile().
+//
+// Nested playlists are processed correctly as long as this function is called by AddFile().
+// Nesting loops lead to immediate exit from the function upon detection of the loop.
+//
+// In:
+//   filePath - full path (including file name)
+//   pathToFile - `dirname filePath`
+//   fileNameDotExt - `basename filePath`
+bool AyflyFrame::AddPlaylist(const wxString &filePath, const wxString &pathToFile,
+                             const wxString &fileNameDotExt)
+{
+    wxTextFile aylFile(filePath);
+    aylFile.Open();
+
+    wxString firstLine = aylFile.GetFirstLine();
+    if (firstLine.find(wxT("ZX Spectrum Sound Chip Emulator Play List File")) == wxString::npos)
+        return false;
+
+    wxString str;
+    while (!aylFile.Eof())
+    {
+      str = aylFile.GetNextLine();
+      if (!str.IsEmpty()) {
+        // Protection from infinite loop if the same playlist is included inside
+        // the current list (We could just skip instead of breaking out, but
+        // it is necessary to dereference and check symlinks in that case.)
+        if (str.find(fileNameDotExt) != wxString::npos)
+          break;
+
+        // DOS (Windows) supports both \ and / separators, according to wxFileName docs.
+        // So, the following lines ensure Unix compatibility without breaking the DOS one.
+        str.Replace(wxT("\\"), wxT("/"));
+        str = pathToFile + wxT( "/" ) + str;
+
+        AddFile(str);
+      }
+    }
+
+    aylFile.Close();
+    return true;
+}
+
 bool AyflyFrame::AddFile(const wxString &filePath)
 {
     wxString fileName;
     wxString fileExt;
-    wxSplitPath(filePath, NULL, &fileName, &fileExt);
+    wxString pathToFile;
+    wxSplitPath(filePath, &pathToFile, &fileName, &fileExt);
     wxString buf = fileName + wxT(".") + fileExt;
+
+    if (fileExt == wxT("ayl"))
+        AddPlaylist(filePath, pathToFile, buf);
+
     AYSongInfo *info = (AYSongInfo *)ay_getsonginfo(filePath);
     if(!info)
         return false;
@@ -995,8 +1102,6 @@ bool AyflyFrame::AddFile(const wxString &filePath)
         ay_closesong((void **)&info);
         return false;
     }
-    
-    printf("len=%d\n", info->Length);
 
     long index = playListView->GetItemCount();
 
