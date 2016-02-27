@@ -42,7 +42,7 @@ bool DnDFiles::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames)
 
 }
 
-void DnDFiles::AddDir(wxString &DirName)
+void DnDFiles::AddDir(const wxString &DirName)
 {
     wxArrayString filenames;
     wxDirTraverserSimple traverser(filenames);

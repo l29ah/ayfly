@@ -28,7 +28,7 @@ public:
     virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
 private:
     AyflyFrame *m_owner;
-    void AddDir(wxString &DirName);
+    void AddDir(const wxString &DirName);
 };
 
 class wxDirTraverserSimple: public wxDirTraverser

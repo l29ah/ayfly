@@ -666,8 +666,8 @@ AYFLY_API void ay_sethwnd(void *info, HWND hWnd);
 
 #    define AYFLY_MAKE_VERSION ((AYFLY_VERSION_MAJOR << 16) | (AYFLY_VERSION_MINOR << 8) | AYFLY_VERSION_PATCH)
 #    define AYFLY_VERSION AYFLY_VERSION_MAJOR.AYFLY_VERSION_MINOR.AYFLY_VERSION_PATCH
-#    define xstr(s) str(s)
-#    define str(s) TXT(#s)
+#    define xstr(s) ystr(s)
+#    define ystr(s) TXT(#s)
 #    define AYFLY_VERSION_TEXT xstr(AYFLY_VERSION)
 
 #endif /*AYFLY_H_*/
