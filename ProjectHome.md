@@ -1,0 +1,1 @@
+Ayfly is a AY-891x emulator and player. Platforms supported: Linux, Windows, Symbian 8,9 and UIQ3. Windows CE is planned.
