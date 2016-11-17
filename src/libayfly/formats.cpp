@@ -19,6 +19,9 @@
  ***************************************************************************/
 
 #include "ayfly.h"
+#include <iostream>
+#include <exception>
+using namespace std;
 
 unsigned short ay_sys_getword(unsigned char *p)
 {
@@ -210,12 +213,29 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
 #endif
     if(f)
     {
-        fseek(f, 0, SEEK_END);
+        if (fseek(f, 0, SEEK_END) != 0) {
+            perror("ftell: ");
+            *data_len = 0;
+            goto out;
+        }
+        long data_len_s = ftell(f);
+        if (data_len_s < 0) {
+            perror("ftell: ");
+            *data_len = 0;
+            goto out;
+        }
         *data_len = ftell(f);
         fseek(f, 0, SEEK_SET);
 
         unsigned long to_allocate = *data_len < 65536 ? 65536 : *data_len;
-        fileData = new unsigned char[to_allocate];
+        try {
+            fileData = new unsigned char[to_allocate];
+        } catch (exception& e) {
+            cout << "Cannot allocate memory: " << e.what() << '\n';
+            *data_len = 0;
+            goto out;
+        }
+
         if(!fileData)
         {
             fclose(f);
@@ -257,6 +277,7 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
     }
 
 #endif
+out:
     if(!*data_len)
     {
         if(fileData)
