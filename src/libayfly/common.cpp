@@ -333,7 +333,7 @@ AYFLY_API void ay_setmixtype(void *info, AYMixTypes mixType, unsigned char chip_
 
 AYFLY_API AYMixTypes ay_getmixtype(void *info, unsigned char chip_num)
 {
-    ((AYSongInfo *)info)->ay8910[chip_num].GetMixType();
+    return ((AYSongInfo *)info)->ay8910[chip_num].GetMixType();
 }
 
 AYFLY_API void ay_setelapsedcallback(void *info, ELAPSED_CALLBACK callback, void *callback_arg)
