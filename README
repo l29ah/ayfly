@@ -1,12 +1,12 @@
 How-to compile program:
 
-wxWidgets is required to build the program. Tested with version 2.8.7.
+wxWidgets is required to build the program. Tested with version 3.0.2.
 For Linux SDL library is also required.
 
 AYfly use standard automake tools. You can build it:
 
-For Linux: ./configure && make && make install
-For Windows(mingw32): ./configure mingw32 && make && make install
+For Linux: autoreconf && ./configure && make && make install
+For Windows(mingw32): autoreconf && ./configure mingw32 && make && make install
 
 s60 directory is for symbian 9 build.
 

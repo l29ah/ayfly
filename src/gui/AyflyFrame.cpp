@@ -835,7 +835,7 @@ void AyflyFrame::RecreateToolbar()
         toolBar->SetToolSeparation(0);
 
         wxBitmap bmpOpen(Open_xpm);
-        toolBar->AddTool(wxID_OPEN, bmpOpen, wxT("Open"));
+        toolBar->AddTool(wxID_OPEN, wxT("Open"), bmpOpen);
         toolBar->AddSeparator();
 
         if(started)
@@ -856,10 +856,10 @@ void AyflyFrame::RecreateToolbar()
         wxBitmap bmpNext(Next_xpm);
         wxBitmap bmpRepeat(Repeat_xpm);
 
-        toolBar->AddTool(wxID_REWIND, bmpRewind, wxT("Rewind"));
-        toolBar->AddTool(wxID_PREV, bmpPrev, wxT("Previous"));
-        toolBar->AddTool(wxID_NEXT, bmpNext, wxT("Next"));
-        toolBar->AddTool(wxID_STOP, bmpStop, wxT("Stop"));
+        toolBar->AddTool(wxID_REWIND, wxT("Rewind"), bmpRewind);
+        toolBar->AddTool(wxID_PREV, wxT("Previous"), bmpPrev);
+        toolBar->AddTool(wxID_NEXT, wxT("Next"), bmpNext);
+        toolBar->AddTool(wxID_STOP, wxT("Stop"), bmpStop);
         toolBar->AddTool(wxID_REPEAT, wxT("Repeat"), bmpRepeat, wxT("Repeat current song"), wxITEM_CHECK);
 
         toolBar->AddSeparator();
@@ -871,12 +871,12 @@ void AyflyFrame::RecreateToolbar()
         toolBar->AddSeparator();
 
         wxBitmap bmpKeys(Keys_xpm);
-        toolBar->AddTool(wxID_KEYS, bmpKeys, wxT("Key bindings"));
+        toolBar->AddTool(wxID_KEYS, wxT("Key bindings"), bmpKeys);
 
         toolBar->AddSeparator();
 
         wxBitmap bmpAbout(About_xpm);
-        toolBar->AddTool(wxID_ABOUT, bmpAbout, wxT("About"));
+        toolBar->AddTool(wxID_ABOUT, wxT("About"), bmpAbout);
 
         toolBar->SetToolShortHelp(wxID_OPEN, wxT("Open song"));
         toolBar->SetToolLongHelp(wxID_OPEN, wxT("Open song"));
@@ -1010,7 +1010,7 @@ bool AyflyFrame::OpenFile()
         {
             wxString fileName;
             wxString fileExt;
-            wxSplitPath(currentPath, NULL, &fileName, &fileExt);
+	    wxFileName::SplitPath(currentPath, NULL, &fileName, &fileExt);
             wxString frameTitle = wxString(wxT(WINDOW_TEXT)) + wxString(wxT(" - ")) + fileName + wxT(".") + fileExt;
             SetTitle(frameTitle.c_str());
             posslider->SetRange(0, ay_getsonglength(currentSong->info));
@@ -1087,7 +1087,7 @@ bool AyflyFrame::AddFile(const wxString &filePath)
     wxString fileName;
     wxString fileExt;
     wxString pathToFile;
-    wxSplitPath(filePath, &pathToFile, &fileName, &fileExt);
+    wxFileName::SplitPath(filePath, &pathToFile, &fileName, &fileExt);
     wxString buf = fileName + wxT(".") + fileExt;
 
     if (fileExt == wxT("ayl"))
