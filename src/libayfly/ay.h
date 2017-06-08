@@ -21,6 +21,8 @@
 #ifndef AY_H_
 #define AY_H_
 
+#include <assert.h>
+
 #define AY_TEMP_BUFFER_SIZE 4096
 
 enum
@@ -115,7 +117,7 @@ public:
             case 2:
                 return volume2;
             default:
-                break;
+                assert(0);
         }
     }
     ;
