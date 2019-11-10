@@ -242,7 +242,7 @@ unsigned char *osRead(const TFileName filePath, unsigned long *data_len)
             return 0;
         }
         memset(fileData, 0, to_allocate);
-        fread((char *)fileData, 1, *data_len, f);
+        *data_len = fread((char *)fileData, 1, *data_len, f);
         if(ferror(f))
             *data_len = 0;
         fclose(f);
