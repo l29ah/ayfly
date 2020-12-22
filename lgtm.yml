@@ -1,6 +1,9 @@
 extraction:
   cpp:
-     configure:
-        command:
+    prepare:
+      packages:
+        - libsdl1.2-dev
+    configure:
+      command:
         - ./autogen.sh
         - ./configure
